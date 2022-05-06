@@ -54,6 +54,7 @@ BEGIN;
         inactive_timestamp TIMESTAMP
     );
 
+    --as roles já estão pre definidas no sistema, vale a pena este check?
     CREATE TABLE ROLE
     (
         id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -93,10 +94,11 @@ BEGIN;
         subject TEXT NOT NULL CONSTRAINT ticket_name_max_length CHECK ( char_length(subject) <= 50 ),
         description TEXT CONSTRAINT ticket_description_max_length CHECK ( char_length(description) <= 200 ),
         creation_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        close_timestamp TIMESTAMP CONSTRAINT ticket_valid_close_timestamp CHECK ( creation_timestamp > close_timestamp ),
+        close_timestamp TIMESTAMP CONSTRAINT ticket_valid_close_timestamp CHECK ( creation_timestamp < close_timestamp ),
         room BIGINT NOT NULL REFERENCES ROOM(id),
         reporter UUID NOT NULL REFERENCES PERSON(id),
-        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id)
+        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id),
+        category INT NOT NULL REFERENCES CATEGORY(id)
     );
 
     CREATE TABLE FIXING_BY
@@ -132,11 +134,12 @@ BEGIN;
         person UUID NOT NULL REFERENCES PERSON(id),
         company BIGINT NOT NULL REFERENCES COMPANY(id),
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT person_company_valid_state CHECK ( state IN ('active', 'inactive') ),
-        inactive_timestamp TIMESTAMP
+        inactive_timestamp TIMESTAMP,
+        PRIMARY KEY (person, company)
     );
 
     CREATE TABLE DEVICE(
-        id BIGINT GENERATED ALWAYS AS IDENTITY,
+        id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT device_name_max_length CHECK ( char_length(name) <= 50 ),
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT room_valid_state CHECK ( state IN ('active', 'inactive') ),
         inactive_timestamp TIMESTAMP
@@ -145,12 +148,14 @@ BEGIN;
     CREATE TABLE ANOMALY(
         id BIGINT NOT NULL,
         device BIGINT NOT NULL REFERENCES DEVICE(id),
-        anomaly TEXT NOT NULL CONSTRAINT device_anomaly_max_length CHECK ( char_length(anomaly) <= 150 )
+        anomaly TEXT NOT NULL CONSTRAINT device_anomaly_max_length CHECK ( char_length(anomaly) <= 150 ),
+        PRIMARY KEY (id, device, anomaly)
     );
 
     CREATE TABLE ROOM_DEVICE(
         room BIGINT NOT NULL REFERENCES ROOM(id),
         device BIGINT NOT NULL REFERENCES DEVICE(id),
-        qr_hash TEXT
+        qr_hash TEXT,
+        PRIMARY KEY (room, device, qr_hash)
     );
 END;
