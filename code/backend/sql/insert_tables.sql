@@ -4,10 +4,10 @@
 
 BEGIN;
     INSERT INTO COMPANY (name, state) VALUES
-        ('ISEL', 'active'),   -- with 2 buildings
-        ('ISCAL', 'active'),  -- with 1 building
-        ('ESTSEL', 'active'), -- with 0 buildings
-        ('ESD', 'inactive');
+        ('ISEL', 'Active'),   -- with 2 buildings
+        ('ISCAL', 'Active'),  -- with 1 building
+        ('ESTSEL', 'Active'), -- with 0 buildings
+        ('ESD', 'Inactive');
 
     INSERT INTO PERSON (id, name, phone, email, password, state) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@isel.com', 'diogopass', 'active'),         --user
@@ -25,19 +25,19 @@ BEGIN;
         ('F', 6, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
         ('1', 7, 'active', 2, '9c06c8f3-ceda-48c5-99a7-29903a921a5b'); -- Elon Musk, ISCAL
 
-    INSERT INTO ROOM (name, floor, state, building, qr_hash) VALUES
-        ('Biblioteca', 1, 'active', 1, 'E09C80C42FDA55F9D992E59CA6B3307D'),
-        ('ByChef', 1, 'active', 1, '82136B4240D6CE4EA7D03E51469A393B'),
-        ('Sala de reuniões', 2, 'active', 2, '604619CB901441B21D1255BD52DABA43'),
-        ('Sala de estudos', -1, 'inactive', 2, '6E8728A625986BCBF13C1E6772BC14C8'),
-        ('Casa de banho', 7, 'active', 3, '39C8E9953FE8EA40FF1C59876E0E2F28');
+    INSERT INTO ROOM (name, floor, state, building) VALUES
+        ('Biblioteca', 1, 'active', 1),
+        ('ByChef', 1, 'active', 1),
+        ('Sala de reuniões', 2, 'active', 2),
+        ('Sala de estudos', -1, 'inactive', 2),
+        ('Casa de banho', 7, 'active', 3);
 
     INSERT INTO CATEGORY (name, state) VALUES
         ('canalization', 'active'),
         ('electricity', 'active'),
         ('software', 'active'),
         ('network', 'active'),
-        ('cLeaning', 'active'),
+        ('cleaning', 'active'),
         ('woodworker', 'active');
 
     INSERT INTO ROLE (name) VALUES
@@ -65,57 +65,6 @@ BEGIN;
         ('0a8b83ec-7675-4467-91e5-33e933441eee', 4), -- Tim Berners-Lee / manager
         ('bb692591-1c74-40ce-99c0-c9b185fd78a9', 1), -- James Gosling / guest
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 1); -- Steve Jobs / guest inactive
-
-    INSERT INTO USER_STATE (name) VALUES --TODO: change states names
-        ('state1'),
-        ('state2'),
-        ('state3'),
-        ('state4'),
-        ('state5'),
-        ('state6');
-
-    INSERT INTO EMPLOYEE_STATE (name, user_state) VALUES
-        ('On execution', 1),
-        ('Waiting for help', 2),
-        ('Waiting for material', 3),
-        ('Almost concluded', 4),
-        ('To assign', 5),
-        ('Concluded', 6);
-
-    --ticket conter o room_device :)
-    INSERT INTO TICKET (subject, description, room, reporter, employee_state, category) VALUES
-        ('Fuga de água', 'Descrição de fuga de água', 2, '4b341de0-65c0-4526-8898-24de463fc315', 1, 1),
-        ('Torneira avariada', 'Descrição de torneira avariada', 5, 'bb692591-1c74-40ce-99c0-c9b185fd78a9', 2, 1),
-        ('Mesa partida', 'Descrição de mesa partida', 1, '4b341de0-65c0-4526-8898-24de463fc315', 4, 6),
-        ('Wifi 5G não encontrado', 'Descrição de  wifi 5G não encontrado', 4, '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 3, 5);
-
-    --tickets concluded
-    INSERT INTO TICKET (subject, description, close_timestamp, room, reporter, employee_state, category) VALUES
-        ('Corrimão danificado', 'Descrição de corrimão danificado', '2222-05-06 09:59:34.964477+00', 1, '4b341de0-65c0-4526-8898-24de463fc315', 6, 6),
-        ('Infiltração na parede', 'Descrição de infiltração na parede', '2222-05-06 09:59:34.964477+00', 5, '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 6, 5);
-
-    INSERT INTO FIXING_BY (person, ticket) VALUES
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Jeff Bezos / Fuga de água
-        ('c2b393be-d720-4494-874d-43765f5116cb', 2), -- Jeff Bezos / Torneira avariada
-        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 3), -- Bill Gates / Mesa partida
-        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 5), -- Bill Gates / Corrimão danificado
-        ('c2b393be-d720-4494-874d-43765f5116cb', 6); -- Jeff Bezos / Infiltração na parede
-
-    INSERT INTO RATE (person, ticket, rate) VALUES
-        ('4b341de0-65c0-4526-8898-24de463fc315', 5, 4),
-        ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 6, 5);
-
-    INSERT INTO COMMENT (id, comment, person, ticket) VALUES
-        (1, 'Comentário ao trabalho realizado em corrimão danificado', '4b341de0-65c0-4526-8898-24de463fc315', 5),
-        (2, 'Comentário ao trabalho realizado em corrimão danificado', '4b341de0-65c0-4526-8898-24de463fc315', 5);
-
-    INSERT INTO PERSON_COMPANY (person, company, state) VALUES
-        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens, ISEL
-        ('9c06c8f3-ceda-48c5-99a7-29903a921a5b', 2, 'active'), -- Elon Musk, ISCAL
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'), -- Jeff Bezos, ISEL
-        ('c2b393be-d720-4494-874d-43765f5116cb', 2, 'active'), -- Jeff Bezos, ISCAL
-        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 1, 'active'), -- Bill Gates, ISEL
-        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 2, 'active'); -- Bill Gates, ISCAL
 
     INSERT INTO DEVICE (name, state) VALUES
         ('Conjunto de tomadas', 'active'),
@@ -145,4 +94,53 @@ BEGIN;
         (5, 2, 'BF1808F907F87899868B29C201567B8A'),
         (5, 3, 'A3C36C0D9CAAC9A25E28F1F4A948C80C'),
         (5, 7, '6A1F680E0AEF0F04729F3A88B088502F');
+
+    INSERT INTO USER_STATE (name) VALUES --TODO: change states names
+        ('state1'),
+        ('state2'),
+        ('state3'),
+        ('state4'),
+        ('state5'),
+        ('state6');
+
+    INSERT INTO EMPLOYEE_STATE (name, user_state) VALUES
+        ('On execution', 1),
+        ('Waiting for help', 2),
+        ('Waiting for material', 3),
+        ('Almost concluded', 4),
+        ('To assign', 5),
+        ('Concluded', 6);
+
+    INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
+        ('Fuga de água', 'Descrição de fuga de água', 2, 3, '4b341de0-65c0-4526-8898-24de463fc315', 1),
+        ('Torneira avariada', 'Descrição de torneira avariada', 5, 7, 'bb692591-1c74-40ce-99c0-c9b185fd78a9', 2),
+        ('Mesa partida', 'Descrição de mesa partida', 1, 8, '4b341de0-65c0-4526-8898-24de463fc315', 4),
+        ('Wifi 5G não encontrado', 'Descrição de  wifi 5G não encontrado', 4, 1, '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 3);
+
+    INSERT INTO TICKET (subject, description, close_timestamp, room, device, reporter, employee_state) VALUES
+        ('Corrimão danificado', 'Descrição de corrimão danificado', '2222-05-06 09:59:34.964477+00', 1, 8, '4b341de0-65c0-4526-8898-24de463fc315', 6),
+        ('Infiltração na parede', 'Descrição de infiltração na parede', '2222-05-06 09:59:34.964477+00', 5, 7, '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 6);
+
+    INSERT INTO FIXING_BY (person, ticket) VALUES
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Jeff Bezos / Fuga de água
+        ('c2b393be-d720-4494-874d-43765f5116cb', 2), -- Jeff Bezos / Torneira avariada
+        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 3), -- Bill Gates / Mesa partida
+        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 5), -- Bill Gates / Corrimão danificado
+        ('c2b393be-d720-4494-874d-43765f5116cb', 6); -- Jeff Bezos / Infiltração na parede
+
+    INSERT INTO RATE (person, ticket, rate) VALUES
+        ('4b341de0-65c0-4526-8898-24de463fc315', 5, 4),
+        ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 6, 5);
+
+    INSERT INTO COMMENT (id, comment, person, ticket) VALUES
+        (1, 'Comentário ao trabalho realizado em corrimão danificado', '4b341de0-65c0-4526-8898-24de463fc315', 5),
+        (2, 'Comentário ao trabalho realizado em corrimão danificado', '4b341de0-65c0-4526-8898-24de463fc315', 5);
+
+    INSERT INTO PERSON_COMPANY (person, company, state) VALUES
+        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens, ISEL
+        ('9c06c8f3-ceda-48c5-99a7-29903a921a5b', 2, 'active'), -- Elon Musk, ISCAL
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'), -- Jeff Bezos, ISEL
+        ('c2b393be-d720-4494-874d-43765f5116cb', 2, 'active'), -- Jeff Bezos, ISCAL
+        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 1, 'active'), -- Bill Gates, ISEL
+        ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 2, 'active'); -- Bill Gates, ISCAL
 COMMIT;
