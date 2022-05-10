@@ -16,10 +16,25 @@ repositories {
 }
 
 dependencies {
+	// Spring
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// Jackson
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+	// Kotlin
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+	// Database
+	implementation("org.postgresql:postgresql:42.3.5")
+	implementation("org.jdbi:jdbi3-core:3.28.0")
+	implementation("org.jdbi:jdbi3-postgres:3.28.0")
+	implementation("org.jdbi:jdbi3-kotlin:3.28.0")
+	implementation("org.jdbi:jdbi3-kotlin-sqlobject:3.28.0")
+
+	// Tests
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
