@@ -9,6 +9,7 @@ All the **vocabulary** used in the representations below is described [**here**]
 * [**List tickets**](#list-tickets)
 * [**Create a ticket**](#create-a-ticket)
 * [**Get a ticket**](#get-a-ticket)
+* [**Change a ticket state**](#change-a-ticket-state)
 * [**Update a ticket**](#update-a-ticket)
 * [**Delete a ticket**](#delete-a-ticket)
 * [**Add ticket rate**](#add-ticket-rate)
@@ -375,7 +376,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **update-archived-ticket**, **update-fixing-ticket**
+* `types`: [**update-archived-ticket**](#domain-specific-errors), [**update-fixing-ticket**](#domain-specific-errors)
 
 ## Change a ticket state
 Change the ticket state to one of the possible next states.
@@ -426,7 +427,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `type`: **update-archived-ticket**
+* `type`: [**update-archived-ticket**](#domain-specific-errors)
 
 ## Delete a ticket
 Delete a specific ticket.
@@ -511,6 +512,18 @@ Status: 200 OK
     ]
 }
 ```
+```http 
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
 
 ## Ticket representations vocabulary
 | Name | Type | Description |
@@ -524,7 +537,6 @@ Status: 200 OK
 | `userState` | string | User state correspondent to the employee state. |
 | `possibleTransitions` | array of objects | Possible states transitions based in the current employee state of the ticket. The objects are composed by the identifier and the name of the state that is possible to transition into. |
 
-
 ### Domain specific link relations
 | Name | Description |
 |:-:|:-:|
@@ -536,6 +548,28 @@ Status: 200 OK
 | `ticket-room` | Room which on the ticket was created. |
 | `ticket-device` | Malfunctioning device on which the ticket was created. |
 | `tickets` | Resource with the representation of all the tickets. |
+
+### Domain specific errors
+* `update-archived-ticket`: Happens when it's requested to update an archived ticket. 
+  * It's thrown with the HTTP status code `409 Conflict`.
+
+```json
+{
+    "type": "/errors/update-archived-ticket",
+    "title": "It's not possible to update an archived ticket.",
+    "instance": "/tickets/1"
+}
+```
+* `update-fixing-ticket`: Happens when a person with a user role requests an update to a ticket that is already under analysis or is been fixed.
+  * It's thrown with the HTTP status code `409 Conflict`.
+
+```json
+{
+    "type": "/errors/update-fixing-ticket",
+    "title": "It's not possible to update a ticket that is already being fixed.",
+    "instance": "/tickets/1"
+}
+```
 
 The **vocabulary** for each external class represented in this documented can be consulted by clicking in one of the following links: 
 * [**Company**](Company.md) 
