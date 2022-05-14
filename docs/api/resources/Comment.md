@@ -22,7 +22,7 @@ GET /tickets/{ticketId}/comments
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
-| `ticketId` | integer | path | yes | Identifier of the ticket. |
+| `ticketId` | integer | path | yes | Identifier of the ticket. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `page` | integer | query | no| Page number of the results to fetch. **Default:** `0` |
 | `direction` | string | query | no | Direction of the date order. **Possible values:** `asc` and `desc`. **Default:** `desc` |
@@ -100,7 +100,7 @@ Status: 200 OK
     ],
     "links": [
         { "rel": [ "self" ], "href": "/tickets/1/comments?page=0" },
-        { "rel": [ "comment-ticket" ], "href": "/tickets/1" }
+        { "rel": [ "ticket" ], "href": "/tickets/1" }
     ]
 }
 ```
@@ -119,6 +119,7 @@ Status: 404 Not Found
 
 ## Create a comment
 Create a new comment.
+
 ```http
 POST /tickets/{ticketId}/comments
 ```
@@ -126,10 +127,23 @@ POST /tickets/{ticketId}/comments
 ### Parameters:
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
-| `ticketId` | integer | path | yes | Identifier of the ticket. |
+| `ticketId` | integer | path | yes | Identifier of the ticket.  Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
 | `comment` | string | body |  yes | Written remark expressing an opinion or reaction about the ticket. |
+
+### Request body example
+```json
+{
+    "comment": "New ticket comment."
+}
+```
+
+### Response
+```http
+Status: 201 Created
+Location: /tickets/1/comments/1
+```
 
 ```json
 {
@@ -175,8 +189,8 @@ GET /tickets/{ticketId}/comments/{commentId}
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
-| `ticketId` | integer | path | yes | Identifier of the ticket. |
-| `commentId` | integer | path | yes | Identifier of the comment. |
+| `ticketId` | integer | path | yes | Identifier of the ticket. Must be greater than 0. |
+| `commentId` | integer | path | yes | Identifier of the comment. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
 ### Response
@@ -254,8 +268,8 @@ PUT /tickets/{ticketId}/comments/{commentId}
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
-| `ticketId` | integer | path | yes | Identifier of the ticket. |
-| `commentId` | integer | path | yes | Identifier of the ticket comment. |
+| `ticketId` | integer | path | yes | Identifier of the ticket. Must be greater than 0. |
+| `commentId` | integer | path | yes | Identifier of the ticket comment. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `comment` | string | body |  yes | New comment. |
 
@@ -302,14 +316,14 @@ Status: 415 Unsupported Media Type
 Delete a certain comment.
 
 ```http
-DELETE /ticket/{ticketId}/comments/{commentId}
+DELETE /tickets/{ticketId}/comments/{commentId}
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
-| `ticketId` | integer | path | yes | Identifier of the ticket. |
-| `commentId` | integer | path | yes | Identifier of the ticket comment. |
+| `ticketId` | integer | path | yes | Identifier of the ticket. Must be greater than 0. |
+| `commentId` | integer | path | yes | Identifier of the ticket comment. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
 ### Response
@@ -357,7 +371,6 @@ Status: 404 Not Found
 |:-:|:-:|
 | `comments` | Representation of all the comments in a specific ticket. |
 | `comment-author` | Representation of the author of the comment. |
-| `comment-ticket` | Representation of the ticket that was commented. |
 
 ### Domain specific errors
 * `update-comment-archived-ticket`: Happens when it's requested to change a comment of an archived ticket.
@@ -365,7 +378,7 @@ Status: 404 Not Found
 
 ```json
 {
-    "type": "/errors/update-comment-for-archived-ticket",
+    "type": "/errors/update-comment-archived-ticket",
     "title": "It's not possible to update an comment of an archived ticket.",
     "instance": "/tickets/1/comments/1"
 }
@@ -375,17 +388,13 @@ Status: 404 Not Found
 
 ```json
 {
-    "type": "/errors/create-comment-for-archived-ticket",
+    "type": "/errors/create-comment-archived-ticket",
     "title": "It's not possible to comment an comment for an archived ticket.",
     "instance": "/tickets/1/comments/1"
 }
 ```
 
-The **vocabulary** for each external class represented in this documented can be consulted by clicking in one of the following links: 
-* [**Company**](Company.md) 
-* [**Building**](Building.md) 
-* [**Room**](Room.md) 
-* [**Device**](Device.md)
+The **vocabulary** for each external class represented in this documented can be consulted by clicking in one of the following links:
 * [**Person**](Person.md)
 * [**Ticket**](Ticket.md)
 
