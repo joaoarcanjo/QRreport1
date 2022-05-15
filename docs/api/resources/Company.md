@@ -50,7 +50,7 @@ Status: 200 OK
                 "timestamp": "2022-05-12 19:23:56782"
             },
             "links": [
-                { "rel": [ "self" ], "href": "/company/1" }
+                { "rel": [ "self" ], "href": "/companies/1" }
             ]
         }
     ],
@@ -70,6 +70,9 @@ Status: 200 OK
         { "rel": [ "self" ], "href": "/companies?page=0" }
     ]
 }
+```
+```http
+Status: 400 Bad Request
 ```
 ```http
 Status: 401 Unauthorized
@@ -288,7 +291,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **unique-constraint**, [**inactive-company**](#domain-specific-errors)
+* `types`: **unique-constraint**, **inactive-entity**
 
 ## Deactivate a company
 Deactivate a certain company.
@@ -385,7 +388,7 @@ Status: 404 Not Found
 ## Company representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `id` | integer | **Unique** and **stable** identifier of the company. Must be greater than 0. |
+| `id` | number | **Unique** and **stable** identifier of the company. Must be greater than 0. |
 | `name` | string | **Unique** name of the company. |
 | `state` | string | Current state of the company, the possible values are `Active` or `Inactive`. |
 | `timestamp` | string | Timestamp of the moment that the company state changed to the current state. |
@@ -395,17 +398,6 @@ Status: 404 Not Found
 |:-:|:-:|
 | `company-buildings` | Set of buildings that belong to the company. |
 | `companies` | Resource with the representation of all the companies registered in the system. |
-
-### Domain specific errors
-* `inactive-company`: Happens when it's requested to update an **inactive** company. 
-  * It is thrown with the HTTP status code `409 Conflict`.
-```json
-{
-    "type": "/errors/inactive-company",
-    "title": "It's not possible to update an inactive company.",
-    "instance": "/companies/1"
-}
-```
 
 The **documentation** for the `media-type`, `classes`, `standard link relations` and `generic errors` used in the representations are described [**here**](../README.md).
 

@@ -13,7 +13,7 @@ All the **vocabulary** used in the QR Code representations is described [**here*
 Create or change a QR Code for a specific room device.
 
 ```http
-POST /rooms/{roomId}/devices/{deviceId}/qr-code
+POST /rooms/{roomId}/devices/{deviceId}/qrcode
 ```
 
 ### Parameters:
@@ -26,7 +26,7 @@ POST /rooms/{roomId}/devices/{deviceId}/qr-code
 ### Response
 ```http
 Status: 201 Created
-Location: /rooms/{roomId}/devices/{deviceId}/qr-code
+Location: /rooms/{roomId}/devices/{deviceId}/qrcode
 ```
 ```json
 {
@@ -35,7 +35,7 @@ Location: /rooms/{roomId}/devices/{deviceId}/qr-code
         "qrcode": "http://api.qrreport.com/qr-code/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qr-code" }
+        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
     ]
 }
 ```
@@ -60,7 +60,7 @@ Status: 409 Conflict
 Get the QR Code of a room device.
 
 ```http
-GET /rooms/{roomId}/devices/{deviceId}/qr-code
+GET /rooms/{roomId}/devices/{deviceId}/qrcode
 ```
 
 ### Parameters:
@@ -81,7 +81,7 @@ Status: 200 OK
         "qrcode": "http://api.qrreport.com/qr-code/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qr-code" }
+        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
     ]
 }
 ```
