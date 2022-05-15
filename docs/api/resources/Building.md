@@ -49,7 +49,7 @@ Status: 200 OK
                 "id": 1,
                 "name": "Amoreiras",
                 "floors": 6,
-                "state": "active",
+                "state": "Active",
                 "timestamp": "2022-05-12 19:23:56782"
             },
             "links": [
@@ -67,7 +67,7 @@ Status: 200 OK
             "properties": [
                 { "name": "name", "type": "string" },
                 { "name": "floors", "type": "number" },
-                { "name": "manager", "type": "string" },
+                { "name": "manager", "type": "uuid" },
             ]
         }
     ],
@@ -129,7 +129,7 @@ Location: /companies/1/buildings/1
         "id": 1,
         "name": "Amoreiras",
         "floors": 3,
-        "state": "active",
+        "state": "Active",
         "timestamp": "2022-04-08 21:52:47.012620"
     },
      "links": [
@@ -185,7 +185,7 @@ Status: 200 OK
         "id": 1,
         "name": "Amoreiras",
         "floor": 6,
-        "state": "active",
+        "state": "Active",
         "timestamp": "2022-04-08 21:52:47.012620",
         "company": "ISEL"
     },
@@ -205,7 +205,7 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "lab",
-                        "state": "active"
+                        "state": "Active"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1"}
@@ -250,8 +250,8 @@ Status: 200 OK
             "href": "/companies/1/buildings/1"
         },
         {
-            "": "edit-building",
-            "title": "Edit building",
+            "name": "update-building",
+            "title": "Update building",
             "method": "PUT",
             "href": "/companies/1/buildings/1",
             "type": "application/json",
@@ -259,7 +259,18 @@ Status: 200 OK
                 { "name": "name", "type": "string" },
                 { "name": "floors", "type": "number" }
             ]
+        },
+        {
+            "name": "change-manager",
+            "title": "Change manager",
+            "method": "PUT",
+            "href": "/companies/1/buildings/1/manager",
+            "type": "application/json",
+            "properties": [
+                { "name": "manager", "type": "uuid" }
+            ]
         }
+
     ],
     "links": [
         { "rel": [ "self" ], "href": "/companies/1/buildings/1" },
@@ -267,6 +278,18 @@ Status: 200 OK
         { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
+```
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
 ```
 
 ## Update a building
@@ -377,9 +400,6 @@ Status: 403 Forbidden
 ```http
 Status: 404 Not Found
 ```
-```http
-Status: 415 Unsupported Media Type
-```
 
 ## Activate a building
 Activate a certain building.
@@ -426,9 +446,6 @@ Status: 403 Forbidden
 ```
 ```http
 Status: 404 Not Found
-```
-```http
-Status: 415 Unsupported Media Type
 ```
 
 ## Change manager
@@ -488,10 +505,10 @@ Status: 415 Unsupported Media Type
 | Name | Type | Description |
 |:-:|:-:|:-:|
 | `id` | integer | **Unique** and **stable** identifier of the building. **Unique for each company, but not globally.** |
-| `name` | string | Name of the company. |
+| `name` | string | Name of the building. |
 | `floors` | integer | Number of floors in the building. |
-| `state` | string | Current state of the company, the possible values are `Active` or `Inactive`. |
-| `timestamp` | string | Timestamp of the moment that the company state changed to the current state. |
+| `state` | string | Current state of the building, the possible values are `Active` or `Inactive`. |
+| `timestamp` | string | Timestamp of the moment that the building state changed to the current state. |
 | `company` | integer | Identifier of the company owner of the building.
 | `manager` | integer | Identifier of the building manager.
 
@@ -503,12 +520,12 @@ Status: 415 Unsupported Media Type
 | `buildings` | Resource with the representation of all the companies registered in the system. |
 
 ### Domain specific errors
-* `inactive-company`: Happens when it's requested to update an **inactive** company. 
+* `inactive-company`: Happens when it's requested to create a building for an **inactive** company. 
   * It is thrown with the HTTP status code `409 Conflict`.
 ```json
 {
     "type": "/errors/inactive-company",
-    "title": "It's not possible to update an inactive company.",
+    "title": "It's not possible to create a building for an inactive company.",
     "instance": "/companies/1/buildings/1"
 }
 ```
