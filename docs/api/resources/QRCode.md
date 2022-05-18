@@ -78,8 +78,16 @@ Status: 200 OK
 {
     "class": [ "qrcode" ],
     "properties": {
-        "qrcode": "http://api.qrreport.com/qr-code/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "qrcode": "http://api.qrreport.com/qrcode/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     },
+    "actions": [
+        {
+            "name": "create-qrcode",
+            "title": "Create new QRCode",
+            "method": "POST",
+            "href": "/rooms/1/devices/1/qrcode"
+        }
+    ],
     "links": [
         { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
     ]

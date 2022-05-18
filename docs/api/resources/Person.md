@@ -19,6 +19,7 @@ All the **vocabulary** used in the persons representations is described [**here*
 * [**Remove role from a person**](#remove-role-from-a-person)
 * [**Add skill to a person**](#add-skill-to-a-person)
 * [**Remove skill from a person**](#remove-skill-from-a-person)
+* [**Add company to a person**](#add-company-to-a-person)
 
 ## List persons
 List the registered persons.
@@ -803,6 +804,119 @@ Status: 409 Conflict
 ```
 * `type`: [**update-inactive-or-banned-person**](#domain-specific-errors)
 
+## Add company to a person
+Add a company to a person with the roles of employee or even a manager.
+
+```http
+POST /persons/{personId}/add-company
+```
+
+### Parameters
+| Name | Type | In | Required | Description |
+|:-:|:-:|:-:|:-:|:-:|
+| `personId` | uuid | path | yes | Identifier of the person. |
+| `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
+| `content-type` | string | header | yes | Set to `application/json`. |
+| `company` | string | body | yes | Company name to add the person to. |
+
+### Response
+```http
+Status: 200 OK 
+```
+
+```json
+{
+    "class": [ "person" ],
+    "properties": {
+        "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
+        "name": "João Ambrósio",
+        "email": "joaoambrosio@qrreport.com",
+        "roles": [
+            { "name": "Employee" }
+        ],
+        "skills": [
+            { "name": "Electricity" }
+        ],
+        "companies": [
+            { "name": "ISEL" },
+            { "name": "IST" }
+        ],
+        "state": "Active"
+    },
+    "links": [
+        { "rel": [ "self" ], "href": "/persons/cf128ed3-0d65-42d9-8c96-8ff2e05b3d12" }
+    ]
+}
+```
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
+
+## Remove company from a person
+Remove a company from a person.
+
+```http
+POST /persons/{personId}/remove-company
+```
+
+### Parameters
+| Name | Type | In | Required | Description |
+|:-:|:-:|:-:|:-:|:-:|
+| `personId` | uuid | path | yes | Identifier of the person. |
+| `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
+| `content-type` | string | header | yes | Set to `application/json`. |
+| `company` | string | body | yes | Company name to remove the person from. |
+
+### Response
+```http
+Status: 200 OK 
+```
+
+```json
+{
+    "class": [ "person" ],
+    "properties": {
+        "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
+        "name": "João Ambrósio",
+        "email": "joaoambrosio@qrreport.com",
+        "roles": [
+            { "name": "Employee" }
+        ],
+        "skills": [
+            { "name": "Electricity" }
+        ],
+        "companies": [
+            { "name": "ISEL" }
+        ],
+        "state": "Active"
+    },
+    "links": [
+        { "rel": [ "self" ], "href": "/persons/cf128ed3-0d65-42d9-8c96-8ff2e05b3d12" }
+    ]
+}
+```
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
+
 ## Person representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
@@ -815,6 +929,7 @@ Status: 409 Conflict
 | `timestamp` | string | Timestamp of the moment that the person state changed to the current state. |
 | `roles` | array of objects | Roles that the person has. |
 | `skills` | array of objects | Skills that the person has. Only for persons with the `employee` role. |
+| `companies` | array of objects | Companies that the person belong. |
 
 ### Domain specific link relations
 | Name | Description |

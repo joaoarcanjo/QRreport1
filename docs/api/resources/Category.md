@@ -1,6 +1,5 @@
 # Category
-
-A **Category** is a entity that describe the group where the device is inserted or a skill that can be owned by an employee.
+A **Category** is an entity that describe the group where the device is inserted or a skill that can be owned by an employee.
 
 The **Category API** allows the administrator to create, view and manage all the categories.
 
@@ -46,14 +45,13 @@ Status: 200 OK
             "properties": {
                 "id": 1,
                 "name": "Climatization",
-                "state": "Active",
-                "timestamp": "2022-04-08 21:52:47.012620"
+                "state": "Active"
             },
             "actions": [
                 {
                     "name": "deactivate-category",
                     "title": "Deactivate category",
-                    "method": "DELETE",
+                    "method": "PUT",
                     "href": "/categories/1"
                 },
                 {
@@ -206,7 +204,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**inactive-category**](#domain-specific-errors), [**used-category**](#domain-specific-errors)
+* `types`: **inactive-entity**, [**used-category**](#domain-specific-errors)
 ```http
 Status: 415 Unsupported Media Type
 ```
@@ -215,7 +213,7 @@ Status: 415 Unsupported Media Type
 Deactivate a determined category.
 
 ```http
-DELETE /categories/{categoryId}
+PUT /categories/{categoryId}/deactivate
 ```
 
 ### Parameters
@@ -305,21 +303,12 @@ Status: 404 Not Found
 ## Category representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `id` | integer | **Unique** and **stable** identifier of the category. |
+| `id` | number | **Unique** and **stable** identifier of the category. |
 | `name` | string | Name of the category. |
 | `state` | string | Current state of the category, the possible values are `Active` or `Inactive`. |
 | `timestamp` | string | Timestamp of the moment that the category state changed to the current state. |
 
 ### Domain specific errors
-* `inactive-category`: Happens when it's requested to update an **inactive** category. 
-  * It is thrown with the HTTP status code `409 Conflict`.
-```json
-{
-    "type": "/errors/inactive-category",
-    "title": "It's not possible to update an inactive category.",
-    "instance": "/categories/1"
-}
-```
 * `used-category`: Happens when it's requested to deactivate a category that is in use. 
   * It is thrown with the HTTP status code `409 Conflict`.
 ```json

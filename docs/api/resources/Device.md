@@ -189,6 +189,24 @@ Status: 200 OK
                         "id": 1,
                         "anomaly": "Broken toilet"
                     },
+                    "actions": [ 
+                        {
+                            "name": "update-anomaly",
+                            "title": "Update anomaly",
+                            "method": "PUT",
+                            "href": "/devices/1/anomalies/1",
+                            "type": "application/json",
+                            "properties": [
+                                { "name": "anomaly", "type": "string" }
+                            ]
+                        },
+                        {
+                            "name": "delete-anomaly",
+                            "title": "Delete anomaly",
+                            "method": "DELETE",
+                            "href": "/devices/1/anomalies/1"
+                        }
+                    ],
                     "links": [
                         { "rel": [ "self" ], "href": "/devices/1/anomalies/1" }
                     ]

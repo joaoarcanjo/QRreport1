@@ -12,7 +12,7 @@ All the **vocabulary** used in the buildings representations is described [**her
 * [**Update a building**](#update-a-building)
 * [**Deactivate a building**](#deactivate-a-building)
 * [**Activate a building**](#activate-a-building)
-* [**Change manager**](#change-manager)
+* [**Change building manager**](#change-building-manager)
 
 ## List buildings
 List buildings of a determined company. 
@@ -49,8 +49,7 @@ Status: 200 OK
                 "id": 1,
                 "name": "Amoreiras",
                 "floors": 6,
-                "state": "Active",
-                "timestamp": "2022-05-12 19:23:56782"
+                "state": "Active"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/companies/1/buildings/1" }
@@ -67,7 +66,7 @@ Status: 200 OK
             "properties": [
                 { "name": "name", "type": "string" },
                 { "name": "floors", "type": "number" },
-                { "name": "manager", "type": "uuid" },
+                { "name": "managerId", "type": "string" }
             ]
         }
     ],
@@ -104,8 +103,8 @@ POST /companies/{companyId}/buildings
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
 | `name` | string | body |  yes | Name of the building. |
-| `floors` | integer | body | yes | Number of floors in a building. Must be greater than 0. |
-| `manager` | uuid | body | yes | Identifier of the manager. |
+| `floors` | integer | body | yes | Number of floors of the building. Must be greater than 0. |
+| `managerId` | string | body | yes | Identifier of the manager. |
 
 ### Request body example
 ```json
@@ -153,7 +152,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**inactive-company**](#domain-specific-errors)
+* `types`: **inactive-entity**
 
 ```http
 Status: 415 Unsupported Media Type
@@ -186,8 +185,7 @@ Status: 200 OK
         "name": "Amoreiras",
         "floor": 6,
         "state": "Active",
-        "timestamp": "2022-04-08 21:52:47.012620",
-        "company": "ISEL"
+        "timestamp": "2022-04-08 21:52:47.012620"
     },
     "entities": [
         {
@@ -208,7 +206,7 @@ Status: 200 OK
                         "state": "Active"
                     },
                     "links": [
-                        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1"}
+                        { "rel": [ "self" ], "href": "/rooms/1"}
                     ]
                 }
             ],
@@ -245,15 +243,15 @@ Status: 200 OK
     "actions": [
         {
             "name": "deactivate-building",
-            "title": "Deactivate issue",
-            "method": "DELETE",
-            "href": "/companies/1/buildings/1"
+            "title": "Deactivate building",
+            "method": "PUT",
+            "href": "/buildings/1"
         },
         {
             "name": "update-building",
             "title": "Update building",
             "method": "PUT",
-            "href": "/companies/1/buildings/1",
+            "href": "/buildings/1",
             "type": "application/json",
             "properties": [
                 { "name": "name", "type": "string" },
@@ -261,20 +259,20 @@ Status: 200 OK
             ]
         },
         {
-            "name": "change-manager",
-            "title": "Change manager",
+            "name": "change-building-manager",
+            "title": "Change building manager",
             "method": "PUT",
             "href": "/companies/1/buildings/1/manager",
             "type": "application/json",
             "properties": [
-                { "name": "manager", "type": "uuid" }
+                { "name": "managerId", "type": "string" }
             ]
         }
 
     ],
     "links": [
         { "rel": [ "self" ], "href": "/companies/1/buildings/1" },
-        { "rel": [ "buildings" ], "href": "/companies/1/buildings" }
+        { "rel": [ "buildings" ], "href": "/companies/1/buildings" },
         { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
@@ -306,8 +304,8 @@ PUT /companies/{companyId}/buildings/{buildingId}
 | `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
-| `name` | string | body | no | New name for the person. |
-| `floors` | integer | body | no | New number of floors. |
+| `name` | string | body | no | New name for the building. |
+| `floors` | number | body | no | New number of floors. |
 
 **Notice:** At least one of the body parameters **should** be inserted.
 
@@ -346,7 +344,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**inactive-building**](#domain-specific-errors)
+* `types`: **inactive-entity**
 
 ```http
 Status: 415 Unsupported Media Type
@@ -356,7 +354,7 @@ Status: 415 Unsupported Media Type
 Deactivate a certain building.
 
 ```http
-DELETE /companies/{companyId}/buildings/{buildingId}
+PUT /companies/{companyId}/buildings/{buildingId}/deactivate
 ```
 
 ### Parameters
@@ -448,8 +446,8 @@ Status: 403 Forbidden
 Status: 404 Not Found
 ```
 
-## Change manager
-Change manager of a certain building.
+## Change building manager
+Change the manager of a specific building.
 
 ```http
 PUT /companies/{companyId}/buildings/{buildingId}/manager
@@ -461,7 +459,7 @@ PUT /companies/{companyId}/buildings/{buildingId}/manager
 | `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
 | `buildingId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `manager` | uuid | body | yes | New manager for the building. |
+| `managerId` | string | body | yes | New manager identifier (uuid) for the building. |
 
 ### Response
 ```http
@@ -496,7 +494,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**inactive-building**](#domain-specific-errors)
+* `types`: **inactive-building**
 ```http
 Status: 415 Unsupported Media Type
 ```
@@ -504,13 +502,12 @@ Status: 415 Unsupported Media Type
 ## Building representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `id` | integer | **Unique** and **stable** identifier of the building. **Unique for each company, but not globally.** |
+| `id` | number | **Unique** and **stable** identifier of the building. **Unique for each company, but not globally.** |
 | `name` | string | Name of the building. |
-| `floors` | integer | Number of floors in the building. |
+| `floors` | number | Number of floors of the building. |
 | `state` | string | Current state of the building, the possible values are `Active` or `Inactive`. |
 | `timestamp` | string | Timestamp of the moment that the building state changed to the current state. |
-| `company` | integer | Identifier of the company owner of the building.
-| `manager` | integer | Identifier of the building manager.
+| `manager` | string | Identifier of the building manager (uuid).
 
 ### Domain specific link relations
 | Name | Description |
@@ -519,29 +516,9 @@ Status: 415 Unsupported Media Type
 | `building-manager` | Representation of the manager of the building. |
 | `buildings` | Resource with the representation of all the companies registered in the system. |
 
-### Domain specific errors
-* `inactive-company`: Happens when it's requested to create a building for an **inactive** company. 
-  * It is thrown with the HTTP status code `409 Conflict`.
-```json
-{
-    "type": "/errors/inactive-company",
-    "title": "It's not possible to create a building for an inactive company.",
-    "instance": "/companies/1/buildings/1"
-}
-```
-* `inactive-building`: Happens when it's requested to update an **inactive** building. 
-  * It is thrown with the HTTP status code `409 Conflict`.
-```json
-{
-    "type": "/errors/inactive-building",
-    "title": "It's not possible to update an inactive building.",
-    "instance": "/companies/1/buildings/1"
-}
-```
-
-The **documentation** for the `media-type`, `classes`, `standard link relations` and `generic errors` used in the representations are described [**here**](../README.md).
-
 The **vocabulary** for each external class represented in this documented can be consulted by clicking in one of the following links:
 * [**Person**](Person.md)
 * [**Company**](Company.md)
 * [**Room**](Room.md)
+
+The **documentation** for the `media-type`, `classes`, `standard link relations` and `generic errors` used in the representations are described [**here**](../README.md).

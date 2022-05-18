@@ -13,6 +13,8 @@ All the **vocabulary** used in the representations below is described [**here**]
 * [**Update a ticket**](#update-a-ticket)
 * [**Delete a ticket**](#delete-a-ticket)
 * [**Add ticket rate**](#add-ticket-rate)
+* [**Set employee to fix a ticket**](#set-employee-to-fix-a-ticket)
+* [**Remove employee from a ticket**](#remove-employee-from-a-ticket)
 
 ## List tickets
 List all tickets.
@@ -376,7 +378,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**update-archived-ticket**](#domain-specific-errors), [**update-fixing-ticket**](#domain-specific-errors)
+* `types`: [**archived-ticket**](#domain-specific-errors), [**update-fixing-ticket**](#domain-specific-errors)
 
 ## Change a ticket state
 Change the ticket state to one of the possible next states.
@@ -427,7 +429,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `type`: [**update-archived-ticket**](#domain-specific-errors)
+* `type`: [**archived-ticket**](#domain-specific-errors)
 
 ## Delete a ticket
 Delete a specific ticket.
@@ -525,6 +527,128 @@ Status: 403 Forbidden
 Status: 404 Not Found
 ```
 
+## Set employee to fix a ticket
+Set employee responsible for fixing the problem associated to the ticket.
+
+```http
+POST /tickets/{ticketId}/employee
+```
+
+### Parameters:
+| Name | Type | In | Required | Description |
+|:-:|:-:|:-:|:-:|:-:|
+| `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
+| `content-type` | string | header | yes | Set to `application/json`. |
+| `employeeId` | number | body | yes | Identifier of the employee to fix the ticket problem. |
+
+### Response
+```http
+Status: 200 OK
+```
+```json
+{
+    "class": [ "ticket" ],
+    "properties": {
+        "id": 1,
+        "subject": "Broken faucet",
+        "description": "Faucet does not work, water doesn't come out.",
+        "employeeState": "Not started"
+    },
+    "entities": [
+        {
+            "class": [ "person" ],
+            "rel": [ "ticket-employee" ],
+            "properties": {
+                "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
+                "name": "João Ambrósio",
+                "email": "joaoambrosio@qrreport.com"
+            },
+            "links": [
+                { "rel": [ "self" ], "href": "/persons/cf128ed3-0d65-42d9-8c96-8ff2e05b3d12" }
+            ]
+        }
+    ],
+    "links": [
+        { "rel": [ "self" ], "href": "/tickets/1" }
+    ]
+}
+```
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
+
+## Remove employee from a ticket
+Set employee responsible for fixing the problem associated to the ticket.
+
+```http
+POST /tickets/{ticketId}/employee
+```
+
+### Parameters:
+| Name | Type | In | Required | Description |
+|:-:|:-:|:-:|:-:|:-:|
+| `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
+| `content-type` | string | header | yes | Set to `application/json`. |
+| `employeeId` | number | body | yes | Identifier of the employee to fix the ticket problem. |
+
+### Response
+```http
+Status: 200 OK
+```
+```json
+{
+    "class": [ "ticket" ],
+    "properties": {
+        "id": 1,
+        "subject": "Broken faucet",
+        "description": "Faucet does not work, water doesn't come out.",
+        "employeeState": "Not started"
+    },
+    "entities": [
+        {
+            "class": [ "person" ],
+            "rel": [ "ticket-employee" ],
+            "properties": {
+                "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
+                "name": "João Ambrósio",
+                "email": "joaoambrosio@qrreport.com"
+            },
+            "links": [
+                { "rel": [ "self" ], "href": "/persons/cf128ed3-0d65-42d9-8c96-8ff2e05b3d12" }
+            ]
+        }
+    ],
+    "links": [
+        { "rel": [ "self" ], "href": "/tickets/1" }
+    ]
+}
+```
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
+```http
+Status: 409 Conflict
+```
+* `type`: [**archived-ticket**](#domain-specific-errors)
+
 ## Ticket representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
@@ -550,12 +674,12 @@ Status: 404 Not Found
 | `tickets` | Resource with the representation of all the tickets. |
 
 ### Domain specific errors
-* `update-archived-ticket`: Happens when it's requested to update an archived ticket. 
+* `archived-ticket`: Happens when it's requested to update an archived ticket. 
   * It's thrown with the HTTP status code `409 Conflict`.
 
 ```json
 {
-    "type": "/errors/update-archived-ticket",
+    "type": "/errors/archived-ticket",
     "title": "It's not possible to update an archived ticket.",
     "instance": "/tickets/1"
 }

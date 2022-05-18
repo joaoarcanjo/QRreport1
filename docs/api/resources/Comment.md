@@ -1,7 +1,7 @@
 # Comment
-A **Comment** is an opinion or reaction relatively a certain ticket. 
+A **Comment** is an opinion or reaction regarding a specific ticket. 
 
-The comment can be made by the manager of the corresponding building where the ticket was created, by the administrator and by the delegated employee. The **Comment API** allows you to create, view and manage all the comments made in a ticket. 
+The comment can be made by the manager of the corresponding building where the ticket was created, by the administrator and by the delegated employee. The **Comment API** allows these roles to create, view and manage all the comments made in a ticket. 
 
 All the **vocabulary** used in the comment representations is described [**here**](#comment-representations-vocabulary).
 
@@ -174,7 +174,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**create-comment-archived-ticket**](#domain-specific-errors)
+* `type`: [**archived-ticket**](Ticket.md#domain-specific-errors)
 ```http
 Status: 415 Unsupported Media Type
 ```
@@ -259,7 +259,7 @@ Status: 404 Not Found
 ```
 
 ## Update a comment
-Update the corresponding comment.
+Update a specific comment.
 
 ```http
 PUT /tickets/{ticketId}/comments/{commentId}
@@ -284,7 +284,7 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "comment": "Comment edited",
-        "timestamp": "2022-04-08 21:52:47.012620"
+        "timestamp": "2022-04-08 21:55:47.012620"
     },
     "links": [
         { "rel": [ "self" ], "href": "/ticket/1/comments/1" }
@@ -307,7 +307,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `type`: [**update-comment-archived-ticket**](#domain-specific-errors)
+* `type`: [**archived-ticket**](Ticket.md#domain-specific-errors)
 ```http
 Status: 415 Unsupported Media Type
 ```
@@ -358,41 +358,23 @@ Status: 403 Forbidden
 ```http
 Status: 404 Not Found
 ```
+```http
+Status: 409 Conflict
+```
+* `type`: [**archived-ticket**](Ticket.md#domain-specific-errors)
 
 ## Comment representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `id` | integer | Identifier of the comment. **Stable** and **unique for each ticket of, but not globally**. |
+| `id` | number | **Stable** identifier of the comment and **unique inside each ticket**, but **not globally**. |
 | `comment` | string | Written remark expressing an opinion or reaction about the ticket. |
-| `timestamp` | timestamp | Date and time that the comment was created. |
+| `timestamp` | string | Date and time that the comment was created. |
 
 ### Domain specific link relations
 | Name | Description |
 |:-:|:-:|
 | `comments` | Representation of all the comments in a specific ticket. |
 | `comment-author` | Representation of the author of the comment. |
-
-### Domain specific errors
-* `update-comment-archived-ticket`: Happens when it's requested to change a comment of an archived ticket.
-  * It is thrown with the HTTP status code `409 Conflict`.
-
-```json
-{
-    "type": "/errors/update-comment-archived-ticket",
-    "title": "It's not possible to update an comment of an archived ticket.",
-    "instance": "/tickets/1/comments/1"
-}
-```
-* `create-comment-archived-ticket`: Happens when it's requested to create a comment for an archived ticket.
-  * It is thrown with the HTTP status code `409 Conflict`.
-
-```json
-{
-    "type": "/errors/create-comment-archived-ticket",
-    "title": "It's not possible to comment an comment for an archived ticket.",
-    "instance": "/tickets/1/comments/1"
-}
-```
 
 The **vocabulary** for each external class represented in this documented can be consulted by clicking in one of the following links:
 * [**Person**](Person.md)
