@@ -79,6 +79,7 @@ BEGIN;
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT device_name_max_length CHECK ( char_length(name) <= 50 ),
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_room_state CHECK ( state IN ('active', 'inactive') ),
+        category BIGINT NOT NULL REFERENCES CATEGORY(id),
         timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -109,6 +110,13 @@ BEGIN;
         user_state INT NOT NULL REFERENCES USER_STATE(id)
     );
 
+        CREATE TABLE EMPLOYEE_STATE_TRANS
+    (
+        first_employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id),
+        second_employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id),
+        PRIMARY KEY (first_employee_state, second_employee_state)
+    );
+
     CREATE TABLE TICKET
     (
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -119,7 +127,7 @@ BEGIN;
         room BIGINT NOT NULL REFERENCES ROOM(id),
         device BIGINT NOT NULL REFERENCES DEVICE(id),
         reporter UUID NOT NULL REFERENCES PERSON(id),
-        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id)
+        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 5
     );
 
     CREATE TABLE FIXING_BY
@@ -127,6 +135,7 @@ BEGIN;
         person UUID NOT NULL REFERENCES PERSON(id),
         ticket BIGINT NOT NULL REFERENCES TICKET(id),
         start_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        end_timestamp TIMESTAMP,
         PRIMARY KEY (person, ticket)
     );
 

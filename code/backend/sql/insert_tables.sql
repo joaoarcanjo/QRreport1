@@ -16,7 +16,7 @@ BEGIN;
         ('9c06c8f3-ceda-48c5-99a7-29903a921a5b','Elon Musk', '964444444', 'elon@isel.com', 'elonpass', 'active'),            --manager
         ('c2b393be-d720-4494-874d-43765f5116cb','Jeff Bezos', '965555555', 'jeff@isel.com', 'jeffpass', 'active'),           --employee
         ('e85c73aa-7869-4861-a1cc-ca30d7c8499b','Bill Gates', '966666666', 'bill@isel.com', 'billpass', 'active'),           --employee
-        ('0a8b83ec-7675-4467-91e5-33e933441eee','Tim Berners-Lee', '977777777', 'tim@isel.com', 'timpass', 'active'),        --admin / manager
+        ('0a8b83ec-7675-4467-91e5-33e933441eee','Tim Berners-Lee', '977777777', 'tim@isel.com', 'timpass', 'active'),        --admin
         ('bb692591-1c74-40ce-99c0-c9b185fd78a9','James Gosling', '968888888', 'james@isel.com', 'jamespass', 'active'),      --guest
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','Steve Jobs', '969999999', 'steve@isel.com', 'stevepass', 'inactive');       --guest
 
@@ -38,7 +38,8 @@ BEGIN;
         ('software', 'active'),
         ('network', 'active'),
         ('cleaning', 'active'),
-        ('woodworker', 'active');
+        ('woodworker', 'active'),
+        ('acclimatization', 'active');
 
     INSERT INTO ROLE (name) VALUES
         ('guest'),
@@ -62,19 +63,18 @@ BEGIN;
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Jeff Bezos / employee
         ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 3), -- Bill Gates / employee
         ('0a8b83ec-7675-4467-91e5-33e933441eee', 5), -- Tim Berners-Lee / admin
-        ('0a8b83ec-7675-4467-91e5-33e933441eee', 4), -- Tim Berners-Lee / manager
         ('bb692591-1c74-40ce-99c0-c9b185fd78a9', 1), -- James Gosling / guest
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 1); -- Steve Jobs / guest inactive
 
-    INSERT INTO DEVICE (name, state) VALUES
-        ('Conjunto de tomadas', 'active'),
-        ('Cubiculo casa de banho', 'active'),
-        ('Bacia de lavatório', 'active'),
-        ('Sanita', 'active'),
-        ('Fogão', 'active'),
-        ('Arcondicionado', 'active'),
-        ('Torneira', 'active'),
-        ('Estante de livros', 'active');
+    INSERT INTO DEVICE (name, state, category) VALUES
+        ('Conjunto de tomadas', 'active', 2),
+        ('Cubiculo casa de banho', 'active', 5),
+        ('Bacia de lavatório', 'active', 1),
+        ('Sanita', 'active', 1),
+        ('Fogão', 'active', 2),
+        ('Arcondicionado', 'active', 7),
+        ('Torneira', 'active', 1),
+        ('Estante de livros', 'active', 6);
 
     INSERT INTO ANOMALY (id, device, anomaly) VALUES
         (1, 1, 'Não funciona'),
@@ -101,7 +101,10 @@ BEGIN;
         ('state3'),
         ('state4'),
         ('state5'),
-        ('state6');
+        ('state6'),
+        ('state7'),
+        ('state8'),
+        ('state9');
 
     INSERT INTO EMPLOYEE_STATE (name, user_state) VALUES
         ('On execution', 1),
@@ -109,7 +112,37 @@ BEGIN;
         ('Waiting for material', 3),
         ('Almost concluded', 4),
         ('To assign', 5),
-        ('Concluded', 6);
+        ('Refused', 6),
+        ('Concluded', 7),
+        ('Archived', 8),
+        ('Not started', 9);
+
+    INSERT INTO EMPLOYEE_STATE_TRANS (first_employee_state, second_employee_state) VALUES
+        (1, 2), -- On execution -> Waiting for help
+        (1, 3), -- On execution -> Waiting for material
+        (1, 4), -- On execution -> Almost concluded
+        (1, 7), -- On execution -> Concluded
+        (2, 1), -- Waiting for help -> On execution
+        (2, 3), -- Waiting for help -> Waiting for material
+        (2, 4), -- Waiting for help -> Almost concluded
+        (2, 7), -- Waiting for help -> Concluded
+        (3, 1), -- Waiting for material -> On execution
+        (3, 2), -- Waiting for material -> Waiting for help
+        (3, 4), -- Waiting for material -> Almost concluded
+        (3, 7), -- Waiting for material -> Concluded
+        (4, 1), -- Almost concluded -> On execution
+        (4, 2), -- Almost concluded -> Waiting for help
+        (4, 3), -- Almost concluded -> Waiting for material
+        (4, 4), -- Almost concluded -> Almost concluded
+        (4, 7), -- Almost concluded -> Concluded
+        (5, 1), -- To assign -> On execution
+        (5, 2), -- To assign -> Waiting for help
+        (5, 3), -- To assign -> Waiting for material
+        (5, 4), -- To assign -> Almost concluded
+        (5, 7), -- To assign -> Concluded
+        (5, 8), -- To assign -> Refused
+        (6, 8), -- Refused -> Archived
+        (7, 8); -- Concluded -> Archived
 
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
         ('Fuga de água', 'Descrição de fuga de água', 2, 3, '4b341de0-65c0-4526-8898-24de463fc315', 1),
