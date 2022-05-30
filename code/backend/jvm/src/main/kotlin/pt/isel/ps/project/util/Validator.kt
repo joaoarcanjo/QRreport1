@@ -7,10 +7,18 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.comment.InputCommentEntity
 import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME_MAX_CHARS
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION_MAX_CHARS
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
+import pt.isel.ps.project.model.ticket.CreateTicketEntity
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_HASH
+import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 
 object Validator {
     object Company {
@@ -38,6 +46,64 @@ object Validator {
             checkIfAllUpdatableParametersAreNull(company)
             checkNameLength(company.name!!)
             return true
+        }
+    }
+
+    object Ticket {
+
+        private fun checkSubjectLength(subject: String) {
+            if (subject.length > TICKET_SUBJECT_MAX_CHARS) throw InvalidParameterException(
+                INVALID_REQ_PARAMS,
+                listOf(InvalidParameter(TICKET_SUBJECT, Errors.BadRequest.Locations.BODY, INVALID_NAME_LENGTH))
+            )
+        }
+
+        private fun checkDescriptionLength(description: String) {
+            if (description.length > TICKET_DESCRIPTION_MAX_CHARS) throw InvalidParameterException(
+                INVALID_REQ_PARAMS,
+                listOf(InvalidParameter(TICKET_DESCRIPTION, Errors.BadRequest.Locations.BODY, INVALID_NAME_LENGTH))
+            )
+        }
+
+        private fun checkHashLength(hash: String) {
+            if (hash.length != Hash.SHA256.HASH_SIZE) throw InvalidParameterException(
+                INVALID_REQ_PARAMS,
+                listOf(InvalidParameter(TICKET_HASH, Errors.BadRequest.Locations.BODY, INVALID_NAME_LENGTH))
+            )
+        }
+
+        private fun checkIfAllUpdatableParametersAreValid(ticket: UpdateTicketEntity) {
+            val ticketSubject = ticket.subject
+            val ticketDescription = ticket.description
+            var bothEmptyFlag = true
+
+            if (!ticketSubject.isNullOrBlank()) {
+                checkSubjectLength(ticketSubject)
+                bothEmptyFlag = false
+            }
+            if (!ticketDescription.isNullOrBlank()) {
+                checkSubjectLength(ticketDescription)
+                bothEmptyFlag = false
+            }
+            if (bothEmptyFlag) throw InvalidParameterException(UPDATE_NULL_PARAMS, detail = UPDATE_NULL_PARAMS_DETAIL)
+        }
+
+        fun verifyCreateTicketInput(ticket: CreateTicketEntity): Boolean {
+            checkHashLength(ticket.hash)
+            checkSubjectLength(ticket.subject)
+            checkDescriptionLength(ticket.description)
+            return true
+        }
+
+        fun verifyUpdateTicketInput(ticket: UpdateTicketEntity): Boolean {
+            checkIfAllUpdatableParametersAreValid(ticket)
+            return true
+        }
+
+        object Comment {
+            fun verifyCommentInput(comment: InputCommentEntity): Boolean {
+                return comment.comment.length > 200
+            }
         }
     }
 }
