@@ -592,7 +592,7 @@ Status: 404 Not Found
 Set employee responsible for fixing the problem associated to the ticket.
 
 ```http
-DELETE /tickets/{ticketId}/employee/remove
+DELETE /tickets/{ticketId}/employee
 ```
 
 ### Parameters:

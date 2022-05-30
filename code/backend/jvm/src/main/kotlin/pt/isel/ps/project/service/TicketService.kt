@@ -8,6 +8,7 @@ import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.util.Validator.Ticket.verifyCreateTicketInput
+import pt.isel.ps.project.util.Validator.Ticket.verifyTicketRateInput
 import pt.isel.ps.project.util.Validator.Ticket.verifyUpdateTicketInput
 import pt.isel.ps.project.util.deserializeJsonTo
 
@@ -50,13 +51,15 @@ class TicketService(jdbi: Jdbi) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun addTicketRate(ticketId: Long, ticketRate: TicketRateValueEntity): TicketRate {
+    fun addTicketRate(ticketId: Long, ticketRate: TicketRateEntity): TicketRate {
+        verifyTicketRateInput(ticketRate)
         return ticketDao.addTicketRate(ticketId, ticketRate).getString(TICKET_REP)
             ?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     fun setEmployee(ticketId: Long, ticketEmployee: TicketEmployeeEntity): TicketEmployee {
+        //verifyPersonId(ticketEmployee.employeeId) TODO
         return ticketDao.setEmployee(ticketId, ticketEmployee).getString(TICKET_REP)
             ?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)

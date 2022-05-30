@@ -9,7 +9,7 @@ import pt.isel.ps.project.model.ticket.TICKET_REP
 import pt.isel.ps.project.model.ticket.CreateTicketEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 import pt.isel.ps.project.model.ticket.ChangeTicketStateEntity
-import pt.isel.ps.project.model.ticket.TicketRateValueEntity
+import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.TicketEmployeeEntity
 
 interface TicketDao {
@@ -38,7 +38,7 @@ interface TicketDao {
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL add_ticket_rate('0a8b83ec-7675-4467-91e5-33e933441eee', :ticketId, :rate, :$TICKET_REP);")
-    fun addTicketRate(ticketId: Long, @BindBean rate: TicketRateValueEntity): OutParameters
+    fun addTicketRate(ticketId: Long, @BindBean rate: TicketRateEntity): OutParameters
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL set_ticket_employee(:employeeId, :ticketId, :$TICKET_REP);")

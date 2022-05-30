@@ -25,6 +25,7 @@ object Errors {
         }
 
         object Message {
+            const val INVALID_REQ_PARAM = "Request parameter is not valid."
             const val INVALID_REQ_PARAMS = "One or more request parameters are not valid."
             const val MISSING_MISMATCH_REQ_BODY = "One or more request body parameters are missing or have a type mismatch."
 
@@ -41,6 +42,17 @@ object Errors {
 
             object Company {
                 const val INVALID_NAME_LENGTH = "The name can have a maximum of 50 characters."
+            }
+
+            object Ticket {
+                const val INVALID_HASH_LENGTH = "The hash size must be equal to 64 characters."
+                const val INVALID_SUBJECT_LENGTH = "The subject can have a maximum of 50 characters."
+                const val INVALID_DESCRIPTION_LENGTH = "The description can have a maximum of 200 characters."
+                const val INVALID_RATE = "The ticket rate must be between 0 and 5 inclusive."
+
+                object Comment {
+                    const val INVALID_COMMENT_LENGTH = "The comment can have a maximum of 200 characters."
+                }
             }
         }
     }

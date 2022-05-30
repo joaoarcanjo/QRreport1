@@ -21,7 +21,6 @@ object Uris {
         const val SPECIFIC_PATH = "${BASE_PATH}/{ticketId}"
         const val STATE_PATH = "${SPECIFIC_PATH}/state"
         const val EMPLOYEE_PATH = "${SPECIFIC_PATH}/employee"
-        const val REMOVE_EMPLOYEE_PATH = "${EMPLOYEE_PATH}/remove"
         const val RATE_PATH = "${SPECIFIC_PATH}/rate"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
@@ -34,6 +33,12 @@ object Uris {
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
             const val SPECIFIC_PATH = "${BASE_PATH}/{commentId}"
+
+            private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
+            private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+            fun makeBase(ticketId: Int) = BASE_TEMPLATE.expand(mapOf("ticketId" to ticketId)).toString()
+            fun makeSpecific(commentId: Int, ticketId: Int) =
+                SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to ticketId, "commentId" to commentId)).toString()
         }
     }
 }

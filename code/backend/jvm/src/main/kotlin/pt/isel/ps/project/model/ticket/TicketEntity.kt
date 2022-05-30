@@ -8,6 +8,7 @@ object TicketEntity {
     const val TICKET_HASH = "hash"
     const val TICKET_SUBJECT = "subject"
     const val TICKET_DESCRIPTION = "description"
+    const val TICKET_RATE = "rate"
     const val TICKET_SUBJECT_MAX_CHARS = 50
     const val TICKET_DESCRIPTION_MAX_CHARS = 200
 }
@@ -27,7 +28,7 @@ data class UpdateTicketEntity (
     val description: String?,
 )
 
-data class TicketRateValueEntity (
+data class TicketRateEntity (
     val rate: Int
 )
 

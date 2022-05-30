@@ -42,7 +42,7 @@ class TicketController(private val service: TicketService) {
     }
 
     @PutMapping(Tickets.RATE_PATH)
-    fun addTicketRate(@PathVariable ticketId: Long, @RequestBody ticketRate: TicketRateValueEntity): TicketRate {
+    fun addTicketRate(@PathVariable ticketId: Long, @RequestBody ticketRate: TicketRateEntity): TicketRate {
         return service.addTicketRate(ticketId, ticketRate)
     }
 
@@ -51,7 +51,7 @@ class TicketController(private val service: TicketService) {
         return service.setEmployee(ticketId, ticketEmployee)
     }
 
-    @DeleteMapping(Tickets.REMOVE_EMPLOYEE_PATH)
+    @DeleteMapping(Tickets.EMPLOYEE_PATH)
     fun removeEmployee(@PathVariable ticketId: Long): TicketEmployee {
         return service.removeEmployee(ticketId)
     }
