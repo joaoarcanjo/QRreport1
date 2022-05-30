@@ -280,6 +280,7 @@ Status: 200 OK
             "properties": {
                 "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d08",
                 "name": "José Bonifácio",
+                "phone": "962277991",
                 "email": "joca@gmail.com"
             },
             "links": [
@@ -384,7 +385,7 @@ Status: 409 Conflict
 Change the ticket state to one of the possible next states.
 
 ```http
-PUT /tickets/{ticketId}
+PUT /tickets/{ticketId}/state
 ```
 
 ### Parameters
@@ -561,6 +562,7 @@ Status: 200 OK
             "properties": {
                 "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
                 "name": "João Ambrósio",
+                "phone": "962277991",
                 "email": "joaoambrosio@qrreport.com"
             },
             "links": [
@@ -590,7 +592,7 @@ Status: 404 Not Found
 Set employee responsible for fixing the problem associated to the ticket.
 
 ```http
-POST /tickets/{ticketId}/employee
+DELETE /tickets/{ticketId}/employee/remove
 ```
 
 ### Parameters:
@@ -620,6 +622,7 @@ Status: 200 OK
             "properties": {
                 "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d12",
                 "name": "João Ambrósio",
+                "phone": "962277991",
                 "email": "joaoambrosio@qrreport.com"
             },
             "links": [
