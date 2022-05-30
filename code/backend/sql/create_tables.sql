@@ -136,7 +136,7 @@ BEGIN;
         ticket BIGINT NOT NULL REFERENCES TICKET(id),
         start_timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         end_timestamp TIMESTAMP,
-        PRIMARY KEY (person, ticket)
+        PRIMARY KEY (person, ticket, start_timestamp)
     );
 
     CREATE TABLE RATE
