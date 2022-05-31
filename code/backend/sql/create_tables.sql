@@ -30,7 +30,7 @@ BEGIN;
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT building_name_max_length CHECK ( char_length(name) <= 50 ),
         floors SMALLINT NOT NULL,
-        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_company_state CHECK ( state IN ('active', 'inactive') ),
+        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_building_state CHECK ( state IN ('Active', 'Inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         company BIGINT NOT NULL REFERENCES COMPANY(id),
         manager UUID NOT NULL REFERENCES PERSON(id)

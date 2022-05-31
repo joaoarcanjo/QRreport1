@@ -13,6 +13,7 @@ BEGIN;
         ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@isel.com', 'diogopass', 'active'),         --user
         ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3','João Arcanjo', '962222222', 'joao@isel.com', 'joaopass', 'active'),         --user
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', 'pedropass', 'active'),      --manager
+        ('996aff17-9d5c-48d4-b178-da7463e85652','Michael Phelps', '963131313', 'michael@isel.com', 'michaelpass', 'active'), --manager
         ('9c06c8f3-ceda-48c5-99a7-29903a921a5b','Elon Musk', '964444444', 'elon@isel.com', 'elonpass', 'active'),            --manager
         ('c2b393be-d720-4494-874d-43765f5116cb','Jeff Bezos', '965555555', 'jeff@isel.com', 'jeffpass', 'active'),           --employee
         ('e85c73aa-7869-4861-a1cc-ca30d7c8499b','Bill Gates', '966666666', 'bill@isel.com', 'billpass', 'active'),           --employee
@@ -22,9 +23,10 @@ BEGIN;
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','Steve Jobs', '969999999', 'steve@isel.com', 'stevepass', 'inactive');       --guest
 
     INSERT INTO BUILDING (name, floors, state, company, manager) VALUES
-        ('A', 4, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
-        ('F', 6, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
-        ('1', 7, 'active', 2, '9c06c8f3-ceda-48c5-99a7-29903a921a5b'); -- Elon Musk, ISCAL
+        ('A', 4, 'Active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
+        ('F', 6, 'Active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
+        ('1', 7, 'Active', 2, '9c06c8f3-ceda-48c5-99a7-29903a921a5b'), -- Elon Musk, ISCAL
+        ('2', 7, 'Inactive', 2, '9c06c8f3-ceda-48c5-99a7-29903a921a5b'); -- Elon Musk, ISCAL
 
     INSERT INTO ROOM (name, floor, state, building) VALUES
         ('Biblioteca', 1, 'active', 1),
@@ -62,6 +64,7 @@ BEGIN;
         ('4b341de0-65c0-4526-8898-24de463fc315', 2), -- Diogo Novo / user
         ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 2), -- João Arcanjo / user
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens /manager
+        ('996aff17-9d5c-48d4-b178-da7463e85652', 4), -- Michael Phelps /manager
         ('9c06c8f3-ceda-48c5-99a7-29903a921a5b', 4), -- Elon Musk / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Jeff Bezos / employee
         ('e85c73aa-7869-4861-a1cc-ca30d7c8499b', 3), -- Bill Gates / employee
@@ -180,6 +183,7 @@ BEGIN;
 
     INSERT INTO PERSON_COMPANY (person, company, state) VALUES
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens, ISEL
+        ('996aff17-9d5c-48d4-b178-da7463e85652', 1, 'active'), -- Michael Phelps, ISEL
         ('9c06c8f3-ceda-48c5-99a7-29903a921a5b', 2, 'active'), -- Elon Musk, ISCAL
         ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'), -- Jeff Bezos, ISEL
         ('c2b393be-d720-4494-874d-43765f5116cb', 2, 'active'), -- Jeff Bezos, ISCAL
