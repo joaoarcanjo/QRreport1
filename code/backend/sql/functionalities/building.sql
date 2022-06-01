@@ -272,3 +272,22 @@ BEGIN
     END CASE;
     building_rep =  json_build_object('id', building_id, 'name', building_name, 'manager', new_manager);
 END$$ LANGUAGE plpgsql;
+
+/**
+  Trigger to change the state of all rooms belonging to the building whose state was changed
+ */
+CREATE OR REPLACE FUNCTION update_rooms_states() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	IF NEW.state != OLD.state THEN
+        UPDATE ROOM SET state = NEW.state WHERE building = NEW.id;
+	END IF;
+	RETURN NEW;
+END; $$LANGUAGE PLPGSQL;
+
+CREATE TRIGGER change_building_state_trigger
+    BEFORE UPDATE ON BUILDING
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_rooms_states();
+

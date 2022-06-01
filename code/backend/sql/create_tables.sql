@@ -41,7 +41,7 @@ BEGIN;
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT room_name_max_length CHECK ( char_length(name) <= 50 ),
         floor SMALLINT NOT NULL, -- TODO: Verificar se está dentro dos floors de building
-        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_room_state CHECK ( state IN ('active', 'inactive') ),
+        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_room_state CHECK ( state IN ('Active', 'Inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         building BIGINT NOT NULL REFERENCES BUILDING(id)
     );

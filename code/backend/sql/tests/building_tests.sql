@@ -591,3 +591,33 @@ EXCEPTION
             RAISE EXCEPTION '-> Test failed!';
         END IF;
 END$$;
+
+/**
+ * Tests trigger to change the state of all rooms belonging to a building whose status has changed.
+ */
+DO
+$$
+DECLARE
+    building_id BIGINT = 1;
+    company_id BIGINT = 1;
+    building_state TEXT;
+    rec RECORD;
+BEGIN
+    RAISE INFO '---| Trigger -> Change rooms states test |---';
+
+    UPDATE BUILDING SET state = 'Inactive' WHERE id = building_id AND company = company_id
+    RETURNING state INTO building_state;
+
+    IF (building_state != 'Inactive') THEN
+            RAISE EXCEPTION '-> Test failed!';
+    END IF;
+    FOR rec IN
+        SELECT state FROM ROOM WHERE building = building_id
+    LOOP
+        IF (building_state != 'Inactive') THEN
+            RAISE EXCEPTION '-> Test failed!';
+        END IF;
+    END LOOP;
+    RAISE INFO '-> Test succeeded!';
+    ROLLBACK;
+END$$;

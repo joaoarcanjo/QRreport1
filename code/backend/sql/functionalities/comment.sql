@@ -18,29 +18,27 @@ END$$ LANGUAGE plpgsql;
  * Returns the comment representation
  * Throws exception when the ticket is archived or when no rows affected.
  */
-CREATE OR REPLACE PROCEDURE create_comment (
-    person_id UUID,
-    ticket_id BIGINT,
-    ticket_comment TEXT,
-    comment_rep OUT JSON
-)
+CREATE OR REPLACE PROCEDURE create_comment (person_id UUID, ticket_id BIGINT, ticket_comment TEXT, comment_rep OUT JSON)
 AS
 $$
 DECLARE
     comment_id BIGINT; comment_timestamp TIMESTAMP;
 BEGIN
-    IF (
-        (SELECT employee_state FROM TICKET
-        WHERE id = ticket_id FOR SHARE) = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+    IF EXISTS (
+        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+        AND id = ticket_id FOR SHARE
     ) THEN
         RAISE 'cant_comment_archived_ticket';
     ELSE
+        --this lock will ensure no other transaction of this type runs at a time
+        LOCK TABLE COMMENT IN SHARE ROW EXCLUSIVE MODE;
         comment_id = (SELECT MAX(id) FROM COMMENT WHERE ticket = ticket_id) + 1;
         IF (comment_id IS NULL) THEN
             comment_id = 1;
         END IF;
         INSERT INTO COMMENT (id, comment, person, ticket) VALUES (comment_id, ticket_comment, person_id, ticket_id)
-         RETURNING timestamp INTO comment_timestamp;
+        RETURNING timestamp INTO comment_timestamp;
+
         IF (comment_id IS NULL) THEN
             RAISE 'unknown_error_creating_comment_resource';
         END IF;
@@ -60,9 +58,9 @@ $$
 DECLARE
     person_id UUID; person_name TEXT; person_phone TEXT; person_email TEXT; comment TEXT; comment_timestamp TIMESTAMP;
 BEGIN
-    SELECT p.id, p.name, p.phone, p.email, c.comment, c.timestamp
-    FROM COMMENT c INNER JOIN PERSON p ON c.person = p.id
-    WHERE c.id = comment_id AND c.ticket = ticket_id FOR SHARE
+    SELECT person.id, person.name, person.phone, person.email, comment.comment, comment.timestamp
+    FROM COMMENT comment INNER JOIN PERSON person ON comment.person = person.id
+    WHERE comment.id = comment_id AND comment.ticket = ticket_id FOR SHARE
     INTO person_id, person_name, person_phone, person_email, comment, comment_timestamp;
     IF (NOT FOUND) THEN
         RAISE 'comment_not_found';
@@ -74,6 +72,7 @@ BEGIN
 END$$ LANGUAGE plpgsql;
 
 /*
+ * Get the comments of a ticket
  * Function to return the representation of all comments from ticket
  */
 CREATE OR REPLACE FUNCTION get_comments (
@@ -87,10 +86,9 @@ AS
 $$
 DECLARE
     comments JSON[];
-    collection_size INT;
+    collection_size INT = 0;
     rec RECORD;
 BEGIN
-    SELECT COUNT(*) FROM COMMENT WHERE ticket = t_id INTO collection_size;
     FOR rec IN
         SELECT c.id as comment_id, comment, c.timestamp as comment_timestamp, p.id as person_id, name, phone, email
         FROM COMMENT c INNER JOIN PERSON p ON c.person = p.id
@@ -103,14 +101,16 @@ BEGIN
         comments = array_append(comments,
             comment_item_representation(rec.comment_id, rec.comment,
                 person_item_representation(rec.person_id, rec.name, rec.phone, rec.email), rec.comment_timestamp));
+        collection_size = collection_size + 1;
     END LOOP;
     RETURN json_build_object('comments', comments, 'collectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
 /*
- * Update comment
+ * Update a specific comment
+ * Returns the comment representation
+ * Throws exception when cant change a comment that belongs to a archived ticket
  */
-
 CREATE OR REPLACE PROCEDURE update_comment (
     comment_id BIGINT,
     ticket_id BIGINT,
@@ -122,23 +122,25 @@ $$
 DECLARE
     comment_timestamp TIMESTAMP;
 BEGIN
-    IF (
-        (SELECT employee_state FROM TICKET
-        WHERE id = ticket_id FOR SHARE) != (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+    IF EXISTS (
+        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+        AND id = ticket_id FOR SHARE
     ) THEN
+        RAISE 'cant_comment_archived_ticket';
+    ELSE
         UPDATE COMMENT SET comment = new_comment WHERE id = comment_id AND ticket = ticket_id
         RETURNING timestamp INTO comment_timestamp;
         IF (comment_timestamp IS NULL) THEN
             RAISE 'unknown_error_updating_resource';
         END IF;
         comment_rep = json_build_object('id', comment_id, 'comment', new_comment, 'timestamp', comment_timestamp);
-    ELSE
-        RAISE 'cant_comment_archived_ticket';
     END IF;
 END$$ LANGUAGE plpgsql;
 
 /*
- * Delete ticket
+ * Delete a specific comment
+ * Returns the comment representation
+ * Throws exception when try delete a comment  belongs to an archived ticket
  */
 CREATE OR REPLACE PROCEDURE delete_comment (
     comment_id BIGINT,
@@ -150,9 +152,12 @@ $$
 DECLARE
     comment_timestamp TIMESTAMP; ticket_comment TEXT;
 BEGIN
-    IF NOT EXISTS (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived' AND id = (SELECT employee_state FROM TICKET
-        WHERE id = ticket_id)
+   IF EXISTS (
+        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+        AND id = ticket_id FOR SHARE
     ) THEN
+        RAISE 'cant_delete_comment_from_archived_ticket';
+    ELSE
         DELETE FROM COMMENT WHERE id = comment_id AND ticket = ticket_id
         RETURNING CURRENT_TIMESTAMP, comment INTO comment_timestamp, ticket_comment;
 
@@ -160,7 +165,5 @@ BEGIN
             RAISE 'unknown_error_deleting_resource';
         END IF;
         comment_rep = json_build_object('id', comment_id, 'comment', ticket_comment, 'timestamp', comment_timestamp);
-    ELSE
-        RAISE 'cant_delete_comment_from_archived_ticket';
     END IF;
 END$$ LANGUAGE plpgsql;

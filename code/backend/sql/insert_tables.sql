@@ -29,11 +29,11 @@ BEGIN;
         ('2', 7, 'Inactive', 2, '9c06c8f3-ceda-48c5-99a7-29903a921a5b'); -- Elon Musk, ISCAL
 
     INSERT INTO ROOM (name, floor, state, building) VALUES
-        ('Biblioteca', 1, 'active', 1),
-        ('ByChef', 1, 'active', 1),
-        ('Sala de reuniões', 2, 'active', 2),
-        ('Sala de estudos', -1, 'active', 2),
-        ('Casa de banho', 7, 'active', 3);
+        ('Biblioteca', 1, 'Active', 1),
+        ('ByChef', 1, 'Active', 1),
+        ('Sala de reuniões', 2, 'Active', 2),
+        ('Sala de estudos', -1, 'Active', 2),
+        ('Casa de banho', 7, 'Active', 3);
 
     INSERT INTO CATEGORY (name, state) VALUES
         ('canalization', 'active'),
