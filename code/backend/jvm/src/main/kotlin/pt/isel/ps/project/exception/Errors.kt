@@ -25,12 +25,14 @@ object Errors {
         }
 
         object Message {
-            const val INVALID_REQ_PARAM = "Request parameter is not valid."
             const val INVALID_REQ_PARAMS = "One or more request parameters are not valid."
             const val MISSING_MISMATCH_REQ_BODY = "One or more request body parameters are missing or have a type mismatch."
 
             const val UPDATE_NULL_PARAMS = "All updatable parameters can't be null."
             const val UPDATE_NULL_PARAMS_DETAIL = " Please insert one of the possible parameters in order to update."
+
+            const val BLANK_PARAMS = "Parameter can't be a blank value."
+            const val BLANK_PARAMS_DETAIL = "Please insert one of the possible parameters in order to update."
 
             object Templated {
                 const val MUST_HAVE_TYPE = "The value must be of the {} type."
@@ -42,6 +44,10 @@ object Errors {
 
             object Company {
                 const val INVALID_NAME_LENGTH = "The name can have a maximum of 50 characters."
+
+                object Building {
+                    const val INVALID_BUILDING_NAME_LENGTH = "The name can have a maximum of 50 characters."
+                }
             }
 
             object Ticket {

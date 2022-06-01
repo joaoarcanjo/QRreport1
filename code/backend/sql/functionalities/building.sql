@@ -20,8 +20,8 @@ END$$ LANGUAGE plpgsql;
  * with the same name in the same company.
  */
 CREATE OR REPLACE PROCEDURE create_building(
-    bname TEXT,
     company_id BIGINT,
+    bname TEXT,
     floors INT,
     manager UUID,
     building_rep OUT JSON
@@ -60,8 +60,8 @@ END$$ LANGUAGE plpgsql;
  * or when already exists a building with a name equal to the new_name
  */
  CREATE OR REPLACE PROCEDURE update_building(
-    building_id BIGINT,
     company_id BIGINT,
+    building_id BIGINT,
     building_rep OUT JSON,
     new_name TEXT DEFAULT NULL,
     new_floors INT DEFAULT NULL
@@ -82,7 +82,7 @@ BEGIN
             RAISE 'inactive_building';
         WHEN (new_name IS NULL AND new_floors IS NULL) THEN
             RAISE 'update_parameters_all_null';
-        WHEN (new_name IS NOT NULL AND EXISTS ((SELECT id FROM BUILDING WHERE company = company_id AND name = new_name))) THEN
+        WHEN (new_name IS NOT NULL AND EXISTS ((SELECT id FROM BUILDING WHERE company = company_id AND name = new_name AND id != building_id))) THEN
             RAISE 'unique_building_name' USING ERRCODE = 'unique_violation';
         WHEN ((new_name IS NULL AND new_floors = building_floors) OR (new_floors IS NULL AND new_name = building_name)
             OR (new_name = building_name AND new_floors = building_floors)) THEN
@@ -113,7 +113,7 @@ END$$ LANGUAGE plpgsql;
  * Gets all the buildings of a company
  * Returns a list with all the buildings item representation
  */
-CREATE OR REPLACE FUNCTION get_buildings(company_id INT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION get_buildings(company_id BIGINT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
 RETURNS JSON
 AS
 $$
@@ -176,7 +176,7 @@ BEGIN
     RETURN json_build_object(
         'id', building_id, 'name', building_name, 'floors', building_floors, 'state', building_state, 'timestamp', tmstamp,
         'rooms', rooms, 'roomsCollectionSize', collection_size,
-        'person', person_item_representation(manager_id, manager_name, manager_phone, manager_email)
+        'manager', person_item_representation(manager_id, manager_name, manager_phone, manager_email)
     );
 END$$ LANGUAGE plpgsql;
 
@@ -185,7 +185,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the building item representation
  * Throws exception when the building id does not exist
  */
-CREATE OR REPLACE PROCEDURE deactivate_building(building_id BIGINT, company_id BIGINT, building_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE deactivate_building(company_id BIGINT, building_id BIGINT, building_rep OUT JSON)
 AS
 $$
 DECLARE
@@ -212,7 +212,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the building item representation
  * Throws exception when the building id does not exist
  */
-CREATE OR REPLACE PROCEDURE activate_building(building_id BIGINT, company_id BIGINT, building_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE activate_building(company_id BIGINT, building_id BIGINT, building_rep OUT JSON)
 AS
 $$
 DECLARE
@@ -241,8 +241,8 @@ END$$ LANGUAGE plpgsql;
  * because doesn't have the necessary role
  */
 CREATE OR REPLACE PROCEDURE change_building_manager(
-    building_id BIGINT,
     company_id BIGINT,
+    building_id BIGINT,
     new_manager UUID,
     building_rep OUT JSON
 )

@@ -1,8 +1,10 @@
 package pt.isel.ps.project.util
 
 import pt.isel.ps.project.exception.Errors
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS_DETAIL
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
-import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAM
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_DESCRIPTION_LENGTH
@@ -13,6 +15,10 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME
+import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME_MAX_CHARS
+import pt.isel.ps.project.model.building.CreateBuildingEntity
+import pt.isel.ps.project.model.building.UpdateBuildingEntity
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT_MAX_CHARS
 import pt.isel.ps.project.model.comment.InputCommentEntity
@@ -31,6 +37,16 @@ import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 
 object Validator {
+
+    private fun checkIfIsNotBlank(input: String, parameterName: String) {
+        if (input.isBlank()) {
+            throw InvalidParameterException(
+                BLANK_PARAMS_DETAIL,
+                listOf(InvalidParameter(parameterName, Errors.BadRequest.Locations.BODY, BLANK_PARAMS))
+            )
+        }
+    }
+
     object Company {
 
         private fun checkNameLength(name: String) {
@@ -56,6 +72,33 @@ object Validator {
             checkIfAllUpdatableParametersAreNull(company)
             checkNameLength(company.name!!)
             return true
+        }
+
+        object Building {
+
+            private fun checkNameLength(name: String) {
+                if (name.length > BUILDING_NAME_MAX_CHARS) throw InvalidParameterException(
+                    INVALID_REQ_PARAMS,
+                    listOf(InvalidParameter(BUILDING_NAME, Errors.BadRequest.Locations.BODY, INVALID_BUILDING_NAME_LENGTH))
+                )
+            }
+
+            /*
+             * Verify if parameters to create building are valid.
+             */
+            fun verifyCreateBuildingInput(building: CreateBuildingEntity): Boolean {
+                checkIfIsNotBlank(building.name, BUILDING_NAME)
+                checkNameLength(building.name)
+                return true
+            }
+
+            /*
+             * Verify if parameters to create building are valid.
+             */
+            fun verifyUpdateBuildingInput(building: UpdateBuildingEntity): Boolean {
+                building.name?.let {  checkIfIsNotBlank(it, BUILDING_NAME); checkNameLength(it) }
+                return true
+            }
         }
     }
 
@@ -84,34 +127,21 @@ object Validator {
 
         private fun checkRate(rate: Int) {
             if (rate !in 0..5) throw InvalidParameterException(
-                INVALID_REQ_PARAM,
+                INVALID_REQ_PARAMS,
                 listOf(InvalidParameter(TICKET_RATE, Errors.BadRequest.Locations.BODY, INVALID_RATE))
             )
-        }
-
-        private fun checkIfAllUpdatableParametersAreValid(ticket: UpdateTicketEntity) {
-            val ticketSubject = ticket.subject
-            val ticketDescription = ticket.description
-            var bothEmptyFlag = true
-
-            if (!ticketSubject.isNullOrBlank()) {
-                checkSubjectLength(ticketSubject)
-                bothEmptyFlag = false
-            }
-            if (!ticketDescription.isNullOrBlank()) {
-                checkDescriptionLength(ticketDescription)
-                bothEmptyFlag = false
-            }
-            if (bothEmptyFlag) throw InvalidParameterException(UPDATE_NULL_PARAMS, detail = UPDATE_NULL_PARAMS_DETAIL)
         }
 
         /*
          * Verify if parameters to create ticket are valid.
          */
         fun verifyCreateTicketInput(ticket: CreateTicketEntity): Boolean {
-            checkHashLength(ticket.hash)
-            checkSubjectLength(ticket.subject)
+            checkIfIsNotBlank(ticket.description, TICKET_DESCRIPTION)
+            checkIfIsNotBlank(ticket.subject, TICKET_SUBJECT)
+            checkIfIsNotBlank(ticket.hash, TICKET_HASH)
             checkDescriptionLength(ticket.description)
+            checkSubjectLength(ticket.subject)
+            checkHashLength(ticket.hash)
             return true
         }
 
@@ -119,7 +149,21 @@ object Validator {
          * Verify if parameters to update ticket are valid.
          */
         fun verifyUpdateTicketInput(ticket: UpdateTicketEntity): Boolean {
-            checkIfAllUpdatableParametersAreValid(ticket)
+            var bothEmptyFlag = true
+
+            ticket.subject?.let {
+                checkIfIsNotBlank(it, TICKET_SUBJECT)
+                checkSubjectLength(it)
+                bothEmptyFlag = false
+            }
+            ticket.description?.let {
+                checkIfIsNotBlank(it, TICKET_DESCRIPTION)
+                checkDescriptionLength(it)
+                bothEmptyFlag = false
+            }
+            if (bothEmptyFlag) {
+                throw InvalidParameterException(UPDATE_NULL_PARAMS, detail = UPDATE_NULL_PARAMS_DETAIL)
+            }
             return true
         }
 
@@ -133,20 +177,19 @@ object Validator {
 
         object Comment {
 
-            private fun checkComment(comment: String) {
+            private fun checkCommentLength(comment: String) {
                 if (comment.length > COMMENT_MAX_CHARS) throw InvalidParameterException(
-                    INVALID_REQ_PARAM,
+                    INVALID_REQ_PARAMS,
                     listOf(InvalidParameter(COMMENT, Errors.BadRequest.Locations.BODY, INVALID_COMMENT_LENGTH))
                 )
-                if (comment.isBlank())
-                    throw InvalidParameterException(UPDATE_NULL_PARAMS, detail = UPDATE_NULL_PARAMS_DETAIL)
             }
 
             /*
              * Verify if the comment inserted is valid.
              */
             fun verifyCommentInput(comment: InputCommentEntity): Boolean {
-                checkComment(comment.comment)
+                checkIfIsNotBlank(comment.comment, COMMENT)
+                checkCommentLength(comment.comment)
                 return true
             }
         }

@@ -14,6 +14,23 @@ object Uris {
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
         fun makeSpecific(id: Int) = SPECIFIC_TEMPLATE.expand(mapOf("companyId" to id)).toString()
         fun makeActivate(id: Int) = ACTIVATE_TEMPLATE.expand(mapOf("companyId" to id)).toString()
+
+        object Buildings {
+            const val BASE_PATH = "${Companies.SPECIFIC_PATH}/buildings"
+            const val SPECIFIC_PATH = "$BASE_PATH/{buildingId}"
+            const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+            const val MANAGER_PATH = "$SPECIFIC_PATH/manager"
+
+            private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+            private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+            private val MANAGER_TEMPLATE = UriTemplate(MANAGER_PATH)
+            fun makeSpecific(companyId: Int, id: Int) =
+                SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+            fun makeActivate(companyId: Int, id: Int) =
+                ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+            fun makeManager(companyId: Int, id: Int) =
+                MANAGER_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+        }
     }
 
     object Tickets {

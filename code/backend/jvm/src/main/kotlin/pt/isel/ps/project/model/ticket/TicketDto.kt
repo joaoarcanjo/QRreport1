@@ -2,7 +2,7 @@ package pt.isel.ps.project.model.ticket
 
 import pt.isel.ps.project.model.comment.CommentsDto
 import pt.isel.ps.project.model.person.PersonItemDto
-import pt.isel.ps.project.model.state.StateDto
+import pt.isel.ps.project.model.state.EmployeeStateDto
 import java.sql.Timestamp
 
 
@@ -21,7 +21,7 @@ data class TicketDto (
     val timestamp: Timestamp,
     val employeeState: String,
     val userState: String,
-    val possibleTransitions: List<StateDto>
+    val possibleTransitions: List<EmployeeStateDto>
 )
 
 data class TicketsDto (
