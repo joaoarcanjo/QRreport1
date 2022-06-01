@@ -30,7 +30,7 @@ class TicketValidatorTests {
     @Test
     fun `Throws exception when ticket is created with an invalid subject length`() {
         val ticket = CreateTicketEntity(
-            "01234567890123456789012345678901234567890123456789S",
+            "012345678901234567890123456789012345678901234567890123456789",
             "Description test",
             "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
         )
@@ -42,6 +42,30 @@ class TicketValidatorTests {
                     TicketEntity.TICKET_SUBJECT,
                     Errors.BadRequest.Locations.BODY,
                     Errors.BadRequest.Message.Ticket.INVALID_SUBJECT_LENGTH
+                )
+            )
+        )
+
+        Assertions.assertThatThrownBy { verifyCreateTicketInput(ticket) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
+    fun `Throws exception when ticket is created with an blank subject`() {
+        val ticket = CreateTicketEntity(
+            "                   ",
+            "Description test",
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+        )
+
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
+            listOf(
+                InvalidParameter(
+                    TicketEntity.TICKET_SUBJECT,
+                    Errors.BadRequest.Locations.BODY,
+                    Errors.BadRequest.Message.BLANK_PARAMS
                 )
             )
         )
@@ -79,6 +103,30 @@ class TicketValidatorTests {
     }
 
     @Test
+    fun `Throws exception when ticket is created with an blank description`() {
+        val ticket = CreateTicketEntity(
+            "Subject test",
+            "          ",
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+        )
+
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
+            listOf(
+                InvalidParameter(
+                    TicketEntity.TICKET_DESCRIPTION,
+                    Errors.BadRequest.Locations.BODY,
+                    Errors.BadRequest.Message.BLANK_PARAMS
+                )
+            )
+        )
+
+        Assertions.assertThatThrownBy { verifyCreateTicketInput(ticket) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
     fun `Throws exception when ticket is created with an invalid hash length`() {
         val ticket = CreateTicketEntity(
             "Subject test",
@@ -93,6 +141,30 @@ class TicketValidatorTests {
                     TicketEntity.TICKET_HASH,
                     Errors.BadRequest.Locations.BODY,
                     Errors.BadRequest.Message.Ticket.INVALID_HASH_LENGTH
+                )
+            )
+        )
+
+        Assertions.assertThatThrownBy { verifyCreateTicketInput(ticket) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
+    fun `Throws exception when ticket is created with an blank hash`() {
+        val ticket = CreateTicketEntity(
+            "Subject test",
+            "Description test",
+            "               "
+        )
+
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
+            listOf(
+                InvalidParameter(
+                    TicketEntity.TICKET_HASH,
+                    Errors.BadRequest.Locations.BODY,
+                    Errors.BadRequest.Message.BLANK_PARAMS
                 )
             )
         )
@@ -129,11 +201,33 @@ class TicketValidatorTests {
     }
 
     @Test
-    fun `Throws exception when ticket is updated with blank subject and blank description`() {
-        val ticket = UpdateTicketEntity(" ", " ")
+    fun `Throws exception when ticket is updated with blank subject`() {
+        val ticket = UpdateTicketEntity("   ", "Description test")
         val expectedEx = InvalidParameterException(
-            Errors.BadRequest.Message.UPDATE_NULL_PARAMS,
-            detail = Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL)
+            Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
+            listOf(InvalidParameter(
+                TicketEntity.TICKET_SUBJECT,
+                Errors.BadRequest.Locations.BODY,
+                Errors.BadRequest.Message.BLANK_PARAMS
+            ))
+        )
+
+        Assertions.assertThatThrownBy { Validator.Ticket.verifyUpdateTicketInput(ticket) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
+    fun `Throws exception when ticket is updated with blank description`() {
+        val ticket = UpdateTicketEntity("Subject test", "    ")
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
+            listOf(InvalidParameter(
+                TicketEntity.TICKET_DESCRIPTION,
+                Errors.BadRequest.Locations.BODY,
+                Errors.BadRequest.Message.BLANK_PARAMS
+            ))
+        )
 
         Assertions.assertThatThrownBy { Validator.Ticket.verifyUpdateTicketInput(ticket) }
             .isInstanceOf(InvalidParameterException::class.java)
@@ -197,7 +291,7 @@ class TicketValidatorTests {
         val ticketRate = TicketRateEntity(7)
 
         val expectedEx = InvalidParameterException(
-            Errors.BadRequest.Message.INVALID_REQ_PARAM,
+            Errors.BadRequest.Message.INVALID_REQ_PARAMS,
             listOf(
                 InvalidParameter(
                     TicketEntity.TICKET_RATE,

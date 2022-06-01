@@ -48,7 +48,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building creation test |---';
 
-    CALL create_building(name, company_id, floors, manager, building_rep);
+    CALL create_building(company_id, name, floors, manager, building_rep);
     id = building_rep->>'id';
     IF (
         assert_json_is_not_null(building_rep, 'id')
@@ -83,7 +83,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building creation, throws unique_building_name test |---';
 
-    CALL create_building(name, company_id, floors, manager, building_rep);
+    CALL create_building(company_id, name, floors, manager, building_rep);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
@@ -112,7 +112,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building creation throws manager_not_valid, does not have the manager role test |---';
 
-    CALL create_building(name, company_id, floors, manager, building_rep);
+    CALL create_building(company_id, name, floors, manager, building_rep);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
@@ -141,7 +141,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building creation throws manager_not_valid, belongs to other company test |---';
 
-    CALL create_building(name, company_id, floors, manager, building_rep);
+    CALL create_building(company_id, name, floors, manager, building_rep);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
@@ -168,7 +168,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building name and floors test |---';
 
-    CALL update_building(id, company_id, building_rep, name, floors);
+    CALL update_building(company_id, id, building_rep, name, floors);
 
     IF (
         assert_json_value(building_rep, 'name', name) AND
@@ -194,7 +194,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building name test |---';
 
-    CALL update_building(id, company_id, building_rep, new_name:= name);
+    CALL update_building(company_id, id, building_rep, new_name:= name);
 
     IF (assert_json_value(building_rep, 'name', name)) THEN
         RAISE INFO '-> Test succeeded!';
@@ -217,7 +217,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building floors test |---';
 
-    CALL update_building(id, company_id, building_rep, new_floors:= floors);
+    CALL update_building(company_id, id, building_rep, new_floors:= floors);
 
     IF (assert_json_value(building_rep, 'floors', floors::TEXT)) THEN
         RAISE INFO '-> Test succeeded!';
@@ -240,7 +240,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building, throws update_parameters_all_null test |---';
 
-     CALL update_building(id, company_id, building_rep);
+     CALL update_building(company_id, id, building_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -266,7 +266,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building, throws building_not_found test |---';
 
-     CALL update_building(id, company_id, building_rep, new_name := name);
+     CALL update_building(company_id, id, building_rep, new_name := name);
      RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -292,7 +292,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building, throws inactive_building test |---';
 
-    CALL update_building(id, company_id, building_rep, new_name := name);
+    CALL update_building(company_id, id, building_rep, new_name := name);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -318,7 +318,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building, throws unique_building_name test |---';
 
-    CALL update_building(id, company_id, building_rep, new_name := name);
+    CALL update_building(company_id, id, building_rep, new_name := name);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN unique_violation THEN
@@ -337,11 +337,12 @@ DO
 $$
 DECLARE
     buildings_col_size INT = 2;
+    company_id BIGINT = 1;
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Get buildings test |---';
 
-    SELECT get_buildings(1, 10, 0) INTO building_rep;
+    SELECT get_buildings(company_id, 10, 0) INTO building_rep;
 
     IF (assert_json_is_not_null(building_rep, 'buildings') AND
         assert_json_value(building_rep, 'buildingsCollectionSize', buildings_col_size::TEXT)) THEN
@@ -367,7 +368,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Get building test |---';
 
-    SELECT get_building(id, company_id, 10, 0) INTO building_rep;
+    SELECT get_building(company_id, id, 10, 0) INTO building_rep;
 
     IF (assert_json_value(building_rep, 'id', id::TEXT) AND
         assert_json_value(building_rep, 'name', name) AND
@@ -375,7 +376,7 @@ BEGIN
         assert_json_value(building_rep, 'floors', floors::TEXT) AND
         assert_json_is_not_null(building_rep, 'timestamp') AND
         assert_json_value(building_rep, 'roomsCollectionSize', rooms_col_size::TEXT) AND
-        assert_json_is_not_null(building_rep, 'person')
+        assert_json_is_not_null(building_rep, 'manager')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -397,7 +398,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Get company with non existent id test |---';
 
-    SELECT get_building(id, company_id, 10, 0) INTO company_rep;
+    SELECT get_building(company_id, id, 10, 0) INTO company_rep;
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -422,7 +423,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building deactivation test |---';
 
-    CALL deactivate_building(id, company_id, building_rep);
+    CALL deactivate_building(company_id, id, building_rep);
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
         assert_json_value(building_rep, 'state', state) AND
@@ -448,7 +449,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Deactivate building, throws building_not_found test |---';
 
-    CALL deactivate_building(id, company_id, building_rep);
+    CALL deactivate_building(company_id, id, building_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -473,7 +474,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building activation test |---';
 
-    CALL activate_building(id, company_id, building_rep);
+    CALL activate_building(company_id, id, building_rep);
 
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
@@ -500,7 +501,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Activate building, throws building_not_found test |---';
 
-    CALL activate_building(id, company_id, building_rep);
+    CALL activate_building(company_id, id, building_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -525,7 +526,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Changing manager test |---';
 
-    CALL change_building_manager(id, company_id, new_manager, building_rep);
+    CALL change_building_manager(company_id, id, new_manager, building_rep);
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
         assert_json_value(building_rep, 'manager', new_manager::TEXT)
@@ -552,7 +553,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Activate building, throws manager_not_valid test |---';
 
-    CALL change_building_manager(id, company_id, new_manager, building_rep);
+    CALL change_building_manager(company_id, id, new_manager, building_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
@@ -579,7 +580,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Activate building, throws manager_not_valid test |---';
 
-    CALL change_building_manager(id, company_id, new_manager, building_rep);
+    CALL change_building_manager(company_id, id, new_manager, building_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN

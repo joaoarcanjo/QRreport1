@@ -4,7 +4,6 @@ import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.springframework.stereotype.Service
 import pt.isel.ps.project.dao.CommentDao
-import pt.isel.ps.project.exception.Errors
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.model.comment.*
