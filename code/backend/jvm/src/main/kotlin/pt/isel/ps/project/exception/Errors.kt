@@ -47,6 +47,12 @@ object Errors {
 
                 object Building {
                     const val INVALID_BUILDING_NAME_LENGTH = "The name can have a maximum of 50 characters."
+                    const val INVALID_BUILDING_FLOOR_NUMBER = "The max number of floors is 600"
+
+                    object Room {
+                        const val INVALID_ROOM_NAME_LENGTH = "The name can have a maximum of 50 characters."
+                        const val INVALID_ROOM_FLOOR_NUMBER = "The floor number must be between -100 and 500"
+                    }
                 }
             }
 

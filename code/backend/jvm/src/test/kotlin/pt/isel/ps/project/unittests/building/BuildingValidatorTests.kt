@@ -14,7 +14,7 @@ import java.util.*
 class BuildingValidatorTests {
 
     @Test
-    fun `Create building with valid building name`() {
+    fun `Create building with valid building name and floors number`() {
         val building = CreateBuildingEntity("Name test", 12, UUID.randomUUID())
 
         Assertions.assertThat(Validator.Company.Building.verifyCreateBuildingInput(building)).isTrue
@@ -54,6 +54,26 @@ class BuildingValidatorTests {
                     BuildingEntity.BUILDING_NAME,
                     Errors.BadRequest.Locations.BODY,
                     Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
+                )
+            )
+        )
+
+        Assertions.assertThatThrownBy { Validator.Company.Building.verifyCreateBuildingInput(building) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
+    fun `Throws exception when building is created with invalid floors number`() {
+        val building = CreateBuildingEntity("Building name", 99999, UUID.randomUUID())
+
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.INVALID_REQ_PARAMS,
+            listOf(
+                InvalidParameter(
+                    BuildingEntity.BUILDING_FLOORS,
+                    Errors.BadRequest.Locations.BODY,
+                    Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
                 )
             )
         )
@@ -107,6 +127,26 @@ class BuildingValidatorTests {
         )
 
         Assertions.assertThatThrownBy { Validator.Company.Building.verifyCreateBuildingInput(building) }
+            .isInstanceOf(InvalidParameterException::class.java)
+            .isEqualTo(expectedEx)
+    }
+
+    @Test
+    fun `Throws exception when building is updated with invalid floors number`() {
+        val building = UpdateBuildingEntity(null, 99999)
+
+        val expectedEx = InvalidParameterException(
+            Errors.BadRequest.Message.INVALID_REQ_PARAMS,
+            listOf(
+                InvalidParameter(
+                    BuildingEntity.BUILDING_FLOORS,
+                    Errors.BadRequest.Locations.BODY,
+                    Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
+                )
+            )
+        )
+
+        Assertions.assertThatThrownBy { Validator.Company.Building.verifyUpdateBuildingInput(building) }
             .isInstanceOf(InvalidParameterException::class.java)
             .isEqualTo(expectedEx)
     }

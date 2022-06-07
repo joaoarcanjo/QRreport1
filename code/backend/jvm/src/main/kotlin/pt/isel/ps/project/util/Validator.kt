@@ -3,7 +3,10 @@ package pt.isel.ps.project.util
 import pt.isel.ps.project.exception.Errors
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS_DETAIL
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_FLOOR_NUMBER
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
@@ -15,6 +18,8 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_FLOORS
+import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_MAX_FLOORS_NUMBER
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME_MAX_CHARS
 import pt.isel.ps.project.model.building.CreateBuildingEntity
@@ -30,7 +35,16 @@ import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION_MAX_CHARS
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
+import pt.isel.ps.project.model.room.CreateRoomEntity
+import pt.isel.ps.project.model.room.RoomEntity.MAX_FLOOR
+import pt.isel.ps.project.model.room.RoomEntity.MIN_FLOOR
+import pt.isel.ps.project.model.room.RoomEntity.ROOM_FLOOR
+import pt.isel.ps.project.model.room.RoomEntity.ROOM_NAME
+import pt.isel.ps.project.model.room.RoomEntity.ROOM_NAME_MAX_CHARS
+import pt.isel.ps.project.model.room.UpdateRoomEntity
 import pt.isel.ps.project.model.ticket.CreateTicketEntity
+import pt.isel.ps.project.model.ticket.TicketEntity.MAX_RATE
+import pt.isel.ps.project.model.ticket.TicketEntity.MIN_RATE
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_HASH
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_RATE
 import pt.isel.ps.project.model.ticket.TicketRateEntity
@@ -83,21 +97,78 @@ object Validator {
                 )
             }
 
+            private fun checkFloorsNumber(floors: Int) {
+                if (floors > BUILDING_MAX_FLOORS_NUMBER) throw InvalidParameterException(
+                    INVALID_REQ_PARAMS,
+                    listOf(InvalidParameter(BUILDING_FLOORS, Errors.BadRequest.Locations.BODY, INVALID_BUILDING_FLOOR_NUMBER))
+                )
+            }
+
             /*
              * Verify if parameters to create building are valid.
              */
             fun verifyCreateBuildingInput(building: CreateBuildingEntity): Boolean {
                 checkIfIsNotBlank(building.name, BUILDING_NAME)
                 checkNameLength(building.name)
+                checkFloorsNumber(building.floors)
                 return true
             }
 
             /*
-             * Verify if parameters to create building are valid.
+             * Verify if parameters to update building are valid.
              */
             fun verifyUpdateBuildingInput(building: UpdateBuildingEntity): Boolean {
-                building.name?.let {  checkIfIsNotBlank(it, BUILDING_NAME); checkNameLength(it) }
+                var bothEmptyFlag = true
+
+                building.name?.let {
+                    checkIfIsNotBlank(it, BUILDING_NAME)
+                    checkNameLength(it)
+                    bothEmptyFlag = false
+                }
+                building.floors?.let {
+                    checkFloorsNumber(it)
+                    bothEmptyFlag = false
+                }
+                if (bothEmptyFlag) {
+                    throw InvalidParameterException(UPDATE_NULL_PARAMS, detail = UPDATE_NULL_PARAMS_DETAIL)
+                }
                 return true
+            }
+
+            object Room {
+
+                private fun checkNameLength(name: String) {
+                    if (name.length > ROOM_NAME_MAX_CHARS) throw InvalidParameterException(
+                        INVALID_REQ_PARAMS,
+                        listOf(InvalidParameter(ROOM_NAME, Errors.BadRequest.Locations.BODY, INVALID_ROOM_NAME_LENGTH))
+                    )
+                }
+
+                private fun checkFloorNumber(floor: Int) {
+                    if (floor !in MIN_FLOOR..MAX_FLOOR) throw InvalidParameterException(
+                        INVALID_REQ_PARAMS,
+                        listOf(InvalidParameter(ROOM_FLOOR, Errors.BadRequest.Locations.BODY, INVALID_ROOM_FLOOR_NUMBER))
+                    )
+                }
+
+                /*
+                 * Verify if parameters to create room are valid.
+                 */
+                fun verifyCreateRoomInput(room: CreateRoomEntity): Boolean {
+                    checkIfIsNotBlank(room.name, ROOM_NAME)
+                    checkNameLength(room.name)
+                    checkFloorNumber(room.floor)
+                    return true
+                }
+
+                /*
+                 * Verify if parameters to update room are valid.
+                 */
+                fun verifyUpdateRoomInput(room: UpdateRoomEntity): Boolean {
+                    checkIfIsNotBlank(room.name, ROOM_NAME)
+                    checkNameLength(room.name)
+                    return true
+                }
             }
         }
     }
@@ -126,7 +197,7 @@ object Validator {
         }
 
         private fun checkRate(rate: Int) {
-            if (rate !in 0..5) throw InvalidParameterException(
+            if (rate !in MIN_RATE..MAX_RATE) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
                 listOf(InvalidParameter(TICKET_RATE, Errors.BadRequest.Locations.BODY, INVALID_RATE))
             )

@@ -18,7 +18,7 @@ class CommentValidatorTests {
 
         val comment = InputCommentEntity("Comment test")
 
-        Assertions.assertThat(Validator.Ticket.Comment.verifyCreateCommentInput(comment)).isTrue
+        Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
 
 
@@ -42,7 +42,7 @@ class CommentValidatorTests {
                 )
             )
 
-        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCreateCommentInput(comment) }
+        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCommentInput(comment) }
             .isInstanceOf(InvalidParameterException::class.java)
             .isEqualTo(expectedEx)
     }
@@ -62,7 +62,7 @@ class CommentValidatorTests {
             )
         )
 
-        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCreateCommentInput(comment) }
+        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCommentInput(comment) }
             .isInstanceOf(InvalidParameterException::class.java)
             .isEqualTo(expectedEx)
     }
@@ -72,7 +72,7 @@ class CommentValidatorTests {
 
         val comment = InputCommentEntity("New comment test")
 
-        Assertions.assertThat(Validator.Ticket.Comment.verifyUpdateCommentInput(comment)).isTrue
+        Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
 
     @Test
@@ -90,7 +90,7 @@ class CommentValidatorTests {
             )
         )
 
-        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyUpdateCommentInput(comment) }
+        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCommentInput(comment) }
             .isInstanceOf(InvalidParameterException::class.java)
             .isEqualTo(expectedEx)
     }
@@ -115,7 +115,7 @@ class CommentValidatorTests {
                 )
             )
 
-        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyUpdateCommentInput(comment) }
+        Assertions.assertThatThrownBy { Validator.Ticket.Comment.verifyCommentInput(comment) }
             .isInstanceOf(InvalidParameterException::class.java)
             .isEqualTo(expectedEx)
     }

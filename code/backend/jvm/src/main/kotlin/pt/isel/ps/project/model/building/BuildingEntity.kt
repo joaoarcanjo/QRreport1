@@ -11,6 +11,7 @@ object BuildingEntity {
     const val BUILDING_NAME = "name"
     const val BUILDING_FLOORS = "floors"
     const val BUILDING_NAME_MAX_CHARS = 50
+    const val BUILDING_MAX_FLOORS_NUMBER = 600
 }
 
 data class CreateBuildingEntity(

@@ -30,6 +30,29 @@ object Uris {
                 ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
             fun makeManager(companyId: Int, id: Int) =
                 MANAGER_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+
+            object Rooms {
+                const val BASE_PATH = "${Buildings.SPECIFIC_PATH}/rooms"
+                //TODO questionar se o caminho para o especifico room não deveria incluir a company e building
+                const val SPECIFIC_PATH = "$VERSION/rooms/{roomId}"
+                //TODO update documentation and change deactivate path to delete method
+                const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+                const val DEVICES_PATH = "$SPECIFIC_PATH/devices"
+                const val SPECIFIC_DEVICE_PATH = "$DEVICES_PATH/{deviceId}"
+
+                private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+                private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+                private val DEVICES_TEMPLATE = UriTemplate(DEVICES_PATH)
+                private val SPECIFIC_DEVICE_TEMPLATE = UriTemplate(SPECIFIC_DEVICE_PATH)
+                fun makeSpecific(id: Int) =
+                    SPECIFIC_TEMPLATE.expand(mapOf("roomId" to id)).toString()
+                fun makeActivate(id: Int) =
+                    ACTIVATE_TEMPLATE.expand(mapOf("roomId" to id)).toString()
+                fun makeDevices(id: Int) =
+                    DEVICES_TEMPLATE.expand(mapOf("roomId" to id)).toString()
+                fun makeSpecificDevice(roomId: Int, deviceId: Int) =
+                    SPECIFIC_DEVICE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
+            }
         }
     }
 

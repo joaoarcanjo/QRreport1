@@ -11,6 +11,8 @@ object TicketEntity {
     const val TICKET_RATE = "rate"
     const val TICKET_SUBJECT_MAX_CHARS = 50
     const val TICKET_DESCRIPTION_MAX_CHARS = 200
+    const val MIN_RATE = 0
+    const val MAX_RATE = 5
 }
 
 data class CreateTicketEntity(
