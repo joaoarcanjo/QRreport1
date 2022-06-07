@@ -33,6 +33,9 @@ dependencies {
 	implementation("org.jdbi:jdbi3-postgres:3.28.0")
 	implementation("org.jdbi:jdbi3-kotlin:3.28.0")
 	implementation("org.jdbi:jdbi3-kotlin-sqlobject:3.28.0")
+	
+	//Database transactions
+	implementation("org.springframework:spring-tx:5.3.20")
 
 	// Tests
 	testImplementation("org.springframework.boot:spring-boot-starter-test")

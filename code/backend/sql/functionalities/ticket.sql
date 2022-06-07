@@ -35,7 +35,7 @@ DECLARE
     t_id BIGINT; t_creation_timestamp TIMESTAMP; t_employee_state INT; room_id BIGINT; device_id BIGINT;
 BEGIN
     --if the qr code is invalid, doesn't exist any correspondence with this hash, the room and the device
-    SELECT room, device FROM ROOM_DEVICE WHERE qr_hash = hash FOR SHARE INTO room_id, device_id;
+    SELECT room, device FROM ROOM_DEVICE WHERE qr_hash = hash INTO room_id, device_id;
     IF (room_id IS NULL) THEN
         RAISE EXCEPTION 'unknown_room_device';
     END IF;
@@ -68,7 +68,7 @@ DECLARE
     ticket_ret_id BIGINT; t_current_state INT; t_current_subject TEXT; t_current_description TEXT;
 BEGIN
     SELECT employee_state, subject, description FROM TICKET
-    WHERE id = ticket_id FOR SHARE
+    WHERE id = ticket_id
     INTO t_current_state, t_current_subject, t_current_description;
 
     CASE
@@ -126,7 +126,7 @@ DECLARE
     t_subject TEXT; t_description TEXT; t_curr_employee_state INT; updated_ticket BIGINT; currentTimestamp TIMESTAMP;
 BEGIN
     SELECT subject, description, employee_state FROM TICKET
-    WHERE id = ticket_id FOR SHARE
+    WHERE id = ticket_id
     INTO t_subject, t_description, t_curr_employee_state;
 
     CASE
@@ -184,7 +184,7 @@ BEGIN
         INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
         INNER JOIN USER_STATE us ON es.user_state = us.id
         INNER JOIN PERSON p ON p.id = t.reporter
-    WHERE t.id = ticket_id FOR SHARE
+    WHERE t.id = ticket_id
         INTO t_subject, t_desc, t_creation_time, t_employee_state, t_user_state, r_id, r_name, r_phone, r_email;
     IF (t_subject IS NULL) THEN
         RAISE 'ticket_not_found';
@@ -194,7 +194,7 @@ BEGIN
     FOR rec IN
         SELECT id, name FROM EMPLOYEE_STATE
         WHERE id IN (SELECT second_employee_state FROM EMPLOYEE_STATE_TRANS
-        WHERE first_employee_state = (SELECT employee_state FROM TICKET WHERE id = ticket_id)) FOR SHARE
+        WHERE first_employee_state = (SELECT employee_state FROM TICKET WHERE id = ticket_id))
     LOOP
         t_possibleTransitions = array_append(t_possibleTransitions, json_build_object('id', rec.id, 'name', rec.name));
     END LOOP;
@@ -287,8 +287,12 @@ DECLARE
     t_subject TEXT; t_description TEXT; t_employeeState INT; employee_name TEXT;
     employee_email TEXT; employee_phone TEXT;
 BEGIN
+    SELECT subject, description INTO t_subject, t_description FROM TICKET WHERE ID = ticket_id;
+    IF (NOT FOUND) THEN
+        RAISE 'ticket_not_found';
+    END IF;
 
-    SELECT name, email, phone FROM PERSON WHERE id = new_employee_id FOR SHARE
+    SELECT name, email, phone FROM PERSON WHERE id = new_employee_id
     INTO employee_name, employee_email, employee_phone;
 
     --verify if the employee has the necessary skill to resolve the ticket problem
@@ -303,8 +307,7 @@ BEGIN
         RAISE EXCEPTION 'already_have_an_employee';
     ELSE
         UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'On execution')
-        WHERE id = ticket_id
-        RETURNING subject, description, employee_state INTO t_subject, t_description, t_employeeState;
+        WHERE id = ticket_id RETURNING employee_state INTO t_employeeState;
         IF (NOT FOUND) THEN
             RAISE 'unknown_error_updating_state_resource';
         END IF;
@@ -333,8 +336,10 @@ DECLARE
     employee_phone TEXT; employee_id UUID;
 BEGIN
 
-    SELECT employee_state FROM TICKET WHERE id = ticket_id FOR SHARE INTO t_employee_state;
+    SELECT employee_state FROM TICKET WHERE id = ticket_id INTO t_employee_state;
     CASE
+        WHEN (NOT FOUND) THEN
+            RAISE 'ticket_not_found';
         --cant remove a employee from a ticket without employee
         WHEN (t_employee_state IN (SELECT id FROM EMPLOYEE_STATE
         WHERE name = 'To assign' OR name = 'Waiting for new employee')) THEN
@@ -350,7 +355,7 @@ BEGIN
                 RAISE 'unknown_error_updating_state_resource';
             END IF;
 
-            employee_id = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL FOR SHARE);
+            employee_id = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
             SELECT name, email, phone FROM PERSON
             WHERE id = employee_id INTO employee_name, employee_email, employee_phone;
 
@@ -385,25 +390,26 @@ BEGIN
             SELECT person FROM PERSON_ROLE
             WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'admin'))
         ) THEN*/
-    IF (
-        SELECT id FROM TICKET
-        WHERE id = ticket_id AND employee_state != (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Concluded')
-    ) THEN
-        RAISE 'ticket_must_be_concluded';
-    END IF;
+    SELECT employee_state INTO t_employeeSate FROM TICKET WHERE id = ticket_id;
+    CASE
+        WHEN (NOT FOUND) THEN
+            RAISE 'ticket_not_found';
+        WHEN (t_employeeSate = 'Concluded') THEN
+            RAISE 'ticket_must_be_concluded';
+        ELSE
+            INSERT INTO RATE (person, ticket, rate) VALUES (person_id, ticket_id, rate_value);
+            IF (NOT FOUND) THEN
+                RAISE 'unknown_error_creating_resource';
+            END IF;
+            SELECT subject, description, es.name, us.name FROM TICKET t
+                INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
+                INNER JOIN USER_STATE us ON es.user_state = us.id
+                WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
 
-    INSERT INTO RATE (person, ticket, rate) VALUES (person_id, ticket_id, rate_value);
-    IF (NOT FOUND) THEN
-        RAISE 'unknown_error_creating_resource';
-    END IF;
-    /*ELSE
-        RAISE EXCEPTION 'invalid_access_exception';
-    END IF;*/
-    SELECT subject, description, es.name, us.name FROM TICKET t
-        INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
-        INNER JOIN USER_STATE us ON es.user_state = us.id
-        WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
-
-    ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
-        'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
+            ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
+                'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
+        END CASE;
+        /*ELSE
+            RAISE EXCEPTION 'invalid_access_exception';
+        END IF;*/
 END$$ LANGUAGE plpgsql;

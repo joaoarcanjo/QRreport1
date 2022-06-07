@@ -39,7 +39,7 @@ DO
 $$
 DECLARE
     id BIGINT;
-    name TEXT = 'Building name test';
+    name TEXT = 'Building name 11';
     floors INT = 12;
     company_id BIGINT = 1;
     manager UUID = 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057';
@@ -51,8 +51,10 @@ BEGIN
     CALL create_building(company_id, name, floors, manager, building_rep);
     id = building_rep->>'id';
     IF (
-        assert_json_is_not_null(building_rep, 'id')
-
+        assert_json_is_not_null(building_rep, 'id') AND
+        assert_json_value(building_rep, 'name', name) AND
+        assert_json_value(building_rep, 'floors', floors::TEXT) AND
+        assert_json_value(building_rep, 'state', state)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -62,7 +64,7 @@ BEGIN
 
    -- Remove sequence inc
    IF (id = 1) THEN
-        ALTER SEQUENCE company_id_seq RESTART;
+        ALTER SEQUENCE building_id_seq RESTART;
         RETURN;
     END IF;
     PERFORM setval('building_id_seq', (SELECT last_value FROM building_id_seq) - 1);
@@ -364,7 +366,7 @@ DECLARE
     floors INT = 4;
     state TEXT = 'Active';
     building_rep JSON;
-    rooms_col_size INT = 2;
+    rooms_col_size INT = 3;
 BEGIN
     RAISE INFO '---| Get building test |---';
 
@@ -383,7 +385,6 @@ BEGIN
         RAISE EXCEPTION '-> Test failed!';
     END IF;
 END$$;
-
 
 /*
  * Tests in the get building function, throws building_not_found

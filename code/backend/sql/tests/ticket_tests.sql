@@ -659,6 +659,31 @@ BEGIN
 END$$;
 
 /*
+ * Tests set ticket employee, throws ticket_not_found
+ */
+DO
+$$
+DECLARE
+    employee_id UUID = 'e85c73aa-7869-4861-a1cc-ca30d7c84123';
+    ticket_id BIGINT = '-1';
+    returned_value JSON;
+    ex_constraint TEXT;
+BEGIN
+    RAISE INFO '---| Test set ticket employee, throws ticket_not_found test |---';
+
+    CALL set_ticket_employee(employee_id, ticket_id, returned_value);
+    RAISE EXCEPTION '-> Test failed!';
+EXCEPTION
+    WHEN raise_exception THEN
+        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
+        IF (ex_constraint = 'ticket_not_found') THEN
+            RAISE INFO '-> Test succeeded!';
+        ELSE
+            RAISE EXCEPTION '-> Test failed!';
+        END IF;
+END$$;
+
+/*
  * Tests set ticket employee, throws missing_necessary_skill
  */
 DO
@@ -735,6 +760,30 @@ BEGIN
         RAISE EXCEPTION '-> Test failed!';
     END IF;
     ROLLBACK;
+END$$;
+
+/*
+ * Tests set ticket employee, throws ticket_not_found
+ */
+DO
+$$
+DECLARE
+    ticket_id BIGINT = '-1';
+    returned_value JSON;
+    ex_constraint TEXT;
+BEGIN
+    RAISE INFO '---| Remove ticket employee, throws ticket_not_found test |---';
+
+    CALL remove_ticket_employee(ticket_id, returned_value);
+    RAISE EXCEPTION '-> Test failed!';
+EXCEPTION
+    WHEN raise_exception THEN
+        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
+        IF (ex_constraint = 'ticket_not_found') THEN
+            RAISE INFO '-> Test succeeded!';
+        ELSE
+            RAISE EXCEPTION '-> Test failed!';
+        END IF;
 END$$;
 
 /*
@@ -816,6 +865,32 @@ BEGIN
         RAISE EXCEPTION '-> Test failed!';
     END IF;
     ROLLBACK;
+END$$;
+
+/*
+ * Tests add ticket rate, throws ticket_not_found
+ */
+DO
+$$
+DECLARE
+    employee_id UUID = '0a8b83ec-7675-4467-91e5-33e933441eee';
+    ticket_id BIGINT = '-1';
+    rate_value INT = 5;
+    ex_constraint TEXT;
+    ticket_rep JSON;
+BEGIN
+    RAISE INFO '---| Tests add ticket rate, throws ticket_not_found test |---';
+
+    CALL add_ticket_rate(employee_id, ticket_id, rate_value, ticket_rep);
+    RAISE EXCEPTION '-> Test failed!';
+EXCEPTION
+    WHEN raise_exception THEN
+        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
+        IF (ex_constraint = 'ticket_not_found') THEN
+            RAISE INFO '-> Test succeeded!';
+        ELSE
+            RAISE EXCEPTION '-> Test failed!';
+        END IF;
 END$$;
 
 /*

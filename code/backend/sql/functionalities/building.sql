@@ -29,18 +29,15 @@ CREATE OR REPLACE PROCEDURE create_building(
 AS
 $$
 DECLARE
-    building_id BIGINT; tmstamp TIMESTAMP; building_state TEXT; prev_id BIGINT;
+    building_id BIGINT; tmstamp TIMESTAMP; building_state TEXT;
 BEGIN
-    SELECT last_value INTO prev_id FROM building_id_seq;
     -- verify if the person has the manager role and if the manager belongs to the company
     IF NOT EXISTS (SELECT role FROM PERSON_ROLE
         WHERE person = (SELECT person FROM PERSON_COMPANY WHERE person = manager AND company = company_id)
-        AND role = (SELECT id FROM ROLE WHERE name = 'manager') FOR SHARE) THEN
+        AND role = (SELECT id FROM ROLE WHERE name = 'manager')) THEN
         raise 'manager_not_valid';
     END IF;
-    -- this no other building is added until the transaction ends
-    -- LOCK TABLE BUILDING IN SHARE ROW EXCLUSIVE MODE;
-    -- ensure does not exist two buildings with the same name in the same company
+
     IF EXISTS (SELECT id FROM BUILDING WHERE company = company_id AND name = bname) THEN
         RAISE 'unique_building_name' USING ERRCODE = 'unique_violation';
     END IF;
@@ -72,7 +69,7 @@ DECLARE
     building_name TEXT; building_floors INT; building_state TEXT; tmstamp TIMESTAMP;
 BEGIN
     SELECT name, floors, state, timestamp INTO building_name, building_floors, building_state, tmstamp
-    FROM BUILDING WHERE id = building_id FOR SHARE;
+    FROM BUILDING WHERE id = building_id;
     IF (building_name IS NULL) THEN
         RAISE 'building_not_found';
     END IF;
@@ -142,8 +139,12 @@ END$$ LANGUAGE plpgsql;
  * Returns the building representation
  * Throws exception when the building id does not exist
  */
-
-CREATE OR REPLACE FUNCTION get_building(company_id BIGINT, building_id BIGINT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION get_building(
+    company_id BIGINT,
+    building_id BIGINT,
+    limit_rows INT DEFAULT NULL,
+    skip_rows INT DEFAULT NULL
+)
 RETURNS JSON
 AS
 $$
@@ -154,8 +155,7 @@ DECLARE
     building_name TEXT; building_floors INT; building_state TEXT; tmstamp TIMESTAMP;
     manager_id UUID; manager_name TEXT; manager_phone TEXT; manager_email TEXT;
 BEGIN
-    SELECT name, floors, state, timestamp, manager FROM BUILDING
-    WHERE id = building_id AND company = company_id FOR SHARE
+    SELECT name, floors, state, timestamp, manager FROM BUILDING WHERE id = building_id AND company = company_id
     INTO building_name, building_floors, building_state, tmstamp, manager_id;
     IF (building_name IS NULL) THEN
         RAISE 'building_not_found';
@@ -163,10 +163,10 @@ BEGIN
 
     --get all rooms that belong to the building
     FOR rec IN
-        SELECT id, name, state FROM ROOM
+        SELECT id, name, floor, state FROM ROOM
         WHERE building = building_id LIMIT limit_rows OFFSET skip_rows
     LOOP
-        rooms = array_append(rooms, room_item_representation(rec.id, rec.name, rec.state));
+        rooms = array_append(rooms, room_item_representation(rec.id, rec.name, rec.floor, rec.state));
         collection_size = collection_size + 1;
     END LOOP;
 
@@ -174,8 +174,8 @@ BEGIN
     WHERE id = manager_id INTO manager_name, manager_phone, manager_email;
 
     RETURN json_build_object(
-        'id', building_id, 'name', building_name, 'floors', building_floors, 'state', building_state, 'timestamp', tmstamp,
-        'rooms', rooms, 'roomsCollectionSize', collection_size,
+        'id', building_id, 'name', building_name, 'floors', building_floors, 'state', building_state,
+        'timestamp', tmstamp, 'rooms', rooms, 'roomsCollectionSize', collection_size,
         'manager', person_item_representation(manager_id, manager_name, manager_phone, manager_email)
     );
 END$$ LANGUAGE plpgsql;
@@ -191,8 +191,8 @@ $$
 DECLARE
     building_name TEXT; building_floors INT; building_state TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT name, floors, state, timestamp INTO building_name, building_floors, building_state, tmstamp
-    FROM BUILDING WHERE id = building_id AND company = company_id FOR UPDATE;
+    SELECT name, floors, state INTO building_name, building_floors, building_state
+    FROM BUILDING WHERE id = building_id AND company = company_id;
     CASE
         WHEN (building_name IS NULL) THEN
             RAISE 'building_not_found';
@@ -218,8 +218,8 @@ $$
 DECLARE
     building_name TEXT; building_floors INT; building_state TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT name, floors, state, timestamp INTO building_name, building_floors, building_state, tmstamp
-    FROM BUILDING WHERE id = building_id AND company = company_id FOR UPDATE;
+    SELECT name, floors, state INTO building_name, building_floors, building_state
+    FROM BUILDING WHERE id = building_id AND company = company_id;
     CASE
         WHEN (building_name IS NULL) THEN
             RAISE 'building_not_found';
@@ -251,26 +251,26 @@ $$
 DECLARE
     building_name TEXT; building_state TEXT; curr_manager UUID;
 BEGIN
-    IF NOT EXISTS (SELECT role FROM PERSON_ROLE
-        WHERE person = (SELECT person FROM PERSON_COMPANY WHERE person = new_manager AND company = company_id)
-        AND role = (SELECT id FROM ROLE WHERE name = 'manager') FOR SHARE) THEN
-        raise 'manager_not_valid';
-    END IF;
     SELECT name, manager, building_state INTO building_name, curr_manager, building_state FROM BUILDING
-    WHERE id = building_id AND company = company_id FOR UPDATE;
+    WHERE id = building_id AND company = company_id;
     CASE
         WHEN (building_name IS NULL) THEN
             RAISE 'building_not_found';
         WHEN (curr_manager = new_manager) THEN
             -- Do nothing when try to change the manager to the same manager
         ELSE
+            IF NOT EXISTS (SELECT role FROM PERSON_ROLE
+            WHERE person = (SELECT person FROM PERSON_COMPANY WHERE person = new_manager AND company = company_id)
+            AND role = (SELECT id FROM ROLE WHERE name = 'manager')) THEN
+                raise 'manager_not_valid';
+            END IF;
             UPDATE BUILDING SET manager = new_manager WHERE id = building_id AND company = company_id
             RETURNING manager INTO new_manager;
             IF (new_manager IS NULL) THEN
                 RAISE 'unknown_error_updating_resource';
             END IF;
     END CASE;
-    building_rep =  json_build_object('id', building_id, 'name', building_name, 'manager', new_manager);
+    building_rep = json_build_object('id', building_id, 'name', building_name, 'manager', new_manager);
 END$$ LANGUAGE plpgsql;
 
 /**

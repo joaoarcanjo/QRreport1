@@ -33,7 +33,8 @@ BEGIN;
         ('ByChef', 1, 'Active', 1),
         ('Sala de reuniões', 2, 'Active', 2),
         ('Sala de estudos', -1, 'Active', 2),
-        ('Casa de banho', 7, 'Active', 3);
+        ('Casa de banho', 7, 'Active', 3),
+        ('Salão de jogos', 1, 'Inactive', 1);
 
     INSERT INTO CATEGORY (name, state) VALUES
         ('canalization', 'active'),

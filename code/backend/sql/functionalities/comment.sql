@@ -26,12 +26,10 @@ DECLARE
 BEGIN
     IF EXISTS (
         SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
-        AND id = ticket_id FOR SHARE
+        AND id = ticket_id
     ) THEN
         RAISE 'cant_comment_archived_ticket';
     ELSE
-        --this lock will ensure no other transaction of this type runs at a time
-        LOCK TABLE COMMENT IN SHARE ROW EXCLUSIVE MODE;
         comment_id = (SELECT MAX(id) FROM COMMENT WHERE ticket = ticket_id) + 1;
         IF (comment_id IS NULL) THEN
             comment_id = 1;
@@ -60,7 +58,7 @@ DECLARE
 BEGIN
     SELECT person.id, person.name, person.phone, person.email, comment.comment, comment.timestamp
     FROM COMMENT comment INNER JOIN PERSON person ON comment.person = person.id
-    WHERE comment.id = comment_id AND comment.ticket = ticket_id FOR SHARE
+    WHERE comment.id = comment_id AND comment.ticket = ticket_id
     INTO person_id, person_name, person_phone, person_email, comment, comment_timestamp;
     IF (NOT FOUND) THEN
         RAISE 'comment_not_found';
@@ -122,10 +120,11 @@ $$
 DECLARE
     comment_timestamp TIMESTAMP;
 BEGIN
-    IF EXISTS (
-        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
-        AND id = ticket_id FOR SHARE
-    ) THEN
+    IF NOT EXISTS (SELECT id FROM COMMENT WHERE id = comment_id AND ticket = ticket_id) THEN
+        RAISE 'comment_not_found';
+    END IF;
+   IF ((SELECT employee_state FROM TICKET WHERE id = ticket_id)
+            = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')) THEN
         RAISE 'cant_comment_archived_ticket';
     ELSE
         UPDATE COMMENT SET comment = new_comment WHERE id = comment_id AND ticket = ticket_id
@@ -152,10 +151,11 @@ $$
 DECLARE
     comment_timestamp TIMESTAMP; ticket_comment TEXT;
 BEGIN
-   IF EXISTS (
-        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
-        AND id = ticket_id FOR SHARE
-    ) THEN
+    IF NOT EXISTS (SELECT id FROM COMMENT WHERE id = comment_id AND ticket = ticket_id) THEN
+        RAISE 'comment_not_found';
+    END IF;
+    IF ((SELECT employee_state FROM TICKET WHERE id = ticket_id)
+            = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')) THEN
         RAISE 'cant_delete_comment_from_archived_ticket';
     ELSE
         DELETE FROM COMMENT WHERE id = comment_id AND ticket = ticket_id
