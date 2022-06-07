@@ -37,13 +37,15 @@ BEGIN;
         ('Salão de jogos', 1, 'Inactive', 1);
 
     INSERT INTO CATEGORY (name, state) VALUES
-        ('canalization', 'active'),
-        ('electricity', 'active'),
-        ('software', 'active'),
-        ('network', 'active'),
-        ('cleaning', 'active'),
-        ('woodworker', 'active'),
-        ('acclimatization', 'active');
+        ('canalization', 'Active'),
+        ('electricity', 'Active'),
+        ('software', 'Active'),
+        ('network', 'Active'),
+        ('cleaning', 'Active'),
+        ('woodworker', 'Active'),
+        ('acclimatization', 'Active'),
+        ('gardening', 'Active'),
+        ('cooker', 'Inactive');
 
     INSERT INTO ROLE (name) VALUES
         ('guest'),

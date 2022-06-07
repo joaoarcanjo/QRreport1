@@ -389,7 +389,7 @@ DECLARE
     room_state TEXT;
     rec RECORD;
 BEGIN
-    RAISE INFO '---| Trigger -> Remove qr_hashs test |---';
+    RAISE INFO '---| Trigger -> Remove qr_hashes test |---';
 
     UPDATE ROOM SET state = 'Inactive' WHERE id = room_id
     RETURNING state INTO room_state;

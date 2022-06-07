@@ -35,7 +35,7 @@ BEGIN
     IF NOT EXISTS (SELECT role FROM PERSON_ROLE
         WHERE person = (SELECT person FROM PERSON_COMPANY WHERE person = manager AND company = company_id)
         AND role = (SELECT id FROM ROLE WHERE name = 'manager')) THEN
-        raise 'manager_not_valid';
+        RAISE 'manager_not_valid';
     END IF;
 
     IF EXISTS (SELECT id FROM BUILDING WHERE company = company_id AND name = bname) THEN
