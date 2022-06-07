@@ -1,7 +1,7 @@
 package pt.isel.ps.project.model.comment
 
 /*
- * Name of the company representation output parameter
+ * Name of the comment representation output parameter
  */
 const val COMMENT_REP = "commentRep"
 

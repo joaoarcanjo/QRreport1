@@ -52,6 +52,10 @@ object Uris {
                     DEVICES_TEMPLATE.expand(mapOf("roomId" to id)).toString()
                 fun makeSpecificDevice(roomId: Int, deviceId: Int) =
                     SPECIFIC_DEVICE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
+
+                object QRCode {
+                    const val BASE_PATH = "$SPECIFIC_DEVICE_PATH/qrcode"
+                }
             }
         }
     }

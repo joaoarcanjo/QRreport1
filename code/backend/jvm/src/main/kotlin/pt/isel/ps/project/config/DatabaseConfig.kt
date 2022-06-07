@@ -11,10 +11,11 @@ import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import pt.isel.ps.project.dao.RoomDao
 import pt.isel.ps.project.dao.BuildingDao
 import pt.isel.ps.project.dao.CommentDao
-import pt.isel.ps.project.dao.RoomDao
 import pt.isel.ps.project.dao.TicketDao
+import pt.isel.ps.project.dao.QRCodeDao
 
 @ConstructorBinding
 @EnableTransactionManagement
@@ -43,4 +44,7 @@ class DatabaseConfig(private val db: DatabaseSource) {
 
     @Bean
     fun roomDao(): RoomDao = jdbi().onDemand()
+
+    @Bean
+    fun qrHashDao(): QRCodeDao = jdbi().onDemand()
 }
