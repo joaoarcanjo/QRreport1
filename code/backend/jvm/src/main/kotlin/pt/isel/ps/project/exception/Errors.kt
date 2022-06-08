@@ -42,6 +42,10 @@ object Errors {
                 const val PAGE_TYPE_MISMATCH = "The value must be an integer >= 0."
             }
 
+            object Category {
+                const val INVALID_CATEGORY_NAME_LENGTH = "The name can have a maximum of 50 characters."
+            }
+
             object Company {
                 const val INVALID_NAME_LENGTH = "The name can have a maximum of 50 characters."
 

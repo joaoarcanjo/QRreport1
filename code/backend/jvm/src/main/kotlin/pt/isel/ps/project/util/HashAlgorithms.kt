@@ -15,8 +15,7 @@ object Hash {
             return digest.fold("") { str, it -> str + "%02x".format(it) }
         }
 
-        fun getHashValue(roomId: Long, deviceId: Long) : String {
-            return "$roomId" + "-$deviceId" + "-${System.currentTimeMillis()}".hashValue()
-        }
+        fun getHashValue(roomId: Long, deviceId: Long)
+            = "$roomId" + "-$deviceId" + "-${System.currentTimeMillis()}".hashValue()
     }
 }

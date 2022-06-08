@@ -7,6 +7,7 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.I
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_NAME_LENGTH
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_CATEGORY_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
@@ -24,6 +25,9 @@ import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME_MAX_CHARS
 import pt.isel.ps.project.model.building.CreateBuildingEntity
 import pt.isel.ps.project.model.building.UpdateBuildingEntity
+import pt.isel.ps.project.model.category.CategoryEntity.CATEGORY_NAME
+import pt.isel.ps.project.model.category.CategoryEntity.CATEGORY_NAME_MAX_CHARS
+import pt.isel.ps.project.model.category.InputCategoryEntity
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT_MAX_CHARS
 import pt.isel.ps.project.model.comment.InputCommentEntity
@@ -58,6 +62,25 @@ object Validator {
                 BLANK_PARAMS_DETAIL,
                 listOf(InvalidParameter(parameterName, Errors.BadRequest.Locations.BODY, BLANK_PARAMS))
             )
+        }
+    }
+
+    object Category {
+
+        private fun checkNameLength(name: String) {
+            if (name.length > CATEGORY_NAME_MAX_CHARS) throw InvalidParameterException(
+                INVALID_REQ_PARAMS,
+                listOf(InvalidParameter(CATEGORY_NAME, Errors.BadRequest.Locations.BODY, INVALID_CATEGORY_NAME_LENGTH))
+            )
+        }
+
+        /*
+         * Verify if the category name inserted is valid.
+         */
+        fun verifyCategoryInput(category: InputCategoryEntity): Boolean {
+            checkIfIsNotBlank(category.name, CATEGORY_NAME)
+            checkNameLength(category.name)
+            return true
         }
     }
 
