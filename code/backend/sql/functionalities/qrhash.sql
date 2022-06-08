@@ -2,6 +2,17 @@
  * qrcode functionalities
  */
 
+/*
+ * Auxiliary function to return the qrhash item representation
+ */
+CREATE OR REPLACE FUNCTION qrhash_item_representation (hash TEXT)
+RETURNS JSON
+AS
+$$
+BEGIN
+    RETURN json_build_object('qrhash', hash);
+END$$ LANGUAGE plpgsql;
+
 /**
  * Creates a new one or replace the last hash relative a room-device relation
  * Throws exception when is not possible to create or replace hash value

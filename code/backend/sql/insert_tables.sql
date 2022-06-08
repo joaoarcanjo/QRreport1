@@ -76,14 +76,15 @@ BEGIN;
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 1); -- Steve Jobs / guest inactive
 
     INSERT INTO DEVICE (name, state, category) VALUES
-        ('Conjunto de tomadas', 'active', 2),
-        ('Cubiculo casa de banho', 'active', 5),
-        ('Bacia de lavatório', 'active', 1),
-        ('Sanita', 'active', 1),
-        ('Fogão', 'active', 2),
-        ('Arcondicionado', 'active', 7),
-        ('Torneira', 'active', 1),
-        ('Estante de livros', 'active', 6);
+        ('Conjunto de tomadas', 'Active', 2),
+        ('Cubiculo casa de banho', 'Active', 5),
+        ('Bacia de lavatório', 'Active', 1),
+        ('Sanita', 'Active', 1),
+        ('Fogão', 'Active', 2),
+        ('Arcondicionado', 'Active', 7),
+        ('Torneira', 'Active', 1),
+        ('Estante de livros', 'Active', 6),
+        ('Candeeiro', 'Inactive', 2);
 
     INSERT INTO ANOMALY (id, device, anomaly) VALUES
         (1, 1, 'Não funciona'),

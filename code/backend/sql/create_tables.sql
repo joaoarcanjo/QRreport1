@@ -77,8 +77,9 @@ BEGIN;
 
     CREATE TABLE DEVICE(
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        name TEXT NOT NULL CONSTRAINT device_name_max_length CHECK ( char_length(name) <= 50 ),
-        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_room_state CHECK ( state IN ('active', 'inactive') ),
+        name TEXT NOT NULL CONSTRAINT unique_device_name UNIQUE
+            CONSTRAINT device_name_max_length CHECK ( char_length(name) <= 50 ),
+        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_device_state CHECK ( state IN ('Active', 'Inactive') ),
         category BIGINT NOT NULL REFERENCES CATEGORY(id),
         timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
