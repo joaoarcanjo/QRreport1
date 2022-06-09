@@ -88,8 +88,8 @@ BEGIN;
 
     INSERT INTO ANOMALY (id, device, anomaly) VALUES
         (1, 1, 'Não funciona'),
-        (1, 1, 'Cheira a queimado'),
-        (1, 1, 'A realizar curto circuito'),
+        (2, 1, 'Cheira a queimado'),
+        (3, 1, 'A realizar curto circuito'),
         (1, 2, 'Sanita partida');
 
     INSERT INTO ROOM_DEVICE (room, device, qr_hash) VALUES
