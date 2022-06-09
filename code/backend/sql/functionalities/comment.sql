@@ -5,12 +5,12 @@
 /*
  * Auxiliary function to return the comment item representation
  */
-CREATE OR REPLACE FUNCTION comment_item_representation (c_id BIGINT, comment TEXT, person JSON, c_timestamp TIMESTAMP)
+CREATE OR REPLACE FUNCTION comment_item_representation (c_id BIGINT, comment TEXT, c_timestamp TIMESTAMP)
 RETURNS JSON
 AS
 $$
 BEGIN
-    RETURN json_build_object('id', c_id, 'comment', comment, 'timestamp', c_timestamp, 'person', person);
+    RETURN json_build_object('id', c_id, 'comment', comment, 'timestamp', c_timestamp);
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -40,9 +40,11 @@ BEGIN
         IF (comment_id IS NULL) THEN
             RAISE 'unknown_error_creating_comment_resource';
         END IF;
-        comment_rep = json_build_object('id', comment_id, 'comment', ticket_comment, 'timestamp', comment_timestamp);
+        comment_rep = comment_item_representation(comment_id, ticket_comment, comment_timestamp);
     END IF;
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'serializable'
+LANGUAGE plpgsql;
 
 /*
  * Gets a specific comment
@@ -63,10 +65,10 @@ BEGIN
     IF (NOT FOUND) THEN
         RAISE 'comment_not_found';
     END IF;
-
-    RETURN comment_item_representation(
-        comment_id, comment,
-        person_item_representation(person_id, person_email, person_phone, person_email), comment_timestamp);
+    RETURN (
+        json_build_object('id', comment_id, 'comment', comment, 'timestamp', comment_timestamp,
+            'person', person_item_representation(person_id, person_email, person_phone, person_email))
+        );
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -97,8 +99,9 @@ BEGIN
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         comments = array_append(comments,
-            comment_item_representation(rec.comment_id, rec.comment,
-                person_item_representation(rec.person_id, rec.name, rec.phone, rec.email), rec.comment_timestamp));
+            json_build_object('id', rec.comment_id, 'comment', rec.comment, 'timestamp',  rec.comment_timestamp,
+            'person', person_item_representation(rec.person_id, rec.name, rec.phone, rec.email)
+        ));
         collection_size = collection_size + 1;
     END LOOP;
     RETURN json_build_object('comments', comments, 'collectionSize', collection_size);
@@ -134,7 +137,9 @@ BEGIN
         END IF;
         comment_rep = json_build_object('id', comment_id, 'comment', new_comment, 'timestamp', comment_timestamp);
     END IF;
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Delete a specific comment
@@ -164,6 +169,8 @@ BEGIN
         IF (comment_timestamp IS NULL) THEN
             RAISE 'unknown_error_deleting_resource';
         END IF;
-        comment_rep = json_build_object('id', comment_id, 'comment', ticket_comment, 'timestamp', comment_timestamp);
+        comment_rep = comment_item_representation(comment_id, ticket_comment, comment_timestamp);
     END IF;
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;

@@ -38,7 +38,7 @@ END$$ LANGUAGE plpgsql;
 /*
  * Creates a new category
  * Returns the category item representation
- * Throws exception when the name is already being used
+ * Throws exception in case there is no row added
  */
 CREATE OR REPLACE PROCEDURE create_category(cname TEXT, category_rep OUT JSON)
 AS
@@ -46,9 +46,6 @@ $$
 DECLARE
     category_id INT; category_state TEXT;
 BEGIN
-    IF EXISTS (SELECT id FROM CATEGORY WHERE name = cname) THEN
-        RAISE 'name_already_used';
-    END IF;
     INSERT INTO CATEGORY (name) VALUES (cname) RETURNING id, name, state INTO category_id, cname, category_state;
     IF (category_id IS NULL) THEN
         RAISE 'unknown_error_creating_resource';
@@ -59,7 +56,7 @@ END$$ LANGUAGE plpgsql;
 /*
  * Updates a category
  * Returns the category item representation
- * Throws exception when the name is already being used
+ * Throws exception in case there is no row affected
  */
 CREATE OR REPLACE PROCEDURE update_category(category_id BIGINT, cname TEXT, category_rep OUT JSON)
 AS
@@ -67,9 +64,6 @@ $$
 DECLARE
     category_state TEXT;
 BEGIN
-    IF EXISTS (SELECT id FROM CATEGORY WHERE name = cname) THEN
-        RAISE 'name_already_used';
-    END IF;
     UPDATE CATEGORY SET name = cname WHERE id = category_id
     RETURNING id, name, state INTO category_id, cname, category_state;
     IF (category_state IS NULL) THEN
@@ -90,7 +84,8 @@ DECLARE
 BEGIN
     IF (NOT EXISTS (SELECT id FROM DEVICE WHERE category = category_id) AND
         NOT EXISTS (SELECT category FROM PERSON_SKILL WHERE category = category_id)) THEN
-        UPDATE CATEGORY SET state = 'Inactive' WHERE id = category_id
+
+        UPDATE CATEGORY SET state = 'Inactive', timestamp = CURRENT_TIMESTAMP WHERE id = category_id
         RETURNING id, name, state INTO category_id, category_name, category_state;
         IF (category_state IS NULL) THEN
             RAISE 'unknown_error_updating_resource';
@@ -99,10 +94,9 @@ BEGIN
     ELSE
         RAISE 'category_in_use';
     END IF;
-END$$ LANGUAGE plpgsql;
-
-ALTER PROCEDURE deactivate_category(category_id BIGINT, category_rep OUT JSON)
-    SET default_transaction_isolation = 'serializable';
+END$$
+SET default_transaction_isolation = 'serializable'
+LANGUAGE plpgsql;
 
 /*
  * Activate a category
@@ -114,7 +108,7 @@ $$
 DECLARE
     category_state TEXT; category_name TEXT;
 BEGIN
-    UPDATE CATEGORY SET state = 'Active' WHERE id = category_id
+    UPDATE CATEGORY SET state = 'Active', timestamp = CURRENT_TIMESTAMP WHERE id = category_id
     RETURNING id, name, state INTO category_id, category_name, category_state;
     IF (category_state IS NULL) THEN
         RAISE 'unknown_error_updating_resource';

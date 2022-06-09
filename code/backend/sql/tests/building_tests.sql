@@ -39,7 +39,7 @@ DO
 $$
 DECLARE
     id BIGINT;
-    name TEXT = 'Building name 11';
+    name TEXT = 'Building name';
     floors INT = 12;
     company_id BIGINT = 1;
     manager UUID = 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057';

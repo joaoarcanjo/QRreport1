@@ -72,30 +72,6 @@ BEGIN
 END$$;
 
 /*
- * Tests creation of a new category, throws name_already_used exception
- */
-DO
-$$
-DECLARE
-    category_name TEXT = 'canalization';
-    category_rep JSON;
-    ex_constraint TEXT;
-BEGIN
-    RAISE INFO '---| Category creation, throws name_already_used |---';
-
-    CALL create_category(category_name, category_rep);
-    RAISE EXCEPTION '-> Test failed!';
-EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'name_already_used') THEN
-            RAISE INFO '-> Test succeeded!';
-        ELSE
-            RAISE EXCEPTION '-> Test failed!';
-        END IF;
-END$$;
-
-/*
  * Tests update the name of a category
  */
 DO
@@ -119,31 +95,6 @@ BEGIN
 END$$;
 
 /*
- * Tests creation of a new category, throws name_already_used exception
- */
-DO
-$$
-DECLARE
-    category_id BIGINT = 1;
-    category_name TEXT = 'canalization';
-    category_rep JSON;
-    ex_constraint TEXT;
-BEGIN
-    RAISE INFO '---| Category update, throws name_already_used |---';
-
-    CALL update_category(category_id, category_name, category_rep);
-    RAISE EXCEPTION '-> Test failed!';
-EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'name_already_used') THEN
-            RAISE INFO '-> Test succeeded!';
-        ELSE
-            RAISE EXCEPTION '-> Test failed!';
-        END IF;
-END$$;
-
-/*
  * Tests the category deactivation
  */
 DO
@@ -156,6 +107,7 @@ BEGIN
     RAISE INFO '---| Category deactivation test |---';
 
     CALL deactivate_category(category_id, category_rep);
+    RAISE INFO '%', category_rep;
     IF (
         assert_json_value(category_rep, 'state', state)
     ) THEN

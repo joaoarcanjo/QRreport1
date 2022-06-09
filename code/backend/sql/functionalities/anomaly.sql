@@ -49,8 +49,11 @@ BEGIN
     IF EXISTS (SELECT id FROM ANOMALY WHERE device = device_id AND anomaly = new_anomaly) THEN
         RAISE unique_violation USING MESSAGE = 'unique_anomaly_name';
     END IF;
-    INSERT INTO ANOMALY (id, device, anomaly)
-    VALUES ((SELECT MAX(id) + 1 FROM ANOMALY a WHERE a.device = device_id), device_id, new_anomaly)
+    anomaly_id = (SELECT MAX(id) + 1 FROM ANOMALY a WHERE a.device = device_id);
+    IF (anomaly_id IS NULL) THEN
+        anomaly_id = 1;
+    END IF;
+    INSERT INTO ANOMALY (id, device, anomaly) VALUES (anomaly_id, device_id, new_anomaly)
     RETURNING id, anomaly INTO anomaly_id, new_anomaly;
     IF (anomaly_id IS NULL) THEN
         RAISE 'unknown_error_creating_resource';

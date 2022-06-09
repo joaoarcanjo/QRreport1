@@ -67,7 +67,6 @@ BEGIN
     PERFORM setval('room_id_seq', (SELECT last_value FROM room_id_seq) - 1);
 END$$;
 
-
 /*
  * Tests the creation of a new room with a non unique name, throws unique_building_name
  */
@@ -97,7 +96,7 @@ EXCEPTION
 END$$;
 
 /*
- * Tests the valid update of a room name
+ * Test update room name
  */
 DO
 $$
@@ -391,7 +390,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Trigger -> Remove qr_hashes test |---';
 
-    UPDATE ROOM SET state = 'Inactive' WHERE id = room_id
+    UPDATE ROOM SET state = 'Inactive' WHERE id = 1
     RETURNING state INTO room_state;
 
     IF (room_state != 'Inactive') THEN

@@ -21,7 +21,7 @@ END$$ LANGUAGE plpgsql;
  */
 CREATE OR REPLACE PROCEDURE create_building(
     company_id BIGINT,
-    bname TEXT,
+    building_name TEXT,
     floors INT,
     manager UUID,
     building_rep OUT JSON
@@ -38,17 +38,19 @@ BEGIN
         RAISE 'manager_not_valid';
     END IF;
 
-    IF EXISTS (SELECT id FROM BUILDING WHERE company = company_id AND name = bname) THEN
+    IF EXISTS (SELECT id FROM BUILDING WHERE company = company_id AND name = building_name) THEN
         RAISE 'unique_building_name' USING ERRCODE = 'unique_violation';
     END IF;
-    INSERT INTO BUILDING (name, floors, company, manager) VALUES (bname, floors, company_id, manager)
+    INSERT INTO BUILDING (name, floors, company, manager) VALUES (building_name, floors, company_id, manager)
     RETURNING id, timestamp, state INTO building_id, tmstamp, building_state;
     IF (building_id IS NULL) THEN
         RAISE 'unknown_error_creating_resource';
     END IF;
-    building_rep = building_item_representation(building_id, bname, floors, building_state, tmstamp);
+    building_rep = building_item_representation(building_id, building_name, floors, building_state, tmstamp);
 
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'serializable'
+LANGUAGE plpgsql;
 
 /*
  * Updates a building
@@ -104,7 +106,9 @@ BEGIN
         END CASE;
 
         building_rep = building_item_representation(building_id, building_name, building_floors, building_state, tmstamp);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'serializable'
+LANGUAGE plpgsql;
 
 /*
  * Gets all the buildings of a company
@@ -178,7 +182,9 @@ BEGIN
         'timestamp', tmstamp, 'rooms', rooms, 'roomsCollectionSize', collection_size,
         'manager', person_item_representation(manager_id, manager_name, manager_phone, manager_email)
     );
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Deactivates a specific building, this is, sets its state to Inactive
@@ -205,7 +211,9 @@ BEGIN
     END CASE;
 
     building_rep = building_item_representation(building_id, building_name, building_floors, building_state, tmstamp);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Activates a specific building, this is, sets its state to Active
@@ -232,7 +240,9 @@ BEGIN
     END CASE;
 
     building_rep = building_item_representation(building_id, building_name, building_floors, building_state, tmstamp);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Changes the manager of a specific building
@@ -271,7 +281,9 @@ BEGIN
             END IF;
     END CASE;
     building_rep = json_build_object('id', building_id, 'name', building_name, 'manager', new_manager);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /**
   Trigger to change the state of all rooms belonging to the building whose state was changed
@@ -281,7 +293,7 @@ AS
 $$
 BEGIN
 	IF NEW.state != OLD.state THEN
-        UPDATE ROOM SET state = NEW.state WHERE building = NEW.id;
+        UPDATE ROOM SET state = NEW.state, timestamp = CURRENT_TIMESTAMP WHERE building = NEW.id;
 	END IF;
 	RETURN NEW;
 END; $$LANGUAGE PLPGSQL;

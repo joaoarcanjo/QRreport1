@@ -10,18 +10,16 @@ $$
 DECLARE
     comment_id BIGINT = 1;
     comment TEXT = 'Comment test';
-    person_rep JSON = json_build_object('name', 'Representation test');
     comment_rep JSON;
     comment_timestamp TIMESTAMP;
 BEGIN
     RAISE INFO '---| Comment item representation test |---';
     comment_timestamp = CURRENT_TIMESTAMP;
-    comment_rep = comment_item_representation(comment_id, comment, person_rep, comment_timestamp);
+    comment_rep = comment_item_representation(comment_id, comment, comment_timestamp);
     IF (
         assert_json_value(comment_rep, 'id', comment_id::TEXT) AND
         assert_json_value(comment_rep, 'comment', comment) AND
-        assert_json_is_not_null(comment_rep, 'timestamp') AND
-        assert_json_is_not_null(comment_rep, 'person')
+        assert_json_is_not_null(comment_rep, 'timestamp')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

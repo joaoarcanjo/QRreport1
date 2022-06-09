@@ -48,7 +48,9 @@ BEGIN
     END IF;
 
     ticket_rep = ticket_item_representation(t_id, subject, description, t_employee_state);
-END$$ LANGUAGE plpgsql;
+END$$
+
+LANGUAGE plpgsql;
 
 /*
  * Updates a ticket
@@ -97,7 +99,9 @@ BEGIN
     END CASE;
 
     ticket_rep = ticket_item_representation(ticket_ret_id, t_current_subject, t_current_description, t_current_state);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Rejects a ticket
@@ -108,10 +112,8 @@ END$$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE delete_ticket (ticket_id BIGINT, ticket_rep OUT JSON)
 AS
 $$
-DECLARE employee_state INT;
 BEGIN
-    employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Refused');
-    CALL change_ticket_state(ticket_id, employee_state, ticket_rep);
+    CALL change_ticket_state(ticket_id, (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Refused'), ticket_rep);
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -160,7 +162,9 @@ BEGIN
     END CASE;
 
     ticket_rep = ticket_item_representation(ticket_id, t_subject, t_description, t_new_employee_state);
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Gets a specific ticket
@@ -321,7 +325,9 @@ BEGIN
     ticket_rep = json_build_object(
         'ticket', ticket_item_representation(ticket_id, t_subject, t_description, t_employeeState),
         'person', person_item_representation(new_employee_id, employee_name, employee_phone, employee_email));
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /**
   * Remove ticket employee
@@ -369,7 +375,9 @@ BEGIN
     ticket_rep = json_build_object(
                 'ticket', ticket_item_representation(ticket_id, t_subject, t_description, t_employee_state),
                 'person', person_item_representation(employee_id, employee_name, employee_phone, employee_email));
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /**
   * Add ticket rate
@@ -412,4 +420,6 @@ BEGIN
         /*ELSE
             RAISE EXCEPTION 'invalid_access_exception';
         END IF;*/
-END$$ LANGUAGE plpgsql;
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
