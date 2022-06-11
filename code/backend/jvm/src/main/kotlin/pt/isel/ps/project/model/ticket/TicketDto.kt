@@ -18,7 +18,7 @@ data class TicketDto (
     val id: Int,
     val subject: String,
     val description: String,
-    val timestamp: Timestamp,
+    val creationTimestamp: Timestamp,
     val employeeState: String,
     val userState: String,
     val possibleTransitions: List<EmployeeStateDto>
@@ -32,7 +32,7 @@ data class TicketsDto (
 data class TicketExtraInfo (
     val ticket: TicketDto,
     val ticketComments: CommentsDto,
-    val reporter: PersonItemDto
+    val person: PersonItemDto
 )
 
 data class TicketEmployee (

@@ -16,6 +16,6 @@ object Hash {
         }
 
         fun getHashValue(roomId: Long, deviceId: Long)
-            = "$roomId" + "-$deviceId" + "-${System.currentTimeMillis()}".hashValue()
+            = ("$roomId" + "-$deviceId" + "-${System.currentTimeMillis()}").hashValue()
     }
 }

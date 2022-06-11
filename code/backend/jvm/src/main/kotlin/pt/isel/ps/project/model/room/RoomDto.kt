@@ -1,6 +1,6 @@
 package pt.isel.ps.project.model.room
 
-import pt.isel.ps.project.model.Device.DeviceItemDto
+import pt.isel.ps.project.model.device.DeviceItemDto
 import java.sql.Timestamp
 
 data class RoomItemDto (

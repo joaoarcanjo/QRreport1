@@ -29,8 +29,9 @@ class RoomService(val roomDao: RoomDao) {
     //@Transactional(isolation = Isolation.SERIALIZABLE)
     fun createRoom(companyId: Long, buildingId: Long, room: CreateRoomEntity) : RoomItemDto {
         verifyCreateRoomInput(room)
-        val e = roomDao.createRoom(companyId, buildingId, room).getString(ROOM_REP)
-        throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+        return roomDao.createRoom(companyId, buildingId, room).getString(ROOM_REP)
+            ?.deserializeJsonTo()
+            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.SERIALIZABLE)

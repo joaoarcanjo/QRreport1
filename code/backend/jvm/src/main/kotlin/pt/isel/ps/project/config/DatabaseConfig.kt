@@ -46,4 +46,10 @@ class DatabaseConfig(private val db: DatabaseSource) {
 
     @Bean
     fun categoryDao(): CategoryDao = jdbi().onDemand()
+
+    @Bean
+    fun deviceDao(): DeviceDao = jdbi().onDemand()
+
+    @Bean
+    fun anomalyDao(): AnomalyDao = jdbi().onDemand()
 }

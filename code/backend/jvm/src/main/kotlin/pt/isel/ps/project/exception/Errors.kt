@@ -42,6 +42,14 @@ object Errors {
                 const val PAGE_TYPE_MISMATCH = "The value must be an integer >= 0."
             }
 
+            object Device {
+                const val INVALID_DEVICE_NAME_LENGTH = "The name can have a maximum of 50 characters."
+
+                object Anomaly {
+                    const val INVALID_ANOMALY_ANOMALY_LENGTH = "The anomaly can have a maximum of 150 characters."
+                }
+            }
+
             object Category {
                 const val INVALID_CATEGORY_NAME_LENGTH = "The name can have a maximum of 50 characters."
             }

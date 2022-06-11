@@ -9,6 +9,8 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.R
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_CATEGORY_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.Anomaly.INVALID_ANOMALY_ANOMALY_LENGTH
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.INVALID_DEVICE_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_DESCRIPTION_LENGTH
@@ -19,6 +21,9 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY
+import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY_MAX_CHARS
+import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_FLOORS
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_MAX_FLOORS_NUMBER
 import pt.isel.ps.project.model.building.BuildingEntity.BUILDING_NAME
@@ -39,6 +44,10 @@ import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION_MAX_CHARS
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
+import pt.isel.ps.project.model.device.CreateDeviceEntity
+import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME
+import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME_MAX_CHARS
+import pt.isel.ps.project.model.device.UpdateDeviceEntity
 import pt.isel.ps.project.model.room.CreateRoomEntity
 import pt.isel.ps.project.model.room.RoomEntity.MAX_FLOOR
 import pt.isel.ps.project.model.room.RoomEntity.MIN_FLOOR
@@ -62,6 +71,53 @@ object Validator {
                 BLANK_PARAMS_DETAIL,
                 listOf(InvalidParameter(parameterName, Errors.BadRequest.Locations.BODY, BLANK_PARAMS))
             )
+        }
+    }
+
+    object Device {
+
+        private fun checkNameLength(name: String) {
+            if (name.length > DEVICE_NAME_MAX_CHARS) throw InvalidParameterException(
+                INVALID_REQ_PARAMS,
+                listOf(InvalidParameter(DEVICE_NAME, Errors.BadRequest.Locations.BODY, INVALID_DEVICE_NAME_LENGTH))
+            )
+        }
+
+        /*
+         * Verify if the device name inserted is valid.
+         */
+        fun verifyCreateDeviceInput(device: CreateDeviceEntity): Boolean {
+            checkIfIsNotBlank(device.name, DEVICE_NAME)
+            checkNameLength(device.name)
+            return true
+        }
+
+        /*
+         * Verify if the device name to update is valid.
+         */
+        fun verifyUpdateDeviceInput(device: UpdateDeviceEntity): Boolean {
+            checkIfIsNotBlank(device.name, DEVICE_NAME)
+            checkNameLength(device.name)
+            return true
+        }
+
+        object Anomaly {
+
+            private fun checkAnomalyLength(anomaly: String) {
+                if (anomaly.length > ANOMALY_ANOMALY_MAX_CHARS) throw InvalidParameterException(
+                    INVALID_REQ_PARAMS,
+                    listOf(InvalidParameter(ANOMALY_ANOMALY, Errors.BadRequest.Locations.BODY, INVALID_ANOMALY_ANOMALY_LENGTH))
+                )
+            }
+
+            /*
+             * Verify if the anomaly inserted is valid.
+             */
+            fun verifyAnomalyInput(anomaly: InputAnomalyEntity): Boolean {
+                checkIfIsNotBlank(anomaly.anomaly, ANOMALY_ANOMALY)
+                checkAnomalyLength(anomaly.anomaly)
+                return true
+            }
         }
     }
 

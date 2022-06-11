@@ -16,6 +16,29 @@ object Uris {
         fun makeActivate(id: Int) = ACTIVATE_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
     }
 
+    object Devices {
+        const val BASE_PATH = "$VERSION/devices"
+        const val SPECIFIC_PATH = "$BASE_PATH/{deviceId}"
+        const val ACTIVATE_PATH ="$SPECIFIC_PATH/activate"
+        const val CATEGORY_PATH ="$SPECIFIC_PATH/category"
+
+        private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+        private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+        private val CATEGORY_TEMPLATE = UriTemplate(CATEGORY_PATH)
+        fun makeSpecific(id: Int) = SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeActivate(id: Int) = ACTIVATE_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeCategory(id: Int) = CATEGORY_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+
+        object Anomalies {
+            const val BASE_PATH = "${Devices.SPECIFIC_PATH}/anomalies"
+            const val SPECIFIC_PATH = "$BASE_PATH/{anomalyId}"
+
+            private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+            fun makeSpecific(deviceId: Int, id: Int) =
+                SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to deviceId, "anomalyId" to id)).toString()
+        }
+    }
+
     object Companies {
         const val BASE_PATH = "$VERSION/companies"
         const val SPECIFIC_PATH = "$BASE_PATH/{companyId}"
