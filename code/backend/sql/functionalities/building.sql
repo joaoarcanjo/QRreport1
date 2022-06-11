@@ -167,10 +167,10 @@ BEGIN
 
     --get all rooms that belong to the building
     FOR rec IN
-        SELECT id, name, floor, state FROM ROOM
+        SELECT id, name, floor, state, timestamp FROM ROOM
         WHERE building = building_id LIMIT limit_rows OFFSET skip_rows
     LOOP
-        rooms = array_append(rooms, room_item_representation(rec.id, rec.name, rec.floor, rec.state));
+        rooms = array_append(rooms, room_item_representation(rec.id, rec.name, rec.floor, rec.state, rec.timestamp));
         collection_size = collection_size + 1;
     END LOOP;
 

@@ -5,7 +5,7 @@
 /*
  * Auxiliary function to return the ticket item representation
  */
-CREATE OR REPLACE FUNCTION ticket_item_representation (ticket_id BIGINT, subject TEXT, description TEXT, employee_state_id INT)
+CREATE OR REPLACE FUNCTION ticket_item_representation(ticket_id BIGINT, subject TEXT, description TEXT, employee_state_id INT)
 RETURNS JSON
 AS
 $$
@@ -22,7 +22,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the ticket item representation
  * Throws exception in case there is no row added or when the hash does not exist
  */
-CREATE OR REPLACE PROCEDURE create_ticket (
+CREATE OR REPLACE PROCEDURE create_ticket(
     subject TEXT,
     description TEXT,
     person_id UUID,
@@ -58,7 +58,7 @@ LANGUAGE plpgsql;
  * Throws exception when the ticket id does not exist, when the current state does not match with 'to assign' state
  * when all updatable parameters are null, when there is no row updated
  */
-CREATE OR REPLACE PROCEDURE update_ticket (
+CREATE OR REPLACE PROCEDURE update_ticket(
      ticket_id BIGINT,
      ticket_rep OUT JSON,
      t_new_subject TEXT DEFAULT NULL,
@@ -109,19 +109,23 @@ LANGUAGE plpgsql;
  * Throws exception when the ticket id does not exist, when the current state does not match with 'to assign' state
  * when all updatable parameters are null, when there is no row updated
  */
-CREATE OR REPLACE PROCEDURE delete_ticket (ticket_id BIGINT, ticket_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE delete_ticket(ticket_id BIGINT, ticket_rep OUT JSON)
 AS
 $$
+DECLARE
+    employee_state_id INT = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Refused');
 BEGIN
-    CALL change_ticket_state(ticket_id, (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Refused'), ticket_rep);
-END$$ LANGUAGE plpgsql;
+    CALL change_ticket_state(ticket_id, employee_state_id, ticket_rep);
+END$$
+SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
 
 /*
  * Change ticket employee_state
  * Returns the ticket item representation
  * Throws exception when the ticket id does not exist, when the ticket is archived or when no rows affected.
  */
-CREATE OR REPLACE PROCEDURE change_ticket_state (ticket_id BIGINT, t_new_employee_state INT, ticket_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE change_ticket_state(ticket_id BIGINT, t_new_employee_state INT, ticket_rep OUT JSON)
 AS
 $$
 DECLARE
@@ -205,10 +209,10 @@ BEGIN
 
     return json_build_object(
         'ticket', json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_desc,
-            'timestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
+            'creationTimestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
             'possibleTransitions', t_possibleTransitions),
         'ticketComments', get_comments(ticket_id, limit_rows, skip_rows, comments_direction),
-        'reporter', person_item_representation(r_id, r_name, r_phone, r_email));
+        'person', person_item_representation(r_id, r_name, r_phone, r_email));
 END$$ LANGUAGE plpgsql;
 
 /*

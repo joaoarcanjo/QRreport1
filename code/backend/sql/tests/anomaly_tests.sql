@@ -26,6 +26,29 @@ BEGIN
 END$$;
 
 /*
+ * Tests get anomalies function
+ */
+DO
+$$
+DECLARE
+    device_id BIGINT = 1;
+    anomaliesCollectionSizeExpected INT = 3;
+    anomalies_rep JSON;
+BEGIN
+    RAISE INFO '---| Get anomalies test |---';
+
+    anomalies_rep = get_anomalies(device_id, 50, 0);
+    IF (
+        assert_json_is_not_null(anomalies_rep, 'anomalies') AND
+        assert_json_value(anomalies_rep, 'anomaliesCollectionSize', anomaliesCollectionSizeExpected::TEXT)
+    ) THEN
+        RAISE INFO '-> Test succeeded!';
+    ELSE
+        RAISE EXCEPTION '-> Test failed!';
+    END IF;
+END$$;
+
+/*
  * Tests the creation of a new anomaly
  */
 DO

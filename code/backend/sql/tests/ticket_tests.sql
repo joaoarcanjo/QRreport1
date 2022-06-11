@@ -41,15 +41,14 @@ DECLARE
     description TEXT = 'Ticket description test';
     person_id UUID = '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3';
     qr_hash TEXT = 'D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90';
-    expected_user_state TEXT = 'Almost concluded';
-    expected_employee_state TEXT = 'Almost concluded';
+    expected_user_state TEXT = 'Waiting for accept';
+    expected_employee_state TEXT = 'To assign';
     ticket_rep JSON;
 BEGIN
     RAISE INFO '---| Ticket creation test |---';
 
     CALL create_ticket(subject, description, person_id, qr_hash, ticket_rep);
     id = ticket_rep->>'id';
-
     IF (
         assert_json_is_not_null(ticket_rep, 'id') AND
         assert_json_value(ticket_rep, 'subject', subject) AND
@@ -411,11 +410,11 @@ BEGIN
         assert_json_value(ticket_rep, 'id', ticket_id::TEXT) AND
         assert_json_value(ticket_rep, 'subject', subject) AND
         assert_json_value(ticket_rep, 'description', description) AND
-        assert_json_is_not_null(ticket_rep, 'timestamp') AND
+        assert_json_is_not_null(ticket_rep, 'creationTimestamp') AND
         assert_json_value(ticket_rep, 'employeeState', employeeState) AND
         assert_json_value(ticket_rep, 'userState', userState) AND
         assert_json_value(comments_rep, 'collectionSize', commentsCollectionSize::TEXT) AND
-        assert_json_is_not_null(returned_value, 'reporter')
+        assert_json_is_not_null(returned_value, 'person')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

@@ -16,6 +16,7 @@ DECLARE
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Building item representation test |---';
+
     building_timestamp = CURRENT_TIMESTAMP;
     building_rep = building_item_representation(
         building_id, building_name, building_floors, building_state, building_timestamp);

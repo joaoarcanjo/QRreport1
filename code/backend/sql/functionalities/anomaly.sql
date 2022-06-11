@@ -5,7 +5,7 @@
 /*
  * Auxiliary function to return the anomaly item representation
  */
-CREATE OR REPLACE FUNCTION anomaly_item_representation (a_id BIGINT, a_anomaly TEXT)
+CREATE OR REPLACE FUNCTION anomaly_item_representation(a_id BIGINT, a_anomaly TEXT)
 RETURNS JSON
 AS
 $$
@@ -16,7 +16,7 @@ END$$ LANGUAGE plpgsql;
 /*
  * Get all anomalies
  */
-CREATE OR REPLACE FUNCTION get_anomalies (device_id BIGINT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION get_anomalies(device_id BIGINT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
 RETURNS JSON
 AS
 $$
@@ -32,7 +32,7 @@ BEGIN
         anomalies = array_append(anomalies, anomaly_item_representation(rec.id, rec.anomaly));
         collection_size = collection_size + 1;
     END LOOP;
-    RETURN json_build_object('anomalies', anomalies, 'collectionSize', collection_size);
+    RETURN json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -40,7 +40,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row added or when the unique constraint is violated
  */
-CREATE OR REPLACE PROCEDURE create_anomaly (device_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_anomaly(device_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
 AS
 $$
 DECLARE
@@ -68,7 +68,7 @@ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row added or when the unique constraint is violated
  */
-CREATE OR REPLACE PROCEDURE update_anomaly (device_id BIGINT, anomaly_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE update_anomaly(device_id BIGINT, anomaly_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
 AS
 $$
 BEGIN
@@ -90,7 +90,7 @@ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row deleted.
  */
-CREATE OR REPLACE PROCEDURE delete_anomaly (device_id BIGINT, anomaly_id BIGINT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE delete_anomaly(device_id BIGINT, anomaly_id BIGINT, anomaly_rep OUT JSON)
 AS
 $$
 DECLARE

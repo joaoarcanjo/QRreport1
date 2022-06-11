@@ -12,17 +12,19 @@ DECLARE
     room_name TEXT = 'Room name test';
     room_floor INT = 12;
     room_state TEXT = 'Active';
+    room_timestamp TIMESTAMP;
     room_rep JSON;
 BEGIN
     RAISE INFO '---| Room item representation test |---';
-
+    room_timestamp = CURRENT_TIMESTAMP;
     room_rep = room_item_representation(
-        room_id, room_name, room_floor, room_state);
+        room_id, room_name, room_floor, room_state, room_timestamp);
     IF (
         assert_json_value(room_rep, 'id', room_id::TEXT) AND
         assert_json_value(room_rep, 'name', room_name) AND
         assert_json_value(room_rep, 'floor', room_floor::TEXT) AND
-        assert_json_value(room_rep, 'state', room_state)
+        assert_json_value(room_rep, 'state', room_state) AND
+        assert_json_is_not_null(room_rep, 'timestamp')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -366,7 +368,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Deactivate room, throws room_not_found test |---';
 
-    CALL deactivate_room(room_id, room_rep);
+    CALL activate_room(room_id, room_rep);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN

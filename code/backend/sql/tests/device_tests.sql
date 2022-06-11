@@ -8,20 +8,24 @@
 DO
 $$
 DECLARE
-    device_id BIGINT = 1;
+    id BIGINT = 1;
     device_name TEXT = 'Device name test';
     device_category TEXT = 'Device category';
     device_state TEXT = 'Active';
+    device_timestamp TIMESTAMP;
     device_rep JSON;
 BEGIN
     RAISE INFO '---| Device item representation test |---';
 
-    device_rep = device_item_representation(device_id, device_name, device_category, device_state);
+    device_timestamp = CURRENT_TIMESTAMP;
+    device_rep = device_item_representation(id, device_name, device_category, device_state, device_timestamp);
     IF (
-        assert_json_value(device_rep, 'id', device_id::TEXT) AND
+        assert_json_value(device_rep, 'id', id::TEXT) AND
         assert_json_value(device_rep, 'name', device_name) AND
         assert_json_value(device_rep, 'category', device_category) AND
-        assert_json_value(device_rep, 'state', device_state)
+        assert_json_value(device_rep, 'state', device_state) AND
+        assert_json_is_not_null(device_rep, 'timestamp')
+
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

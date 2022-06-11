@@ -5,7 +5,7 @@
 /*
  * Auxiliary function to return the comment item representation
  */
-CREATE OR REPLACE FUNCTION comment_item_representation (c_id BIGINT, comment TEXT, c_timestamp TIMESTAMP)
+CREATE OR REPLACE FUNCTION comment_item_representation(c_id BIGINT, comment TEXT, c_timestamp TIMESTAMP)
 RETURNS JSON
 AS
 $$
@@ -18,7 +18,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the comment representation
  * Throws exception when the ticket is archived or when no rows affected.
  */
-CREATE OR REPLACE PROCEDURE create_comment (person_id UUID, ticket_id BIGINT, ticket_comment TEXT, comment_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_comment(person_id UUID, ticket_id BIGINT, ticket_comment TEXT, comment_rep OUT JSON)
 AS
 $$
 DECLARE
@@ -51,7 +51,7 @@ LANGUAGE plpgsql;
  * Returns the comment representation
  * Throws exception when the comment id does not exist
  */
-CREATE OR REPLACE FUNCTION get_comment (comment_id BIGINT, ticket_id BIGINT)
+CREATE OR REPLACE FUNCTION get_comment(comment_id BIGINT, ticket_id BIGINT)
 RETURNS JSON
 AS
 $$
@@ -75,7 +75,7 @@ END$$ LANGUAGE plpgsql;
  * Get the comments of a ticket
  * Function to return the representation of all comments from ticket
  */
-CREATE OR REPLACE FUNCTION get_comments (
+CREATE OR REPLACE FUNCTION get_comments(
     t_id BIGINT,
     limit_rows INT DEFAULT NULL,
     skip_rows INT DEFAULT NULL,
@@ -112,7 +112,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the comment representation
  * Throws exception when cant change a comment that belongs to a archived ticket
  */
-CREATE OR REPLACE PROCEDURE update_comment (
+CREATE OR REPLACE PROCEDURE update_comment(
     comment_id BIGINT,
     ticket_id BIGINT,
     new_comment TEXT,
@@ -146,7 +146,7 @@ LANGUAGE plpgsql;
  * Returns the comment representation
  * Throws exception when try delete a comment  belongs to an archived ticket
  */
-CREATE OR REPLACE PROCEDURE delete_comment (
+CREATE OR REPLACE PROCEDURE delete_comment(
     comment_id BIGINT,
     ticket_id BIGINT,
     comment_rep OUT JSON
