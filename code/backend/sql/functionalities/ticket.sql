@@ -223,7 +223,7 @@ CREATE OR REPLACE FUNCTION get_tickets(
     person_id UUID,
     limit_rows INT DEFAULT NULL,
     skip_rows INT DEFAULT NULL,
-    --sort_by TEXT DEFAULT 'date',     -- TODO NOT CONCLUDED
+    sort_by TEXT DEFAULT 'date',
     direction TEXT DEFAULT 'DESC',
     company_name TEXT DEFAULT NULL,
     building_name TEXT DEFAULT NULL,
@@ -247,17 +247,12 @@ BEGIN
             INNER JOIN COMPANY c ON c.id = b.company
             FULL JOIN FIXING_BY fb ON t.id = fb.ticket
        WHERE
+             ct.name LIKE CONCAT('%',category_name,'%') AND
+             LOWER(t.subject) LIKE LOWER(CONCAT('%',search,'%')) AND
+             LOWER(r.name) LIKE LOWER(CONCAT('%',room_name,'%')) AND
+             LOWER(b.name) LIKE LOWER(CONCAT('%',building_name,'%')) AND
+             LOWER(c.name) LIKE LOWER(CONCAT('%',company_name,'%')) AND
             CASE
-                WHEN (category_name IS NOT NULL) THEN
-                    ct.name = category_name
-                WHEN (room_name IS NOT NULL) THEN
-                    r.name = room_name
-                WHEN (building_name IS NOT NULL) THEN
-                    b.name = building_name
-                WHEN (company_name IS NOT NULL) THEN
-                    c.name = company_name
-                WHEN (search IS NOT NULL) THEN
-                    LOWER(t.subject) LIKE LOWER(CONCAT('%',search,'%'))
                 WHEN ((SELECT pr.person FROM PERSON_ROLE pr
                 WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'manager')) = person_id) THEN
                     b.manager = person_id
@@ -270,8 +265,10 @@ BEGIN
                 ELSE t.id > 0
             END
         ORDER BY
-            CASE WHEN direction='DESC' THEN creation_timestamp END DESC,
-            CASE WHEN direction='ASC' THEN creation_timestamp END ASC
+            CASE WHEN direction='DESC' AND sort_by='date' THEN creation_timestamp END DESC,
+            CASE WHEN direction='ASC' AND sort_by='date'  THEN creation_timestamp END ASC,
+            CASE WHEN direction='DESC' AND sort_by='name' THEN t.subject END DESC,
+            CASE WHEN direction='ASC' AND sort_by='name'  THEN t.subject END ASC
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         tickets = array_append(

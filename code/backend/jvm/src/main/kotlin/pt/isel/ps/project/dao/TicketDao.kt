@@ -14,7 +14,7 @@ import pt.isel.ps.project.model.ticket.TicketEmployeeEntity
 
 interface TicketDao {
 
-    @SqlQuery("SELECT get_tickets('0a8b83ec-7675-4467-91e5-33e933441eee', null, null, null, null, null, null, null);")
+    @SqlQuery("SELECT get_tickets('0a8b83ec-7675-4467-91e5-33e933441eee', null, null, null, null, null, null, null, null);")
     fun getTickets(): String
 
     @SqlQuery("SELECT get_ticket(:ticketId, null, null);")
