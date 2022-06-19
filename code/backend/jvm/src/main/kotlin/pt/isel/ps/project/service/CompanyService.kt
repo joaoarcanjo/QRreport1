@@ -30,9 +30,9 @@ class CompanyService(jdbi: Jdbi) {
         return companyDao.getCompany(companyId).deserializeJsonTo()
     }
 
-    fun updateCompany(company: UpdateCompanyEntity): CompanyItemDto {
+    fun updateCompany(companyId: Long, company: UpdateCompanyEntity): CompanyItemDto {
         verifyUpdateCompanyInput(company)
-        val companyDto = companyDao.updateCompany(company).getString(COMPANY_REP)?.deserializeJsonTo<CompanyItemDto>()
+        val companyDto = companyDao.updateCompany(companyId, company).getString(COMPANY_REP)?.deserializeJsonTo<CompanyItemDto>()
         return companyDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 

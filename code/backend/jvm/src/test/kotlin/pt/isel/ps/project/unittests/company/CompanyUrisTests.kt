@@ -8,7 +8,7 @@ class CompanyUrisTests {
 
     @Test
     fun `Make valid company specific path`() {
-        val companyId = 123
+        val companyId = 123L
         val expectedPath = "${Companies.BASE_PATH}/123"
 
         val path = Companies.makeSpecific(companyId)
@@ -18,7 +18,7 @@ class CompanyUrisTests {
 
     @Test
     fun `Make valid company activate path`() {
-        val companyId = 123
+        val companyId = 123L
         val expectedPath = "${Companies.BASE_PATH}/123/activate"
 
         val path = Companies.makeActivate(companyId)

@@ -7,7 +7,7 @@ data class CompanyItemDto(
     val name: String,
     val state: String,
     val timestamp: Timestamp,
-    )
+)
 
 data class CompanyDto(
     val id: Long,
@@ -15,10 +15,12 @@ data class CompanyDto(
     val state: String,
     val timestamp: Timestamp,
     val buildings: List<Any>?,
-    val buildingsCollectionSize: Int,
+    val buildingsCollectionSize: Int?,
 )
 
 data class CompaniesDto(
     val companies: List<CompanyItemDto>?,
     val companiesCollectionSize: Int,
 )
+
+fun CompanyDto.removeBuildings() = CompanyDto(id, name, state, timestamp, null, null)

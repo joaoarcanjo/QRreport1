@@ -42,7 +42,7 @@ class CompanyValidatorTests {
 
     @Test
     fun `Update company with valid name`() {
-        val company = UpdateCompanyEntity(null, "ISEL")
+        val company = UpdateCompanyEntity("ISEL")
 
         assertThat(verifyUpdateCompanyInput(company)).isTrue
     }
@@ -50,7 +50,7 @@ class CompanyValidatorTests {
     @Test
     fun `Throws exception when company is updated with an invalid name length`() {
         val invName = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaad"
-        val company = UpdateCompanyEntity(null, invName)
+        val company = UpdateCompanyEntity(invName)
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.INVALID_REQ_PARAMS,
             listOf(
@@ -69,7 +69,7 @@ class CompanyValidatorTests {
 
     @Test
     fun `Throws exception when update company entity parameters are all null`() {
-        val company = UpdateCompanyEntity(null, null)
+        val company = UpdateCompanyEntity(null)
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.UPDATE_NULL_PARAMS,
             detail = Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL,

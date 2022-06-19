@@ -1,8 +1,8 @@
 package pt.isel.ps.project.model.company
 
-/*
- * Name of the company representation output parameter
- */
+/**
+  * Name of the company representation output parameter
+  */
 const val COMPANY_REP = "companyRep"
 
 object CompanyEntity {
@@ -15,6 +15,5 @@ data class CreateCompanyEntity(
 )
 
 data class UpdateCompanyEntity(
-    var id: Long?,
     val name: String?,
 )
