@@ -15,7 +15,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Company creation test |---';
 
-    CALL create_company(name, company_rep);
+    CALL create_company(company_rep, name);
     id = company_rep->>'id';
 
     IF (assert_json_is_not_null(company_rep, 'id') AND
@@ -44,17 +44,17 @@ $$
 DECLARE
     name TEXT = 'ISEL';
     company_rep JSON;
-    ex_constraint TEXT;
+    type TEXT;
 BEGIN
     RAISE INFO '---| Throws unique_company_name constraint test |---';
 
-    CALL create_company(name, company_rep);
+    CALL create_company(company_rep, name);
 
     RAISE INFO '-> Test failed!';
 EXCEPTION
-    WHEN unique_violation THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'unique_company_name') THEN
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
+        IF (type = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE INFO '-> Test failed!';
@@ -74,7 +74,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update company name test |---';
 
-    CALL update_company(id, company_rep, name);
+    CALL update_company(company_rep, id, name);
 
     IF (assert_json_is_not_null(company_rep, 'id') AND
         assert_json_value(company_rep, 'name', name) AND
@@ -96,17 +96,17 @@ DECLARE
     id BIGINT = 1;
     name TEXT = 'ISCAL';
     company_rep JSON;
-    ex_constraint TEXT;
+    type TEXT;
 BEGIN
     RAISE INFO '---| Update company with a non unique name test |---';
 
-    CALL update_company(id, company_rep, name);
+    CALL update_company(company_rep, id, name);
 
     RAISE INFO '-> Test failed!';
 EXCEPTION
-    WHEN unique_violation THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'unique_company_name') THEN
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
+        IF (type = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE INFO '-> Test failed!';
@@ -173,16 +173,16 @@ $$
 DECLARE
     id BIGINT = 99;
     company_rep JSON;
-    ex_constraint TEXT;
+    type TEXT;
 BEGIN
     RAISE INFO '---| Get company with non existent id test |---';
 
     SELECT get_company(id, 10, 0) INTO company_rep;
     RAISE INFO '-> Test failed!';
 EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'company_not_found') THEN
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
+        IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE INFO '-> Test failed!';
@@ -202,7 +202,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Company deactivation test |---';
 
-    CALL deactivate_company(id, company_rep);
+    CALL deactivate_company(company_rep, id);
 
     IF (assert_json_value(company_rep, 'id', id::TEXT) AND
         assert_json_value(company_rep, 'name', name) AND
@@ -224,16 +224,16 @@ $$
 DECLARE
     id BIGINT = 99;
     company_rep JSON;
-    ex_constraint TEXT;
+    type TEXT;
 BEGIN
     RAISE INFO '---| Deactivate company with non existent id test |---';
 
-    CALL deactivate_company(id, company_rep);
+    CALL deactivate_company(company_rep, id);
     RAISE INFO '-> Test failed!';
 EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'company_not_found') THEN
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
+        IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE INFO '-> Test failed!';
@@ -253,7 +253,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Company activation test |---';
 
-    CALL activate_company(id, company_rep);
+    CALL activate_company(company_rep, id);
 
     IF (assert_json_value(company_rep, 'id', id::TEXT) AND
         assert_json_value(company_rep, 'name', name) AND
@@ -275,16 +275,16 @@ $$
 DECLARE
     id BIGINT = 99;
     company_rep JSON;
-    ex_constraint TEXT;
+    type TEXT;
 BEGIN
     RAISE INFO '---| Activate company with non existent id test |---';
 
-    CALL activate_company(id, company_rep);
+    CALL activate_company(company_rep, id);
     RAISE INFO '-> Test failed!';
 EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'company_not_found') THEN
+    WHEN OTHERS THEN
+        GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
+        IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE INFO '-> Test failed!';

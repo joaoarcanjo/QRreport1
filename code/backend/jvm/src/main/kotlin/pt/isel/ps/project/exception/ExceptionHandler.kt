@@ -1,5 +1,6 @@
 package pt.isel.ps.project.exception
 
+import org.postgresql.util.PSQLException
 import org.springframework.beans.TypeMismatchException
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -15,6 +16,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.MISSING_MISMATCH_REQ_BODY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Templated.MUST_HAVE_TYPE
 import pt.isel.ps.project.exception.Errors.MethodNotAllowed.Message.METHOD_NOT_ALLOWED
+import pt.isel.ps.project.exception.Errors.NotFound.Message.RESOURCE_DETAIL_NOT_FOUND_TEMPLATE
+import pt.isel.ps.project.exception.Errors.UniqueConstraint
+import pt.isel.ps.project.exception.Errors.NotFound
+import pt.isel.ps.project.exception.Errors.UnknownErrorWritingResource
+import pt.isel.ps.project.exception.Errors.UnknownErrorWritingResource.Message.DB_WRITE_ERROR_TEMPLATE
+import pt.isel.ps.project.exception.Errors.InactiveResource
+import pt.isel.ps.project.exception.Errors.InactiveResource.Message.INACTIVE_RESOURCE
+import pt.isel.ps.project.exception.Errors.InactiveResource.Message.INACTIVE_RESOURCE_DETAIL
+import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
+import pt.isel.ps.project.exception.Errors.buildMessage
 import pt.isel.ps.project.model.representations.ProblemJsonModel
 import java.net.URI
 import javax.servlet.http.HttpServletRequest
@@ -87,7 +98,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         invalidParameters = listOf(InvalidParameter(
             (ex as MethodArgumentTypeMismatchException).name,
             Errors.BadRequest.Locations.PATH,
-            Errors.makeMessage(MUST_HAVE_TYPE, ex.requiredType.toString())
+            buildMessage(MUST_HAVE_TYPE, ex.requiredType.toString())
         )),
     )
 
@@ -117,4 +128,56 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         (request as ServletWebRequest).request.requestURI,
         Errors.BadRequest.STATUS,
     )
+
+    /**
+     * Handles the exceptions coming from the PostgreSQL database
+     */
+    @ExceptionHandler(PSQLException::class)
+    private fun handleJdbiException(ex: PSQLException, request: HttpServletRequest): ResponseEntity<Any> {
+        val error = ex.serverErrorMessage
+        val requestUri = request.requestURI
+        return when (error?.message) {
+            UniqueConstraint.SQL_TYPE -> UniqueConstraint.run {
+                buildExceptionResponse(
+                    TYPE,
+                    buildNotUniqueMessage(error.detail!!, error.hint!!),
+                    requestUri,
+                    STATUS,
+                )
+            }
+            NotFound.SQL_TYPE -> NotFound.run {
+                buildExceptionResponse(
+                    TYPE,
+                    buildMessage(RESOURCE_DETAIL_NOT_FOUND_TEMPLATE, error.detail!!),
+                    requestUri,
+                    STATUS,
+                )
+            }
+            UnknownErrorWritingResource.SQL_TYPE -> UnknownErrorWritingResource.run {
+                buildExceptionResponse(
+                    TYPE,
+                    buildMessage(DB_WRITE_ERROR_TEMPLATE, error.detail!!),
+                    requestUri,
+                    STATUS,
+                )
+            }
+            InactiveResource.SQL_TYPE -> InactiveResource.run {
+                buildExceptionResponse(
+                    TYPE,
+                    INACTIVE_RESOURCE,
+                    requestUri,
+                    STATUS,
+                    INACTIVE_RESOURCE_DETAIL,
+                )
+            }
+            else -> Errors.InternalServerError.run {
+                buildExceptionResponse(
+                    TYPE,
+                    INTERNAL_ERROR,
+                    requestUri,
+                    STATUS,
+                )
+            }
+        }
+    }
 }

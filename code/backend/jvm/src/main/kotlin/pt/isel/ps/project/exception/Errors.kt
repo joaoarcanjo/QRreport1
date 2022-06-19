@@ -7,15 +7,18 @@ object Errors {
     object NotFound {
         val TYPE = URI("/errors/not-found")
         val STATUS = HttpStatus.NOT_FOUND
+        const val SQL_TYPE = "resource-not-found"
 
         object Message {
             const val RESOURCE_NOT_FOUND = "The resource was not found."
+            const val RESOURCE_DETAIL_NOT_FOUND_TEMPLATE = "The {} was not found."
         }
     }
 
     object BadRequest {
         val TYPE = URI("/errors/validation-error")
         val STATUS = HttpStatus.BAD_REQUEST
+        const val SQL_TYPE = "null-update-parameters"
 
         object Locations {
             const val PATH = "path"
@@ -101,7 +104,38 @@ object Errors {
         }
     }
 
-    fun makeMessage(message: String, value: Any): String {
+    object UniqueConstraint {
+        val TYPE = URI("/errors/unique-constraint")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "unique-constraint"
+
+        fun buildNotUniqueMessage(property: String, value: String): String {
+            return "The $property '$value' already exists. Please try another one."
+        }
+    }
+
+    object UnknownErrorWritingResource {
+        val TYPE = URI("/errors/database-write-error")
+        val STATUS = HttpStatus.INTERNAL_SERVER_ERROR
+        const val SQL_TYPE = "unknown-error-writing-resource"
+
+        object Message {
+            const val DB_WRITE_ERROR_TEMPLATE = "An error occurred {} the resource, please try again later."
+        }
+    }
+
+    object InactiveResource {
+        val TYPE = URI("/errors/inactive-resource")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "inactive-resource"
+
+        object Message {
+            const val INACTIVE_RESOURCE = "It's not possible to change an inactive resource."
+            const val INACTIVE_RESOURCE_DETAIL = "To change it, you need to activate it first."
+        }
+    }
+
+    fun buildMessage(message: String, value: Any): String {
         return message.replace("{}", value.toString())
     }
 }

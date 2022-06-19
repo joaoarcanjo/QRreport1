@@ -18,7 +18,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the company item representation
  * Throws exception in case there is no row added or when the unique constraint is violated
  */
-CREATE OR REPLACE PROCEDURE create_company(cname TEXT, company_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_company(company_rep OUT JSON, cname TEXT)
 AS
 $$
 DECLARE
@@ -29,7 +29,7 @@ BEGIN
 
     INSERT INTO COMPANY(name) VALUES (cname) RETURNING id, name, state, timestamp INTO company_id, cname, cstate, tmstamp;
     IF (company_id IS NULL) THEN
-        RAISE 'unknown_error_creating_resource';
+        RAISE 'unknown-error-writing-resource';
     END IF;
     company_rep = company_item_representation(company_id, cname, cstate, tmstamp);
 
@@ -42,7 +42,7 @@ EXCEPTION
 
         GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
         IF (ex_constraint = 'unique_company_name') THEN
-            RAISE unique_violation USING MESSAGE = 'unique_company_name';
+            RAISE 'unique-constraint' USING DETAIL = 'company name', HINT = cname;
         END IF;
 END$$ LANGUAGE plpgsql;
 
@@ -52,39 +52,36 @@ END$$ LANGUAGE plpgsql;
  * Throws exception when the company id does not exist, when company has the state set to inactive,
  * when all updatable parameters are null, when the unique constraint is violated or when there is no row updated
  */
-CREATE OR REPLACE PROCEDURE update_company(company_id BIGINT, company_rep OUT JSON, new_name TEXT)
+CREATE OR REPLACE PROCEDURE update_company(company_rep OUT JSON, company_id BIGINT, new_name TEXT)
 AS
 $$
 DECLARE
-    current_name TEXT; cstate TEXT; tmstamp TIMESTAMP;
-    ex_constraint TEXT;
+    cid BIGINT; current_name TEXT; cstate TEXT; tmstamp TIMESTAMP; ex_constraint TEXT;
 BEGIN
-    SELECT id, name, state, timestamp INTO company_id, current_name, cstate, tmstamp FROM COMPANY WHERE id = company_id;
-    IF (company_id IS NULL) THEN
-        RAISE 'company_not_found';
+    SELECT id, name, state, timestamp INTO cid, current_name, cstate, tmstamp FROM COMPANY WHERE id = company_id;
+    IF (cid IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
     END IF;
 
     CASE
         WHEN (cstate = 'Inactive' ) THEN
-            RAISE 'inactive_company';
-        WHEN (new_name IS NULL) THEN
-            RAISE 'update_parameters_all_null';
+            RAISE 'inactive-resource';
         WHEN (new_name = current_name) THEN
             -- Does not update when the names are the same, returns the representation with the same values.
         ELSE
             UPDATE COMPANY SET name = new_name WHERE id = company_id
-            RETURNING id, name, state, timestamp INTO company_id, new_name, cstate, tmstamp;
+            RETURNING id, name, state, timestamp INTO company_id, current_name, cstate, tmstamp;
             IF (NOT FOUND) THEN
-                RAISE 'unknown_error_updating_resource';
+                RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating';
             END IF;
     END CASE;
 
-    company_rep = company_item_representation(company_id, new_name, cstate, tmstamp);
+    company_rep = company_item_representation(company_id, current_name, cstate, tmstamp);
 EXCEPTION
     WHEN unique_violation THEN
         GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
         IF (ex_constraint = 'unique_company_name') THEN
-            RAISE unique_violation USING MESSAGE = 'unique_company_name';
+            RAISE 'unique-constraint' USING DETAIL = 'company name', HINT = new_name;
         END IF;
 END$$ LANGUAGE plpgsql;
 
@@ -129,11 +126,11 @@ DECLARE
     rec RECORD;
     buildings JSON[];
     collection_size INT = 0;
-    cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
+    cid BIGINT; cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT id, name, state, timestamp INTO company_id, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
-    IF (company_id IS NULL) THEN
-        RAISE 'company_not_found';
+    SELECT id, name, state, timestamp INTO cid, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
+    IF (cid IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
     END IF;
 
     /*FOR rec IN
@@ -156,16 +153,16 @@ END$$ LANGUAGE plpgsql;
  * Returns the company item representation
  * Throws exception when the company id does not exist
  */
-CREATE OR REPLACE PROCEDURE deactivate_company(company_id BIGINT, company_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE deactivate_company(company_rep OUT JSON, company_id BIGINT)
 AS
 $$
 DECLARE
-    cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
+    cid BIGINT; cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT id, name, state, timestamp INTO company_id, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
+    SELECT id, name, state, timestamp INTO cid, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
     CASE
-        WHEN (company_id IS NULL) THEN
-            RAISE 'company_not_found';
+        WHEN (cid IS NULL) THEN
+            RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
         WHEN (cstate = 'Active') THEN
             UPDATE COMPANY SET state = 'Inactive', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
             RETURNING state, timestamp INTO cstate, tmstamp;
@@ -181,16 +178,16 @@ END$$ LANGUAGE plpgsql;
  * Returns the company item representation
  * Throws exception when the company id does not exist
  */
-CREATE OR REPLACE PROCEDURE activate_company(company_id BIGINT, company_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE activate_company(company_rep OUT JSON, company_id BIGINT)
 AS
 $$
 DECLARE
-    cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
+    cid BIGINT; cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT id, name, state, timestamp INTO company_id, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
+    SELECT id, name, state, timestamp INTO cid, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
     CASE
-        WHEN (company_id IS NULL) THEN
-            RAISE 'company_not_found';
+        WHEN (cid IS NULL) THEN
+            RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
         WHEN (cstate = 'Inactive') THEN
             UPDATE COMPANY SET state = 'Active', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
             RETURNING state, timestamp INTO cstate, tmstamp;
