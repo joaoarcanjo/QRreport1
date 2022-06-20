@@ -28,8 +28,7 @@ class TicketService(val ticketDao: TicketDao) {
     //@Transactional(isolation = Isolation.READ_COMMITTED)
     fun createTicket(ticket: CreateTicketEntity): TicketItemDto {
         verifyCreateTicketInput(ticket)
-        return ticketDao.createTicket(ticket).getString(TICKET_REP)
-            ?.deserializeJsonTo()
+        return ticketDao.createTicket(ticket).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 

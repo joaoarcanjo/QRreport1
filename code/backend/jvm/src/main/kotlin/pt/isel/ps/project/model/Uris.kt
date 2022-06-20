@@ -3,6 +3,7 @@ package pt.isel.ps.project.model
 import org.springframework.web.util.UriTemplate
 
 object Uris {
+    const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
 
     object Categories {

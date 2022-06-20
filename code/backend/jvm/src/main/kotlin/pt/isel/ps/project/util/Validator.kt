@@ -35,7 +35,7 @@ import pt.isel.ps.project.model.category.CategoryEntity.CATEGORY_NAME_MAX_CHARS
 import pt.isel.ps.project.model.category.InputCategoryEntity
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT_MAX_CHARS
-import pt.isel.ps.project.model.comment.InputCommentEntity
+import pt.isel.ps.project.model.comment.CreateCommentEntity
 import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME_MAX_CHARS
@@ -269,7 +269,7 @@ object Validator {
         }
 
         private fun checkHashLength(hash: String) {
-            if (hash.length != Hash.SHA256.HASH_SIZE) throw InvalidParameterException(
+            if (hash.length != Hash.MD5.HEXA_HASH_SIZE) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
                 listOf(InvalidParameter(TICKET_HASH, Errors.BadRequest.Locations.BODY, INVALID_HASH_LENGTH))
             )
@@ -337,7 +337,7 @@ object Validator {
             /*
              * Verify if the comment inserted is valid.
              */
-            fun verifyCommentInput(comment: InputCommentEntity): Boolean {
+            fun verifyCommentInput(comment: CreateCommentEntity): Boolean {
                 checkIfIsNotBlank(comment.comment, COMMENT)
                 checkCommentLength(comment.comment)
                 return true

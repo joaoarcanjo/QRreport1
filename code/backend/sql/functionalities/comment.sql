@@ -16,9 +16,9 @@ END$$ LANGUAGE plpgsql;
 /*
  * Creates a new comment
  * Returns the comment representation
- * Throws exception when the ticket is archived or when no rows affected.
+ * Throws exception when the ticket is archived or when no rows were affected.
  */
-CREATE OR REPLACE PROCEDURE create_comment(person_id UUID, ticket_id BIGINT, ticket_comment TEXT, comment_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_comment(comment_rep OUT JSON, person_id UUID, ticket_id BIGINT, ticket_comment TEXT)
 AS
 $$
 DECLARE
@@ -28,7 +28,7 @@ BEGIN
         SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
         AND id = ticket_id
     ) THEN
-        RAISE 'cant_comment_archived_ticket';
+        RAISE 'archived-ticket';
     ELSE
         comment_id = (SELECT MAX(id) FROM COMMENT WHERE ticket = ticket_id) + 1;
         IF (comment_id IS NULL) THEN
@@ -38,7 +38,7 @@ BEGIN
         RETURNING timestamp INTO comment_timestamp;
 
         IF (comment_id IS NULL) THEN
-            RAISE 'unknown_error_creating_comment_resource';
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'writing';
         END IF;
         comment_rep = comment_item_representation(comment_id, ticket_comment, comment_timestamp);
     END IF;

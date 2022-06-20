@@ -37,6 +37,9 @@ dependencies {
 	//Database transactions
 	implementation("org.springframework:spring-tx:5.3.20")
 
+	// QRCode generator
+	implementation("io.github.g0dkar:qrcode-kotlin:1.1.0")
+
 	// Tests
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

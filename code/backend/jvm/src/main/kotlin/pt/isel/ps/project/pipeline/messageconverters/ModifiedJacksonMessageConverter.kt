@@ -15,7 +15,7 @@ class ModifiedJacksonMessageConverter: MappingJackson2HttpMessageConverter() {
         !QRreportJsonModel::class.java.isAssignableFrom(clazz) && super.canWrite(type, clazz, mediaType)
 
     override fun getSupportedMediaTypes() = listOf(
-//        MediaType("application","json"),
+        MediaType("application","json"),
         ProblemJsonModel.MEDIA_TYPE,
     )
 }

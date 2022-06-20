@@ -1,24 +1,23 @@
 package pt.isel.ps.project.service
 
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.stereotype.Service
 import pt.isel.ps.project.dao.QRCodeDao
-import pt.isel.ps.project.exception.Errors
-import pt.isel.ps.project.exception.InternalServerException
-import pt.isel.ps.project.model.qrcode.QRHASH_REP
-import pt.isel.ps.project.model.qrcode.QRCodeDto
-import pt.isel.ps.project.util.Hash.SHA256.getHashValue
-import pt.isel.ps.project.util.deserializeJsonTo
+import pt.isel.ps.project.model.Uris.REPORT_FORM_URL
+import pt.isel.ps.project.util.Hash.MD5.getHash
+import pt.isel.ps.project.util.QRCode
 
 @Service
-class QRCodeService(val qrHashDao: QRCodeDao) {
+class QRCodeService(val qrcodeDao: QRCodeDao) {
 
-    fun getHash(roomId: Long, deviceId: Long): QRCodeDto {
-        return qrHashDao.getQRHash(roomId, deviceId).deserializeJsonTo()
+    fun getQRCode(roomId: Long, deviceId: Long): ByteArrayResource {
+        val hash = qrcodeDao.getQRHash(roomId, deviceId)
+        return QRCode.generate("$REPORT_FORM_URL$hash")
     }
 
-    fun createHash(roomId: Long, deviceId: Long): QRCodeDto {
-        return qrHashDao.createQRHash(roomId, deviceId, getHashValue(roomId, deviceId)).getString(QRHASH_REP)
-            ?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+    fun generateQRCode(roomId: Long, deviceId: Long): ByteArrayResource {
+        val qrHash = getHash(roomId, deviceId)
+        qrcodeDao.createQRHash(roomId, deviceId, qrHash)
+        return QRCode.generate("$REPORT_FORM_URL$qrHash")
     }
 }

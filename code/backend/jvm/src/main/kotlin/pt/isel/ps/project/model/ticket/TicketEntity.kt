@@ -19,10 +19,13 @@ data class CreateTicketEntity(
     val subject: String,
     val description: String,
     val hash: String,
+    val name: String,
+    val email: String,
+    val phone: String?,
 )
 
 data class ChangeTicketStateEntity (
-    val newStateId: Int
+    val state: Int
 )
 
 data class UpdateTicketEntity (

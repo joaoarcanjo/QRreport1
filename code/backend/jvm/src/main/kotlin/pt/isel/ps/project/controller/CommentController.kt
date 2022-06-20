@@ -5,8 +5,7 @@ import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.comment.CommentDto
 import pt.isel.ps.project.model.comment.CommentItemDto
 import pt.isel.ps.project.model.comment.CommentsDto
-import pt.isel.ps.project.model.comment.InputCommentEntity
-import pt.isel.ps.project.model.company.*
+import pt.isel.ps.project.model.comment.CreateCommentEntity
 import pt.isel.ps.project.service.CommentService
 
 @RestController
@@ -18,7 +17,7 @@ class CommentController(private val service: CommentService) {
     }
 
     @PostMapping(Uris.Tickets.Comments.BASE_PATH)
-    fun createComment(@PathVariable ticketId: Long, @RequestBody comment: InputCommentEntity): CommentItemDto {
+    fun createComment(@PathVariable ticketId: Long, @RequestBody comment: CreateCommentEntity): CommentItemDto {
         return service.createComment(ticketId, comment)
     }
 
@@ -31,7 +30,7 @@ class CommentController(private val service: CommentService) {
     fun updateComment(
         @PathVariable ticketId: Long,
         @PathVariable commentId: Long,
-        @RequestBody comment: InputCommentEntity
+        @RequestBody comment: CreateCommentEntity
     ): CommentItemDto {
         return service.updateComment(ticketId, commentId, comment)
     }

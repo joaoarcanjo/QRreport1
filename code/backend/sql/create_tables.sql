@@ -13,7 +13,7 @@ BEGIN;
     (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL CONSTRAINT company_name_max_length CHECK ( char_length(name) <= 50 ),
-        phone TEXT, -- TODO: check if there are only digits
+        phone TEXT, -- TODO: check if there are only digits, put UNIQUE constraint
         email TEXT NOT NULL
             CONSTRAINT unique_person_email UNIQUE
             CONSTRAINT valid_person_email_format CHECK ( email LIKE '%@%' )
@@ -128,7 +128,7 @@ BEGIN;
         room BIGINT NOT NULL REFERENCES ROOM(id),
         device BIGINT NOT NULL REFERENCES DEVICE(id),
         reporter UUID NOT NULL REFERENCES PERSON(id),
-        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 6
+        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 1
     );
 
     CREATE TABLE FIXING_BY

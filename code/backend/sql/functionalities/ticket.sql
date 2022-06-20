@@ -22,35 +22,50 @@ END$$ LANGUAGE plpgsql;
  * Returns the ticket item representation
  * Throws exception in case there is no row added or when the hash does not exist
  */
+DROP PROCEDURE create_ticket(ticket_rep JSON, hash TEXT, subject TEXT,
+description TEXT, person_name TEXT, person_email TEXT, person_phone TEXT);
 CREATE OR REPLACE PROCEDURE create_ticket(
+    ticket_rep OUT JSON,
+    hash TEXT,
     subject TEXT,
     description TEXT,
-    person_id UUID,
-    hash TEXT,
-    ticket_rep OUT JSON
+    person_name TEXT,
+    person_email TEXT,
+    person_phone TEXT DEFAULT NULL
 )
 AS
 $$
 DECLARE
     t_id BIGINT; t_creation_timestamp TIMESTAMP; t_employee_state INT; room_id BIGINT; device_id BIGINT;
+    person_id UUID; person_rep JSON; role_id SMALLINT;
 BEGIN
-    --if the qr code is invalid, doesn't exist any correspondence with this hash, the room and the device
-    SELECT room, device FROM ROOM_DEVICE WHERE qr_hash = hash INTO room_id, device_id;
-    IF (room_id IS NULL) THEN
-        RAISE EXCEPTION 'unknown_room_device';
+    SELECT room, device INTO room_id, device_id FROM ROOM_DEVICE WHERE qr_hash = hash;
+    IF (room_id IS NULL OR device_id IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'hash';
+    END IF;
+
+    SELECT person_exists(person_email) INTO person_id;
+    IF (person_id IS NULL) THEN
+        SELECT id INTO role_id FROM ROLE WHERE name = 'guest';
+        CALL create_person(
+            person_rep,
+            role_id,
+            person_name,
+            person_email,
+            'password',
+            person_phone);
+        person_id = person_rep->>'id';
     END IF;
 
     INSERT INTO TICKET (subject, description, reporter, room, device)
         VALUES (subject, description, person_id, room_id, device_id)
         RETURNING id, creation_timestamp, employee_state INTO t_id, t_creation_timestamp, t_employee_state;
     IF (t_id IS NULL) THEN
-        RAISE 'unknown_error_creating_resource';
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'creating';
     END IF;
 
     ticket_rep = ticket_item_representation(t_id, subject, description, t_employee_state);
-END$$
-
-LANGUAGE plpgsql;
+END$$LANGUAGE plpgsql;
 
 /*
  * Updates a ticket
@@ -147,12 +162,12 @@ BEGIN
         WHERE first_employee_state = t_curr_employee_state AND second_employee_state = t_new_employee_state) THEN
             RAISE EXCEPTION 'impossible_state_transition';
         --if the new state is the end of the ticket, will set the close_timestamp
-        ELSE IF (t_new_employee_state IN (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Concluded' OR name = 'Rejected')) THEN
+        ELSE IF (t_new_employee_state IN (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Completed' OR name = 'Refused')) THEN
                 currentTimestamp = CURRENT_TIMESTAMP;
                 UPDATE TICKET SET employee_state = t_new_employee_state, close_timestamp = currentTimestamp
                 WHERE id = ticket_id RETURNING id INTO updated_ticket;
 
-                IF (t_new_employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Concluded')) THEN
+                IF (t_new_employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Completed')) THEN
                     UPDATE FIXING_BY SET end_timestamp = currentTimestamp
                     WHERE ticket = ticket_id AND end_timestamp IS NULL;
                 END IF;
@@ -195,7 +210,7 @@ BEGIN
     WHERE t.id = ticket_id
         INTO t_subject, t_desc, t_creation_time, t_employee_state, t_user_state, r_id, r_name, r_phone, r_email;
     IF (t_subject IS NULL) THEN
-        RAISE 'ticket_not_found';
+        RAISE 'resource-not-found' USING DETAIL = 'ticket';
     END IF;
 
     --Obtain all possible employee_state_transitions
@@ -285,16 +300,17 @@ END$$ LANGUAGE plpgsql;
  * Returns the ticket and the employee representation
  * Throws exception when the employee does not has the necessary skill or if the ticket already have a employee
  */
-CREATE OR REPLACE PROCEDURE set_ticket_employee(new_employee_id UUID, ticket_id BIGINT, ticket_rep OUT JSON)
+DROP PROCEDURE set_ticket_employee(new_employee_id uuid, ticket_id bigint, ticket_rep json);
+CREATE OR REPLACE PROCEDURE set_ticket_employee(ticket_rep OUT JSON, new_employee_id UUID, ticket_id BIGINT)
 AS
 $$
 DECLARE
     t_subject TEXT; t_description TEXT; t_employeeState INT; employee_name TEXT;
     employee_email TEXT; employee_phone TEXT;
 BEGIN
-    SELECT subject, description INTO t_subject, t_description FROM TICKET WHERE ID = ticket_id;
+    SELECT subject, description INTO t_subject, t_description FROM TICKET WHERE id = ticket_id;
     IF (NOT FOUND) THEN
-        RAISE 'ticket_not_found';
+        RAISE 'resource-not-found';
     END IF;
 
     SELECT name, email, phone FROM PERSON WHERE id = new_employee_id
@@ -308,10 +324,10 @@ BEGIN
 
     --verify if the current ticket employee_state is to assign or Waiting for new employee
     IF NOT EXISTS (SELECT employee_state FROM TICKET WHERE id = ticket_id AND employee_state IN
-        (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign' OR name = 'Waiting for new employee')) THEN
-        RAISE EXCEPTION 'already_have_an_employee';
+        (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign')) THEN
+        RAISE EXCEPTION 'already_has_an_employee';
     ELSE
-        UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'On execution')
+        UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Not started')
         WHERE id = ticket_id RETURNING employee_state INTO t_employeeState;
         IF (NOT FOUND) THEN
             RAISE 'unknown_error_updating_state_resource';

@@ -5,17 +5,24 @@ import java.security.MessageDigest
 object Hash {
 
     object SHA256 {
+        const val HEXA_HASH_SIZE = 256 / 4 // The hash is apresented in hexadecimal
 
-        const val HASH_SIZE = 256/4
-
-        private fun String.hashValue(): String {
-            val bytes = this.toByteArray()
-            val md = MessageDigest.getInstance("SHA-256")
-            val digest = md.digest(bytes)
+        private fun String.sha256(): String {
+            val digest = MessageDigest.getInstance("SHA-256").digest(this.toByteArray())
             return digest.fold("") { str, it -> str + "%02x".format(it) }
         }
 
-        fun getHashValue(roomId: Long, deviceId: Long)
-            = ("$roomId" + "-$deviceId" + "-${System.currentTimeMillis()}").hashValue()
+        fun getHash(roomId: Long, deviceId: Long) = "$roomId$deviceId${System.currentTimeMillis()}".sha256()
+    }
+
+    object MD5 {
+        const val HEXA_HASH_SIZE = 128 / 4 // The hash is apresented in hexadecimal
+
+        private fun String.md5(): String {
+            val digest = MessageDigest.getInstance("MD5").digest(this.toByteArray())
+            return digest.fold("") { str, it -> str + "%02x".format(it) }
+        }
+
+        fun getHash(roomId: Long, deviceId: Long) = "$roomId$deviceId${System.currentTimeMillis()}".md5()
     }
 }

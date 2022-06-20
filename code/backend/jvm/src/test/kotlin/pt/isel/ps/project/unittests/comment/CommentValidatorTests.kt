@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test
 import pt.isel.ps.project.exception.Errors
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
-import pt.isel.ps.project.model.building.BuildingEntity
 import pt.isel.ps.project.model.comment.CommentEntity
-import pt.isel.ps.project.model.comment.InputCommentEntity
-import pt.isel.ps.project.model.ticket.TicketEntity
+import pt.isel.ps.project.model.comment.CreateCommentEntity
 import pt.isel.ps.project.util.Validator
 
 class CommentValidatorTests {
@@ -16,7 +14,7 @@ class CommentValidatorTests {
     @Test
     fun `Create with valid comment`() {
 
-        val comment = InputCommentEntity("Comment test")
+        val comment = CreateCommentEntity("Comment test")
 
         Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
@@ -29,7 +27,7 @@ class CommentValidatorTests {
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-        val comment = InputCommentEntity(invComment)
+        val comment = CreateCommentEntity(invComment)
         val expectedEx =
             InvalidParameterException(
                 Errors.BadRequest.Message.INVALID_REQ_PARAMS,
@@ -49,7 +47,7 @@ class CommentValidatorTests {
 
     @Test
     fun `Throws exception when comment is created with an blank comment`() {
-        val comment = InputCommentEntity("    ")
+        val comment = CreateCommentEntity("    ")
 
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
@@ -70,14 +68,14 @@ class CommentValidatorTests {
     @Test
     fun `Update with valid comment`() {
 
-        val comment = InputCommentEntity("New comment test")
+        val comment = CreateCommentEntity("New comment test")
 
         Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
 
     @Test
     fun `Throws exception when comment is updated with an blank comment`() {
-        val comment = InputCommentEntity("    ")
+        val comment = CreateCommentEntity("    ")
 
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
@@ -102,7 +100,7 @@ class CommentValidatorTests {
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-        val comment = InputCommentEntity(invComment)
+        val comment = CreateCommentEntity(invComment)
         val expectedEx =
             InvalidParameterException(
                 Errors.BadRequest.Message.INVALID_REQ_PARAMS,

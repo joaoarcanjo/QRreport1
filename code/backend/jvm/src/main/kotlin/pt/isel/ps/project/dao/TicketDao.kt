@@ -20,7 +20,7 @@ interface TicketDao {
     @SqlQuery("SELECT get_ticket(:ticketId, null, null);")
     fun getTicket(ticketId: Long): String
 
-    @SqlCall("CALL create_ticket(:subject, :description, '0a8b83ec-7675-4467-91e5-33e933441eee', :hash, :$TICKET_REP);")
+    @SqlCall("CALL create_ticket(:$TICKET_REP, :hash, :subject, :description, :name, :email, :phone);")
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     fun createTicket(@BindBean ticket: CreateTicketEntity): OutParameters
 
@@ -33,7 +33,7 @@ interface TicketDao {
     fun deleteTicket(ticketId: Long): OutParameters
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
-    @SqlCall("Call change_ticket_state(:ticketId, :newStateId, :$TICKET_REP);")
+    @SqlCall("Call change_ticket_state(:ticketId, :state, :$TICKET_REP);")
     fun changeTicketState(ticketId: Long, @BindBean ticket: ChangeTicketStateEntity): OutParameters
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
@@ -41,7 +41,7 @@ interface TicketDao {
     fun addTicketRate(ticketId: Long, @BindBean rate: TicketRateEntity): OutParameters
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
-    @SqlCall("CALL set_ticket_employee(:employeeId, :ticketId, :$TICKET_REP);")
+    @SqlCall("CALL set_ticket_employee(:$TICKET_REP, :employeeId, :ticketId);")
     fun setEmployee(ticketId: Long, @BindBean employee: TicketEmployeeEntity): OutParameters
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)

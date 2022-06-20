@@ -10,8 +10,8 @@ data class TicketItemDto (
     val id: Int,
     val subject: String,
     val description: String,
-    val userState: String,
-    val employeeState: String
+    val userState: String?,
+    val employeeState: String?,
 )
 
 data class TicketDto (
@@ -21,7 +21,7 @@ data class TicketDto (
     val creationTimestamp: Timestamp,
     val employeeState: String,
     val userState: String,
-    val possibleTransitions: List<EmployeeStateDto>
+    val possibleTransitions: List<EmployeeStateDto>?,
 )
 
 data class TicketsDto (

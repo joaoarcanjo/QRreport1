@@ -34,10 +34,7 @@ class TicketController(private val service: TicketService) {
     }
 
     @PutMapping(Tickets.STATE_PATH)
-    fun changeTicketState(
-        @PathVariable ticketId: Long,
-        @RequestBody ticketState: ChangeTicketStateEntity
-    ): TicketItemDto {
+    fun changeTicketState(@PathVariable ticketId: Long, @RequestBody ticketState: ChangeTicketStateEntity): TicketItemDto {
         return service.changeTicketState(ticketId, ticketState)
     }
 

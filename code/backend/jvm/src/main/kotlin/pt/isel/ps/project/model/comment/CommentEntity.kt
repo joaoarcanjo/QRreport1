@@ -1,5 +1,7 @@
 package pt.isel.ps.project.model.comment
 
+import java.util.UUID
+
 /*
  * Name of the comment representation output parameter
  */
@@ -10,6 +12,7 @@ object CommentEntity {
     const val COMMENT_MAX_CHARS = 200
 }
 
-data class InputCommentEntity(
+data class CreateCommentEntity(
     val comment: String,
+    val person: UUID,
 )

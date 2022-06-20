@@ -10,7 +10,7 @@ BEGIN;
         ('ESD', 'Inactive');
 
     INSERT INTO PERSON (id, name, phone, email, password, state) VALUES
-        ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@isel.com', 'diogopass', 'active'),         --user
+        ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@qrreport.com', 'diogopass', 'active'),     --admin
         ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3','João Arcanjo', '962222222', 'joao@isel.com', 'joaopass', 'active'),         --user
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', 'pedropass', 'active'),      --manager
         ('996aff17-9d5c-48d4-b178-da7463e85652','Michael Phelps', '963131313', 'michael@isel.com', 'michaelpass', 'active'), --manager
@@ -64,7 +64,7 @@ BEGIN;
         ('e85c73aa-7869-4861-a1cc-ca30d7c84123', 1); -- Ivo Lucas / canalization
 
     INSERT INTO PERSON_ROLE (person, role) VALUES
-        ('4b341de0-65c0-4526-8898-24de463fc315', 2), -- Diogo Novo / user
+        ('4b341de0-65c0-4526-8898-24de463fc315', 5), -- Diogo Novo / admin
         ('3ef6f248-2ef1-4dba-ad73-efc0cfc668e3', 2), -- João Arcanjo / user
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens /manager
         ('996aff17-9d5c-48d4-b178-da7463e85652', 4), -- Michael Phelps /manager
@@ -77,7 +77,7 @@ BEGIN;
 
     INSERT INTO DEVICE (name, state, category) VALUES
         ('Conjunto de tomadas', 'Active', 2),
-        ('Cubiculo casa de banho', 'Active', 5),
+        ('Cubículo casa de banho', 'Active', 5),
         ('Bacia de lavatório', 'Active', 1),
         ('Sanita', 'Active', 1),
         ('Fogão', 'Active', 2),
