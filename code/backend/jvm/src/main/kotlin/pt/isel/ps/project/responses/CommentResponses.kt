@@ -27,7 +27,7 @@ object CommentResponses {
             href = Uris.Tickets.Comments.makeBase(ticketId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("comment", "string", required = true)
+                QRreportJsonModel.Property("comment", "string")
             )
         )
 
@@ -38,7 +38,7 @@ object CommentResponses {
             href = Uris.Tickets.Comments.makeSpecific(ticketId, commentId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("comment", "string", required = true)
+                QRreportJsonModel.Property("comment", "string")
             )
         )
 
@@ -50,17 +50,18 @@ object CommentResponses {
         )
     }
 
-    private fun getCommentItem(ticketId: Long, commentDto: CommentDto, rel: List<String>?): QRreportJsonModel {
+    private fun getCommentItem(ticketId: Long, ticketState: String, commentDto: CommentDto, rel: List<String>?): QRreportJsonModel {
         val comment = commentDto.comment
         return QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
             rel = rel,
             properties = comment,
             entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
-            actions = listOf(
-                Actions.deleteComment(ticketId, comment.id),
-                Actions.updateComment(ticketId, comment.id)
-            ),
+            actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                if (ticketState.compareTo("Archived") == 0) return@apply
+                add(Actions.deleteComment(ticketId, comment.id))
+                add(Actions.updateComment(ticketId, comment.id))
+            },
             links = listOf(Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)))
         )
     }
@@ -68,6 +69,7 @@ object CommentResponses {
     fun getCommentsRepresentation(
         commentsDto: CommentsDto,
         ticketId: Long,
+        ticketState: String,
         collection: CollectionModel,
         rel: List<String>?
     ) = QRreportJsonModel(
@@ -76,10 +78,13 @@ object CommentResponses {
         properties = collection,
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (commentsDto.comments != null) addAll(commentsDto.comments.map {
-                getCommentItem(ticketId, it, listOf(Relations.ITEM))
+                getCommentItem(ticketId, ticketState, it, listOf(Relations.ITEM))
             })
         },
-        actions = listOf(Actions.createComment(ticketId)),
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            if (ticketState.compareTo("Archived") == 0) return@apply
+            add(Actions.createComment(ticketId))
+        },
         links = listOf(Links.self(Uris.Tickets.Comments.makeBase(ticketId)), Links.tickets())
     )
 

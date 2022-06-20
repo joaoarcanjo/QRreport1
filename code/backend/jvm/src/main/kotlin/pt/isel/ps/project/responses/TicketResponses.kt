@@ -71,13 +71,8 @@ object TicketResponses {
             add(getCommentsRepresentation(
                 ticketInfo.ticketComments,
                 ticketInfo.ticket.id,
-                CollectionModel(
-                    0,
-                    if (COMMENT_MAX_PAGE_SIZE < ticketInfo.ticketComments.collectionSize)
-                        COMMENT_MAX_PAGE_SIZE
-                    else
-                        ticketInfo.ticketComments.collectionSize
-                    , ticketInfo.ticketComments.collectionSize),
+                ticketInfo.ticket.employeeState,
+                CollectionModel(0, COMMENT_MAX_PAGE_SIZE, ticketInfo.ticketComments.collectionSize),
                 listOf(Relations.TICKET_COMMENTS)))
             add(getCompanyItem(ticketInfo.company, listOf(Relations.TICKET_COMPANY)))
             add(getBuildingItem(ticketInfo.company.id, ticketInfo.building, listOf(Relations.TICKET_BUILDING)))
@@ -85,7 +80,11 @@ object TicketResponses {
             add(getDeviceItem(ticketInfo.device, listOf(Relations.TICKET_DEVICE)))
             add(getPersonItem(ticketInfo.person, listOf(Relations.TICKET_AUTHOR)))
         },
-        actions = listOf(Actions.deleteTicket(ticketInfo.ticket.id), Actions.updateTicket(ticketInfo.ticket.id)),
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            if (ticketInfo.ticket.employeeState.compareTo("Archived") == 0) return@apply
+            add(Actions.deleteTicket(ticketInfo.ticket.id))
+            add(Actions.updateTicket(ticketInfo.ticket.id))
+        },
         links = listOf(Links.self(Uris.Tickets.makeSpecific(ticketInfo.ticket.id)), Links.tickets())
     )
 

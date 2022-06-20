@@ -224,7 +224,7 @@ BEGIN
         c_id, c_name, c_state, c_timestamp, b_id, b_name, b_floors, b_state, b_timestamp, r_id, r_name, r_floor,
         r_state, r_timestamp, d_id, d_name, d_state, d_timestamp, ct_name;
     IF (t_subject IS NULL) THEN
-        RAISE 'ticket_not_found';
+        RAISE 'resource-not-found' USING DETAIL = 'ticket';
     END IF;
 
     --Obtain all possible employee_state_transitions
@@ -243,7 +243,7 @@ BEGIN
         'ticketComments', get_comments(ticket_id, limit_rows, skip_rows, comments_direction),
         'person', person_item_representation(p_id, p_name, p_phone, p_email),
         'company', company_item_representation(c_id, c_name, c_state, c_timestamp),
-        'building', building_item_representation(b_id, b_state, b_floors, b_state, b_timestamp),
+        'building', building_item_representation(b_id, b_name, b_floors, b_state, b_timestamp),
         'room', room_item_representation(r_id, r_name, r_floor, r_state, r_timestamp),
         'device', device_item_representation(d_id, d_name, ct_name, d_state, d_timestamp));
 END$$ LANGUAGE plpgsql;

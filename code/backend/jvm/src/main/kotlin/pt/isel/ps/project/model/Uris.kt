@@ -7,16 +7,6 @@ object Uris {
     const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
 
-    object Person {
-        const val BASE_PATH = "$VERSION/persons"
-        const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
-        const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
-
-        private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
-        private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
-        fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
-    }
-
     object Categories {
         const val BASE_PATH = "$VERSION/categories"
         const val SPECIFIC_PATH = "$BASE_PATH/{categoryId}"
@@ -150,6 +140,14 @@ object Uris {
             fun makeSpecific(commentId: Long, ticketId: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to ticketId, "commentId" to commentId)).toString()
         }
+    }
+
+    object Persons {
+        const val BASE_PATH = "$VERSION/persons"
+        const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
+
+        private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+        fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
     }
 
     private const val PAGINATION_PATH = "?page={pageIdx}"

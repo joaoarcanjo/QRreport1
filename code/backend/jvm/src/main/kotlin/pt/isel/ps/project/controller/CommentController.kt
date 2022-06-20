@@ -26,6 +26,7 @@ class CommentController(private val service: CommentService) {
         return getCommentsRepresentation(
             comments,
             ticketId,
+            "Not started", // TODO: Get ticket state from db
             CollectionModel(1, COMMENT_MAX_PAGE_SIZE, comments.collectionSize),
             null)
     }
