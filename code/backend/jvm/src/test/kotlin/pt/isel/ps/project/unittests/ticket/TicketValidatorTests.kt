@@ -21,7 +21,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "Subject test",
             "Description test",
-            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+            "5abd4089b7921fd6af09d1cc1cbe5220",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         Assertions.assertThat(verifyCreateTicketInput(ticket)).isTrue
@@ -32,7 +35,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "012345678901234567890123456789012345678901234567890123456789",
             "Description test",
-            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
@@ -56,7 +62,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "                   ",
             "Description test",
-            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
@@ -83,7 +92,10 @@ class TicketValidatorTests {
                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
@@ -107,7 +119,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "Subject test",
             "          ",
-            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90"
+            "D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
@@ -131,7 +146,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "Subject test",
             "Description test",
-            "HSAHREKCAH"
+            "HSAHREKCAH",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
@@ -155,7 +173,10 @@ class TicketValidatorTests {
         val ticket = CreateTicketEntity(
             "Subject test",
             "Description test",
-            "               "
+            "               ",
+            "Zé",
+            "ze@gmail.com",
+            "967597898"
         )
 
         val expectedEx = InvalidParameterException(
