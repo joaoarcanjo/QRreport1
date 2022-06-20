@@ -8,7 +8,7 @@ class TicketUrisTests {
 
     @Test
     fun `Make valid ticket specific path`() {
-        val ticketId = 112
+        val ticketId = 112L
         val expectedPath = "${Uris.Tickets.BASE_PATH}/112"
 
         val path = Uris.Tickets.makeSpecific(ticketId)
@@ -18,7 +18,7 @@ class TicketUrisTests {
 
     @Test
     fun `Make valid ticket employee path`() {
-        val ticketId = 112
+        val ticketId = 112L
         val expectedPath = "${Uris.Tickets.BASE_PATH}/112/employee"
 
         val path = Uris.Tickets.makeEmployee(ticketId)
@@ -28,7 +28,7 @@ class TicketUrisTests {
 
     @Test
     fun `Make valid ticket rate path`() {
-        val ticketId = 112
+        val ticketId = 112L
         val expectedPath = "${Uris.Tickets.BASE_PATH}/112/rate"
 
         val path = Uris.Tickets.makeRate(ticketId)

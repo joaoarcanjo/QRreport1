@@ -60,17 +60,19 @@ $$
 DECLARE
     comment_id BIGINT = 1;
     ticket_id BIGINT = 2;
+    return_rep JSON;
     comment_rep JSON;
     comment_expected TEXT = 'Comentário ao trabalho realizado em torneira avariada';
 BEGIN
     RAISE INFO '---| Get comment test |---';
 
-    comment_rep = get_comment(comment_id := comment_id, ticket_id := ticket_id);
+    return_rep = get_comment(comment_id := comment_id, ticket_id := ticket_id);
+    comment_rep = return_rep ->> 'comment';
     IF (
         assert_json_value(comment_rep, 'id', comment_id::TEXT) AND
         assert_json_value(comment_rep, 'comment', comment_expected) AND
         assert_json_is_not_null(comment_rep, 'timestamp') AND
-        assert_json_is_not_null(comment_rep, 'person')
+        assert_json_is_not_null(return_rep, 'person')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -91,7 +93,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Comment creation test |---';
 
-    CALL create_comment(person_id, ticket_id, comment, comment_rep);
+    CALL create_comment(comment_rep, person_id, ticket_id, comment);
     IF (
         assert_json_is_not_null(comment_rep, 'id') AND
         assert_json_value(comment_rep, 'comment', comment) AND
@@ -116,15 +118,15 @@ DECLARE
     comment_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Creation comment, throws cant_comment_archived_ticket |---';
+    RAISE INFO '---| Creation comment, throws archived-ticket |---';
 
-    CALL create_comment(person_id, ticket_id, comment, comment_rep);
+    CALL create_comment(comment_rep, person_id, ticket_id, comment);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'cant_comment_archived_ticket') THEN
+        IF (ex_constraint = 'archived-ticket') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';

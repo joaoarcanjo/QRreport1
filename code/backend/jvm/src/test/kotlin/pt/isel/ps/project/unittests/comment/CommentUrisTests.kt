@@ -8,7 +8,7 @@ class CommentUrisTests {
 
     @Test
     fun `Make base comments path`() {
-        val ticketId = 321
+        val ticketId = 321L
         val expectedPath = "${Uris.Tickets.BASE_PATH}/321/comments"
 
         val path = Uris.Tickets.Comments.makeBase(ticketId)
@@ -18,8 +18,8 @@ class CommentUrisTests {
 
     @Test
     fun `Make valid comment specific path`() {
-        val commentId = 123
-        val ticketId = 321
+        val commentId = 123L
+        val ticketId = 321L
         val expectedPath = "${Uris.Tickets.BASE_PATH}/321/comments/123"
 
         val path = Uris.Tickets.Comments.makeSpecific(commentId, ticketId)

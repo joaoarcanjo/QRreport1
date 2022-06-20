@@ -108,9 +108,9 @@ BEGIN
         anomalies = array_append(anomalies, anomaly_item_representation(rec.id, rec.anomaly));
         collection_size = collection_size + 1;
     END LOOP;
-    return json_build_object('id', device_id, 'name', device_name, 'category', device_category,
-            'state', device_state, 'timestamp', tmstamp, 'anomalies', anomalies,
-            'anomaliesCollectionSize', collection_size);
+    return json_build_object(
+            'device', device_item_representation(device_id, device_name, device_category, device_state, tmstamp),
+            'anomalies', json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size));
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

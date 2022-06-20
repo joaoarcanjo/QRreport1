@@ -66,7 +66,7 @@ BEGIN
 
     SELECT qr_hash INTO current_hash FROM HASH WHERE room = room_id AND device = device_id;
 
-    IF (current_hash = expected_hash) THEN
+    IF (current_hash != expected_hash) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
         RAISE INFO '-> Test failed!';

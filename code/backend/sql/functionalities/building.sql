@@ -178,8 +178,8 @@ BEGIN
     WHERE id = manager_id INTO manager_name, manager_phone, manager_email;
 
     RETURN json_build_object(
-        'id', building_id, 'name', building_name, 'floors', building_floors, 'state', building_state,
-        'timestamp', tmstamp, 'rooms', rooms, 'roomsCollectionSize', collection_size,
+        'building', building_item_representation(building_id, building_name, building_floors, building_state, tmstamp),
+        'rooms', json_build_object('rooms', rooms, 'roomsCollectionSize', collection_size),
         'manager', person_item_representation(manager_id, manager_name, manager_phone, manager_email)
     );
 END$$
@@ -302,4 +302,3 @@ CREATE TRIGGER change_building_state_trigger
     BEFORE UPDATE ON BUILDING
     FOR EACH ROW
     EXECUTE PROCEDURE update_rooms_states();
-

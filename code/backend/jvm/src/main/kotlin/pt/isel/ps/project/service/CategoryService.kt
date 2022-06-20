@@ -15,7 +15,8 @@ import pt.isel.ps.project.util.deserializeJsonTo
 class CategoryService(val categoryDao: CategoryDao) {
 
     fun getCategories(): CategoriesDto {
-        return categoryDao.getCategories().deserializeJsonTo()
+        val a = categoryDao.getCategories()
+        return a.deserializeJsonTo()
     }
 
     fun createCategory(category: InputCategoryEntity): CategoryDtoItem {

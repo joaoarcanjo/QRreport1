@@ -9,7 +9,7 @@ class CategoryUrisTests {
 
     @Test
     fun `Make valid category specific path`() {
-        val categoryId = 123
+        val categoryId = 123L
         val expectedPath = "$VERSION/categories/123"
 
         val path = Uris.Categories.makeSpecific(categoryId)
@@ -19,7 +19,7 @@ class CategoryUrisTests {
 
     @Test
     fun `Make valid category activate path`() {
-        val categoryId = 123
+        val categoryId = 123L
         val expectedPath = "$VERSION/categories/123/activate"
 
         val path = Uris.Categories.makeActivate(categoryId)

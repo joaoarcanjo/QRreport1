@@ -82,7 +82,7 @@ CREATE OR REPLACE PROCEDURE update_ticket(
 AS
 $$
 DECLARE
-    ticket_ret_id BIGINT; t_current_state INT; t_current_subject TEXT; t_current_description TEXT;
+    t_current_state INT; t_current_subject TEXT; t_current_description TEXT;
 BEGIN
     SELECT employee_state, subject, description FROM TICKET
     WHERE id = ticket_id
@@ -100,20 +100,20 @@ BEGIN
         ELSE
             IF (t_new_subject IS NULL AND t_new_desc IS NOT NULL) THEN
                 UPDATE TICKET SET description = t_new_desc WHERE id = ticket_id
-                RETURNING id, subject, description INTO ticket_ret_id, t_current_subject, t_current_description;
+                RETURNING id, subject, description INTO ticket_id, t_current_subject, t_current_description;
             ELSEIF (t_new_subject IS NOT NULL AND t_new_desc IS NULL) THEN
                 UPDATE TICKET SET subject = t_new_subject WHERE id = ticket_id
-                RETURNING id, subject, description INTO ticket_ret_id, t_current_subject, t_current_description;
+                RETURNING id, subject, description INTO ticket_id, t_current_subject, t_current_description;
             ELSEIF (t_new_subject IS NOT NULL AND t_new_desc IS NOT NULL) THEN
                 UPDATE TICKET SET subject = t_new_subject, description = t_new_desc WHERE id = ticket_id
-                RETURNING id, subject, description INTO ticket_ret_id, t_current_subject, t_current_description;
+                RETURNING id, subject, description INTO ticket_id, t_current_subject, t_current_description;
             END IF;
-            IF (ticket_ret_id IS NULL) THEN
+            IF (ticket_id IS NULL) THEN
                 RAISE 'unknown_error_updating_resource';
             END IF;
     END CASE;
 
-    ticket_rep = ticket_item_representation(ticket_ret_id, t_current_subject, t_current_description, t_current_state);
+    ticket_rep = ticket_item_representation(ticket_id, t_current_subject, t_current_description, t_current_state);
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
@@ -200,17 +200,31 @@ AS
 $$
 DECLARE
     rec RECORD; t_subject TEXT; t_desc TEXT; t_creation_time TIMESTAMP; t_employee_state TEXT;
-    t_user_state TEXT; t_possibleTransitions JSON[]; r_id UUID; r_name TEXT; r_phone TEXT; r_email TEXT;
+    t_user_state TEXT; t_possibleTransitions JSON[]; p_id UUID; p_name TEXT; p_phone TEXT; p_email TEXT;
+    c_id BIGINT; c_name TEXT; c_state TEXT; c_timestamp TIMESTAMP ;b_id BIGINT; b_name TEXT; b_state TEXT;
+    b_floors INT; b_timestamp TIMESTAMP; r_id BIGINT; r_name TEXT; r_state TEXT; r_floor INT; r_timestamp TIMESTAMP;
+    d_id BIGINT; d_name TEXT; d_state TEXT; d_timestamp TIMESTAMP; ct_name TEXT;
 BEGIN
     --Obtain all values to represent ticket
-    SELECT subject, description, creation_timestamp, es.name, us.name, p.id, p.name, p.phone, p.email FROM TICKET t
+    SELECT
+           subject, description, creation_timestamp, es.name, us.name, p.id, p.name, p.phone, p.email,
+           c.id, c.name, c.state, c.timestamp, b.id, b.name, b.floors, b.state, b.timestamp, r.id, r.name,
+           r.floor, r.state, r.timestamp, d.id, d.name, d.state, d.timestamp, ct.name
+    FROM TICKET t
         INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
         INNER JOIN USER_STATE us ON es.user_state = us.id
         INNER JOIN PERSON p ON p.id = t.reporter
+        INNER JOIN device d on t.device = d.id
+        INNER JOIN room r on t.room = r.id
+        INNER JOIN building b on b.id = r.building
+        INNER JOIN company c on c.id = b.company
+        INNER JOIN category ct on ct.id = d.category
     WHERE t.id = ticket_id
-        INTO t_subject, t_desc, t_creation_time, t_employee_state, t_user_state, r_id, r_name, r_phone, r_email;
+        INTO t_subject, t_desc, t_creation_time, t_employee_state, t_user_state, p_id, p_name, p_phone, p_email,
+        c_id, c_name, c_state, c_timestamp, b_id, b_name, b_floors, b_state, b_timestamp, r_id, r_name, r_floor,
+        r_state, r_timestamp, d_id, d_name, d_state, d_timestamp, ct_name;
     IF (t_subject IS NULL) THEN
-        RAISE 'resource-not-found' USING DETAIL = 'ticket';
+        RAISE 'ticket_not_found';
     END IF;
 
     --Obtain all possible employee_state_transitions
@@ -227,8 +241,13 @@ BEGIN
             'creationTimestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
             'possibleTransitions', t_possibleTransitions),
         'ticketComments', get_comments(ticket_id, limit_rows, skip_rows, comments_direction),
-        'person', person_item_representation(r_id, r_name, r_phone, r_email));
+        'person', person_item_representation(p_id, p_name, p_phone, p_email),
+        'company', company_item_representation(c_id, c_name, c_state, c_timestamp),
+        'building', building_item_representation(b_id, b_state, b_floors, b_state, b_timestamp),
+        'room', room_item_representation(r_id, r_name, r_floor, r_state, r_timestamp),
+        'device', device_item_representation(d_id, d_name, ct_name, d_state, d_timestamp));
 END$$ LANGUAGE plpgsql;
+
 
 /*
  * Gets all the tickets
@@ -292,7 +311,7 @@ BEGIN
         collection_size = collection_size + 1;
     END LOOP;
 
-    RETURN json_build_object('tickets', tickets, 'collectionSize', collection_size);
+    RETURN json_build_object('tickets', tickets, 'ticketsCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -300,7 +319,7 @@ END$$ LANGUAGE plpgsql;
  * Returns the ticket and the employee representation
  * Throws exception when the employee does not has the necessary skill or if the ticket already have a employee
  */
-DROP PROCEDURE set_ticket_employee(new_employee_id uuid, ticket_id bigint, ticket_rep json);
+--DROP PROCEDURE set_ticket_employee(new_employee_id uuid, ticket_id bigint, ticket_rep json);
 CREATE OR REPLACE PROCEDURE set_ticket_employee(ticket_rep OUT JSON, new_employee_id UUID, ticket_id BIGINT)
 AS
 $$
@@ -365,13 +384,13 @@ BEGIN
             RAISE 'ticket_not_found';
         --cant remove a employee from a ticket without employee
         WHEN (t_employee_state IN (SELECT id FROM EMPLOYEE_STATE
-        WHERE name = 'To assign' OR name = 'Waiting for new employee')) THEN
+        WHERE name = 'To assign')) THEN
             RAISE EXCEPTION 'must_have_employee';
         WHEN (t_employee_state IN (SELECT id FROM EMPLOYEE_STATE
         WHERE name = 'Refused' OR name = 'Archived' OR name = 'Concluded')) THEN
             RAISE EXCEPTION 'must_be_a_running_ticket';
         ELSE
-            UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Waiting for new employee')
+            UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign')
             WHERE id = ticket_id
             RETURNING subject, description, employee_state INTO t_subject, t_description, t_employee_state;
             IF (NOT FOUND) THEN
@@ -390,8 +409,8 @@ BEGIN
     END CASE;
 
     ticket_rep = json_build_object(
-                'ticket', ticket_item_representation(ticket_id, t_subject, t_description, t_employee_state),
-                'person', person_item_representation(employee_id, employee_name, employee_phone, employee_email));
+        'ticket', ticket_item_representation(ticket_id, t_subject, t_description, t_employee_state),
+        'person', person_item_representation(employee_id, employee_name, employee_phone, employee_email));
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

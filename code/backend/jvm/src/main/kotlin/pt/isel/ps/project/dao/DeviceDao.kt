@@ -17,7 +17,7 @@ interface DeviceDao {
     fun getDevices(): String
 
     @SqlQuery("SELECT get_device(:deviceId);")
-    fun getDevice(deviceId: Int): String
+    fun getDevice(deviceId: Long): String
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL create_device(:name, :categoryId, :$DEVICE_REP);")
@@ -25,23 +25,23 @@ interface DeviceDao {
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL update_device(:deviceId, :name, :$DEVICE_REP);")
-    fun updateDevice(deviceId: Int, @BindBean device: UpdateDeviceEntity): OutParameters
+    fun updateDevice(deviceId: Long, @BindBean device: UpdateDeviceEntity): OutParameters
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL change_device_category(:deviceId, :newCategoryId, :$DEVICE_REP);")
-    fun changeDeviceCategory(deviceId: Int, @BindBean device: ChangeDeviceCategoryEntity): OutParameters
+    fun changeDeviceCategory(deviceId: Long, @BindBean device: ChangeDeviceCategoryEntity): OutParameters
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL deactivate_device(:deviceId, :$DEVICE_REP);")
-    fun deactivateDevice(deviceId: Int): OutParameters
+    fun deactivateDevice(deviceId: Long): OutParameters
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL activate_device(:deviceId, :$DEVICE_REP);")
-    fun activateDevice(deviceId: Int): OutParameters
+    fun activateDevice(deviceId: Long): OutParameters
 
     @SqlQuery("SELECT get_room_devices(:roomId, null, null);") // :limit, :offset
-    fun getRoomDevices(roomId: Int): String
+    fun getRoomDevices(roomId: Long): String
 
     @SqlQuery("SELECT get_room_device(:roomId, :deviceId);")
-    fun getRoomDevice(roomId: Int, deviceId: Int): String
+    fun getRoomDevice(roomId: Long, deviceId: Long): String
 }

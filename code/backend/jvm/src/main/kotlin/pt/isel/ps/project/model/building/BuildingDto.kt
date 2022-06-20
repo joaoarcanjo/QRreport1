@@ -2,6 +2,7 @@ package pt.isel.ps.project.model.building
 
 import pt.isel.ps.project.model.person.PersonItemDto
 import pt.isel.ps.project.model.room.RoomItemDto
+import pt.isel.ps.project.model.room.RoomsDto
 import java.sql.Timestamp
 import java.util.*
 
@@ -14,13 +15,8 @@ data class BuildingItemDto (
 )
 
 data class BuildingDto (
-    val id: Long,
-    val name: String,
-    val floors: Int,
-    val state: String,
-    val timestamp: Timestamp,
-    val rooms: List<RoomItemDto>,
-    val roomsCollectionSize: Int,
+    val building: BuildingItemDto,
+    val rooms: RoomsDto,
     val manager: PersonItemDto
 )
 

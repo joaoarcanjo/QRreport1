@@ -146,25 +146,29 @@ END$$;
 DO
 $$
 DECLARE
+    return_rep JSON;
     device_rep JSON;
+    anomalies_rep JSON;
     device_id BIGINT = 1;
     device_name TEXT = 'Conjunto de tomadas';
     device_category TEXT = 'electricity';
-    devide_state TEXT = 'Active';
+    device_state TEXT = 'Active';
     anomalies_collection_size INT = 3;
 BEGIN
     RAISE INFO '---| Get device function test |---';
 
-    device_rep = get_device(device_id);
+    return_rep = get_device(device_id);
+    device_rep = return_rep ->> 'device';
+    anomalies_rep = return_rep ->> 'anomalies';
 
     IF (
         assert_json_value(device_rep, 'id', device_id::TEXT) AND
         assert_json_value(device_rep, 'name', device_name) AND
         assert_json_value(device_rep, 'category', device_category) AND
-        assert_json_value(device_rep, 'state', devide_state) AND
+        assert_json_value(device_rep, 'state', device_state) AND
         assert_json_is_not_null(device_rep, 'timestamp') AND
-        assert_json_is_not_null(device_rep, 'anomalies') AND
-        assert_json_value(device_rep, 'anomaliesCollectionSize', anomalies_collection_size::TEXT)
+        assert_json_is_not_null(return_rep, 'anomalies') AND
+        assert_json_value(anomalies_rep, 'anomaliesCollectionSize', anomalies_collection_size::TEXT)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

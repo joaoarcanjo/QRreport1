@@ -118,8 +118,12 @@ DECLARE
     devices JSON[];
     collection_size INT = 0;
     room_name TEXT; room_floor INT; room_state TEXT; tmstamp TIMESTAMP;
+    building_id BIGINT; company_id BIGINT;
 BEGIN
-    SELECT name, floor, state, timestamp INTO room_name, room_floor, room_state, tmstamp FROM ROOM WHERE id = room_id;
+    SELECT r.name, floor, r.state, r.timestamp, b.id, c.id
+    INTO room_name, room_floor, room_state, tmstamp, building_id, company_id
+    FROM ROOM r INNER JOIN building b on b.id = r.building INNER JOIN company c on c.id = b.company
+    WHERE r.id = room_id;
     IF (room_name IS NULL) THEN
         RAISE 'room_not_found';
     END IF;
@@ -136,8 +140,9 @@ BEGIN
     END LOOP;
 
     RETURN json_build_object(
-        'id', room_id, 'name', room_name, 'floor', room_floor, 'state', room_state, 'timestamp', tmstamp,
-        'devices', devices, 'devicesCollectionSize', collection_size
+        'room', room_item_representation(room_id, room_name, room_floor, room_state, tmstamp),
+        'devices', json_build_object('devices', devices, 'devicesCollectionSize', collection_size),
+        'buildingId', building_id, 'companyId', company_id
     );
 END$$
 SET default_transaction_isolation = 'repeatable read'
@@ -211,22 +216,26 @@ CREATE OR REPLACE PROCEDURE deactivate_room(room_id BIGINT, room_rep OUT JSON)
 AS
 $$
 DECLARE
-    room_name TEXT; room_floor INT; room_state TEXT; tmstamp TIMESTAMP;
+    room_name TEXT; room_floor INT; room_state TEXT; tmstamp TIMESTAMP; room_building BIGINT;
+    building_id BIGINT; company_id BIGINT;
 BEGIN
-    SELECT name, floor, state INTO room_name, room_floor, room_state  FROM ROOM WHERE id = room_id;
+    SELECT name, floor, state, building INTO room_name, room_floor, room_state, room_building FROM ROOM WHERE id = room_id;
     CASE
         WHEN (room_name IS NULL) THEN
             RAISE 'room_not_found';
         WHEN (room_state = 'Active') THEN
-            RAISE INFO 'LAST STATE: %', room_state;
             UPDATE ROOM SET state = 'Inactive', timestamp = CURRENT_TIMESTAMP
             WHERE id = room_id RETURNING state, timestamp INTO room_state, tmstamp;
-            RAISE INFO 'NEW STATE: %', room_state;
+            SELECT c.id, b.id INTO company_id, building_id
+            FROM COMPANY c INNER JOIN BUILDING b on c.id = b.company
+            WHERE b.id = room_building;
         ELSE
             -- Do nothing when it's already inactive
     END CASE;
 
-    room_rep = room_item_representation(room_id, room_name, room_floor, room_state, tmstamp);
+    room_rep = json_build_object(
+        'room', room_item_representation(room_id, room_name, room_floor, room_state, tmstamp),
+        'buildingId', building_id, 'companyId', company_id);
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

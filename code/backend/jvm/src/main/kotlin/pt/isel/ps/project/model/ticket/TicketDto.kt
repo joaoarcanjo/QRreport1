@@ -1,13 +1,17 @@
 package pt.isel.ps.project.model.ticket
 
+import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.comment.CommentsDto
+import pt.isel.ps.project.model.company.CompanyItemDto
+import pt.isel.ps.project.model.device.DeviceItemDto
 import pt.isel.ps.project.model.person.PersonItemDto
+import pt.isel.ps.project.model.room.RoomItemDto
 import pt.isel.ps.project.model.state.EmployeeStateDto
 import java.sql.Timestamp
 
 
 data class TicketItemDto (
-    val id: Int,
+    val id: Long,
     val subject: String,
     val description: String,
     val userState: String?,
@@ -15,7 +19,7 @@ data class TicketItemDto (
 )
 
 data class TicketDto (
-    val id: Int,
+    val id: Long,
     val subject: String,
     val description: String,
     val creationTimestamp: Timestamp,
@@ -26,13 +30,17 @@ data class TicketDto (
 
 data class TicketsDto (
     val tickets: List<TicketItemDto>?,
-    val collectionSize: Int,
+    val ticketsCollectionSize: Int,
 )
 
 data class TicketExtraInfo (
     val ticket: TicketDto,
     val ticketComments: CommentsDto,
-    val person: PersonItemDto
+    val person: PersonItemDto,
+    val company: CompanyItemDto,
+    val building: BuildingItemDto,
+    val room: RoomItemDto,
+    val device: DeviceItemDto
 )
 
 data class TicketEmployee (
@@ -42,7 +50,7 @@ data class TicketEmployee (
 
 //Includes the ticket rate
 data class TicketRate (
-    val id: Int,
+    val id: Long,
     val subject: String,
     val description: String,
     val userState: String,

@@ -8,7 +8,7 @@ class RoomUrisTests {
 
     @Test
     fun `Make valid room specific path`() {
-        val roomId = 123
+        val roomId = 123L
         val expectedPath = "${Uris.VERSION}/rooms/123"
 
         val path = Uris.Companies.Buildings.Rooms.makeSpecific(roomId)
@@ -18,7 +18,7 @@ class RoomUrisTests {
 
     @Test
     fun `Make valid room activate path`() {
-        val roomId = 123
+        val roomId = 123L
         val expectedPath = "${Uris.VERSION}/rooms/123/activate"
 
         val path = Uris.Companies.Buildings.Rooms.makeActivate(roomId)
@@ -28,7 +28,7 @@ class RoomUrisTests {
 
     @Test
     fun `Make valid room devices path`() {
-        val roomId = 123
+        val roomId = 123L
         val expectedPath = "${Uris.VERSION}/rooms/123/devices"
 
         val path = Uris.Companies.Buildings.Rooms.makeDevices(roomId)
@@ -38,8 +38,8 @@ class RoomUrisTests {
 
     @Test
     fun `Make valid room specific device path`() {
-        val roomId = 123
-        val deviceId = 321
+        val roomId = 123L
+        val deviceId = 321L
         val expectedPath = "${Uris.VERSION}/rooms/123/devices/321"
 
         val path = Uris.Companies.Buildings.Rooms.makeSpecificDevice(roomId, deviceId)

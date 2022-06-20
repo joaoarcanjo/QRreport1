@@ -58,7 +58,7 @@ object CompanyResponses {
         )
     }
 
-    private fun getCompanyItem(company: CompanyItemDto, rel: List<String>?) = QRreportJsonModel(
+    fun getCompanyItem(company: CompanyItemDto, rel: List<String>?) = QRreportJsonModel(
         clazz = listOf(Classes.COMPANY),
         rel = rel,
         properties = company,

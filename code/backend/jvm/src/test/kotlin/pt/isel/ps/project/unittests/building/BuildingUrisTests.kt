@@ -8,8 +8,8 @@ class BuildingUrisTests {
 
     @Test
     fun `Make valid building specific path`() {
-        val companyId = 321
-        val buildingId = 123
+        val companyId = 321L
+        val buildingId = 123L
         val expectedPath = "${Uris.Companies.BASE_PATH}/321/buildings/123"
 
         val path = Uris.Companies.Buildings.makeSpecific(companyId, buildingId)
@@ -19,8 +19,8 @@ class BuildingUrisTests {
 
     @Test
     fun `Make valid building activate path`() {
-        val companyId = 321
-        val buildingId = 123
+        val companyId = 321L
+        val buildingId = 123L
         val expectedPath = "${Uris.Companies.BASE_PATH}/321/buildings/123/activate"
 
         val path = Uris.Companies.Buildings.makeActivate(companyId, buildingId)
@@ -30,8 +30,8 @@ class BuildingUrisTests {
 
     @Test
     fun `Make valid building manager path`() {
-        val companyId = 321
-        val buildingId = 123
+        val companyId = 321L
+        val buildingId = 123L
         val expectedPath = "${Uris.Companies.BASE_PATH}/321/buildings/123/manager"
 
         val path = Uris.Companies.Buildings.makeManager(companyId, buildingId)

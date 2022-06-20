@@ -64,7 +64,7 @@ class RoomService(val roomDao: RoomDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun deactivateRoom(roomId: Long): RoomItemDto {
+    fun deactivateRoom(roomId: Long): RoomDeactivateDto {
         return roomDao.deactivateRoom(roomId).getString(ROOM_REP)
             ?.deserializeJsonTo()
             ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)

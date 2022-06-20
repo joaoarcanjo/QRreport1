@@ -1,10 +1,21 @@
 package pt.isel.ps.project.model
 
 import org.springframework.web.util.UriTemplate
+import java.util.*
 
 object Uris {
     const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
+
+    object Person {
+        const val BASE_PATH = "$VERSION/persons"
+        const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
+        const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+
+        private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+        private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+        fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
+    }
 
     object Categories {
         const val BASE_PATH = "$VERSION/categories"
@@ -13,8 +24,8 @@ object Uris {
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
-        fun makeSpecific(id: Int) = SPECIFIC_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
-        fun makeActivate(id: Int) = ACTIVATE_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
+        fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
+        fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
     }
 
     object Devices {
@@ -26,16 +37,20 @@ object Uris {
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
         private val CATEGORY_TEMPLATE = UriTemplate(CATEGORY_PATH)
-        fun makeSpecific(id: Int) = SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
-        fun makeActivate(id: Int) = ACTIVATE_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
-        fun makeCategory(id: Int) = CATEGORY_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeCategory(id: Long) = CATEGORY_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
 
         object Anomalies {
             const val BASE_PATH = "${Devices.SPECIFIC_PATH}/anomalies"
             const val SPECIFIC_PATH = "$BASE_PATH/{anomalyId}"
 
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
-            fun makeSpecific(deviceId: Int, id: Int) =
+            private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
+
+            fun makeBase(deviceId: Long) = //TODO make test to this function
+                BASE_TEMPLATE.expand(mapOf("deviceId" to deviceId)).toString()
+            fun makeSpecific(deviceId: Long, id: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to deviceId, "anomalyId" to id)).toString()
         }
     }
@@ -59,14 +74,18 @@ object Uris {
             const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
             const val MANAGER_PATH = "$SPECIFIC_PATH/manager"
 
+            private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
             private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
             private val MANAGER_TEMPLATE = UriTemplate(MANAGER_PATH)
-            fun makeSpecific(companyId: Int, id: Int) =
+
+            fun makeBase(companyId: Long) =
+                BASE_TEMPLATE.expand(mapOf("companyId" to companyId)).toString()
+            fun makeSpecific(companyId: Long, id: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
-            fun makeActivate(companyId: Int, id: Int) =
+            fun makeActivate(companyId: Long, id: Long) =
                 ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
-            fun makeManager(companyId: Int, id: Int) =
+            fun makeManager(companyId: Long, id: Long) =
                 MANAGER_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
 
             object Rooms {
@@ -78,21 +97,30 @@ object Uris {
                 const val DEVICES_PATH = "$SPECIFIC_PATH/devices"
                 const val SPECIFIC_DEVICE_PATH = "$DEVICES_PATH/{deviceId}"
 
+                private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
                 private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
                 private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
                 private val DEVICES_TEMPLATE = UriTemplate(DEVICES_PATH)
                 private val SPECIFIC_DEVICE_TEMPLATE = UriTemplate(SPECIFIC_DEVICE_PATH)
-                fun makeSpecific(id: Int) =
+
+                fun makeBase(companyId: Long, buildingId: Long) = //todo test
+                    BASE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId)).toString()
+                fun makeSpecific(id: Long) =
                     SPECIFIC_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeActivate(id: Int) =
+                fun makeActivate(id: Long) =
                     ACTIVATE_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeDevices(id: Int) =
+                fun makeDevices(id: Long) =
                     DEVICES_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeSpecificDevice(roomId: Int, deviceId: Int) =
+                fun makeSpecificDevice(roomId: Long, deviceId: Long) =
                     SPECIFIC_DEVICE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
 
                 object QRCode {
                     const val BASE_PATH = "$SPECIFIC_DEVICE_PATH/qrcode"
+
+                    private val SPECIFIC_QRCODE_TEMPLATE = UriTemplate(BASE_PATH)
+
+                    fun makeSpecific(roomId: Long, deviceId: Long) =
+                        SPECIFIC_QRCODE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
                 }
             }
         }
@@ -108,9 +136,9 @@ object Uris {
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val EMPLOYEE_TEMPLATE = UriTemplate(EMPLOYEE_PATH)
         private val RATE_TEMPLATE = UriTemplate(RATE_PATH)
-        fun makeSpecific(id: Int) = SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
-        fun makeEmployee(id: Int) = EMPLOYEE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
-        fun makeRate(id: Int) = RATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+        fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+        fun makeEmployee(id: Long) = EMPLOYEE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+        fun makeRate(id: Long) = RATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
 
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
@@ -118,8 +146,8 @@ object Uris {
 
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
-            fun makeBase(ticketId: Int) = BASE_TEMPLATE.expand(mapOf("ticketId" to ticketId)).toString()
-            fun makeSpecific(commentId: Int, ticketId: Int) =
+            fun makeBase(ticketId: Long) = BASE_TEMPLATE.expand(mapOf("ticketId" to ticketId)).toString()
+            fun makeSpecific(commentId: Long, ticketId: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to ticketId, "commentId" to commentId)).toString()
         }
     }

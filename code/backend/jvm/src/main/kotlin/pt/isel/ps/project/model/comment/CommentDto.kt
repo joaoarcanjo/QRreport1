@@ -4,9 +4,7 @@ import pt.isel.ps.project.model.person.PersonItemDto
 import java.sql.Timestamp
 
 data class CommentDto (
-    val id: Long,
-    val comment: String,
-    val timestamp: Timestamp,
+    val comment: CommentItemDto,
     val person: PersonItemDto
 )
 

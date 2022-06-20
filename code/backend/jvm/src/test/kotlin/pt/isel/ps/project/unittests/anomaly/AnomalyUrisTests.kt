@@ -8,8 +8,8 @@ class AnomalyUrisTests {
 
     @Test
     fun `Make valid anomaly specific path`() {
-        val deviceId = 123
-        val anomalyId = 321
+        val deviceId = 123L
+        val anomalyId = 321L
         val expectedPath = "${Uris.VERSION}/devices/123/anomalies/321"
 
         val path = Uris.Devices.Anomalies.makeSpecific(deviceId, anomalyId)

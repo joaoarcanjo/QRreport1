@@ -66,7 +66,8 @@ BEGIN
         RAISE 'comment_not_found';
     END IF;
     RETURN (
-        json_build_object('id', comment_id, 'comment', comment, 'timestamp', comment_timestamp,
+        json_build_object(
+            'comment', comment_item_representation(comment_id, comment, comment_timestamp),
             'person', person_item_representation(person_id, person_email, person_phone, person_email))
         );
 END$$ LANGUAGE plpgsql;
@@ -99,8 +100,9 @@ BEGIN
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         comments = array_append(comments,
-            json_build_object('id', rec.comment_id, 'comment', rec.comment, 'timestamp',  rec.comment_timestamp,
-            'person', person_item_representation(rec.person_id, rec.name, rec.phone, rec.email)
+            json_build_object(
+                'comment', comment_item_representation(rec.comment_id, rec.comment, rec.comment_timestamp),
+                'person', person_item_representation(rec.person_id, rec.name, rec.phone, rec.email)
         ));
         collection_size = collection_size + 1;
     END LOOP;

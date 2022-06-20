@@ -363,23 +363,19 @@ $$
 DECLARE
     id BIGINT = 1;
     company_id BIGINT = 1;
-    name TEXT = 'A';
-    floors INT = 4;
-    state TEXT = 'Active';
-    building_rep JSON;
+    return_rep JSON;
+    rooms_rep JSON;
     rooms_col_size INT = 3;
 BEGIN
     RAISE INFO '---| Get building test |---';
 
-    SELECT get_building(company_id, id, 10, 0) INTO building_rep;
-
-    IF (assert_json_value(building_rep, 'id', id::TEXT) AND
-        assert_json_value(building_rep, 'name', name) AND
-        assert_json_value(building_rep, 'state', state) AND
-        assert_json_value(building_rep, 'floors', floors::TEXT) AND
-        assert_json_is_not_null(building_rep, 'timestamp') AND
-        assert_json_value(building_rep, 'roomsCollectionSize', rooms_col_size::TEXT) AND
-        assert_json_is_not_null(building_rep, 'manager')
+    SELECT get_building(company_id, id, 10, 0) INTO return_rep;
+    rooms_rep = return_rep ->> 'rooms';
+    IF (
+        assert_json_is_not_null(return_rep, 'building') AND
+        assert_json_is_not_null(rooms_rep, 'rooms') AND
+        assert_json_value(rooms_rep, 'roomsCollectionSize', rooms_col_size::TEXT) AND
+        assert_json_is_not_null(return_rep, 'manager')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

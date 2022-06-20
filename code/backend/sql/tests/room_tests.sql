@@ -175,22 +175,22 @@ DO
 $$
 DECLARE
     room_id BIGINT = 1;
-    room_name TEXT = 'Biblioteca';
-    room_state TEXT = 'Active';
-    room_floor INT = 1;
+    company_id BIGINT = 1;
+    building_id BIGINT = 1;
     devices_col_size INT = 2;
-    room_rep JSON;
+    return_rep JSON;
+    devices_rep JSON;
 BEGIN
     RAISE INFO '---| Get building test |---';
 
-    SELECT get_room(room_id, 10, 0) INTO room_rep;
-
-    IF (assert_json_value(room_rep, 'id', room_id::TEXT) AND
-        assert_json_value(room_rep, 'name', room_name) AND
-        assert_json_value(room_rep, 'state', room_state) AND
-        assert_json_value(room_rep, 'floor', room_floor::TEXT) AND
-        assert_json_is_not_null(room_rep, 'timestamp') AND
-        assert_json_value(room_rep, 'devicesCollectionSize', devices_col_size::TEXT)
+    SELECT get_room(room_id, 10, 0) INTO return_rep;
+    devices_rep = return_rep ->> 'devices';
+    IF (
+        assert_json_is_not_null(return_rep, 'room') AND
+        assert_json_is_not_null(return_rep, 'devices') AND
+        assert_json_value(return_rep, 'buildingId', company_id::TEXT) AND
+        assert_json_value(return_rep, 'companyId', building_id::TEXT) AND
+        assert_json_value(devices_rep, 'devicesCollectionSize', devices_col_size::TEXT)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -288,15 +288,19 @@ $$
 DECLARE
     room_id BIGINT = 1;
     state TEXT = 'Inactive';
-    building_rep JSON;
+    room_rep JSON;
+    return_rep JSON;
 BEGIN
     RAISE INFO '---| Room deactivation test |---';
 
-    CALL deactivate_room(room_id, building_rep);
+    CALL deactivate_room(room_id, return_rep);
+    room_rep = return_rep ->> 'room';
     IF (
-        assert_json_value(building_rep, 'id', room_id::TEXT) AND
-        assert_json_value(building_rep, 'state', state) AND
-        assert_json_is_not_null(building_rep, 'timestamp')
+        assert_json_value(room_rep, 'id', room_id::TEXT) AND
+        assert_json_value(room_rep, 'state', state) AND
+        assert_json_is_not_null(room_rep, 'timestamp') AND
+        assert_json_is_not_null(return_rep, 'buildingId') AND
+        assert_json_is_not_null(return_rep, 'companyId')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

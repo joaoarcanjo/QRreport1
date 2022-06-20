@@ -8,7 +8,7 @@ class DeviceUrisTests {
 
     @Test
     fun `Make valid device specific path`() {
-        val deviceId = 123
+        val deviceId = 123L
         val expectedPath = "${Uris.VERSION}/devices/123"
 
         val path = Uris.Devices.makeSpecific(deviceId)
@@ -18,7 +18,7 @@ class DeviceUrisTests {
 
     @Test
     fun `Make valid device activate path`() {
-        val deviceId = 123
+        val deviceId = 123L
         val expectedPath = "${Uris.VERSION}/devices/123/activate"
 
         val path = Uris.Devices.makeActivate(deviceId)
@@ -28,7 +28,7 @@ class DeviceUrisTests {
 
     @Test
     fun `Make valid device category path`() {
-        val deviceId = 123
+        val deviceId = 123L
         val expectedPath = "${Uris.VERSION}/devices/123/category"
 
         val path = Uris.Devices.makeCategory(deviceId)

@@ -13,6 +13,16 @@ object Response {
     object Classes {
         const val COLLECTION = "collection"
         const val COMPANY = "company"
+        const val ANOMALY = "anomaly"
+        const val COMMENT = "comment"
+        const val TICKET = "ticket"
+        const val PERSON = "person"
+        const val BUILDING = "building"
+        const val ROOM = "room"
+        const val DEVICE = "device"
+        const val QRCODE = "qrcode"
+        const val CATEGORY = "category"
+        const val CATEGORIES = "categories"
     }
 
     object Relations {
@@ -25,11 +35,44 @@ object Response {
         const val AUTHOR = "author"
         const val COMPANIES = "companies"
         const val COMPANY_BUILDINGS = "company-buildings"
+        const val DEVICE_ANOMALIES ="device-anomalies"
+        const val COMMENT_AUTHOR = "comment-author"
+        const val TICKET_COMPANY = "ticket_company"
+        const val TICKET_BUILDING = "ticket_building"
+        const val TICKET_ROOM = "ticket-room"
+        const val TICKET_DEVICE = "ticket-device"
+        const val TICKET_AUTHOR = "ticket_author"
+        const val TICKET_COMMENTS = "ticket-comments"
+        const val TICKET_EMPLOYEE = "ticket-employee"
+        const val TICKETS = "tickets"
+        const val COMMENTS = "comments"
+        const val DEVICES = "devices"
+        const val BUILDINGS = "buildings"
+        const val COMMENT_TICKET = "comment-ticket"
+        const val ROOM_DEVICE_QRCODE = "room-device-qrcode"
+        const val BUILDING_MANAGER = "building-manager"
+        const val BUILDING_ROOMS = "building-rooms"
+        const val COMPANY = "company"
+        const val ROOM_DEVICES = "room-devices"
+        const val ROOMS = "rooms"
+        const val ROOM_DEVICE = "room-device"
+        const val ROOM_DEVICE_REMOVED = "room-device-removed"
     }
 
     object Links {
         fun self(href: String) = QRreportJsonModel.Link(listOf(Relations.SELF), href)
         fun companies() = QRreportJsonModel.Link(listOf(Relations.COMPANIES), Uris.Companies.BASE_PATH)
+        fun anomalies(deviceId: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICE_ANOMALIES), Uris.Devices.Anomalies.makeBase(deviceId))
+        fun tickets() = QRreportJsonModel.Link(listOf(Relations.TICKETS), Uris.Tickets.BASE_PATH)
+        fun ticket(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENT_TICKET), Uris.Tickets.makeSpecific(ticketId))
+        fun comments(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENTS), Uris.Tickets.Comments.makeBase(ticketId))
+        fun devices() = QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Devices.BASE_PATH)
+        fun roomDevices(roomId: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Companies.Buildings.Rooms.makeDevices(roomId))
+        fun buildings(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.BUILDINGS), Uris.Companies.Buildings.makeBase(companyId))
+        fun company(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.COMPANY), Uris.Companies.makeSpecific(companyId))
+        fun rooms(companyId: Long, buildingId: Long) = QRreportJsonModel.Link(
+            listOf(Relations.ROOMS), Uris.Companies.Buildings.Rooms.makeBase(companyId, buildingId))
+        fun categories() = QRreportJsonModel.Link(listOf(Classes.CATEGORIES), Uris.Categories.BASE_PATH)
     }
 
     fun buildResponse(
