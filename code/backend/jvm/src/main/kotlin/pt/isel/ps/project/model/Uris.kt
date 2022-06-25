@@ -145,9 +145,36 @@ object Uris {
     object Persons {
         const val BASE_PATH = "$VERSION/persons"
         const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
+        const val FIRE_PATH = "${Companies.SPECIFIC_PATH}/persons/{personId}/fire"
+        const val REHIRE_PATH = "${Companies.SPECIFIC_PATH}/persons/{personId}/rehire"
+        const val BAN_PATH = "$SPECIFIC_PATH/ban"
+        const val UNBAN_PATH = "$SPECIFIC_PATH/unban"
+        const val ADD_ROLE_PATH = "$SPECIFIC_PATH/add-role"
+        const val REMOVE_ROLE_PATH = "$SPECIFIC_PATH/remove-role"
+        const val ADD_SKILL_PATH = "$SPECIFIC_PATH/add-skill"
+        const val REMOVE_SKILL_PATH = "$SPECIFIC_PATH/remove-skill"
+        const val ASSIGN_COMPANY_PATH = "$SPECIFIC_PATH/assign-company"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
+        private val FIRE_TEMPLATE = UriTemplate(FIRE_PATH)
+        private val REHIRE_TEMPLATE = UriTemplate(REHIRE_PATH)
+        private val BAN_TEMPLATE = UriTemplate(BAN_PATH)
+        private val UNBAN_TEMPLATE = UriTemplate(UNBAN_PATH)
+        private val ADD_ROLE_TEMPLATE = UriTemplate(ADD_ROLE_PATH)
+        private val REMOVE_ROLE_TEMPLATE = UriTemplate(REMOVE_ROLE_PATH)
+        private val ADD_SKILL_TEMPLATE = UriTemplate(ADD_SKILL_PATH)
+        private val REMOVE_SKILL_TEMPLATE = UriTemplate(REMOVE_SKILL_PATH)
+        private val ASSIGN_COMPANY_TEMPLATE = UriTemplate(ASSIGN_COMPANY_PATH)
         fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeFire(companyId: Long, personId: UUID) = FIRE_TEMPLATE.expand(mapOf("companyId" to companyId, "personId" to personId)).toString()
+        fun makeRehire(companyId: Long, personId: UUID) = REHIRE_TEMPLATE.expand(mapOf("companyId" to companyId, "personId" to personId)).toString()
+        fun makeBan(id: UUID) = BAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeUnban(id: UUID) = UNBAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeAddRole(id: UUID) = ADD_ROLE_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeRemoveRole(id: UUID) = REMOVE_ROLE_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeAddSkill(id: UUID) = ADD_SKILL_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeRemoveSkill(id: UUID) = REMOVE_SKILL_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeAssignCompany(id: UUID) = ASSIGN_COMPANY_TEMPLATE.expand(mapOf("personId" to id)).toString()
     }
 
     private const val PAGINATION_PATH = "?page={pageIdx}"

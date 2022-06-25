@@ -37,6 +37,9 @@ object Errors {
             const val BLANK_PARAMS = "Parameter can't be a blank value."
             const val BLANK_PARAMS_DETAIL = "Please insert one of the possible parameters in order to update."
 
+            const val CREATE_EMPLOYEE_WITH_SKILL = "The employee must be linked to a skill."
+            const val EMPLOYEE_NULL_SKILL = "The skill cannot be null."
+
             object Templated {
                 const val MUST_HAVE_TYPE = "The value must be of the {} type."
             }

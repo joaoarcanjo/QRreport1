@@ -16,12 +16,41 @@ END$$ LANGUAGE plpgsql;
 /*
  * Auxiliary function to return the person item representation
  */
-CREATE OR REPLACE FUNCTION person_item_representation_temp(p_id UUID, name TEXT, phone TEXT, email TEXT, state TEXT)
+CREATE OR REPLACE FUNCTION person_item_representation(person_id UUID)
 RETURNS JSON
 AS
 $$
+DECLARE
+    pname TEXT; pphone TEXT; pemail TEXT; pstate TEXT;
 BEGIN
-    RETURN json_build_object('id', p_id, 'name', name, 'phone', phone, 'email', email, 'state', state);
+    SELECT name, phone, email, state INTO pname, pphone, pemail, pstate FROM PERSON WHERE id = person_id;
+    RETURN json_build_object('id', person_id, 'name', pname, 'phone', pphone, 'email', pemail, 'roles',
+        get_person_roles(person_id), 'state', pstate, 'skills', get_employee_skills(person_id));
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Auxiliary function to return the person details representation
+ */
+CREATE OR REPLACE FUNCTION person_details_representation(person_id UUID, pcompany BIGINT DEFAULT NULL)
+RETURNS JSON
+AS
+$$
+DECLARE
+    pname TEXT; pphone TEXT; pemail TEXT; pstate TEXT; ptimestamp TIMESTAMP; preason TEXT; pbanned_by UUID;
+    person_rep JSON;
+BEGIN
+    SELECT name, phone, email, state, timestamp, reason, banned_by
+    INTO pname, pphone, pemail, pstate, ptimestamp, preason, pbanned_by FROM PERSON WHERE id = person_id;
+    IF (pbanned_by IS NOT NULL) THEN
+        person_rep = person_item_representation(pbanned_by);
+    ELSEIF (pcompany IS NOT NULL) THEN
+        SELECT state, reason, timestamp INTO pstate, preason, ptimestamp
+        FROM PERSON_COMPANY WHERE person = person_id AND company = pcompany;
+    END IF;
+
+    RETURN json_build_object('id', person_id, 'name', pname, 'phone', pphone, 'email', pemail, 'roles', get_person_roles(person_id),
+        'state', pstate, 'timestamp', ptimestamp, 'reason', preason, 'bannedBy', person_rep,
+        'skills', get_employee_skills(person_id), 'companies', get_person_companies(person_id));
 END$$ LANGUAGE plpgsql;
 
 /**
@@ -45,26 +74,44 @@ END$$ LANGUAGE plpgsql;
 /**
   * Creates a new person and defines her role
   */
-DROP PROCEDURE create_person(person_rep JSON, person_role SMALLINT,
-person_name TEXT, person_email TEXT, person_password TEXT, person_phone TEXT);
 CREATE OR REPLACE PROCEDURE create_person(
     person_rep OUT JSON,
-    person_role SMALLINT,
+    prole TEXT,
     person_name TEXT,
     person_email TEXT,
     person_password TEXT,
-    person_phone TEXT DEFAULT NULL
+    person_phone TEXT DEFAULT NULL,
+    pcompany INT DEFAULT NULL,
+    skill INT DEFAULT NULL
 )AS
 $$
 DECLARE
-    person_id UUID;
+    person_id UUID; ex_constraint TEXT; role_id INT; ignore JSON;
 BEGIN
-    INSERT INTO PERSON(name, email, password, phone)
-    VALUES(person_name, person_email, person_password, person_phone) RETURNING id INTO person_id;
+    role_id = get_role_id(prole);
+    INSERT INTO PERSON(name, email, password, phone, active_role)
+    VALUES(person_name, person_email, person_password, person_phone, role_id) RETURNING id INTO person_id;
 
-    INSERT INTO PERSON_ROLE(person, role) VALUES(person_id, person_role);
+    IF (NOT EXISTS(SELECT id FROM ROLE WHERE id = role_id)) THEN
+         RAISE 'resource-not-found' USING DETAIL = 'role', HINT = prole;
+    ELSEIF ('employee' = prole OR 'manager' = prole) THEN
+        IF (pcompany IS NULL) THEN RAISE 'employee-manager-company'; END IF;
+        CALL assign_person_to_company(ignore, person_id, pcompany);
+        IF ('employee' = prole) THEN
+            IF (skill IS NULL) THEN RAISE 'employee-skill'; END IF;
+            CALL add_skill_to_employee(ignore, person_id, skill);
+        END IF;
+    END IF;
 
-    person_rep = person_item_representation(person_id, person_name, person_phone, person_email);
+    INSERT INTO PERSON_ROLE(person, role) VALUES(person_id, role_id);
+
+    person_rep = person_details_representation(person_id);
+EXCEPTION
+    WHEN unique_violation THEN
+        GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
+        IF (ex_constraint = 'unique_person_email') THEN
+            RAISE 'unique-constraint' USING DETAIL = 'email', HINT = person_email;
+        END IF;
 END$$LANGUAGE plpgsql;
 
 /**
@@ -80,17 +127,440 @@ DECLARE
     collection_size INT = 0;
 BEGIN
     FOR rec IN
-        SELECT id, name, phone, email, state
-        FROM PERSON
+        SELECT id FROM PERSON
 --         LIMIT limit_rows OFFSET skip_rows
     LOOP
-        persons = array_append(
-            persons,
-            person_item_representation_temp(rec.id, rec.name, rec.phone, rec.email, rec.state)
-        );
+        persons = array_append(persons, person_item_representation(rec.id));
         collection_size = collection_size + 1;
     END LOOP;
-
     RETURN json_build_object('persons', persons, 'personsCollectionSize', collection_size);
+END$$LANGUAGE plpgsql;
+-- Not tested, and not completed (filters and pagination)
 
+/**
+  * Gets a specific person details, req_person_id is the id of the person that requested the information
+  * and res_person_id is the id of the person to retrieve the information, if are both the same, means that
+  * the person is accessing his own profile.
+  * Returns the person details, personal info, tickets reported(guest/user) or assigned(employee)
+  * Throws exception when the person id doesn't exist or when doesn't have sufficient permissions
+  */
+CREATE OR REPLACE FUNCTION get_person(
+    req_person_id UUID,
+    res_person_id UUID
+)
+RETURNS JSON
+AS
+$$
+DECLARE
+    pstate TEXT; req_role TEXT; res_role TEXT; is_profile BOOL = FALSE;
+BEGIN
+    req_role = get_person_active_role(req_person_id);
+    res_role = get_person_active_role(res_person_id);
+
+    CASE
+        -- Equal ids means access to own profile OR admin accessing profile of another admin or manager
+        WHEN (req_person_id = res_person_id OR (req_role = 'admin' AND (res_role = 'manager' OR res_role = 'admin'))) THEN
+            pstate = get_person_state(req_person_id);
+            IF (req_person_id = res_person_id AND (pstate = 'banned' OR pstate = 'inactive')) THEN
+                RAISE 'inactive-or-banned-person-access' USING DETAIL = pstate;
+            END IF;
+            is_profile = TRUE;
+        WHEN (req_role = 'employee' OR (req_role = 'manager'AND (res_role = 'manager' OR res_role = 'admin'))) THEN
+            -- Employees can't access anyone's profile other than their own
+            -- Managers cannot access to data of other managers or admins
+            RAISE 'resource-permission-denied';
+        ELSE
+        -- A manager or admin is accessing the profile of an employee or guest/user
+            -- Get person infos like in the profile
+            -- Get person tickets, submitted in the case of a user, and assigned in case of an employee
+            -- User - get tickets to be analysed first, then the fixing ones and then the completed
+            -- Employee - get tickets to be started, then tickets fixing and then the completed
+    END CASE;
+    RETURN json_build_object(
+        'person', person_details_representation(res_person_id),
+        'personTickets', CASE WHEN (NOT is_profile) THEN get_tickets(res_person_id) END
+    );
+END$$LANGUAGE plpgsql;
+
+/*
+ * Updates a person
+ * Returns the updated person item representation
+ * Throws exception when the person id does not exist, when person has the state set to inactive/banned,
+ * when all updatable parameters are null, when the unique constraint is violated(email) or when there is no row updated
+ */
+CREATE OR REPLACE PROCEDURE update_person(
+    person_rep OUT JSON, person_id UUID, new_name TEXT DEFAULT NULL, new_phone TEXT DEFAULT NULL, new_email TEXT DEFAULT NULL,
+    new_password TEXT DEFAULT NULL
+)
+AS
+$$
+DECLARE
+    pname TEXT; pphone TEXT; pemail TEXT; pstate TEXT; ppassword TEXT; ex_constraint TEXT;
+BEGIN
+    SELECT name, phone, email, password, state INTO pname, pphone, pemail, ppassword, pstate FROM PERSON WHERE id = person_id;
+    IF (pname IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    END IF;
+
+    IF (pstate = 'inactive' OR pstate = 'banned') THEN
+        RAISE 'change-inactive-or-banned-person' USING DETAIL = 'update';
+    ELSEIF (new_name IS NULL AND new_phone IS NULL AND new_email IS NULL) THEN
+        RAISE 'null-parameters' USING DETAIL = 'updatable';
+    END IF;
+
+    IF (new_name IS NOT NULL AND new_name != pname) THEN
+        UPDATE PERSON SET name = new_name WHERE id = person_id;
+        IF (NOT FOUND) THEN
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating', HINT = 'name';
+        END IF;
+    END IF;
+
+    IF (new_phone IS NOT NULL AND new_phone != pphone) THEN
+        UPDATE PERSON SET phone = new_phone WHERE id = person_id;
+        IF (NOT FOUND) THEN
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating', HINT = 'phone';
+        END IF;
+    END IF;
+
+    IF (new_email IS NOT NULL AND new_email != pemail) THEN
+        UPDATE PERSON SET email = new_email WHERE id = person_id;
+        IF (NOT FOUND) THEN
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating', HINT = 'email';
+        END IF;
+    END IF;
+
+    IF (new_password IS NOT NULL AND new_password != ppassword) THEN
+        UPDATE PERSON SET password = new_password WHERE id = person_id;
+        IF (NOT FOUND) THEN
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating', HINT = 'password';
+        END IF;
+    END IF;
+
+    person_rep = person_item_representation(person_id);
+EXCEPTION
+    WHEN unique_violation THEN
+        GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
+        IF (ex_constraint = 'unique_person_email') THEN
+            RAISE 'unique-constraint' USING DETAIL = 'email', HINT = new_email;
+        END IF;
+END$$ LANGUAGE plpgsql;
+-- Repeatable read
+
+/**
+  * Deletes a specific person with the user role and replaces its information to a specific format
+  * Returns the representation of the changes made
+  * Throws exception if the person doesn't exist, if doesn't have the user role, if is inactive or banned and
+  * if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE delete_user(person_rep OUT JSON, person_id UUID)
+AS
+$$
+DECLARE
+    pname TEXT; pphone TEXT; pemail TEXT; prole INT; pstate TEXT;
+BEGIN
+    SELECT name, phone, email, active_role, state INTO pname, pphone, pemail, prole, pstate FROM PERSON WHERE id = person_id;
+    IF (pname IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (get_role_name(prole) != 'user') THEN
+        RAISE 'user-deletion';
+    ELSEIF (pstate = 'inactive' OR pstate = 'banned') THEN
+        RAISE 'change-inactive-or-banned-person' USING DETAIL = 'delete';
+    END IF;
+
+    UPDATE PERSON SET name = person_id, email = person_id || '@deleted.com', phone = NULL,
+         state = 'inactive', reason = 'User deleted account' WHERE id = person_id;
+    IF (NOT FOUND) THEN
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'deleting';
+    END IF;
+    person_rep = person_details_representation(person_id);
+END$$LANGUAGE plpgsql;
+-- Repeatable read
+
+/**
+  * Fires an employee
+  * Returns the representation of the changes made
+  * Throws exception if the person doesn't exist, if doesn't have the employee or manager/admin role, if is inactive< and
+  * if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE fire_person(
+    person_rep OUT JSON, req_person_id UUID, employee_id UUID, pcompany BIGINT, fire_reason TEXT
+)
+AS
+$$
+DECLARE
+    employee_role TEXT; req_role TEXT;
+BEGIN
+    employee_role = get_person_active_role(employee_id);
+    req_role = get_person_active_role(req_person_id);
+    IF (employee_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'employee', HINT = employee_id;
+    ELSEIF (req_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'manager/admin', HINT = req_person_id;
+    ELSEIF (employee_role != 'employee' AND employee_role != 'manager') THEN
+        RAISE 'person-dismissal';
+    ELSEIF (req_role != 'manager' AND req_role != 'admin') THEN
+        RAISE 'resource-permission-denied';
+    ELSEIF (req_role = 'manager' AND NOT from_same_company(req_person_id, employee_id, pcompany)) THEN
+        RAISE 'different-company';
+    ELSEIF (EXISTS(SELECT state FROM PERSON_COMPANY WHERE company = pcompany AND person = employee_id AND state = 'inactive')) THEN
+        RAISE 'change-inactive-or-banned-person' USING DETAIL = 'fire';
+    END IF;
+
+    UPDATE PERSON_COMPANY SET state = 'inactive', reason = fire_reason, timestamp = CURRENT_TIMESTAMP
+    WHERE person = employee_id AND company = pcompany;
+    IF (NOT FOUND) THEN
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'dismissing';
+    END IF;
+    person_rep = person_details_representation(employee_id, pcompany);
+END$$LANGUAGE plpgsql;
+-- Repeatable read
+
+/**
+  * Rehires an employee
+  * Returns the representation of the changes made
+  * Throws exception if the person doesn't exist, if doesn't have the employee and manager/admin role and
+  * if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE rehire_person(
+    person_rep OUT JSON, req_person_id UUID, employee_id UUID, pcompany BIGINT
+)
+AS
+$$
+DECLARE
+    employee_role TEXT; req_role TEXT;
+BEGIN
+    employee_role = get_person_active_role(employee_id);
+    req_role = get_person_active_role(req_person_id);
+    IF (employee_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'employee', HINT = employee_id;
+    ELSEIF (req_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'manager/admin', HINT = req_person_id;
+    ELSEIF (employee_role != 'employee' AND employee_role != 'manager') THEN
+        RAISE 'person-dismissal';
+    ELSEIF (req_role != 'manager' AND req_role != 'admin') THEN
+        RAISE 'resource-permission-denied';
+    ELSEIF (req_role = 'manager' AND NOT from_same_company(req_person_id, employee_id, pcompany)) THEN
+        RAISE 'different-company';
+    ELSEIF (EXISTS(SELECT state FROM PERSON_COMPANY WHERE company = pcompany AND person = employee_id AND state = 'active')) THEN
+        person_rep = person_details_representation(employee_id, pcompany);
+        RETURN;
+    END IF;
+
+    UPDATE PERSON_COMPANY SET state = 'active', timestamp = CURRENT_TIMESTAMP, reason = NULL
+    WHERE person = employee_id AND company = pcompany;
+    IF (NOT FOUND) THEN
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'rehiring';
+    END IF;
+    person_rep = person_details_representation(employee_id, pcompany);
+END$$LANGUAGE plpgsql;
+-- Repeatable read
+-- Not tested
+
+/**
+  * Bans a person
+  * Returns the representation of the changes made
+  * Throws exception if the person doesn't exist, if doesn't have the guest/user/employee/manager or manager/admin role,
+  * if is inactive and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE ban_person(
+    person_rep OUT JSON, req_person_id UUID, ban_person_id UUID, ban_reason TEXT
+)
+AS
+$$
+DECLARE
+    ban_person_role TEXT; req_role TEXT;
+BEGIN
+    req_role = get_person_active_role(req_person_id);
+    ban_person_role = get_person_active_role(ban_person_id);
+    IF (ban_person_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person to ban', HINT = ban_person_id;
+    ELSEIF (req_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'manager/admin', HINT = req_person_id;
+    ELSEIF (req_role != 'manager' AND req_role != 'admin') THEN
+        RAISE 'resource-permission-denied';
+    ELSEIF (req_role = 'manager' AND (ban_person_role = 'manager' OR ban_person_role = 'admin')) THEN
+        RAISE 'manager-ban-permission';
+    ELSEIF (EXISTS(SELECT state FROM PERSON WHERE id = ban_person_id AND (state = 'banned' OR state = 'inactive'))) THEN
+        RAISE 'change-inactive-or-banned-person' USING DETAIL = 'ban';
+    END IF;
+
+    UPDATE PERSON SET state = 'banned', reason = ban_reason, timestamp = CURRENT_TIMESTAMP, banned_by = req_person_id
+    WHERE id = ban_person_id;
+    IF (NOT FOUND) THEN
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'banning';
+    END IF;
+    person_rep = person_details_representation(ban_person_id);
+END$$LANGUAGE plpgsql;
+-- Repeatable read
+
+/**
+  * Unbans a person
+  * Returns the representation of the changes made
+  * Throws exception if the person doesn't exist, if doesn't have the guest/user/employee/manager or manager/admin role,
+  * if is inactive and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE unban_person(
+    person_rep OUT JSON, req_person_id UUID, unban_person_id UUID
+)
+AS
+$$
+DECLARE
+    unban_person_role TEXT; req_role TEXT;
+BEGIN
+    req_role = get_person_active_role(req_person_id);
+    unban_person_role = get_person_active_role(unban_person_id);
+    IF (unban_person_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person to ban', HINT = unban_person_id;
+    ELSEIF (req_role IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'manager/admin', HINT = req_person_id;
+    ELSEIF (req_role != 'manager' AND req_role != 'admin') THEN
+        RAISE 'resource-permission-denied';
+    ELSEIF (req_role = 'manager' AND (unban_person_role = 'manager' OR unban_person_role = 'admin')) THEN
+        RAISE 'manager-ban-permission';
+    ELSEIF (EXISTS(SELECT state FROM PERSON WHERE id = unban_person_id AND state = 'inactive')) THEN
+        RAISE 'change-inactive-or-banned-person' USING DETAIL = 'inactive';
+    END IF;
+
+    UPDATE PERSON SET state = 'active', timestamp = CURRENT_TIMESTAMP, reason = NULL WHERE id = unban_person_id;
+    IF (NOT FOUND) THEN
+        RAISE 'unknown-error-writing-resource' USING DETAIL = 'unbanning';
+    END IF;
+    person_rep = person_details_representation(unban_person_id);
+END$$LANGUAGE plpgsql;
+-- Repeatable read
+-- Not tested
+
+/**
+  * Adds a role to a person (admin only)
+  * Returns the representation of the changes made
+  * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE add_role_to_person(
+    person_rep OUT JSON, person_id UUID, new_role TEXT, pcompany BIGINT DEFAULT NULL, skill BIGINT DEFAULT NULL
+)
+AS
+$$
+DECLARE rep JSON; role_id INT;
+BEGIN
+    role_id = get_role_id(new_role);
+    IF (NOT EXISTS(SELECT id FROM PERSON WHERE id = person_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (NOT EXISTS(SELECT id FROM ROLE WHERE id = role_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'role', HINT = new_role;
+    ELSEIF (NOT EXISTS(SELECT role FROM PERSON_ROLE WHERE person = person_id AND role = role_id)) THEN
+        INSERT INTO PERSON_ROLE(person, role) VALUES (person_id, role_id);
+        IF (NOT FOUND) THEN
+            RAISE 'unknown-error-writing-resource' USING DETAIL = 'creating';
+        END IF;
+
+        -- In case there is an employee or a manager, they need to be associated to a company
+        IF ((new_role = 'employee' OR new_role = 'manager') AND pcompany IS NULL) THEN
+            RAISE 'employee-manager-company';
+        ELSEIF (new_role = 'manager') THEN
+            CALL assign_person_to_company(rep, person_id, pcompany);
+        ELSEIF (new_role = 'employee' AND skill IS NULL) THEN
+            RAISE 'employee-skill';
+        ELSE
+            CALL add_skill_to_employee(rep, person_id, skill);
+            CALL assign_person_to_company(rep, person_id, pcompany);
+        END IF;
+    END IF;
+    person_rep = person_details_representation(person_id);
+END$$LANGUAGE plpgsql;
+
+/**
+  * Remove a role from a person (admin only)
+  * Returns the representation of the changes made
+  * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE remove_role_from_person(person_rep OUT JSON, person_id UUID, remove_role TEXT)
+AS
+$$
+DECLARE role_id INT;
+BEGIN
+    role_id = get_role_id(remove_role);
+    IF (NOT EXISTS(SELECT id FROM PERSON WHERE id = person_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (NOT EXISTS(SELECT id FROM ROLE WHERE id = role_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'role', HINT = remove_role;
+    ELSEIF ((SELECT COUNT(role) FROM PERSON_ROLE WHERE person = person_id) = 1) THEN
+        RAISE 'minimum-of-roles';
+    ELSEIF (EXISTS(SELECT role FROM PERSON_ROLE WHERE person = person_id AND role = role_id)) THEN
+        DELETE FROM PERSON_ROLE WHERE person = person_id AND role = role_id;
+        IF (remove_role = 'employee' OR remove_role = 'manager') THEN
+            UPDATE PERSON_COMPANY SET state = 'inactive', timestamp = CURRENT_TIMESTAMP, reason = 'Role removed'
+            WHERE person = person_id;
+        END IF;
+    END IF;
+    person_rep = person_details_representation(person_id);
+END$$LANGUAGE plpgsql;
+
+/**
+  * Adds a skill to an employee (manager/admin only)
+  * Returns the representation of the changes made
+  * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE add_skill_to_employee(person_rep OUT JSON, person_id UUID, skill INT)
+AS
+$$
+BEGIN
+    IF (NOT EXISTS(SELECT id FROM PERSON WHERE id = person_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (NOT EXISTS(SELECT id FROM CATEGORY WHERE id = skill)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'skill', HINT = skill;
+    ELSEIF (NOT EXISTS(SELECT state FROM CATEGORY WHERE id = skill AND state = 'active')) THEN
+         RAISE 'inactive-resource' USING DETAIL = 'skill';
+    ELSEIF (NOT EXISTS(SELECT person FROM PERSON_SKILL WHERE person = person_id AND category = skill)) THEN
+        INSERT INTO PERSON_SKILL(person, category) VALUES (person_id, skill);
+    END IF;
+    person_rep = person_item_representation(person_id);
+END$$LANGUAGE plpgsql;
+
+/**
+  * Removes a skill from an employee (manager/admin only)
+  * Returns the representation of the changes made
+  * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE remove_skill_from_employee(person_rep OUT JSON, person_id UUID, skill INT)
+AS
+$$
+BEGIN
+    IF (NOT EXISTS(SELECT id FROM PERSON WHERE id = person_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (NOT EXISTS(SELECT id FROM CATEGORY WHERE id = skill)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'skill', HINT = skill;
+    ELSEIF ((SELECT COUNT(category) FROM PERSON_SKILL WHERE person = person_id) = 1) THEN
+        RAISE 'minimum-of-skills';
+    ELSEIF (EXISTS(SELECT person FROM PERSON_SKILL WHERE person = person_id AND category = skill)) THEN
+        DELETE FROM PERSON_SKILL WHERE person = person_id AND category = skill;
+    END IF;
+    person_rep = person_item_representation(person_id);
+END$$LANGUAGE plpgsql;
+
+/**
+  * Assigns an employee or a manager to a company (admin only)
+  * Returns the representation of the changes made
+  * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
+  */
+CREATE OR REPLACE PROCEDURE assign_person_to_company(person_rep OUT JSON, person_id UUID, pcompany BIGINT)
+AS
+$$
+BEGIN
+    IF (NOT EXISTS(SELECT id FROM PERSON WHERE id = person_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'person', HINT = person_id;
+    ELSEIF (NOT EXISTS(SELECT id FROM COMPANY WHERE id = pcompany)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'company', HINT = pcompany;
+    ELSEIF (NOT EXISTS(SELECT state FROM COMPANY WHERE id = pcompany AND state = 'active')) THEN
+         RAISE 'inactive-resource' USING DETAIL = 'company';
+    ELSEIF (NOT EXISTS(SELECT state FROM PERSON WHERE id = person_id AND state = 'active')) THEN
+         RAISE 'inactive-resource' USING DETAIL = 'person';
+    ELSEIF NOT('employee' = ANY(get_person_roles(person_id)) OR 'manager' = ANY(get_person_roles(person_id))) THEN
+         RAISE 'company-persons';
+    ELSEIF (NOT EXISTS(SELECT person FROM PERSON_COMPANY WHERE person = person_id AND company = pcompany)) THEN
+        INSERT INTO PERSON_COMPANY(person, company) VALUES (person_id, pcompany);
+    ELSEIF (EXISTS(SELECT person FROM PERSON_COMPANY WHERE person = person_id AND company = pcompany AND state = 'inactive')) THEN
+        UPDATE PERSON_COMPANY SET state = 'active', reason = NULL WHERE person = person_id AND company = pcompany;
+    END IF;
+
+    person_rep = person_details_representation(person_id);
 END$$LANGUAGE plpgsql;

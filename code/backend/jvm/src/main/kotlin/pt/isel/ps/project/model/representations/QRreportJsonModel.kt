@@ -13,11 +13,18 @@ class QRreportJsonModel(
     val actions: List<Action>? = null,
     val links: List<Link>,
 ) {
+
+    data class PropertyValue(
+        val href: String? = null,
+        val values: Any? = null,
+    )
+
     class Property(
         val name: String,
         val type: String,
         val itemsType: String? = null,
         val required: Boolean? = null,
+        val possibleValues: PropertyValue? = null,
     )
     class Action(
         val name: String,

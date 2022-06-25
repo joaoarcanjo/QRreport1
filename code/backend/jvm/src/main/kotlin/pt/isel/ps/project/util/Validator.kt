@@ -1,8 +1,9 @@
 package pt.isel.ps.project.util
 
-import pt.isel.ps.project.exception.Errors
+import pt.isel.ps.project.exception.Errors.BadRequest.Locations
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS_DETAIL
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.CREATE_EMPLOYEE_WITH_SKILL
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_FLOOR_NUMBER
@@ -11,6 +12,7 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_C
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.Anomaly.INVALID_ANOMALY_ANOMALY_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.INVALID_DEVICE_NAME_LENGTH
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.EMPLOYEE_NULL_SKILL
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_DESCRIPTION_LENGTH
@@ -48,6 +50,11 @@ import pt.isel.ps.project.model.device.CreateDeviceEntity
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME_MAX_CHARS
 import pt.isel.ps.project.model.device.UpdateDeviceEntity
+import pt.isel.ps.project.model.person.CreatePersonEntity
+import pt.isel.ps.project.model.person.PersonDetailsDto
+import pt.isel.ps.project.model.person.PersonDto
+import pt.isel.ps.project.model.person.PersonEntity.SKILL
+import pt.isel.ps.project.model.person.UpdatePersonEntity
 import pt.isel.ps.project.model.room.CreateRoomEntity
 import pt.isel.ps.project.model.room.RoomEntity.MAX_FLOOR
 import pt.isel.ps.project.model.room.RoomEntity.MIN_FLOOR
@@ -69,7 +76,7 @@ object Validator {
         if (input.isBlank()) {
             throw InvalidParameterException(
                 BLANK_PARAMS_DETAIL,
-                listOf(InvalidParameter(parameterName, Errors.BadRequest.Locations.BODY, BLANK_PARAMS))
+                listOf(InvalidParameter(parameterName, Locations.BODY, BLANK_PARAMS))
             )
         }
     }
@@ -79,7 +86,7 @@ object Validator {
         private fun checkNameLength(name: String) {
             if (name.length > DEVICE_NAME_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(DEVICE_NAME, Errors.BadRequest.Locations.BODY, INVALID_DEVICE_NAME_LENGTH))
+                listOf(InvalidParameter(DEVICE_NAME, Locations.BODY, INVALID_DEVICE_NAME_LENGTH))
             )
         }
 
@@ -106,7 +113,7 @@ object Validator {
             private fun checkAnomalyLength(anomaly: String) {
                 if (anomaly.length > ANOMALY_ANOMALY_MAX_CHARS) throw InvalidParameterException(
                     INVALID_REQ_PARAMS,
-                    listOf(InvalidParameter(ANOMALY_ANOMALY, Errors.BadRequest.Locations.BODY, INVALID_ANOMALY_ANOMALY_LENGTH))
+                    listOf(InvalidParameter(ANOMALY_ANOMALY, Locations.BODY, INVALID_ANOMALY_ANOMALY_LENGTH))
                 )
             }
 
@@ -126,7 +133,7 @@ object Validator {
         private fun checkNameLength(name: String) {
             if (name.length > CATEGORY_NAME_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(CATEGORY_NAME, Errors.BadRequest.Locations.BODY, INVALID_CATEGORY_NAME_LENGTH))
+                listOf(InvalidParameter(CATEGORY_NAME, Locations.BODY, INVALID_CATEGORY_NAME_LENGTH))
             )
         }
 
@@ -145,7 +152,7 @@ object Validator {
         private fun checkNameLength(name: String) {
             if (name.length > COMPANY_NAME_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(COMPANY_NAME, Errors.BadRequest.Locations.BODY, INVALID_NAME_LENGTH))
+                listOf(InvalidParameter(COMPANY_NAME, Locations.BODY, INVALID_NAME_LENGTH))
             )
         }
 
@@ -172,14 +179,14 @@ object Validator {
             private fun checkNameLength(name: String) {
                 if (name.length > BUILDING_NAME_MAX_CHARS) throw InvalidParameterException(
                     INVALID_REQ_PARAMS,
-                    listOf(InvalidParameter(BUILDING_NAME, Errors.BadRequest.Locations.BODY, INVALID_BUILDING_NAME_LENGTH))
+                    listOf(InvalidParameter(BUILDING_NAME, Locations.BODY, INVALID_BUILDING_NAME_LENGTH))
                 )
             }
 
             private fun checkFloorsNumber(floors: Int) {
                 if (floors > BUILDING_MAX_FLOORS_NUMBER) throw InvalidParameterException(
                     INVALID_REQ_PARAMS,
-                    listOf(InvalidParameter(BUILDING_FLOORS, Errors.BadRequest.Locations.BODY, INVALID_BUILDING_FLOOR_NUMBER))
+                    listOf(InvalidParameter(BUILDING_FLOORS, Locations.BODY, INVALID_BUILDING_FLOOR_NUMBER))
                 )
             }
 
@@ -219,14 +226,14 @@ object Validator {
                 private fun checkNameLength(name: String) {
                     if (name.length > ROOM_NAME_MAX_CHARS) throw InvalidParameterException(
                         INVALID_REQ_PARAMS,
-                        listOf(InvalidParameter(ROOM_NAME, Errors.BadRequest.Locations.BODY, INVALID_ROOM_NAME_LENGTH))
+                        listOf(InvalidParameter(ROOM_NAME, Locations.BODY, INVALID_ROOM_NAME_LENGTH))
                     )
                 }
 
                 private fun checkFloorNumber(floor: Int) {
                     if (floor !in MIN_FLOOR..MAX_FLOOR) throw InvalidParameterException(
                         INVALID_REQ_PARAMS,
-                        listOf(InvalidParameter(ROOM_FLOOR, Errors.BadRequest.Locations.BODY, INVALID_ROOM_FLOOR_NUMBER))
+                        listOf(InvalidParameter(ROOM_FLOOR, Locations.BODY, INVALID_ROOM_FLOOR_NUMBER))
                     )
                 }
 
@@ -257,28 +264,28 @@ object Validator {
         private fun checkSubjectLength(subject: String) {
             if (subject.length > TICKET_SUBJECT_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(TICKET_SUBJECT, Errors.BadRequest.Locations.BODY, INVALID_SUBJECT_LENGTH))
+                listOf(InvalidParameter(TICKET_SUBJECT, Locations.BODY, INVALID_SUBJECT_LENGTH))
             )
         }
 
         private fun checkDescriptionLength(description: String) {
             if (description.length > TICKET_DESCRIPTION_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(TICKET_DESCRIPTION, Errors.BadRequest.Locations.BODY, INVALID_DESCRIPTION_LENGTH))
+                listOf(InvalidParameter(TICKET_DESCRIPTION, Locations.BODY, INVALID_DESCRIPTION_LENGTH))
             )
         }
 
         private fun checkHashLength(hash: String) {
             if (hash.length != Hash.MD5.HEXA_HASH_SIZE) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(TICKET_HASH, Errors.BadRequest.Locations.BODY, INVALID_HASH_LENGTH))
+                listOf(InvalidParameter(TICKET_HASH, Locations.BODY, INVALID_HASH_LENGTH))
             )
         }
 
         private fun checkRate(rate: Int) {
             if (rate !in MIN_RATE..MAX_RATE) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
-                listOf(InvalidParameter(TICKET_RATE, Errors.BadRequest.Locations.BODY, INVALID_RATE))
+                listOf(InvalidParameter(TICKET_RATE, Locations.BODY, INVALID_RATE))
             )
         }
 
@@ -330,7 +337,7 @@ object Validator {
             private fun checkCommentLength(comment: String) {
                 if (comment.length > COMMENT_MAX_CHARS) throw InvalidParameterException(
                     INVALID_REQ_PARAMS,
-                    listOf(InvalidParameter(COMMENT, Errors.BadRequest.Locations.BODY, INVALID_COMMENT_LENGTH))
+                    listOf(InvalidParameter(COMMENT, Locations.BODY, INVALID_COMMENT_LENGTH))
                 )
             }
 
@@ -341,6 +348,63 @@ object Validator {
                 checkIfIsNotBlank(comment.comment, COMMENT)
                 checkCommentLength(comment.comment)
                 return true
+            }
+        }
+
+        object Person {
+            fun verifyCreatePersonInput(person: CreatePersonEntity): Boolean {
+                // TODO: Verify if logged user can add person (manager and admin only)
+                // TODO: Managers can only add employees
+
+                // Employees must be linked to a skill
+                if (person.role == "employee" && person.skill == null) {
+                    throw InvalidParameterException(
+                        CREATE_EMPLOYEE_WITH_SKILL,
+                        listOf(InvalidParameter(SKILL, Locations.BODY, EMPLOYEE_NULL_SKILL))
+                    )
+                }
+                return true
+            }
+
+            private fun checkIfAllUpdatableParametersAreNull(person: UpdatePersonEntity) {
+                if (person.name == null && person.phone == null && person.email == null && person.password == null)
+                    throw InvalidParameterException(
+                        UPDATE_NULL_PARAMS,
+                        detail = UPDATE_NULL_PARAMS_DETAIL,
+                    )
+            }
+
+            fun verifyUpdatePersonInput(person: UpdatePersonEntity): Boolean {
+                checkIfAllUpdatableParametersAreNull(person)
+                return true
+            }
+
+            fun personIsBanned(person: PersonDto): Boolean {
+                return person.state.compareTo("banned") == 0
+            }
+
+            fun personIsInactive(person: PersonDto): Boolean {
+                return person.state.compareTo("inactive") == 0
+            }
+
+            fun personIsGuest(roles: List<String>): Boolean {
+                return roles.contains("guest")
+            }
+            fun personIsUser(roles: List<String>): Boolean {
+                return roles.contains("user")
+            }
+            fun personIsEmployee(roles: List<String>): Boolean {
+                return roles.contains("employee")
+            }
+            fun personIsManager(roles: List<String>): Boolean {
+                return roles.contains("manager")
+            }
+            fun personIsAdmin(roles: List<String>): Boolean {
+                return roles.contains("admin")
+            }
+
+            fun personHasTwoRoles(roles: List<String>): Boolean {
+                return roles.size >= 2
             }
         }
     }
