@@ -24,7 +24,7 @@ GET /companies
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no | Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no | Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -35,8 +35,8 @@ Status: 200 OK
 {
     "class": [ "company", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -46,7 +46,7 @@ Status: 200 OK
             "properties": {
                 "id": 1,
                 "name": "ISEL",
-                "state": "Active",
+                "state": "active",
                 "timestamp": "2022-05-12 19:23:56782"
             },
             "links": [
@@ -57,7 +57,7 @@ Status: 200 OK
     "actions": [
         {
             "name": "create-company",
-            "title": "Create a company",
+            "title": "Create company",
             "method": "POST",
             "href": "/companies",
             "type": "application/json",
@@ -67,7 +67,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies?page=0" }
+        { "rel": [ "self" ], "href": "/companies?page=1" }
     ]
 }
 ```
@@ -113,7 +113,7 @@ Location: /companies/{companyId}
     "properties": {
         "id": 1,
         "name": "ISEL",
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 19:23:56782"
     },
     "links": [
@@ -159,7 +159,7 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "ISEL",
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 19:23:56782"
     },
     "entities": [
@@ -167,8 +167,8 @@ Status: 200 OK
             "class": [ "building", "collection" ],
             "rel": [ "company-buildings" ],
             "properties": {
-                "pageIndex": 0,
-                "pageSize": 1,
+                "pageIndex": 1,
+                "pageMaxSize": 10,
                 "collectionSize": 1
             },
             "entities": [
@@ -179,7 +179,7 @@ Status: 200 OK
                         "id": 1,
                         "name": "G",
                         "floors": 2,
-                        "state": "Active",
+                        "state": "active",
                         "timestamp": "2022-05-13 17:15:76532"
                     },
                     "links": [
@@ -190,7 +190,7 @@ Status: 200 OK
             "actions": [
                 {
                     "name": "create-building",
-                    "title": "Create a building",
+                    "title": "Create building",
                     "method": "POST",
                     "href": "/companies/1/buildings",
                     "type": "application/json",
@@ -201,7 +201,7 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/companies/1/buildings?page=0" }
+                { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" }
             ]
         }
     ],
@@ -209,7 +209,7 @@ Status: 200 OK
         {
             "name": "deactivate-company",
             "title": "Deactivate company",
-            "method": "DELETE",
+            "method": "POST",
             "href": "/companies/1"
         },
         {
@@ -268,7 +268,7 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "Instituto Superior de Engenharia de Lisboa",
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 19:23:56782"
     },
     "links": [
@@ -297,7 +297,7 @@ Status: 409 Conflict
 Deactivate a certain company.
 
 ```http
-DELETE /companies/{companyId}
+POST /companies/{companyId}
 ```
 
 ### Parameters
@@ -317,7 +317,7 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "ISEL",
-        "state": "Inactive",
+        "state": "inactive",
         "timestamp": "2022-05-12 20:54:32452"
     },
     "links": [
@@ -363,7 +363,7 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "ISEL",
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-14 14:23:56788"
     },
     "links": [

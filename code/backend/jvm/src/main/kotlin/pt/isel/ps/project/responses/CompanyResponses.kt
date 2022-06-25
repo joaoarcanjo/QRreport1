@@ -10,6 +10,8 @@ import pt.isel.ps.project.model.company.CompanyItemDto
 import pt.isel.ps.project.model.company.removeBuildings
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.responses.BuildingResponses.BUILDING_MAX_PAGE_SIZE
+import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
 import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.Relations
@@ -23,7 +25,7 @@ object CompanyResponses {
     object Actions {
         fun createCompany() = QRreportJsonModel.Action(
             name = "create-company",
-            title = "Create a company",
+            title = "Create company",
             method = HttpMethod.POST,
             href = Uris.Companies.BASE_PATH,
             type = MediaType.APPLICATION_JSON.toString(),
@@ -46,7 +48,7 @@ object CompanyResponses {
         fun deactivateCompany(companyId: Long) = QRreportJsonModel.Action(
             name = "deactivate-company",
             title = "Deactivate company",
-            method = HttpMethod.DELETE,
+            method = HttpMethod.POST,
             href = Uris.Companies.makeSpecific(companyId)
         )
 
@@ -94,21 +96,15 @@ object CompanyResponses {
             clazz = listOf(Classes.COMPANY),
             properties = company.removeBuildings(),
             entities = listOf(
-                /*getBuildingsRepresentation(
+                getBuildingsRepresentation(
                     company.buildings,
                     company.id,
-                    CollectionModel(
-                        0,
-                        if (BuidingResponses.DEFAULT_PAGE_SIZE < company.buildingsCollectionSize!!)
-                            BuidingResponses.DEFAULT_PAGE_SIZE
-                        else
-                            company.buildingsCollectionSize
-                        , company.buildingsCollectionSize),
+                    CollectionModel(1, BUILDING_MAX_PAGE_SIZE, company.buildingsCollectionSize ?: 0),
                     listOf(Relations.COMPANY_BUILDINGS)
-                )*/
+                )
             ),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (company.state.compareTo("Inactive") == 0) {
+                if (company.state.compareTo("inactive") == 0) {
                     add(Actions.activateCompany(company.id))
                     return@apply
                 }

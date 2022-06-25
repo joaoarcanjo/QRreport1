@@ -10,7 +10,7 @@ $$
 DECLARE
     id BIGINT;
     name TEXT = 'Benfica Campus';
-    state TEXT = 'Active';
+    state TEXT = 'active';
     company_rep JSON;
 BEGIN
     RAISE INFO '---| Company creation test |---';
@@ -24,7 +24,7 @@ BEGIN
         assert_json_is_not_null(company_rep, 'timestamp')) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE INFO '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 
@@ -50,14 +50,14 @@ BEGIN
 
     CALL create_company(company_rep, name);
 
-    RAISE INFO '-> Test failed!';
+    RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
         IF (type = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
-            RAISE INFO '-> Test failed!';
+            RAISE '-> Test failed!';
         END IF;
 END$$;
 
@@ -69,7 +69,7 @@ $$
 DECLARE
     id BIGINT = 1;
     name TEXT = 'ISELv2.0';
-    state TEXT = 'Active';
+    state TEXT = 'active';
     company_rep JSON;
 BEGIN
     RAISE INFO '---| Update company name test |---';
@@ -82,7 +82,7 @@ BEGIN
         assert_json_is_not_null(company_rep, 'timestamp')) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE INFO '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 END$$;
@@ -102,14 +102,14 @@ BEGIN
 
     CALL update_company(company_rep, id, name);
 
-    RAISE INFO '-> Test failed!';
+    RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
         IF (type = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
-            RAISE INFO '-> Test failed!';
+            RAISE '-> Test failed!';
         END IF;
 END$$;
 
@@ -130,7 +130,7 @@ BEGIN
         assert_json_value(company_rep, 'companiesCollectionSize', companies_col_size::TEXT)) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE INFO '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 END$$;
@@ -143,7 +143,7 @@ $$
 DECLARE
     id BIGINT = 1;
     name TEXT = 'ISEL';
-    state TEXT = 'Active';
+    state TEXT = 'active';
     company_rep JSON;
     buildings_col_size INT = 0;
 BEGIN
@@ -160,7 +160,7 @@ BEGIN
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE INFO '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 END$$;
@@ -178,14 +178,14 @@ BEGIN
     RAISE INFO '---| Get company with non existent id test |---';
 
     SELECT get_company(id, 10, 0) INTO company_rep;
-    RAISE INFO '-> Test failed!';
+    RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
         IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
-            RAISE INFO '-> Test failed!';
+            RAISE '-> Test failed!';
         END IF;
 END$$;
 
@@ -197,7 +197,7 @@ $$
 DECLARE
     id BIGINT = 1;
     name TEXT = 'ISEL';
-    state TEXT = 'Inactive';
+    state TEXT = 'inactive';
     company_rep JSON;
 BEGIN
     RAISE INFO '---| Company deactivation test |---';
@@ -211,7 +211,7 @@ BEGIN
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE INFO '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 END$$;
@@ -229,14 +229,14 @@ BEGIN
     RAISE INFO '---| Deactivate company with non existent id test |---';
 
     CALL deactivate_company(company_rep, id);
-    RAISE INFO '-> Test failed!';
+    RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
         IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
-            RAISE INFO '-> Test failed!';
+            RAISE '-> Test failed!';
         END IF;
 END$$;
 
@@ -248,7 +248,7 @@ $$
 DECLARE
     id BIGINT = 4;
     name TEXT = 'ESD';
-    state TEXT = 'Active';
+    state TEXT = 'active';
     company_rep JSON;
 BEGIN
     RAISE INFO '---| Company activation test |---';
@@ -280,13 +280,13 @@ BEGIN
     RAISE INFO '---| Activate company with non existent id test |---';
 
     CALL activate_company(company_rep, id);
-    RAISE INFO '-> Test failed!';
+    RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
         IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
-            RAISE INFO '-> Test failed!';
+            RAISE '-> Test failed!';
         END IF;
 END$$;

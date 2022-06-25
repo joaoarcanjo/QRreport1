@@ -13,6 +13,32 @@ BEGIN
     RETURN json_build_object('id', id, 'name', name, 'state', state, 'timestamp', tmstamp);
 END$$ LANGUAGE plpgsql;
 
+/**
+  * Auxiliary function to check if two persons are from the same company
+  */
+CREATE OR REPLACE FUNCTION from_same_company(person1 UUID, person2 UUID, param_company BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    RETURN (EXISTS(SELECT company FROM PERSON_COMPANY WHERE person = person1 AND company IN (
+            SELECT company FROM PERSON_COMPANY WHERE person = person2 AND company = param_company)
+        )
+    );
+END$$LANGUAGE plpgsql;
+
+/**
+  * Auxiliary function to obtain in an array the companies names of an employee/manager
+  */
+CREATE OR REPLACE FUNCTION get_person_companies(person_id UUID)
+RETURNS TEXT[]
+AS
+$$
+BEGIN
+    RETURN (SELECT array_agg((SELECT name FROM COMPANY WHERE id = p.company))
+            FROM PERSON_COMPANY p WHERE person = person_id AND state = 'active');
+END$$LANGUAGE plpgsql;
+
 /*
  * Creates a new company
  * Returns the company item representation
@@ -28,9 +54,6 @@ BEGIN
     SELECT last_value INTO prev_id FROM company_id_seq;
 
     INSERT INTO COMPANY(name) VALUES (cname) RETURNING id, name, state, timestamp INTO company_id, cname, cstate, tmstamp;
-    IF (company_id IS NULL) THEN
-        RAISE 'unknown-error-writing-resource';
-    END IF;
     company_rep = company_item_representation(company_id, cname, cstate, tmstamp);
 
 EXCEPTION
@@ -64,16 +87,13 @@ BEGIN
     END IF;
 
     CASE
-        WHEN (cstate = 'Inactive' ) THEN
+        WHEN (cstate = 'inactive' ) THEN
             RAISE 'inactive-resource';
         WHEN (new_name = current_name) THEN
             -- Does not update when the names are the same, returns the representation with the same values.
         ELSE
             UPDATE COMPANY SET name = new_name WHERE id = company_id
             RETURNING id, name, state, timestamp INTO company_id, current_name, cstate, tmstamp;
-            IF (NOT FOUND) THEN
-                RAISE 'unknown-error-writing-resource' USING DETAIL = 'updating';
-            END IF;
     END CASE;
 
     company_rep = company_item_representation(company_id, current_name, cstate, tmstamp);
@@ -123,9 +143,7 @@ RETURNS JSON
 AS
 $$
 DECLARE
-    rec RECORD;
-    buildings JSON[];
-    collection_size INT = 0;
+    buildings_rep JSON;
     cid BIGINT; cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
 BEGIN
     SELECT id, name, state, timestamp INTO cid, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;
@@ -133,18 +151,11 @@ BEGIN
         RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
     END IF;
 
-    /*FOR rec IN
-        SELECT id
-        FROM BUILDING
-        WHERE company = company_id LIMIT limit_rows OFFSET skip_rows
-    LOOP
-        buildings = array_append(buildings, building_item_representation(project_id, rec.id));
-        collection_size = collection_size + 1;
-    END LOOP;*/
+    buildings_rep = get_buildings(company_id, limit_rows, skip_rows);
 
     RETURN json_build_object(
         'id', company_id, 'name', cname, 'state', cstate, 'timestamp', tmstamp,
-        'buildings', buildings, 'buildingsCollectionSize', collection_size
+        'buildings', (buildings_rep->>'buildings')::JSON, 'buildingsCollectionSize', (buildings_rep->>'buildingsCollectionSize')::JSON
     );
 END$$ LANGUAGE plpgsql;
 
@@ -163,8 +174,8 @@ BEGIN
     CASE
         WHEN (cid IS NULL) THEN
             RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
-        WHEN (cstate = 'Active') THEN
-            UPDATE COMPANY SET state = 'Inactive', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
+        WHEN (cstate = 'active') THEN
+            UPDATE COMPANY SET state = 'inactive', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
             RETURNING state, timestamp INTO cstate, tmstamp;
         ELSE
             -- Do nothing when it's already inactive
@@ -188,8 +199,8 @@ BEGIN
     CASE
         WHEN (cid IS NULL) THEN
             RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
-        WHEN (cstate = 'Inactive') THEN
-            UPDATE COMPANY SET state = 'Active', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
+        WHEN (cstate = 'inactive') THEN
+            UPDATE COMPANY SET state = 'active', timestamp = CURRENT_TIMESTAMP WHERE id = company_id
             RETURNING state, timestamp INTO cstate, tmstamp;
         ELSE
             -- Do nothing when it's already active
