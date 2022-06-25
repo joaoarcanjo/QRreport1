@@ -23,10 +23,7 @@ class TicketController(private val service: TicketService) {
 
     @GetMapping(Tickets.BASE_PATH)
     fun getTickets(): QRreportJsonModel {
-        val tickets = service.getTickets()
-        return getTicketsRepresentation(
-            tickets, CollectionModel(1, TICKET_PAGE_MAX_SIZE, tickets.ticketsCollectionSize)
-        )
+        return getTicketsRepresentation(service.getTickets(), 1)
     }
 
     @GetMapping(Tickets.SPECIFIC_PATH)

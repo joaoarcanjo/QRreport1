@@ -314,6 +314,29 @@ BEGIN
     RETURN json_build_object('tickets', tickets, 'ticketsCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
+/*CREATE OR REPLACE FUNCTION get_tickets_with_default_order(
+    person_id UUID
+)
+RETURNS JSON
+AS
+$$
+DECLARE
+    person_role INT;
+BEGIN
+    SELECT role INTO person_role FROM PERSON_ROLE WHERE person = person_id;
+    CASE
+        WHEN (person_role = get_role_id('guest') OR person_role = get_role_id('user')) THEN
+            SELECT * FROM TICKET WHERE reporter = person_id;
+        WHEN (person_role = get_role_id('employee')) THEN
+            SELECT subject, description, s.name as user_state FROM TICKET t INNER JOIN USER_STATE s
+                ON (s.id = (SELECT user_state FROM EMPLOYEE_STATE WHERE id = t.employee_state))
+            WHERE t.id IN (SELECT ticket FROM FIXING_BY WHERE person = person_id)
+            ORDER BY user_state = 'Waiting analysis';
+        ELSE
+            RAISE 'invalid-person';
+    END CASE;
+END$$ LANGUAGE plpgsql;*/
+
 /*
  * Set a employee to a ticket
  * Returns the ticket and the employee representation
@@ -459,3 +482,6 @@ BEGIN
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
+
+
+

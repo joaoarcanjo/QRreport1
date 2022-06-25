@@ -51,16 +51,13 @@ object TicketResponses {
         links = listOf(Links.self(Uris.Tickets.makeSpecific(ticket.id)))
     )
 
-    fun getTicketsRepresentation(
-        ticketsDto: TicketsDto,
-        collection: CollectionModel,
-    ) = QRreportJsonModel(
+    fun getTicketsRepresentation(ticketsDto: TicketsDto, pageIdx: Int) = QRreportJsonModel(
         clazz = listOf(Classes.TICKET, Classes.COLLECTION),
-        properties = collection,
+        properties = CollectionModel(pageIdx, TICKET_PAGE_MAX_SIZE, ticketsDto.ticketsCollectionSize),
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (ticketsDto.tickets != null) addAll(ticketsDto.tickets.map { getTicketItem(it, listOf(Relations.ITEM)) })
         },
-        links = listOf(Links.self(Uris.Tickets.BASE_PATH))
+        links = listOf(Links.self(Uris.makePagination(pageIdx, Uris.Tickets.BASE_PATH))),
     )
 
     fun getTicketRepresentation(ticketInfo: TicketExtraInfo)

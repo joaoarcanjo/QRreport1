@@ -26,7 +26,7 @@ GET /companies/{companyId}/buildings
 |:-:|:-:|:-:|:-:|:-:|
 | `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no| Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no| Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -37,8 +37,8 @@ Status: 200 OK
 {
     "class": [ "building", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [ 
@@ -49,7 +49,7 @@ Status: 200 OK
                 "id": 1,
                 "name": "Amoreiras",
                 "floors": 6,
-                "state": "Active"
+                "state": "active"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/companies/1/buildings/1" }
@@ -71,7 +71,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies/1/buildings?page=0" },
+        { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" },
         { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
@@ -128,7 +128,7 @@ Location: /companies/1/buildings/1
         "id": 1,
         "name": "Amoreiras",
         "floors": 3,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-04-08 21:52:47.012620"
     },
      "links": [
@@ -152,8 +152,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **inactive-entity**
-
+* `type`: **inactive-resource**
 ```http
 Status: 415 Unsupported Media Type
 ```
@@ -184,7 +183,7 @@ Status: 200 OK
         "id": 1,
         "name": "Amoreiras",
         "floor": 6,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-04-08 21:52:47.012620"
     },
     "entities": [
@@ -192,8 +191,8 @@ Status: 200 OK
             "class": [ "room", "collection" ],
             "rel": [ "building-rooms" ],
             "properties": {
-                "pageIndex": 0,
-                "pageSize": 1,
+                "pageIndex": 1,
+                "pageMaxSize": 10,
                 "collectionSize": 1
             },
             "entities": [
@@ -203,7 +202,7 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "lab",
-                        "state": "Active"
+                        "state": "active"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/rooms/1"}
@@ -213,7 +212,7 @@ Status: 200 OK
             "actions": [
                 {
                     "name": "create-room",
-                    "title": "Create a room",
+                    "title": "Create room",
                     "method": "POST",
                     "href": "/companies/1/buildings/1/rooms",
                     "type": "application/json",
@@ -224,7 +223,7 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=0"}
+                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=1"}
             ]
         },
         {
@@ -259,8 +258,8 @@ Status: 200 OK
             ]
         },
         {
-            "name": "change-building-manager",
-            "title": "Change building manager",
+            "name": "change-manager",
+            "title": "Change manager",
             "method": "PUT",
             "href": "/companies/1/buildings/1/manager",
             "type": "application/json",
@@ -321,7 +320,7 @@ Status: 200 OK
         "id": 1,
         "name": "New Amoreiras",
         "floors": 6,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-14 14:23:56788"
     },
     "links": [
@@ -344,7 +343,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **inactive-entity**
+* `types`: **inactive-resource**
 
 ```http
 Status: 415 Unsupported Media Type
@@ -376,7 +375,7 @@ Status: 200 OK
         "id": 1,
         "name": "Amoreiras",
         "floors": 6,
-        "state": "Inactive",        
+        "state": "inactive",        
         "timestamp": "2022-05-14 14:23:56788"
     },
     "links": [
@@ -425,7 +424,7 @@ Status: 200 OK
         "id": 1,
         "name": "Amoreiras",
         "floors": 6,
-        "state": "Active",        
+        "state": "active",        
         "timestamp": "2022-06-20 12:42:12415"
     },
     "links": [
@@ -494,7 +493,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **inactive-building**
+* `types`: **inactive-resource**
 ```http
 Status: 415 Unsupported Media Type
 ```

@@ -21,11 +21,11 @@ class BuildingController(private val service: BuildingService) {
 
     @GetMapping(Uris.Companies.Buildings.BASE_PATH)
     fun getBuildings(@PathVariable companyId: Long): QRreportJsonModel {
-        val buildings = service.getBuildings(companyId)
+        val buildingsDto = service.getBuildings(companyId)
         return getBuildingsRepresentation(
-            buildings,
+            buildingsDto.buildings,
             companyId,
-            CollectionModel(1, BUILDING_MAX_PAGE_SIZE, buildings.buildingsCollectionSize),
+            CollectionModel(1, BUILDING_MAX_PAGE_SIZE, buildingsDto.buildingsCollectionSize),
             null
         )
     }

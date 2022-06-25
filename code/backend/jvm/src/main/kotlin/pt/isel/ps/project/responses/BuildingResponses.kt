@@ -8,7 +8,6 @@ import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
-import pt.isel.ps.project.model.building.BuildingsDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.PersonResponses.getPersonItem
@@ -26,14 +25,14 @@ object BuildingResponses {
     object Actions {
         fun createBuilding(companyId: Long) = QRreportJsonModel.Action(
             name = "create-building",
-            title = "Create new building",
+            title = "Create building",
             method = HttpMethod.POST,
             href = Uris.Companies.Buildings.makeBase(companyId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("name", "string", required = true),
-                QRreportJsonModel.Property("floors", "number", required = true),
-                QRreportJsonModel.Property("managerId", "string", required = true)
+                QRreportJsonModel.Property("name", "string"),
+                QRreportJsonModel.Property("floors", "number"),
+                QRreportJsonModel.Property("managerId", "string")
             )
         )
 
@@ -81,7 +80,7 @@ object BuildingResponses {
     )
 
     fun getBuildingsRepresentation(
-        buildingsDto: BuildingsDto,
+        buildings: List<BuildingItemDto>?,
         companyId: Long,
         collection: CollectionModel,
         rel: List<String>?
@@ -90,7 +89,7 @@ object BuildingResponses {
         rel = rel,
         properties = collection,
         entities = mutableListOf<QRreportJsonModel>().apply {
-            if (buildingsDto.buildings != null) addAll(buildingsDto.buildings.map {
+            if (buildings != null) addAll(buildings.map {
                 getBuildingItem(companyId, it, listOf(Relations.ITEM))
             })
         },

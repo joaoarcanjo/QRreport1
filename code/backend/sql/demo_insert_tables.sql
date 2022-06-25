@@ -1,7 +1,7 @@
 BEGIN;
-    INSERT INTO CATEGORY(name, state) VALUES
-        ('water', 'Active'),
-        ('electricity', 'Active');
+    INSERT INTO CATEGORY(name) VALUES
+        ('water'),
+        ('electricity');
 
     INSERT INTO ROLE(name) VALUES
         ('guest'),
@@ -10,30 +10,39 @@ BEGIN;
         ('manager'),
         ('admin');
 
-    INSERT INTO COMPANY(name, state) VALUES
-        ('ISEL', 'Active'); -- with 2 buildings
+    INSERT INTO COMPANY(name) VALUES
+        ('ISEL'), -- 2 buildings
+        ('IST'); -- 0 buildings
 
-    INSERT INTO PERSON(id, name, phone, email, password, state) VALUES
-        ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@qrreport.com', 'diogopass', 'active'),--admin
-        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', 'pedropass', 'active'), --manager
-        ('c2b393be-d720-4494-874d-43765f5116cb','Zé Manuel', '965555555', 'zeze@fixings.com', 'zepass', 'active'),      -- employee
-        ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','João Arcanjo', null, 'joni@isel.com', 'joaopass', 'active');           --guest
+    INSERT INTO PERSON(id, name, phone, email, password, state, active_role) VALUES
+        ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@qrreport.com', 'diogopass', 'active', 5),--admin
+        ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','João Arcanjo', null, 'joni@isel.com', 'joaopass', 'active', 5),            --admin
+        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', 'pedropass', 'active', 4), --manager
+        ('c2b393be-d720-4494-874d-43765f5116cb','Zé Manuel', '965555555', 'zeze@fixings.com', 'zepass', 'active', 3),      -- employee
+        ('b555b6fc-b904-4bd9-8c2b-4895738a437c','Francisco Ludovico', '9653456345', 'ludviks@gmail.com', 'franciscopass', 'active', 2),-- user
+        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d','Daniela Gomes', null, 'dani@isel.com', 'danielapass', 'active', 1);       --guest
 
     INSERT INTO PERSON_ROLE(person, role) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315', 5), -- Diogo Novo / admin
+        ('4b341de0-65c0-4526-8898-24de463fc315', 4), -- Diogo Novo / manager
+        ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 5), -- João Arcanjo / admin
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Zé Manuel / employee
-        ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 1); -- João Arcanjo / guest
+        ('b555b6fc-b904-4bd9-8c2b-4895738a437c', 2), -- Francisco Ludovico / user
+        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1); -- Daniela Gomes / guest
+
 
     INSERT INTO PERSON_SKILL (person, category) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel / canalization
 
     INSERT INTO PERSON_COMPANY (person, company, state) VALUES
-        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'); -- Pedro Miguens, ISEL
+        ('4b341de0-65c0-4526-8898-24de463fc315', 1, 'active'), -- Diogo Novo(manager), ISEL
+        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens(manager), ISEL
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'); -- Zé Manuel(employee), ISEL
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
-        ('A', 4, 'Active', 1, '4b341de0-65c0-4526-8898-24de463fc315'),  -- Diogo Novo, ISEL
-        ('F', 6, 'Active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057');  -- Pedro Miguens, ISEL
+        ('A', 4, 'Active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
+        ('F', 6, 'Active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'); -- Pedro Miguens, ISEL
 
     INSERT INTO ROOM(name, floor, state, building) VALUES
         ('1 - Bathroom', 1, 'Active', 1),
@@ -79,7 +88,7 @@ BEGIN;
         (6, 7);  -- Completed -> Archived
 
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
-        ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, '1f6c1014-b029-4a75-b78c-ba09c8ea474d', 4);
+            ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4);
 
     INSERT INTO FIXING_BY (person, ticket) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel | Fuga de água

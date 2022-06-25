@@ -5,8 +5,15 @@ BEGIN;
         name TEXT NOT NULL
             CONSTRAINT unique_company_name UNIQUE
             CONSTRAINT company_name_max_length CHECK ( char_length(name) <= 50 ),
-        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT company_valid_state CHECK ( state IN ('Active', 'Inactive') ),
+        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT company_valid_state CHECK ( state IN ('active', 'inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE ROLE
+    (
+        id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+        name TEXT NOT NULL CONSTRAINT unique_role_name UNIQUE
+            CONSTRAINT role_valid_name CHECK ( name IN ('guest', 'user', 'employee', 'manager', 'admin') )
     );
 
     CREATE TABLE PERSON
@@ -19,6 +26,7 @@ BEGIN;
             CONSTRAINT valid_person_email_format CHECK ( email LIKE '%@%' )
             CONSTRAINT person_email_max_length CHECK ( char_length(email) <= 320 ),
         password TEXT NOT NULL CONSTRAINT person_password_max_length CHECK ( char_length(password) <= 127 ),
+        active_role INT NOT NULL REFERENCES ROLE(id), -- TODO: Update db scheme
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_person_state CHECK ( state IN ('active', 'inactive', 'banned') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         reason TEXT CONSTRAINT person_reason_max_length CHECK ( char_length(name) <= 150 ),
@@ -50,15 +58,8 @@ BEGIN;
     (
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT category_name_max_length CHECK ( char_length(name) <= 50 ),
-        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_category_state CHECK ( state IN ('Active', 'Inactive') ),
+        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_category_state CHECK ( state IN ('active', 'inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE ROLE
-    (
-        id SMALLINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        name TEXT NOT NULL CONSTRAINT unique_role_name UNIQUE
-            CONSTRAINT role_valid_name CHECK ( name IN ('guest', 'user', 'employee', 'manager', 'admin') )
     );
 
     CREATE TABLE PERSON_SKILL
@@ -165,6 +166,7 @@ BEGIN;
         person UUID NOT NULL REFERENCES PERSON(id),
         company BIGINT NOT NULL REFERENCES COMPANY(id),
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_person_company_state CHECK ( state IN ('active', 'inactive') ),
+        reason TEXT, -- TODO: Update db model
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         PRIMARY KEY (person, company)
     );
