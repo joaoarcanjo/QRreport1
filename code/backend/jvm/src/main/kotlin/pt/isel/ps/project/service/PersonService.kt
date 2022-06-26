@@ -2,6 +2,7 @@ package pt.isel.ps.project.service
 
 import org.jdbi.v3.core.Jdbi
 import org.jdbi.v3.sqlobject.kotlin.onDemand
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import pt.isel.ps.project.dao.PersonDao
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
@@ -13,7 +14,7 @@ import pt.isel.ps.project.util.deserializeJsonTo
 import java.util.*
 
 @Service
-class PersonService(jdbi: Jdbi) {
+class PersonService(jdbi: Jdbi, private val passwordEncoder: PasswordEncoder) {
 
     private val personDao = jdbi.onDemand<PersonDao>()
 
@@ -33,7 +34,8 @@ class PersonService(jdbi: Jdbi) {
 
     fun updatePerson(personId: UUID, person: UpdatePersonEntity): PersonItemDto {
         verifyUpdatePersonInput(person)
-        val personDto = personDao.updatePerson(personId, person).getString(PERSON_REP)?.deserializeJsonTo<PersonItemDto>()
+        val encPassword = if (person.password != null) passwordEncoder.encode(person.password) else null
+        val personDto = personDao.updatePerson(personId, person, encPassword).getString(PERSON_REP)?.deserializeJsonTo<PersonItemDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 

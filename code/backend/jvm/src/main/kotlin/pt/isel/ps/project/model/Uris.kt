@@ -177,6 +177,12 @@ object Uris {
         fun makeAssignCompany(id: UUID) = ASSIGN_COMPANY_TEMPLATE.expand(mapOf("personId" to id)).toString()
     }
 
+    object Auth {
+        const val SIGNUP_PATH = "$VERSION/signup"
+        const val LOGIN_PATH = "$VERSION/login"
+        const val LOGOUT_PATH = "$VERSION/logout"
+    }
+
     private const val PAGINATION_PATH = "?page={pageIdx}"
     fun makePagination(page: Int, uri: String) =
         UriTemplate("$uri$PAGINATION_PATH").expand(mapOf("pageIdx" to page)).toString()

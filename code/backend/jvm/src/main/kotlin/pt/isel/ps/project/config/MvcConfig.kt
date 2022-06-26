@@ -5,12 +5,28 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import org.springframework.http.converter.HttpMessageConverter
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter
 import org.springframework.stereotype.Component
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.CorsRegistry
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import pt.isel.ps.project.auth.AuthenticationInterceptor
+import pt.isel.ps.project.pipeline.argumentresolvers.AuthPersonArgumentResolver
 import pt.isel.ps.project.pipeline.messageconverters.ModifiedJacksonMessageConverter
 import pt.isel.ps.project.pipeline.messageconverters.QRreportJsonMessageConverter
 
 @Component
-class MvcConfig: WebMvcConfigurer {
+class MvcConfig(private val interceptor: AuthenticationInterceptor): WebMvcConfigurer {
+
+    override fun addInterceptors(registry: InterceptorRegistry) {
+        registry.addInterceptor(interceptor)
+    }
+
+    override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+        resolvers.apply {
+            add(AuthPersonArgumentResolver())
+        }
+    }
+
     override fun configureMessageConverters(converters: MutableList<HttpMessageConverter<*>>) {
         converters.removeIf{ it is MappingJackson2HttpMessageConverter }
 
@@ -27,5 +43,11 @@ class MvcConfig: WebMvcConfigurer {
                 setSerializationInclusion(JsonInclude.Include.NON_NULL)
             }
         })
+    }
+
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/**")
+            .allowedOrigins("http://localhost:3000")
+            .allowCredentials(true)
     }
 }

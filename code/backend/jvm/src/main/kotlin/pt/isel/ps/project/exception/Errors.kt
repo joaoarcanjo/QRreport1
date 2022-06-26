@@ -4,6 +4,22 @@ import org.springframework.http.HttpStatus
 import java.net.URI
 
 object Errors {
+    object Unauthorized {
+        val TYPE = URI("/errors/unauthorized")
+        val STATUS = HttpStatus.UNAUTHORIZED
+        const val SQL_TYPE = "invalid-credentials"
+        const val WWW_AUTH_HEADER = "WWW-Authenticate"
+        const val WWW_AUTH_HEADER_VALUE = "Bearer realm=\"qrreport\", charset=\"UTF-8\""
+
+        object Message {
+            const val REQUIRES_AUTH = "The resource requires authentication to access."
+            const val AUTHORIZATION_HEADER_MISSING = "Please provide the authorization header or login."
+            const val INVALID_TYPE = "Invalid authorization type."
+            const val INVALID_TOKEN = "Invalid authentication token."
+            const val INVALID_CREDENTIALS = "Invalid authentication credentials."
+        }
+    }
+
     object NotFound {
         val TYPE = URI("/errors/not-found")
         val STATUS = HttpStatus.NOT_FOUND
@@ -83,6 +99,11 @@ object Errors {
                 object Comment {
                     const val INVALID_COMMENT_LENGTH = "The comment can have a maximum of 200 characters."
                 }
+            }
+
+            object Auth {
+                const val PASSWORD_MISMATCH_TITLE = "Password and confirm password don't match, please make sure they are equal ."
+                const val PASSWORD_MISMATCH_REASON = "The passwords don't match."
             }
         }
     }

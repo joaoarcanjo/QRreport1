@@ -1,14 +1,19 @@
 package pt.isel.ps.project.util
 
+import pt.isel.ps.project.auth.SignupDto
+import pt.isel.ps.project.auth.SignupEntity.SIGNUP_CONFIRM_PASSWORD
+import pt.isel.ps.project.auth.SignupEntity.SIGNUP_PASSWORD
 import pt.isel.ps.project.exception.Errors.BadRequest.Locations
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Auth.PASSWORD_MISMATCH_REASON
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Auth.PASSWORD_MISMATCH_TITLE
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS_DETAIL
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.CREATE_EMPLOYEE_WITH_SKILL
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_CATEGORY_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.Room.INVALID_ROOM_NAME_LENGTH
-import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_CATEGORY_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.INVALID_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.Anomaly.INVALID_ANOMALY_ANOMALY_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.INVALID_DEVICE_NAME_LENGTH
@@ -23,6 +28,8 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.Uris.Auth.LOGIN_PATH
+import pt.isel.ps.project.model.Uris.Auth.SIGNUP_PATH
 import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY
 import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY_MAX_CHARS
 import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
@@ -38,20 +45,15 @@ import pt.isel.ps.project.model.category.InputCategoryEntity
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT
 import pt.isel.ps.project.model.comment.CommentEntity.COMMENT_MAX_CHARS
 import pt.isel.ps.project.model.comment.CreateCommentEntity
-import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME
 import pt.isel.ps.project.model.company.CompanyEntity.COMPANY_NAME_MAX_CHARS
-import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT
-import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION
-import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
-import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION_MAX_CHARS
+import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
 import pt.isel.ps.project.model.device.CreateDeviceEntity
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME_MAX_CHARS
 import pt.isel.ps.project.model.device.UpdateDeviceEntity
 import pt.isel.ps.project.model.person.CreatePersonEntity
-import pt.isel.ps.project.model.person.PersonDetailsDto
 import pt.isel.ps.project.model.person.PersonDto
 import pt.isel.ps.project.model.person.PersonEntity.SKILL
 import pt.isel.ps.project.model.person.UpdatePersonEntity
@@ -65,8 +67,12 @@ import pt.isel.ps.project.model.room.UpdateRoomEntity
 import pt.isel.ps.project.model.ticket.CreateTicketEntity
 import pt.isel.ps.project.model.ticket.TicketEntity.MAX_RATE
 import pt.isel.ps.project.model.ticket.TicketEntity.MIN_RATE
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_DESCRIPTION_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_HASH
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_RATE
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT
+import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 
@@ -405,6 +411,32 @@ object Validator {
 
             fun personHasTwoRoles(roles: List<String>): Boolean {
                 return roles.size >= 2
+            }
+        }
+
+        object AccessWithoutAuth {
+            fun isAuthURI(requestURI: String): Boolean {
+                return requestURI.compareTo(SIGNUP_PATH) == 0 || requestURI.compareTo(LOGIN_PATH) == 0
+            }
+        }
+
+        object Auth {
+            object Signup {
+                private fun confirmPassword(password: String, confirmPassword: String) = password.compareTo(confirmPassword) == 0
+                fun verifySignupInput(signupDto: SignupDto): Boolean {
+                    if (!confirmPassword(signupDto.password, signupDto.confirmPassword))
+                        throw InvalidParameterException(
+                            PASSWORD_MISMATCH_TITLE,
+                            listOf(
+                                InvalidParameter(
+                                    "$SIGNUP_PASSWORD/${SIGNUP_CONFIRM_PASSWORD}",
+                                    Locations.BODY,
+                                    PASSWORD_MISMATCH_REASON
+                                )
+                            )
+                        )
+                    return true
+                }
             }
         }
     }

@@ -10,7 +10,10 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.transaction.annotation.EnableTransactionManagement
+import pt.isel.ps.project.auth.AuthDao
 import pt.isel.ps.project.dao.*
 
 @ConstructorBinding
@@ -22,7 +25,7 @@ data class DatabaseSource(val connectionString: String)
 @ConfigurationPropertiesScan
 class DatabaseConfig(private val db: DatabaseSource) {
 
-    @Bean //TODO retirar o bean annotattion
+    @Bean
     fun jdbi(): Jdbi = Jdbi.create(db.connectionString).apply {
         installPlugin(KotlinSqlObjectPlugin())
         installPlugin(PostgresPlugin())
@@ -52,4 +55,12 @@ class DatabaseConfig(private val db: DatabaseSource) {
 
     @Bean
     fun anomalyDao(): AnomalyDao = jdbi().onDemand()
+
+    @Bean
+    fun authDao(): AuthDao = jdbi().onDemand()
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
 }

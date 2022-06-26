@@ -20,8 +20,8 @@ interface PersonDao {
     fun getPerson(reqPersonId: UUID): String
 
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
-    @SqlCall("CALL update_person(:$PERSON_REP, :personId, :name, :phone, :email, :password);")
-    fun updatePerson(personId: UUID, @BindBean person: UpdatePersonEntity): OutParameters
+    @SqlCall("CALL update_person(:$PERSON_REP, :personId, :name, :phone, :email, :encPassword);")
+    fun updatePerson(personId: UUID, @BindBean person: UpdatePersonEntity, encPassword: String?): OutParameters
 
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL delete_user(:$PERSON_REP, :personId);")

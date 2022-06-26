@@ -25,6 +25,10 @@ import pt.isel.ps.project.exception.Errors.InactiveResource
 import pt.isel.ps.project.exception.Errors.InactiveResource.Message.INACTIVE_RESOURCE
 import pt.isel.ps.project.exception.Errors.InactiveResource.Message.INACTIVE_RESOURCE_DETAIL
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
+import pt.isel.ps.project.exception.Errors.Unauthorized
+import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_CREDENTIALS
+import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER
+import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER_VALUE
 import pt.isel.ps.project.exception.Errors.buildMessage
 import pt.isel.ps.project.model.representations.ProblemJsonModel
 import java.net.URI
@@ -80,6 +84,24 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         ex.data,
         invalidParameters = ex.invalidParameters
     )
+
+    @ExceptionHandler(UnauthorizedException::class)
+    fun handleUnauthorized(
+        ex: UnauthorizedException,
+        req: HttpServletRequest
+    ): ResponseEntity<Any> {
+        val headers = HttpHeaders()
+        headers.add(WWW_AUTH_HEADER, WWW_AUTH_HEADER_VALUE)
+        return buildExceptionResponse(
+            Unauthorized.TYPE,
+            ex.message,
+            req.requestURI,
+            Unauthorized.STATUS,
+            ex.detail,
+            ex.data,
+            headers
+        )
+    }
 
     /**
      * Exception thrown on a type mismatch when trying to set a bean property. Like inserting a character in the URI
@@ -168,6 +190,14 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                     requestUri,
                     STATUS,
                     INACTIVE_RESOURCE_DETAIL,
+                )
+            }
+            Unauthorized.SQL_TYPE -> Unauthorized.run {
+                buildExceptionResponse(
+                    TYPE,
+                    INVALID_CREDENTIALS,
+                    requestUri,
+                    STATUS,
                 )
             }
             else -> Errors.InternalServerError.run {
