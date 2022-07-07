@@ -1,10 +1,10 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import { Person } from "../Types"
+import { PersonItem } from "../Types"
 
 export function ListManagers() {
 
-    function PersonItemComponent({person}: {person: Person}) {
+    function PersonItemComponent({person}: {person: PersonItem}) {
 
         return (
             <div className="p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100">  
@@ -17,27 +17,27 @@ export function ListManagers() {
     }
 
     const mockPersons = [
-        {"id": "1",
-        "name": "Carlos",
-        "phone": "965520229",
-        "email": "carlitos@gmail.com",
-        "state": { 'id': 1, 'name': 'active' },
-        "roles": [{"name": "user"}],
-        "skills": []},
-        {"id": "2",
-        "name": "André",
-        "phone": "965520229",
-        "email": "andré@gmail.com",
-        "state": { 'id': 1, 'name': 'active' },
-        "roles": [{"name": "user"}],
-        "skills": []},
-        {"id": "3",
-        "name": "Alfredo",
-        "phone": "965520229",
-        "email": "alfredo@gmail.com",
-        "state": { 'id': 1, 'name': 'active' },
-        "roles": [{"name": "user"}],
-        "skills": []}
+        {'id': 1,
+        'name': "Carlos",
+        'phone': "965520229",
+        'email': "carlitos@gmail.com",
+        'state': { 'id': 1, 'name': 'active' },
+        'roles': [{"name": "user"}],
+        'skills': []},
+        {'id': 2,
+        'name': "André",
+        'phone': "965520229",
+        'email': "andré@gmail.com",
+        'state': { 'id': 1, 'name': 'active' },
+        'roles': [{"name": "user"}],
+        'skills': []},
+        {'id': 3,
+        'name': "Alfredo",
+        'phone': "965520229",
+        'email': "alfredo@gmail.com",
+        'state': { 'id': 1, 'name': 'active' },
+        'roles': [{"name": "user"}],
+        'skills': []}
     ]
 
     return (

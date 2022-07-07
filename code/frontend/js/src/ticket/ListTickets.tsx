@@ -75,7 +75,7 @@ export function ListTickets() {
     }
 
     function Tickets({tickets}: {tickets: TicketItem[]}) {
-        return <> {tickets.map(ticket => <TicketItemComponent ticket= {ticket}/>)} </>
+        return <> {tickets.map((ticket, idx) => <TicketItemComponent key= {idx} ticket= {ticket}/>)} </>
     }
 
     const ticketsMocks = [

@@ -60,13 +60,26 @@ export type Comment = {
 }
 
 export type Person = {
-    id: string,
+    id: number,
     name: string,
     phone: string,
     email: string,
     state: State,
     roles: Role[],
-    skills: Skill[]
+    skills?: Skill[],
+    timestamp: string,
+    numberOfReports?: string,
+    reportsRejected?: string
+}
+
+export type PersonItem = {
+    id: number,
+    name: string,
+    phone: string,
+    email: string,
+    state: State,
+    roles: Role[],
+    skills?: Skill[]
 }
 
 export type Role = {
