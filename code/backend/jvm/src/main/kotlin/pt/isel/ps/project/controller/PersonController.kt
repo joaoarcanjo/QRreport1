@@ -2,6 +2,21 @@ package pt.isel.ps.project.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.Authorizations.Person.addRoleToPersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.addSkillToEmployeeAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.assignPersonToCompanyAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.banPersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.createPersonsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.deleteUserAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.firePersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.getPersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.getPersonsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.rehirePersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.removeRoleFromPersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.removeSkillFromEmployeeAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -19,27 +34,36 @@ import java.util.*
 class PersonController(private val service: PersonService) {
 
     @GetMapping(Persons.BASE_PATH)
-    fun getPersons(): ResponseEntity<QRreportJsonModel> {
+    fun getPersons(user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        getPersonsAuthorization(user)
         return getPersonsRepresentation(service.getPersons(), 1)
     }
 
     @PostMapping(Persons.BASE_PATH)
-    fun createPerson(@RequestBody person: CreatePersonEntity): ResponseEntity<QRreportJsonModel> {
+    fun createPerson(@RequestBody person: CreatePersonEntity, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        createPersonsAuthorization(user)
         return createPersonRepresentation(service.createPerson(person))
     }
 
     @GetMapping(Persons.SPECIFIC_PATH)
-    fun getPerson(@PathVariable personId: UUID): ResponseEntity<QRreportJsonModel> {
+    fun getPerson(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        getPersonAuthorization(user)
         return getPersonRepresentation(service.getPerson(personId))
     }
 
     @PutMapping(Persons.SPECIFIC_PATH)
-    fun updatePerson(@PathVariable personId: UUID, @RequestBody person: UpdatePersonEntity): ResponseEntity<QRreportJsonModel> {
+    fun updatePerson(
+        @PathVariable personId: UUID,
+        @RequestBody person: UpdatePersonEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        updatePersonAuthorization(user)
         return updatePersonRepresentation(service.updatePerson(personId, person))
     }
 
     @DeleteMapping(Persons.SPECIFIC_PATH)
-    fun deleteUser(@PathVariable personId: UUID): ResponseEntity<QRreportJsonModel> {
+    fun deleteUser(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        deleteUserAuthorization(user)
         return deleteUserRepresentation(service.deleteUser(personId))
     }
 
@@ -48,47 +72,85 @@ class PersonController(private val service: PersonService) {
         @PathVariable personId: UUID,
         @PathVariable companyId: Long,
         @RequestBody info: FireBanPersonEntity,
+        user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
+        firePersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.firePerson(personId, companyId, info))
     }
 
     @PostMapping(Persons.REHIRE_PATH)
-    fun rehirePerson(@PathVariable personId: UUID, @PathVariable companyId: Long): ResponseEntity<QRreportJsonModel> {
+    fun rehirePerson(
+        @PathVariable personId: UUID,
+        @PathVariable companyId: Long,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        rehirePersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.rehirePerson(personId, companyId))
     }
 
     @PostMapping(Persons.BAN_PATH)
-    fun banPerson(@PathVariable personId: UUID, @RequestBody info: FireBanPersonEntity): ResponseEntity<QRreportJsonModel> {
+    fun banPerson(
+        @PathVariable personId: UUID,
+        @RequestBody info: FireBanPersonEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        banPersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.banPerson(personId, info))
     }
 
     @PostMapping(Persons.UNBAN_PATH)
-    fun unbanPerson(@PathVariable personId: UUID): ResponseEntity<QRreportJsonModel> {
+    fun unbanPerson(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        unbanPersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.unbanPerson(personId))
     }
 
     @PutMapping(Persons.ADD_ROLE_PATH)
-    fun addRoleToPerson(@PathVariable personId: UUID, @RequestBody info: AddRoleToPersonEntity): ResponseEntity<QRreportJsonModel> {
+    fun addRoleToPerson(
+        @PathVariable personId: UUID,
+        @RequestBody info: AddRoleToPersonEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        addRoleToPersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.addRoleToPerson(personId, info))
     }
 
     @PutMapping(Persons.REMOVE_ROLE_PATH)
-    fun removeRoleFromPerson(@PathVariable personId: UUID, @RequestBody info: RemoveRoleFromPersonEntity): ResponseEntity<QRreportJsonModel> {
+    fun removeRoleFromPerson(
+        @PathVariable personId: UUID,
+        @RequestBody info: RemoveRoleFromPersonEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        removeRoleFromPersonAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.removeRoleFromPerson(personId, info))
     }
 
     @PutMapping(Persons.ADD_SKILL_PATH)
-    fun addSkillToEmployee(@PathVariable personId: UUID, @RequestBody info: AddRemoveSkillToEmployeeEntity): ResponseEntity<QRreportJsonModel> {
+    fun addSkillToEmployee(
+        @PathVariable personId: UUID,
+        @RequestBody info: AddRemoveSkillToEmployeeEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        addSkillToEmployeeAuthorization(user)
         return skillEmployeeRepresentation(service.addSkillToEmployee(personId, info))
     }
 
     @PutMapping(Persons.REMOVE_SKILL_PATH)
-    fun removeSkillFromEmployee(@PathVariable personId: UUID, @RequestBody info: AddRemoveSkillToEmployeeEntity): ResponseEntity<QRreportJsonModel> {
+    fun removeSkillFromEmployee(
+        @PathVariable personId: UUID,
+        @RequestBody info: AddRemoveSkillToEmployeeEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        removeSkillFromEmployeeAuthorization(user)
         return skillEmployeeRepresentation(service.removeSkillFromEmployee(personId, info))
     }
 
     @PostMapping(Persons.ASSIGN_COMPANY_PATH)
-    fun assignPersonToCompany(@PathVariable personId: UUID, @RequestBody info: AssignPersonToCompanyEntity): ResponseEntity<QRreportJsonModel> {
+    fun assignPersonToCompany(
+        @PathVariable personId: UUID,
+        @RequestBody info: AssignPersonToCompanyEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        assignPersonToCompanyAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.assignPersonToCompany(personId, info))
     }
 }

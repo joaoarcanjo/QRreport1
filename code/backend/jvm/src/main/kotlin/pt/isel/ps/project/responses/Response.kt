@@ -33,6 +33,7 @@ object Response {
         const val PREV = "prev"
         const val ITEM = "item"
         const val AUTHOR = "author"
+        const val PAGINATION = "pagination"
         const val COMPANIES = "companies"
         const val COMPANY_BUILDINGS = "company-buildings"
         const val DEVICE_ANOMALIES ="device-anomalies"

@@ -24,6 +24,11 @@ data class UnauthorizedException(
     override val data: Any? = null,
 ): BaseException(message, detail, data)
 
+data class ForbiddenException(
+    override val message: String,
+    override val detail: String? = null,
+    override val data: Any? = null,
+): BaseException(message, detail, data)
 
 data class InvalidParameter(
     var name: String,

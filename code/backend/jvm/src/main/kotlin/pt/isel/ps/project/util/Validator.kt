@@ -1,5 +1,6 @@
 package pt.isel.ps.project.util
 
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.SignupDto
 import pt.isel.ps.project.auth.SignupEntity.SIGNUP_CONFIRM_PASSWORD
 import pt.isel.ps.project.auth.SignupEntity.SIGNUP_PASSWORD
@@ -56,6 +57,11 @@ import pt.isel.ps.project.model.device.UpdateDeviceEntity
 import pt.isel.ps.project.model.person.CreatePersonEntity
 import pt.isel.ps.project.model.person.PersonDto
 import pt.isel.ps.project.model.person.PersonEntity.SKILL
+import pt.isel.ps.project.model.person.Roles.ADMIN
+import pt.isel.ps.project.model.person.Roles.EMPLOYEE
+import pt.isel.ps.project.model.person.Roles.GUEST
+import pt.isel.ps.project.model.person.Roles.MANAGER
+import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.UpdatePersonEntity
 import pt.isel.ps.project.model.room.CreateRoomEntity
 import pt.isel.ps.project.model.room.RoomEntity.MAX_FLOOR
@@ -154,7 +160,6 @@ object Validator {
     }
 
     object Company {
-
         private fun checkNameLength(name: String) {
             if (name.length > COMPANY_NAME_MAX_CHARS) throw InvalidParameterException(
                 INVALID_REQ_PARAMS,
@@ -178,6 +183,10 @@ object Validator {
             checkIfAllUpdatableParametersAreNull(company)
             checkNameLength(company.name!!)
             return true
+        }
+
+        fun personBelongsToCompany(user: AuthPerson, currentCompany: Long): Boolean {
+            return user.companies?.first { it.id == currentCompany } != null
         }
 
         object Building {
@@ -437,6 +446,14 @@ object Validator {
                         )
                     return true
                 }
+            }
+
+            object Roles {
+                fun isGuest(user: AuthPerson) = user.activeRole.compareTo(GUEST) == 0
+                fun isUser(user: AuthPerson) = user.activeRole.compareTo(USER) == 0
+                fun isEmployee(user: AuthPerson) = user.activeRole.compareTo(EMPLOYEE) == 0
+                fun isManager(user: AuthPerson) = user.activeRole.compareTo(MANAGER) == 0
+                fun isAdmin(user: AuthPerson) = user.activeRole.compareTo(ADMIN) == 0
             }
         }
     }

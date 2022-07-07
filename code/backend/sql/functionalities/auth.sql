@@ -17,7 +17,7 @@ BEGIN
 
     RETURN json_build_object('id', person_id, 'name', pname, 'phone', pphone, 'email', pemail,
         'activeRole', get_person_active_role(person_id), 'state', pstate, 'timestamp', ptimestamp, 'reason', preason,
-        'skills', get_employee_skills(person_id), 'companies', get_person_companies(person_id));
+        'skills', get_employee_skills(person_id), 'companies', get_person_companies_with_id(person_id));
 END$$LANGUAGE plpgsql;
 
 /**

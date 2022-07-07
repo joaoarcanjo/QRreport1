@@ -17,6 +17,17 @@ object Errors {
             const val INVALID_TYPE = "Invalid authorization type."
             const val INVALID_TOKEN = "Invalid authentication token."
             const val INVALID_CREDENTIALS = "Invalid authentication credentials."
+            const val INVALID_ORIGIN = "Invalid origin request."
+            const val MISSING_SESSION_COOKIE = "Session cookie is missing."
+        }
+    }
+
+    object Forbidden {
+        val TYPE = URI("/errors/forbidden")
+        val STATUS = HttpStatus.FORBIDDEN
+
+        object Message {
+            const val ACCESS_DENIED = "Forbidden access, not enough permissions to access the required resource."
         }
     }
 
@@ -56,12 +67,14 @@ object Errors {
             const val CREATE_EMPLOYEE_WITH_SKILL = "The employee must be linked to a skill."
             const val EMPLOYEE_NULL_SKILL = "The skill cannot be null."
 
+            const val TYPE_MISMATCH_REQ_QUERY = "Type mismatch of request query parameter."
+
             object Templated {
                 const val MUST_HAVE_TYPE = "The value must be of the {} type."
             }
 
             object Pagination {
-                const val PAGE_TYPE_MISMATCH = "The value must be an integer >= 0."
+                const val PAGE_TYPE_MISMATCH = "The value must be an integer > 0."
             }
 
             object Device {

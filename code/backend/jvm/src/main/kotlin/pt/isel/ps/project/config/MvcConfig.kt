@@ -11,14 +11,19 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.ps.project.auth.AuthenticationInterceptor
 import pt.isel.ps.project.pipeline.argumentresolvers.AuthPersonArgumentResolver
+import pt.isel.ps.project.pipeline.interceptors.QueryParamsValidatorInterceptor
 import pt.isel.ps.project.pipeline.messageconverters.ModifiedJacksonMessageConverter
 import pt.isel.ps.project.pipeline.messageconverters.QRreportJsonMessageConverter
 
 @Component
-class MvcConfig(private val interceptor: AuthenticationInterceptor): WebMvcConfigurer {
+class MvcConfig(
+    private val authInterceptor: AuthenticationInterceptor,
+    private val queryParamsInterceptor: QueryParamsValidatorInterceptor
+): WebMvcConfigurer {
 
     override fun addInterceptors(registry: InterceptorRegistry) {
-        registry.addInterceptor(interceptor)
+        registry.addInterceptor(authInterceptor)
+        registry.addInterceptor(queryParamsInterceptor)
     }
 
     override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {

@@ -67,7 +67,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies?page=1" }
+        { "rel": [ "self" ], "href": "/companies" },
+        { "rel": [ "pagination" ], "href": "/companies{?page}", "templated": true }
     ]
 }
 ```
@@ -201,7 +202,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" }
+                { "rel": [ "self" ], "href": "/companies/1/buildings" },
+                { "rel": [ "pagination" ], "href": "/companies/1/buildings{?page}" }
             ]
         }
     ],

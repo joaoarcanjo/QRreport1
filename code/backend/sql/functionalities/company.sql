@@ -39,6 +39,27 @@ BEGIN
             FROM PERSON_COMPANY p WHERE person = person_id AND state = 'active');
 END$$LANGUAGE plpgsql;
 
+/**
+  * Auxiliary function to obtain in an array the companies (id & name) of an employee/manager
+  */
+CREATE OR REPLACE FUNCTION get_person_companies_with_id(person_id UUID)
+RETURNS JSON[]
+AS
+$$
+DECLARE rec RECORD; companies JSON[];
+BEGIN
+    FOR rec IN
+        SELECT id, name FROM COMPANY WHERE id IN
+            (SELECT company FROM PERSON_COMPANY WHERE person = person_id)
+    LOOP
+        companies = array_append(
+            companies,
+            json_build_object('id', rec.id, 'name', rec.name)
+        );
+    END LOOP;
+    RETURN companies;
+END$$LANGUAGE plpgsql;
+
 /*
  * Creates a new company
  * Returns the company item representation
@@ -106,10 +127,10 @@ EXCEPTION
 END$$ LANGUAGE plpgsql;
 
 /*
- * Gets all the companies
+ * Gets all the companies or in case of manager, gets only the companies that he belongs
  * Returns a list with all the company item representation
  */
-CREATE OR REPLACE FUNCTION get_companies(limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION get_companies(person_id UUID, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
 RETURNS JSON
 AS
 $$
@@ -120,16 +141,22 @@ DECLARE
 BEGIN
     FOR rec IN
         SELECT id, name, state, timestamp
-        FROM COMPANY
-        LIMIT limit_rows OFFSET skip_rows
+            FROM COMPANY WHERE
+                CASE WHEN (person_id IS NOT NULL) THEN
+                    id IN (SELECT company FROM PERSON_COMPANY WHERE person = person_id)
+                ELSE TRUE END
+            LIMIT limit_rows OFFSET skip_rows
     LOOP
         companies = array_append(
             companies,
             company_item_representation(rec.id, rec.name, rec.state, rec.timestamp)
         );
-        collection_size = collection_size + 1;
     END LOOP;
 
+    SELECT COUNT(id) INTO collection_size FROM COMPANY WHERE
+        CASE WHEN (person_id IS NOT NULL) THEN
+            id IN (SELECT company FROM PERSON_COMPANY WHERE person = person_id)
+        ELSE TRUE END;
     RETURN json_build_object('companies', companies, 'companiesCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 

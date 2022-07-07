@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
+import pt.isel.ps.project.auth.AuthItem
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_TOKEN
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
@@ -15,7 +16,7 @@ import kotlin.collections.ArrayList
 
 
 object JwtValidator {
-    fun getJwt(authorizationHeader: String, tokenPrefix: String): String? {
+    fun getJwtFromAuthorizationHeader(authorizationHeader: String, tokenPrefix: String): String? {
         return if (authorizationHeader.startsWith(tokenPrefix))
             authorizationHeader.replace(tokenPrefix, "")
         else null
@@ -37,7 +38,7 @@ object JwtValidator {
                 body.get("email", String::class.java),
                 body.get("activeRole", String::class.java),
                 body["skills"] as ArrayList<String>?,
-                body["companies"] as ArrayList<String>?,
+                body["companies"] as ArrayList<AuthItem>?,
                 Timestamp(body["timestamp"] as Long),
                 body.get("state", String::class.java),
                 body.get("reason", String::class.java),

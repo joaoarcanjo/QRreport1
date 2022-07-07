@@ -77,14 +77,15 @@ Status: 200 OK
                 { "name": "phone", "type": "string"},
                 { "name": "email", "type": "string" },
                 { "name": "password", "type": "string" },
-                { "name": "role", "type": "number", "possibleValues": { "href": "/roles" } },
-                { "name": "company", "type": "number", "possibleValues": { "href": "/companies" } },
+                { "name": "role", "type": "number", "possibleValues": { "href": "/roles" }},
+                { "name": "company", "type": "number", "possibleValues": { "href": "/companies" }},
                 { "name": "skill", "type": "number", "required": false, "possibleValues": { "href": "/categories" } }
             ]
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/persons?page=1" }
+        { "rel": [ "self" ], "href": "/persons" },
+        { "rel": [ "pagination" ], "href": "/persons{?page}", "templated": true }
     ]
 }
 ```
@@ -223,7 +224,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/tickets?page=1" }
+                { "rel": [ "self" ], "href": "/tickets" },
+                { "rel": [ "pagination" ], "href": "/tickets{?page}" }
             ]
         }
     ],

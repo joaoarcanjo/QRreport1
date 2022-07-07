@@ -29,6 +29,7 @@ import pt.isel.ps.project.exception.Errors.Unauthorized
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_CREDENTIALS
 import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER
 import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER_VALUE
+import pt.isel.ps.project.exception.Errors.Forbidden
 import pt.isel.ps.project.exception.Errors.buildMessage
 import pt.isel.ps.project.model.representations.ProblemJsonModel
 import java.net.URI
@@ -100,6 +101,21 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
             ex.detail,
             ex.data,
             headers
+        )
+    }
+
+    @ExceptionHandler(ForbiddenException::class)
+    fun handleForbidden(
+        ex: ForbiddenException,
+        req: HttpServletRequest
+    ): ResponseEntity<Any> {
+        return buildExceptionResponse(
+            Forbidden.TYPE,
+            ex.message,
+            req.requestURI,
+            Forbidden.STATUS,
+            ex.detail,
+            ex.data
         )
     }
 

@@ -15,6 +15,14 @@ object PersonEntity {
     const val SKILL = "skill"
 }
 
+object Roles {
+    const val GUEST = "guest"
+    const val USER = "user"
+    const val EMPLOYEE = "employee"
+    const val MANAGER = "manager"
+    const val ADMIN = "admin"
+}
+
 data class CreatePersonEntity(
     val name: String,
     val phone: String? = null,

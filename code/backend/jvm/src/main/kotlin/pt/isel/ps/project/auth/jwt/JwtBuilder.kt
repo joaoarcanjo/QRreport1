@@ -6,7 +6,7 @@ import java.time.LocalDate
 import javax.crypto.SecretKey
 
 object JwtBuilder {
-    private const val REMEMBER_ME_EXPIRATION = 30L // Days
+    const val REMEMBER_ME_EXPIRATION = 30L // Days
 
     fun buildJwt(
         subject: String,

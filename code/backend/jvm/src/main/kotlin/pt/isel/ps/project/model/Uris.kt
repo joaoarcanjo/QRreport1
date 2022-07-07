@@ -11,6 +11,7 @@ object Uris {
         const val BASE_PATH = "$VERSION/categories"
         const val SPECIFIC_PATH = "$BASE_PATH/{categoryId}"
         const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+        const val CATEGORIES_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
@@ -23,6 +24,7 @@ object Uris {
         const val SPECIFIC_PATH = "$BASE_PATH/{deviceId}"
         const val ACTIVATE_PATH ="$SPECIFIC_PATH/activate"
         const val CATEGORY_PATH ="$SPECIFIC_PATH/category"
+        const val DEVICES_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
@@ -34,6 +36,7 @@ object Uris {
         object Anomalies {
             const val BASE_PATH = "${Devices.SPECIFIC_PATH}/anomalies"
             const val SPECIFIC_PATH = "$BASE_PATH/{anomalyId}"
+            const val ANOMALIES_PAGINATION = "$BASE_PATH{?page}"
 
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
@@ -50,6 +53,7 @@ object Uris {
         const val SPECIFIC_PATH = "$BASE_PATH/{companyId}"
         const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
         const val DEACTIVATE_PATH = "$SPECIFIC_PATH/deactivate"
+        const val COMPANIES_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
@@ -63,6 +67,7 @@ object Uris {
             const val SPECIFIC_PATH = "$BASE_PATH/{buildingId}"
             const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
             const val MANAGER_PATH = "$SPECIFIC_PATH/manager"
+            const val BUILDINGS_PAGINATION = "$BASE_PATH{?page}"
 
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
@@ -80,12 +85,12 @@ object Uris {
 
             object Rooms {
                 const val BASE_PATH = "${Buildings.SPECIFIC_PATH}/rooms"
-                //TODO questionar se o caminho para o especifico room não deveria incluir a company e building
                 const val SPECIFIC_PATH = "$VERSION/rooms/{roomId}"
-                //TODO update documentation and change deactivate path to delete method
                 const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
                 const val DEVICES_PATH = "$SPECIFIC_PATH/devices"
                 const val SPECIFIC_DEVICE_PATH = "$DEVICES_PATH/{deviceId}"
+                const val ROOMS_PAGINATION = "$BASE_PATH{?page}"
+                const val ROOM_DEVICES_PAGINATION = "$DEVICES_PATH{?page}"
 
                 private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
                 private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
@@ -106,7 +111,6 @@ object Uris {
 
                 object QRCode {
                     const val BASE_PATH = "$SPECIFIC_DEVICE_PATH/qrcode"
-
                     private val SPECIFIC_QRCODE_TEMPLATE = UriTemplate(BASE_PATH)
 
                     fun makeSpecific(roomId: Long, deviceId: Long) =
@@ -122,6 +126,7 @@ object Uris {
         const val STATE_PATH = "${SPECIFIC_PATH}/state"
         const val EMPLOYEE_PATH = "${SPECIFIC_PATH}/employee"
         const val RATE_PATH = "${SPECIFIC_PATH}/rate"
+        const val TICKETS_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val EMPLOYEE_TEMPLATE = UriTemplate(EMPLOYEE_PATH)
@@ -154,6 +159,7 @@ object Uris {
         const val ADD_SKILL_PATH = "$SPECIFIC_PATH/add-skill"
         const val REMOVE_SKILL_PATH = "$SPECIFIC_PATH/remove-skill"
         const val ASSIGN_COMPANY_PATH = "$SPECIFIC_PATH/assign-company"
+        const val PERSONS_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val FIRE_TEMPLATE = UriTemplate(FIRE_PATH)

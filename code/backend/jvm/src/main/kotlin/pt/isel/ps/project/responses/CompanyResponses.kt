@@ -49,14 +49,14 @@ object CompanyResponses {
             name = "deactivate-company",
             title = "Deactivate company",
             method = HttpMethod.POST,
-            href = Uris.Companies.makeSpecific(companyId)
+            href = Uris.Companies.makeDeactivate(companyId)
         )
 
         fun activateCompany(companyId: Long) = QRreportJsonModel.Action(
             name = "activate-company",
             title = "Activate company",
             method = HttpMethod.POST,
-            href = Uris.Companies.makeSpecific(companyId)
+            href = Uris.Companies.makeActivate(companyId)
         )
     }
 
@@ -77,7 +77,10 @@ object CompanyResponses {
                     addAll(companiesDto.companies.map { getCompanyItem(it, listOf(Relations.ITEM)) })
             },
             actions = listOf(Actions.createCompany()),
-            links = buildCollectionLinks(collection, COMPANY_PAGE_MAX_SIZE, Uris.Companies.BASE_PATH),
+            links = listOf(
+                QRreportJsonModel.Link(listOf(Relations.SELF), Uris.makePagination(collection.pageIndex, Uris.Companies.BASE_PATH)),
+                QRreportJsonModel.Link(listOf(Relations.PAGINATION), Uris.Companies.COMPANIES_PAGINATION, templated = true)
+            )
         )
     )
 

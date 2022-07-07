@@ -1,5 +1,8 @@
 package pt.isel.ps.project.model.representations
 
+const val DEFAULT_PAGE = 1
+const val QUERY_PAGE_KEY = "page"
+
 data class CollectionModel(
     val pageIndex: Int,
     val pageMaxSize: Int,

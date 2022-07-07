@@ -12,6 +12,7 @@ import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.Response.Classes
+import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
 import pt.isel.ps.project.util.Validator.Ticket.Person.personHasTwoRoles
@@ -175,26 +176,25 @@ object PersonResponses {
         links = listOf(Response.Links.self(Persons.makeSpecific(person.id))),
     )
 
-    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int) = Response.buildResponse(
+    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON, Classes.COLLECTION),
             properties = CollectionModel(pageIdx, PERSON_PAGE_MAX_SIZE, personsDto.personsCollectionSize),
             entities = mutableListOf<QRreportJsonModel>().apply {
                 if (personsDto.persons != null)
                     addAll(personsDto.persons.map {
-                        getPersonItem(it, listOf(Response.Relations.ITEM))
+                        getPersonItem(it, listOf(Relations.ITEM))
                     })
             },
             actions = listOf(Actions.createPerson()),
-            links = listOf(QRreportJsonModel.Link(
-                    listOf(Response.Relations.SELF),
-                    Uris.makePagination(pageIdx, Persons.BASE_PATH)
-                ),
+            links = listOf(
+                QRreportJsonModel.Link(listOf(Relations.SELF), Uris.makePagination(pageIdx, Persons.BASE_PATH)),
+                QRreportJsonModel.Link(listOf(Relations.PAGINATION), Persons.PERSONS_PAGINATION, templated = true)
             ),
         )
     )
 
-    fun createPersonRepresentation(person: PersonDto) = Response.buildResponse(
+    fun createPersonRepresentation(person: PersonDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,

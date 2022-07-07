@@ -33,6 +33,9 @@ class DatabaseConfig(private val db: DatabaseSource) {
     }
 
     @Bean
+    fun companyDao(): CompanyDao = jdbi().onDemand()
+
+    @Bean
     fun buildingDao(): BuildingDao = jdbi().onDemand()
 
     @Bean
