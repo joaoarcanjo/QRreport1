@@ -37,15 +37,15 @@ export function CompanyRep() {
 
     function BuildingItem({building} : {building: Building}) {
 
-        const bgColor = building.state?.name == 'active' ? 'bg-white' : 'bg-red-100'
+        const bgColor = building.state?.name === 'active' ? 'bg-white' : 'bg-red-100'
         
         return (
-            <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}> 
-                <Link to={`/buildings/${building.id}`}>
+            <Link to={`/buildings/${building.id}`}>
+                <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}> 
                     <h5 className='text-xl font-md text-gray-900'>{building.name}</h5>
                     <p>Number of rooms: {building.numberOfRooms}</p>
-                </Link> 
-            </div>
+                </div>
+            </Link> 
         )
     }
 
@@ -71,9 +71,11 @@ export function CompanyRep() {
         <div className='w-full px-3 pt-3 space-y-3'>
             <CompanyInfo company={mockCompany}/>
             <div className='flex space-x-4'>
-                <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                    Add building
-                </button>
+                <Link className='w-full' to='/createBuilding'> {/*O componente recebe o id da company, como depois vamos retirar estes links, é tranquilo*/}
+                    <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
+                            Add building
+                    </button>
+                </Link>
                 <button className='w-full py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
                     Deactivate
                 </button>

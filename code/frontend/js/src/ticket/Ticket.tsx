@@ -94,11 +94,11 @@ export function TicketRep() {
             <TicketInfo ticket={mockTicket}/>
             <Comments comments={mockValues}/>
             <div className='flex space-x-4'>
-                    <button className='w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
-                        <Link to={`/deliveTicket/${mockTicket.id}`}>
-                                Deliver work
-                        </Link>
+                <Link className='w-1/2' to={`/deliveTicket/${mockTicket.id}`}>
+                    <button className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
+                        Delive ticket
                     </button>
+                </Link>
                 <button className='w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded'>
                     Delete ticket
                 </button>

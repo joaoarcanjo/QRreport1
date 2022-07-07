@@ -9,17 +9,17 @@ export function ListCompanies() {
     
     function CompanyItemComponent({company}: {company: Company}) {
 
-        const bgColor = company.state?.name == 'active' ? 'bg-white' : 'bg-red-100'
+        const bgColor = company.state?.name === 'active' ? 'bg-white' : 'bg-red-100'
         
         return (
-            <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}>  
-                <div>
-                    <Link to={`/companies/${company.id}`}>
+            <Link to={`/companies/${company.id}`}>
+                <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}>  
+                    <div>
                         <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{company.name}</h5>
-                    </Link>
-                    <p>Number of spaces: {company.numberOfBuildings}</p>
+                        <p>Number of spaces: {company.numberOfBuildings}</p>
+                    </div>
                 </div>
-            </div>
+            </Link>
         )
     }
 
@@ -43,9 +43,13 @@ export function ListCompanies() {
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Companies</h1>
             {/*<Filters/>*/}
             <Companies companies={mockCompanies}/>
-            <button className='py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                Add company
-            </button>
+            <div>
+                <Link to='/createCompany'>
+                    <button className='py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
+                            Add company
+                    </button>
+                </Link>
+            </div>
         </div>
     )
 }

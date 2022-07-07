@@ -33,13 +33,13 @@ export function ManagerTickets() {
     function TicketItemComponent({ticket}: {ticket: TicketItem}) {
         return (
             <div className="list-none">
-                <div className="p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100 divide-y space-y-4">  
-                    <div>
-                        <Link to={`/deliveTicket/${ticket.id}`}>
+                <Link to={`/tickets/${ticket.id}`}>
+                    <div className="p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100 divide-y space-y-4">  
+                        <div>
                             <h5 className="mb-2 text-xl font-md tracking-tight text-gray-900">{ticket.subject}</h5>
-                        </Link>
+                        </div>
                     </div>
-                </div>
+                </Link>
             </div>
         )
     }

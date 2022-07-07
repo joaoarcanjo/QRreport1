@@ -4,7 +4,6 @@ import { Room, Building, State } from "../Types";
 
 export function BuildingRep() {
 
-    /* Main user info section */
     function BuildingState({state}: {state: State}) {
 
         const stateColor = state.name === 'inactive' ? 'bg-red-600' : 'bg-green-600';
@@ -37,15 +36,15 @@ export function BuildingRep() {
 
     function RoomItem({room} : {room: Room}) {
 
-        const bgColor = room.state?.name == 'active' ? 'bg-white' : 'bg-red-100'
+        const bgColor = room.state?.name === 'active' ? 'bg-white' : 'bg-red-100'
         
         return (
-            <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md`}>  
-                <Link to={`/rooms/${room.id}`}>
+            <Link to={`/rooms/${room.id}`}>
+                <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 hover:bg-gray-200 shadow-md`}>  
                     <h5 className='text-xl font-md text-gray-900'>{room.name}</h5>
                     <p>Number of reports: {room.numberOfReports}</p>
-                </Link>
-            </div>
+                </div>
+            </Link>
         )
     }
 
@@ -59,26 +58,28 @@ export function BuildingRep() {
 
     const mockBuilding = {'id': 22, 'name': 'Bloco A', 'state': { 'id': 1, 'name': 'active' }, 'floors': 4, 'numberOfRooms': 5 }
 
-    const mockValues = [
-        {'id': 1, 'name': 'Secreataria', 'state': { 'id': 1, 'name': 'active' }, 'numberOfReports': 2},
-        {'id': 2, 'name': 'Gabinete x', 'state': { 'id': 1, 'name': 'active' }, 'numberOfReports': 43},
-        {'id': 3, 'name': 'Tesouraria', 'state': { 'id': 1, 'name': 'inactive' }, 'numberOfReports': 12},
-        {'id': 4, 'name': 'Refeitório', 'state': { 'id': 1, 'name': 'active' }, 'numberOfReports': 33},
-        {'id': 5, 'name': 'Sala de estudos', 'state': { 'id': 1, 'name': 'active' }, 'numberOfReports': 43},
+    const mockRoomsValues = [
+        {'id': 1, 'name': 'Secretaria', 'state': { 'id': 1, 'name': 'active' }, 'floor': 1, 'numberOfReports': 2},
+        {'id': 2, 'name': 'Gabinete x', 'state': { 'id': 1, 'name': 'active' }, 'floor': 2, 'numberOfReports': 43},
+        {'id': 3, 'name': 'Tesouraria', 'state': { 'id': 1, 'name': 'inactive' }, 'floor': -1, 'numberOfReports': 12},
+        {'id': 4, 'name': 'Refeitório', 'state': { 'id': 1, 'name': 'active' }, 'floor': 4, 'numberOfReports': 33},
+        {'id': 5, 'name': 'Sala de estudos', 'state': { 'id': 1, 'name': 'active' }, 'floor': 1, 'numberOfReports': 43},
     ]
 
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
             <BuildingInfo building={mockBuilding}/>
             <div className='flex space-x-4'>
-                <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                    Add room
-                </button>
-                <button className='w-full py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
+                <Link className='w-1/2' to='/createRoom'>
+                    <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
+                        Add room
+                    </button>
+                </Link>
+                <button className='w-1/2 py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
                     Deactivate
                 </button>
             </div>
-            <Rooms rooms={mockValues}/>
+            <Rooms rooms={mockRoomsValues}/>
         </div>
     )
 }

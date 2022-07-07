@@ -18,6 +18,7 @@ export type Company = {
 export type Room = {
     id: number,
     name: string,
+    floor: number,
     state: State,
     numberOfReports?: number
 }
@@ -74,4 +75,10 @@ export type Role = {
 
 export type Skill = {
     name: string
+}
+
+export type Device = {
+    id: number,
+    name: string,
+    state: State
 }

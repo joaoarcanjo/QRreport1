@@ -23,6 +23,9 @@ import { BuildingRep } from './building/Building';
 import { RoomRep } from './room/Room';
 import { UpdateCompany } from './company/UpdateCompany';
 import { UpdateBuilding } from './building/UpdateBuilding';
+import { CreateCompany } from './company/CreateCompany';
+import { CreateBuilding } from './building/CreateBuilding';
+import { CreateRoom } from './room/CreateRoom';
 
 const userSessionRepo = createRepository()
 
@@ -43,11 +46,14 @@ function AppRouter() {
                 <Route path="/employees" element= {<ListEmployees/>}/>
                 <Route path="/persons" element= {<ListPersons/>}/>
                 <Route path="/companies" element= {<ListCompanies/>}/>
+                <Route path="/createCompany" element= {<CreateCompany/>}/>
                 <Route path="/companies/:id" element= {<CompanyRep/>}/>
                 <Route path="/updatecompany/:id" element= {<UpdateCompany/>}/>
                 <Route path="/buildings/:id" element= {<BuildingRep/>}/>
+                <Route path="/createBuilding" element= {<CreateBuilding companyId={1}/>}/>
                 <Route path="/updatebuilding/:id" element= {<UpdateBuilding/>}/>
                 <Route path="/rooms/:id" element= {<RoomRep/>}/>
+                <Route path="/createRoom" element= {<CreateRoom buildingId={1}/>}/>
                 <Route path="/tickets/:id" element= {<TicketRep/>}/>
             </Routes>
         </Router>

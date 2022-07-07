@@ -8,12 +8,12 @@ function UserState({state}: {state: State}) {
 
     const stateColor = state.name === 'inactive' ? 'bg-red-600' : 'bg-green-600';
     
-    const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state.name}</span>
+    const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state.name}</span>
     
     return (
         <li className="flex items-center py-3">
             <span>Status</span>
-            <span className="ml-auto">{stateElement}</span>
+            {stateElement}
         </li>
     )
 }
@@ -27,13 +27,10 @@ function UserDate({state, time}: UserDateProps) {
     const text = state.name === 'inactive' ? 'Inactive since' : 'Member since';
 
     return (
-        <>
-            <li className="flex items-center py-3">
-                <span>{text}</span>
-                <span className="ml-auto">{time}</span>
-            </li>
-        </>
-        
+        <div className="flex items-center py-3">
+            <span>{text}</span>
+            <span className="ml-auto">{time}</span>
+        </div>
     )
 }
 

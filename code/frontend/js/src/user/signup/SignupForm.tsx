@@ -3,7 +3,7 @@ import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButt
 
 export default function SignupForm() {
 
-    type loginData = {
+    type signupData = {
         name: string, 
         email: string,
         phone: string,
@@ -11,7 +11,7 @@ export default function SignupForm() {
         passwordVerify: string
     }
 
-    const { register, handleSubmit, formState: { errors }, getValues } = useForm<loginData>();
+    const { register, handleSubmit, formState: { errors }, getValues } = useForm<signupData>();
 
     const onSubmitHandler = handleSubmit(({ email, password }) => {
         console.log(email, password);
