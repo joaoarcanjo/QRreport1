@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.ps.project.auth.AuthenticationInterceptor
+import pt.isel.ps.project.auth.ORIGIN_HEADER
 import pt.isel.ps.project.pipeline.argumentresolvers.AuthPersonArgumentResolver
 import pt.isel.ps.project.pipeline.interceptors.QueryParamsValidatorInterceptor
 import pt.isel.ps.project.pipeline.messageconverters.ModifiedJacksonMessageConverter
@@ -54,5 +55,6 @@ class MvcConfig(
         registry.addMapping("/**")
             .allowedOrigins("http://localhost:3000")
             .allowCredentials(true)
+            .allowedHeaders(ORIGIN_HEADER)
     }
 }

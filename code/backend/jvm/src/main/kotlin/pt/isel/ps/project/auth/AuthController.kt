@@ -17,10 +17,10 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AuthController(private val jwtConfig: JwtConfig, private val secretKey: SecretKey, private val authService: AuthService) {
-    fun buildSessionCookie(token: String, maxAge: Long) = ResponseCookie
+    fun buildSessionCookie(token: String, maxAgeDays: Long) = ResponseCookie
         .from(SESSION_COOKIE_KEY, token)
         .sameSite("Strict")
-        .maxAge(maxAge)
+        .maxAge(maxAgeDays * 24 * 60 * 60)
         .httpOnly(true)
         .secure(false)
         .build()
