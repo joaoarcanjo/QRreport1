@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { MdExpandLess, MdExpandMore } from "react-icons/md";
 import { Link } from "react-router-dom";
-import { State, Ticket, Comment } from "../Types";
+import { State, Ticket, Comment } from "../Models";
 
 export function TicketRep() {
 

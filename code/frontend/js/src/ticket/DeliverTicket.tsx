@@ -3,7 +3,7 @@ import { useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
 import { AiFillTool, AiFillStar } from "react-icons/ai";
-import { Employee, Ticket } from "../Types";
+import { Employee, Ticket } from "../Models";
 
 export function DeliverTicket() {
 

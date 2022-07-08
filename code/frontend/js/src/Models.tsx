@@ -64,10 +64,10 @@ export type Person = {
     name: string,
     phone: string,
     email: string,
-    state: State,
+    state: string,
     roles: Role[],
     skills?: Skill[],
-    timestamp: string,
+    timestamp: Date,
     numberOfReports?: string,
     reportsRejected?: string
 }

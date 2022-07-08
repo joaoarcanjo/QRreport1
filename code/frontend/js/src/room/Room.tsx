@@ -1,8 +1,29 @@
+import { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import { Device, Room, State } from "../Types";
+import Popup from "reactjs-popup";
+import { Device, Room, State } from "../Models";
+import './Popup.css';
 
 export function RoomRep() {
+    
+    const [popup, setPopup] = useState(false);
+
+    function PopupComp() {
+        return (
+            <Popup className='popup-overlay' open = {popup} modal>
+                <div className='w-full p-16'>
+                    <div className='bg-white p-8 space-y-3'>
+                        <div className="image overflow-hidden">
+                            <img className="h-auto w-full mx-auto"
+                                src="https://br.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
+                                alt=""/>
+                        </div>
+                    </div>
+                </div>
+            </Popup>
+        )
+    }
 
     function RoomState({state}: {state: State}) {
 
@@ -43,8 +64,9 @@ export function RoomRep() {
                 <div className="flex items-center">
                     <span className='text-xl font-md text-gray-900'>{device.name}</span>
                     {device.state.name === 'active' ? 
-                    <button className={'bg-slate-400 ml-auto py-4 px-4 rounded text-white text-sm'}>Generate new QRcode</button> : ''}
-                </div> 
+                    <button className={'bg-slate-400 ml-auto py-4 px-4 rounded text-white text-sm'}
+                        onClick={()=> setPopup(!popup)}> Generate new QRcode</button> : ''}
+                </div>
             </div>
         )
     }
@@ -67,19 +89,22 @@ export function RoomRep() {
     ]
 
     return (
-        <div className='w-full px-3 pt-3 space-y-3'>
-            <RoomInfo room={mockRoom}/>
-            <div className='flex space-x-4'>
-                <Link className='w-1/2' to='/addDevice'>
-                    <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                        Add device
+        <div>
+            <div className='w-full px-3 pt-3 space-y-3'>
+                <RoomInfo room={mockRoom}/>
+                <div className='flex space-x-4'>
+                    <Link className='w-1/2' to='/addDevice'>
+                        <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
+                            Add device
+                        </button>
+                    </Link>
+                    <button className='w-1/2 py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
+                        Deactivate
                     </button>
-                </Link>
-                <button className='w-1/2 py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
-                    Deactivate
-                </button>
+                </div>
+                <Devices devices={mockDevicesValues}/>
+                <PopupComp/>
             </div>
-            <Devices devices={mockDevicesValues}/>
         </div>
     )
 }

@@ -4,7 +4,7 @@ import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
 import { useLoggedInState } from "../user/Session";
 import React from "react";
-import { TicketItem } from "../Types";
+import { TicketItem } from "../Models";
 
 export function ListTickets() {
 

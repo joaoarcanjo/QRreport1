@@ -1,6 +1,6 @@
 import { FaEdit } from "react-icons/fa"
 import { Link } from "react-router-dom"
-import { Room, Building, State } from "../Types";
+import { Room, Building, State } from "../Models";
 
 export function BuildingRep() {
 

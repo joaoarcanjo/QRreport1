@@ -1,7 +1,15 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/FormComponents";
+import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../components/FormComponents";
+import { emailInputForm, nameInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm } from "../components/FormInputs";
+import { DisplayError } from "../Error";
+import { useFetch } from "../hooks/useFetch";
+import * as QRreport from '../models/QRJsonModel';
+import { Profile } from "./Profile";
 
-export function UpdateProfile() {
+const BASE_URL = "http://localhost:8080"
+
+export function UpdateProfile({ action, setAction }: { action: QRreport.Action, setAction: React.Dispatch<React.SetStateAction<string>>}) {
 
     type userData = {
         name: string, 
@@ -11,58 +19,59 @@ export function UpdateProfile() {
         passwordVerify: string
     }
 
-    const { register, handleSubmit, watch, formState: { errors }, getValues } = useForm<userData>();
+    const { register, handleSubmit, formState: { errors }, getValues } = useForm<userData>()
 
-    const passwordInserted = watch("password");
+    const [fetchUrl, setFetchUrl] = useState('')
+    const [init, setInit] = useState<RequestInit>({})
 
-    const onSubmitHandler = handleSubmit(({ email, password }) => {
-        console.log(email, password);
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<any>(fetchUrl, init)
+
+    if (isFetching) {
+        console.log('Fetching...')
+        return <p>Fetching...</p>
+    }
+
+    if (!isFetching && fetchUrl) {
+        if (result?.body?.type === 'success') {
+            return <Profile/>
+        } else {
+            console.log(result?.body?.problem)
+            return <DisplayError message={result?.body?.problem.title}/>
+        }
+    } 
+    
+    const onSubmitHandler = handleSubmit(({ name, email, phone, password, passwordVerify }) => {
+        const payload: any = {}
+
+        payload['name'] = name !== '' ? name : null
+        payload['email'] = email !== '' ? email : null
+        payload['phone'] = phone !== '' ? phone : null
+        payload['password'] = password !== '' ? password : null
+        payload['passwordVerify'] = passwordVerify !== '' ? passwordVerify : null
+
+        setInit({
+            method: action.method,
+            headers: {
+                'Content-Type': action.type,
+                'Request-Origin': 'WebApp' 
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        })
+        setFetchUrl(BASE_URL + action.href) 
     })
 
-    const nameInput: InputProps = {
-        inputLabelName: 'New name',
-        register: register("name", {minLength: 1, maxLength: 50}),
-        style: {borderColor: errors.name ? 'red': 'black'},
-        name: "name",
-        type: "text",
-        errorMessage: errors.name && 'Invalid name'
-    }
+    function Inputs() {
 
-    const emailInput: InputProps = {
-        inputLabelName: 'New email',
-        register: register("email", {pattern: /.+@.+/, minLength: 4, maxLength: 320}),
-        style: {borderColor: errors.email ? 'red': 'black'},
-        name: "email",
-        type: "email",
-        errorMessage: errors.email && 'Invalid email'
-    }
-
-    const passwordInput: InputProps = {
-        inputLabelName: 'New password',
-        register: register("password", {minLength: 1, maxLength: 127}),
-        style: {borderColor: errors.password ? 'red': 'black'},
-        name: "password",
-        type: "password",
-        errorMessage: errors.password && 'Invalid password'
-    }
-
-    const passwordVerifyInput: InputProps = {
-        inputLabelName: 'Repeat your password *',
-        register: register("passwordVerify", {minLength: 1, maxLength: 127, validate: value => (value === getValues("password") && getValues("password") !== '')}),
-        style: {borderColor: errors.passwordVerify ? 'red': 'black'},
-        name: "passwordVerify",
-        type: "password",
-        errorMessage: errors.passwordVerify && 'Verify if both passwords are equal.'
-    }
-
-
-    const phoneNumberInput: InputProps = {
-        inputLabelName: 'New phone number',
-        register: register("phone", { minLength: 1, maxLength: 50}),
-        style: {borderColor: errors.phone ? 'red': 'black'},
-        name: "phone",
-        type: "tel",
-        errorMessage: errors.phone && 'Invalid phone number'
+        let componentsInputs = action.properties.map(prop => {
+            switch (prop.name) {
+                case 'name': return <Input value={nameInputForm(register, errors, prop.required)}/>
+                case 'phone': return <Input value={phoneInputForm(register, errors, prop.required)}/>
+                case 'email': return <Input value={emailInputForm(register, errors, prop.required)}/>
+                case 'password': return <><Input value={passwordInputForm(register, errors, prop.required)}/><Input value={passwordVerifyInputForm(register, errors, getValues, prop.required)}/></>
+            }
+        })
+        return <>{componentsInputs}</>
     }
     
     return (
@@ -72,11 +81,7 @@ export function UpdateProfile() {
                     <Header heading='Update your account'>
                         <HeaderParagraph paragraph='Insert new credentials below'/>
                     </Header>
-                    <Input value = {nameInput}/>
-                    <Input value = {emailInput}/>
-                    <Input value = {phoneNumberInput}/>
-                    <Input value = {passwordInput}/>
-                    {(passwordInserted !== undefined && passwordInserted !== '') && <Input value = {passwordVerifyInput}/>}
+                    <Inputs/>
                     <SubmitButton text={'Update account'}/>
                 </Form>
                 <Paragraph value = {'(*) Required'}/>

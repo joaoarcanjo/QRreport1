@@ -38,8 +38,7 @@ function AppRouter() {
                 <Route path="/login" element= {<LoginForm/>}/>
                 <Route path="/signup" element= {<SignupForm/>}/>
                 <Route path="/qrcode/:hash" element= {<FormValidator/>}/>
-                <Route path="/profile" element= {<Profile/>}/>
-                <Route path="/updateProfile" element= {<UpdateProfile/>}/>
+                <Route path="/persons/:personId" element= {<Profile/>}/>
                 <Route path="/tickets" element= {<ListTickets/>}/>
                 <Route path="/managerTickets" element= {<ManagerTickets/>}/>
                 <Route path="/deliveTicket/:id" element= {<DeliverTicket/>}/>
@@ -67,16 +66,18 @@ function App() {
     const [userName, setUserName] = useState(sessionStorage.getItem(NAME_KEY))
     const [userRole, setUserRole] = useState(sessionStorage.getItem(ROLE_KEY))
 
+    console.log(isLoggedIn)
+
     useEffect(() => {
         console.log("Use effect for save values called")
-        if (isLoggedIn && userName && userRole) { 
+        if (isLoggedIn /*&& userName && userRole*/) { 
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(isLoggedIn))
-            sessionStorage.setItem(NAME_KEY, userName)
-            sessionStorage.setItem(ROLE_KEY, userRole)
+            //sessionStorage.setItem(NAME_KEY, userName)
+            //sessionStorage.setItem(ROLE_KEY, userRole)
         } else {
             sessionStorage.removeItem(SESSION_KEY)
-            sessionStorage.removeItem(NAME_KEY)
-            sessionStorage.removeItem(ROLE_KEY)
+            //sessionStorage.removeItem(NAME_KEY)
+            //sessionStorage.removeItem(ROLE_KEY)
         }
     }, [isLoggedIn])
 
@@ -85,24 +86,21 @@ function App() {
         userName: userName,
         userRole: userRole,
         login: (username: string, password: string) => {
-            userSessionRepo.login(username, password).then(async response => {
-                ///let validCredentials = (response.status === 200)
-                let validCredentials = true
-                if (validCredentials) {
-                    setLoggedIn(validCredentials)
-                    ///let userInfo = await response.json()
-                    let userInfo = {name: 'Joao', role: 'user'}
-                    setUserName(userInfo.name)
-                    setUserRole(userInfo.role)
+            userSessionRepo.login(username, password).then(response => {
+                let areCredentialsValid = (response.status === 200)
+                if (areCredentialsValid) {
+                    setLoggedIn(areCredentialsValid)
+                    //let userInfo = await response.json()
+                    //setUserName(userInfo.name)
+                    //setUserRole(userInfo.role)
                 }
             })
         },
         logout: () => {
-            userSessionRepo.logout().then(status => {
-                /*if(status === 200) {
+            userSessionRepo.logout().then(response => {
+                if(response === 200) {
                     setLoggedIn(false)
-                }*/
-                setLoggedIn(false)
+                }
             })
         }
 }

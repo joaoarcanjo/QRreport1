@@ -4,31 +4,32 @@ export const SESSION_KEY = 'IsLogin'
 export const NAME_KEY = 'UserName'
 export const ROLE_KEY = 'UserRole'
 
-export async function loginUser(email: string, password: string): Promise<boolean> /*Promise<Response>*/ {
+export async function loginUser(email: string, password: string): Promise<Response> {
   console.log('Login User function called')
   console.log(`${email} + ${password}`)
 
-  const response = await fetch("http://localhost:8080/v1/login",
+  const response = await fetch('http://localhost:8080/v1/login',
     {
-      method: "POST",
-      headers: {"content-type": "application/json"},
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', 
+        'Request-Origin': 'WebApp'
+      },
       body: JSON.stringify({ email: email, password: password }),
       credentials: "include"
     })
-  console.log(response.status)
-  //return response
-  return Promise.resolve(true)
+  return response
 }
 
-export async function logoutUser(): Promise<boolean> /*Promise<number>*/ {
-  /*const response = await fetch("http://localhost:8080/v1/logout",  
+export async function logoutUser(): Promise<number> {
+  const response = await fetch("http://localhost:8080/v1/logout",  
   { 
      method: "POST",
+     headers: {'Request-Origin': 'WebApp'},
      credentials: "include"
   })
   console.log(response.status)
-  return response.status*/
-  return Promise.resolve(true)
+  return response.status
 }
 
 export function createRepository() {

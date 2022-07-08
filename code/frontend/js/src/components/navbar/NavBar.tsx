@@ -3,10 +3,13 @@ import { NavLink } from "react-router-dom";
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Style.css"
+import { useLoggedInState } from "../../user/Session";
 
 export default function NavBar() {
 
-    const navRef = useRef<HTMLDivElement>(null);
+    const navRef = useRef<HTMLDivElement>(null)
+
+    const userSession = useLoggedInState()
 
     const showNavbar = () => {
         navRef.current?.classList.toggle("responsive_nav")
@@ -23,8 +26,8 @@ export default function NavBar() {
             <h3>QRreport</h3>
             <nav ref={navRef}>
                 <NavElement navTo='/' text='Home'/>
-                <NavElement navTo='login' text='Login'/>
-                <NavElement navTo='profile' text='My profile'/>
+                {!userSession?.isLoggedIn && <NavElement navTo='login' text='Login'/>}
+                {userSession?.isLoggedIn && <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>}
                 <NavElement navTo='managerTickets' text='Manager tickets'/>
                 <NavElement navTo='persons' text='Persons'/>
                 <NavElement navTo='employees' text='Employees'/>
