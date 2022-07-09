@@ -28,6 +28,10 @@ object Errors {
 
         object Message {
             const val ACCESS_DENIED = "Forbidden access, not enough permissions to access the required resource."
+            const val CHANGE_DENIED = "Forbidden access, not enough permissions to change the required resource."
+            const val MANAGER_CREATE_PERSON = "A manager can only add another manager or an employee."
+            const val MANAGER_CREATE_PERSON_COMPANY = "A manager can only add a person to a company that belongs."
+            const val UPDATE_PERSON = "You can only update your own profile."
         }
     }
 
@@ -64,10 +68,13 @@ object Errors {
             const val BLANK_PARAMS = "Parameter can't be a blank value."
             const val BLANK_PARAMS_DETAIL = "Please insert one of the possible parameters in order to update."
 
-            const val CREATE_EMPLOYEE_WITH_SKILL = "The employee must be linked to a skill."
-            const val EMPLOYEE_NULL_SKILL = "The skill cannot be null."
+            const val CREATE_EMPLOYEE_WITHOUT_SKILL = "The employee must be linked to a skill."
+            const val EMPLOYEE_NULL_SKILL = "The skill id for the employee cannot be null."
 
             const val TYPE_MISMATCH_REQ_QUERY = "Type mismatch of request query parameter."
+
+            const val ADD_EMPLOYEE_MANAGER_ROLE_WITHOUT_COMPANY = "The company for the employee or manager is missing."
+            const val NULL_EMPLOYEE_MANAGER_COMPANY = "The company id for the person must be provided."
 
             object Templated {
                 const val MUST_HAVE_TYPE = "The value must be of the {} type."
@@ -169,6 +176,54 @@ object Errors {
         object Message {
             const val INACTIVE_RESOURCE = "It's not possible to change an inactive resource."
             const val INACTIVE_RESOURCE_DETAIL = "To change it, you need to activate it first."
+        }
+    }
+
+    object InactiveBannedPerson {
+        val TYPE = URI("/errors/inactive-or-banned-person")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "change-inactive-or-banned-person"
+        object Message {
+            const val INACTIVE_BANNED_PERSON = "It's not possible to change an inactive or banned person."
+        }
+    }
+
+    object PersonDismissal {
+        val TYPE = URI("/errors/person-dismissal")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "person-dismissal"
+        object Message {
+            const val WRONG_PERSON_DISMISSAL = "Only other employees or managers can be fired or rehired."
+        }
+    }
+
+    object PersonBan {
+        val TYPE = URI("/errors/person-ban")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE_MANAGER_PERMS = "manager-ban-permission"
+        object Message {
+            const val WRONG_PERSON_BAN = "Only other persons can be banned or unbanned."
+            const val MANAGER_BAN_PERMS = "A manager can only ban guests or users."
+        }
+    }
+
+    object MinimumRolesSkills {
+        val TYPE = URI("/errors/minimum-roles-skills")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE_ROLES = "minimum-roles"
+        const val SQL_TYPE_SKILLS = "minimum-skills"
+        object Message {
+            const val MINIMUM_ROLES = "A person must have, at least, one role associated."
+            const val MINIMUM_SKILLS = "An employee must have, at least, one skill associated."
+        }
+    }
+
+    object CompanyPersonsRoles {
+        val TYPE = URI("/errors/company-person-roles")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "company-persons"
+        object Message {
+            const val COMPANY_PERSON_ROLES = "Only an employee or a manager can be assigned to a company."
         }
     }
 

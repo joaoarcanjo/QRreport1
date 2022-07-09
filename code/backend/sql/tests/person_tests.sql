@@ -101,7 +101,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update person name, phone and email test |---';
 
-    CALL update_person(person_rep, id, name, phone, email);
+    CALL update_person(person_rep, id, name, phone, email, NULL);
 
     IF (assert_json_value(person_rep, 'id', id::TEXT) AND
         assert_json_value(person_rep, 'name', name) AND
@@ -149,7 +149,6 @@ END$$;
 DO
 $$
 DECLARE
-    manager UUID = 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'; -- Pedro Miguens
     employee UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Zé Manuel
     reason TEXT = 'Left the company for bad conduct.';
     company BIGINT = 1; -- ISEL
@@ -157,7 +156,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Employee dismissal test |---';
 
-    CALL fire_person(person_rep, manager, employee, company, reason);
+    CALL fire_person(person_rep, employee, company, reason);
 
     IF (assert_json_value(person_rep, 'id', employee::TEXT) AND
         assert_json_value(person_rep, 'state', 'inactive') AND
@@ -177,7 +176,7 @@ DO
 $$
 DECLARE
     manager UUID = 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'; -- Pedro Miguens
-    puser UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Francisco Ludovico
+    puser UUID = 'b555b6fc-b904-4bd9-8c2b-4895738a437c'; -- Francisco Ludovico
     reason TEXT = 'Insulting through reports.';
     person_rep JSON;
 BEGIN
@@ -253,7 +252,7 @@ DO
 $$
 DECLARE
     person_id UUID = 'b555b6fc-b904-4bd9-8c2b-4895738a437c'; -- Francisco Ludovico - user
-    role INT = 2; -- user
+    role TEXT = 'user';
     person_rep JSON;
     type TEXT;
 BEGIN
@@ -265,7 +264,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
-        IF (type = 'minimum-of-roles') THEN
+        IF (type = 'minimum-roles') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE '-> Test failed!';
@@ -329,15 +328,15 @@ DO
 $$
 DECLARE
     employee UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Zé Manuel
-    company BIGINT = 2; -- ISCAL
+    company BIGINT = 2; -- IST
     person_rep JSON;
 BEGIN
-    RAISE INFO '---| Person skill addition test |---';
+    RAISE INFO '---| Employee company addition test |---';
 
     CALL assign_person_to_company(person_rep, employee, company);
 
     IF (assert_json_value(person_rep, 'id', employee::TEXT) AND
-        assert_json_value(person_rep, 'companies', array_to_json(ARRAY['ISEL', 'ISCAL'])::TEXT)
+        assert_json_value(person_rep, 'companies', array_to_json(ARRAY['ISEL', 'IST'])::TEXT)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

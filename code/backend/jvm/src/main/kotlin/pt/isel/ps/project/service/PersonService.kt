@@ -1,39 +1,57 @@
 package pt.isel.ps.project.service
 
-import org.jdbi.v3.core.Jdbi
-import org.jdbi.v3.sqlobject.kotlin.onDemand
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.PersonDao
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.UPDATE_PERSON
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
+import pt.isel.ps.project.exception.Errors.PersonBan.Message.WRONG_PERSON_BAN
+import pt.isel.ps.project.exception.Errors.PersonDismissal.Message.WRONG_PERSON_DISMISSAL
+import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
+import pt.isel.ps.project.exception.PersonBanException
+import pt.isel.ps.project.exception.PersonDismissalException
 import pt.isel.ps.project.model.person.*
-import pt.isel.ps.project.util.Validator.Ticket.Person.verifyCreatePersonInput
-import pt.isel.ps.project.util.Validator.Ticket.Person.verifyUpdatePersonInput
+import pt.isel.ps.project.model.representations.elemsToSkip
+import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Person.isSamePerson
+import pt.isel.ps.project.util.Validator.Person.userHasCompany
+import pt.isel.ps.project.util.Validator.Person.verifyAddRoleInput
+import pt.isel.ps.project.util.Validator.Person.verifyCreatePersonInput
+import pt.isel.ps.project.util.Validator.Person.verifyManagerCreationPermissions
+import pt.isel.ps.project.util.Validator.Person.verifyUpdatePersonInput
 import pt.isel.ps.project.util.deserializeJsonTo
 import java.util.*
 
 @Service
-class PersonService(jdbi: Jdbi, private val passwordEncoder: PasswordEncoder) {
+class PersonService(private val personDao: PersonDao, private val passwordEncoder: PasswordEncoder) {
 
-    private val personDao = jdbi.onDemand<PersonDao>()
-
-    fun getPersons(): PersonsDto {
-        return personDao.getPersons().deserializeJsonTo()
+    fun getPersons(user: AuthPerson, page: Int): PersonsDto {
+        // Managers can only get his employees (i.e. same company)
+        // Admins can get everyone
+        return personDao.getPersons(user.id, isManager(user), elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    fun createPerson(person: CreatePersonEntity): PersonDto {
+    fun createPerson(user: AuthPerson, person: CreatePersonEntity): PersonDto {
         verifyCreatePersonInput(person)
+        // Managers can only create other managers or employees
+        if (isManager(user)) verifyManagerCreationPermissions(user, person)
         val personDto = personDao.createPerson(person).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun getPerson(reqPersonId: UUID): PersonDetailsDto {
+    fun getPerson(user: AuthPerson, reqPersonId: UUID): PersonDetailsDto { // TODO <------------------------
         return personDao.getPerson(reqPersonId).deserializeJsonTo()
     }
 
-    fun updatePerson(personId: UUID, person: UpdatePersonEntity): PersonItemDto {
+    fun updatePerson(user: AuthPerson, personId: UUID, person: UpdatePersonEntity): PersonItemDto {
         verifyUpdatePersonInput(person)
+        if (!isAdmin(user) && !isSamePerson(user, personId)) throw ForbiddenException(ACCESS_DENIED, UPDATE_PERSON)
         val encPassword = if (person.password != null) passwordEncoder.encode(person.password) else null
         val personDto = personDao.updatePerson(personId, person, encPassword).getString(PERSON_REP)?.deserializeJsonTo<PersonItemDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
@@ -44,27 +62,34 @@ class PersonService(jdbi: Jdbi, private val passwordEncoder: PasswordEncoder) {
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun firePerson(personId: UUID, companyId: Long, info: FireBanPersonEntity): PersonDto {
+    fun firePerson(user: AuthPerson, personId: UUID, companyId: Long, info: FireBanPersonEntity): PersonDto {
+        if (isManager(user) && (isSamePerson(user, personId) || !userHasCompany(user, companyId)))
+            throw PersonDismissalException(WRONG_PERSON_DISMISSAL)
         val personDto = personDao.firePerson(personId, companyId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun rehirePerson(personId: UUID, companyId: Long): PersonDto {
+    fun rehirePerson(user: AuthPerson, personId: UUID, companyId: Long): PersonDto {
+        if (isManager(user) && (isSamePerson(user, personId) || !userHasCompany(user, companyId)))
+            throw PersonDismissalException(WRONG_PERSON_DISMISSAL)
         val personDto = personDao.rehirePerson(personId, companyId).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun banPerson(personId: UUID, info: FireBanPersonEntity): PersonDto {
-        val personDto = personDao.banPerson(personId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
+    fun banPerson(user: AuthPerson, personId: UUID, info: FireBanPersonEntity): PersonDto {
+        if (isSamePerson(user, personId)) throw PersonBanException(WRONG_PERSON_BAN)
+        val personDto = personDao.banPerson(user.id, personId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun unbanPerson(personId: UUID): PersonDto {
-        val personDto = personDao.unbanPerson(personId).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
+    fun unbanPerson(user: AuthPerson, personId: UUID): PersonDto {
+        if (isSamePerson(user, personId)) throw PersonBanException(WRONG_PERSON_BAN)
+        val personDto = personDao.unbanPerson(user.id, personId).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     fun addRoleToPerson(personId: UUID, info: AddRoleToPersonEntity): PersonDto {
+        verifyAddRoleInput(info)
         val personDto = personDao.addRoleToPerson(personId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }

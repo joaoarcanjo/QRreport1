@@ -5,11 +5,12 @@ import pt.isel.ps.project.auth.SignupDto
 import pt.isel.ps.project.auth.SignupEntity.SIGNUP_CONFIRM_PASSWORD
 import pt.isel.ps.project.auth.SignupEntity.SIGNUP_PASSWORD
 import pt.isel.ps.project.exception.Errors.BadRequest.Locations
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.ADD_EMPLOYEE_MANAGER_ROLE_WITHOUT_COMPANY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Auth.PASSWORD_MISMATCH_REASON
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Auth.PASSWORD_MISMATCH_TITLE
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.BLANK_PARAMS_DETAIL
-import pt.isel.ps.project.exception.Errors.BadRequest.Message.CREATE_EMPLOYEE_WITH_SKILL
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.CREATE_EMPLOYEE_WITHOUT_SKILL
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Category.INVALID_CATEGORY_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_FLOOR_NUMBER
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Company.Building.INVALID_BUILDING_NAME_LENGTH
@@ -20,6 +21,7 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.Anomaly.INV
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Device.INVALID_DEVICE_NAME_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.EMPLOYEE_NULL_SKILL
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.INVALID_REQ_PARAMS
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.NULL_EMPLOYEE_MANAGER_COMPANY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.Comment.INVALID_COMMENT_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_DESCRIPTION_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_HASH_LENGTH
@@ -27,6 +29,10 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_RAT
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Ticket.INVALID_SUBJECT_LENGTH
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.UPDATE_NULL_PARAMS_DETAIL
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.MANAGER_CREATE_PERSON
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.MANAGER_CREATE_PERSON_COMPANY
+import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
 import pt.isel.ps.project.model.Uris.Auth.LOGIN_PATH
@@ -54,8 +60,10 @@ import pt.isel.ps.project.model.device.CreateDeviceEntity
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME
 import pt.isel.ps.project.model.device.DeviceEntity.DEVICE_NAME_MAX_CHARS
 import pt.isel.ps.project.model.device.UpdateDeviceEntity
+import pt.isel.ps.project.model.person.AddRoleToPersonEntity
 import pt.isel.ps.project.model.person.CreatePersonEntity
 import pt.isel.ps.project.model.person.PersonDto
+import pt.isel.ps.project.model.person.PersonEntity.COMPANY
 import pt.isel.ps.project.model.person.PersonEntity.SKILL
 import pt.isel.ps.project.model.person.Roles.ADMIN
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
@@ -81,6 +89,7 @@ import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
+import java.util.*
 
 object Validator {
 
@@ -365,96 +374,124 @@ object Validator {
                 return true
             }
         }
+    }
 
-        object Person {
-            fun verifyCreatePersonInput(person: CreatePersonEntity): Boolean {
-                // TODO: Verify if logged user can add person (manager and admin only)
-                // TODO: Managers can only add employees
-
-                // Employees must be linked to a skill
-                if (person.role == "employee" && person.skill == null) {
-                    throw InvalidParameterException(
-                        CREATE_EMPLOYEE_WITH_SKILL,
-                        listOf(InvalidParameter(SKILL, Locations.BODY, EMPLOYEE_NULL_SKILL))
-                    )
-                }
-                return true
+    object Person {
+        fun verifyCreatePersonInput(person: CreatePersonEntity): Boolean {
+            // Employees must be linked to a skill
+            if (person.role == EMPLOYEE && person.skill == null) {
+                throw InvalidParameterException(
+                    CREATE_EMPLOYEE_WITHOUT_SKILL,
+                    listOf(InvalidParameter(SKILL, Locations.BODY, EMPLOYEE_NULL_SKILL))
+                )
             }
-
-            private fun checkIfAllUpdatableParametersAreNull(person: UpdatePersonEntity) {
-                if (person.name == null && person.phone == null && person.email == null && person.password == null)
-                    throw InvalidParameterException(
-                        UPDATE_NULL_PARAMS,
-                        detail = UPDATE_NULL_PARAMS_DETAIL,
-                    )
-            }
-
-            fun verifyUpdatePersonInput(person: UpdatePersonEntity): Boolean {
-                checkIfAllUpdatableParametersAreNull(person)
-                return true
-            }
-
-            fun personIsBanned(person: PersonDto): Boolean {
-                return person.state.compareTo("banned") == 0
-            }
-
-            fun personIsInactive(person: PersonDto): Boolean {
-                return person.state.compareTo("inactive") == 0
-            }
-
-            fun personIsGuest(roles: List<String>): Boolean {
-                return roles.contains("guest")
-            }
-            fun personIsUser(roles: List<String>): Boolean {
-                return roles.contains("user")
-            }
-            fun personIsEmployee(roles: List<String>): Boolean {
-                return roles.contains("employee")
-            }
-            fun personIsManager(roles: List<String>): Boolean {
-                return roles.contains("manager")
-            }
-            fun personIsAdmin(roles: List<String>): Boolean {
-                return roles.contains("admin")
-            }
-
-            fun personHasTwoRoles(roles: List<String>): Boolean {
-                return roles.size >= 2
-            }
+            return true
         }
 
-        object AccessWithoutAuth {
-            fun isAuthURI(requestURI: String): Boolean {
-                return requestURI.compareTo(SIGNUP_PATH) == 0 || requestURI.compareTo(LOGIN_PATH) == 0
-            }
+        fun verifyManagerCreationPermissions(user: AuthPerson, person: CreatePersonEntity) {
+            // Verify same company
+            if (user.companies?.firstOrNull { it.id.compareTo(person.company) == 0 } == null)
+                throw ForbiddenException(ACCESS_DENIED, MANAGER_CREATE_PERSON_COMPANY)
+            // Verify if it's being created a manager or an employee
+            if (person.role != EMPLOYEE && person.role != MANAGER)
+                throw ForbiddenException(ACCESS_DENIED, MANAGER_CREATE_PERSON)
         }
 
-        object Auth {
-            object Signup {
-                private fun confirmPassword(password: String, confirmPassword: String) = password.compareTo(confirmPassword) == 0
-                fun verifySignupInput(signupDto: SignupDto): Boolean {
-                    if (!confirmPassword(signupDto.password, signupDto.confirmPassword))
-                        throw InvalidParameterException(
-                            PASSWORD_MISMATCH_TITLE,
-                            listOf(
-                                InvalidParameter(
-                                    "$SIGNUP_PASSWORD/${SIGNUP_CONFIRM_PASSWORD}",
-                                    Locations.BODY,
-                                    PASSWORD_MISMATCH_REASON
-                                )
+        private fun checkIfAllUpdatableParametersAreNull(person: UpdatePersonEntity) {
+            if (person.name == null && person.phone == null && person.email == null && person.password == null)
+                throw InvalidParameterException(
+                    UPDATE_NULL_PARAMS,
+                    detail = UPDATE_NULL_PARAMS_DETAIL,
+                )
+        }
+
+        fun verifyUpdatePersonInput(person: UpdatePersonEntity): Boolean {
+            checkIfAllUpdatableParametersAreNull(person)
+            return true
+        }
+
+        fun personIsBanned(person: PersonDto): Boolean {
+            return person.state.compareTo("banned") == 0
+        }
+
+        fun personIsInactive(person: PersonDto): Boolean {
+            return person.state.compareTo("inactive") == 0
+        }
+
+        fun personIsGuest(roles: List<String>): Boolean {
+            return roles.contains(GUEST)
+        }
+        fun personIsUser(roles: List<String>): Boolean {
+            return roles.contains(USER)
+        }
+        fun personIsEmployee(roles: List<String>): Boolean {
+            return roles.contains(EMPLOYEE)
+        }
+        fun personIsManager(roles: List<String>): Boolean {
+            return roles.contains(MANAGER)
+        }
+        fun personIsAdmin(roles: List<String>): Boolean {
+            return roles.contains(ADMIN)
+        }
+
+        fun personHasTwoRoles(roles: List<String>): Boolean {
+            return roles.size >= 2
+        }
+
+        fun employeeHasTwoSkills(skills: List<String>): Boolean {
+            return skills.size >= 2
+        }
+
+        fun isSamePerson(user: AuthPerson, reqPersonId: UUID) = user.id == reqPersonId
+
+        fun userHasCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull { it.id == companyId } != null
+
+        fun verifyAddRoleInput(input: AddRoleToPersonEntity): Boolean {
+            if ((input.role == EMPLOYEE || input.role == MANAGER) && input.company == null)
+                throw InvalidParameterException(
+                    ADD_EMPLOYEE_MANAGER_ROLE_WITHOUT_COMPANY,
+                    listOf(InvalidParameter(COMPANY, Locations.BODY, NULL_EMPLOYEE_MANAGER_COMPANY))
+                )
+            if (input.role == EMPLOYEE && input.skill == null)
+                throw InvalidParameterException(
+                    CREATE_EMPLOYEE_WITHOUT_SKILL,
+                    listOf(InvalidParameter(SKILL, Locations.BODY, EMPLOYEE_NULL_SKILL))
+                )
+            return true
+        }
+    }
+
+    object AccessWithoutAuth {
+        fun isAuthURI(requestURI: String): Boolean {
+            return requestURI.compareTo(SIGNUP_PATH) == 0 || requestURI.compareTo(LOGIN_PATH) == 0
+        }
+    }
+
+    object Auth {
+        object Signup {
+            private fun confirmPassword(password: String, confirmPassword: String) = password.compareTo(confirmPassword) == 0
+            fun verifySignupInput(signupDto: SignupDto): Boolean {
+                if (!confirmPassword(signupDto.password, signupDto.confirmPassword))
+                    throw InvalidParameterException(
+                        PASSWORD_MISMATCH_TITLE,
+                        listOf(
+                            InvalidParameter(
+                                "$SIGNUP_PASSWORD/${SIGNUP_CONFIRM_PASSWORD}",
+                                Locations.BODY,
+                                PASSWORD_MISMATCH_REASON
                             )
                         )
-                    return true
-                }
+                    )
+                return true
             }
+        }
 
-            object Roles {
-                fun isGuest(user: AuthPerson) = user.activeRole.compareTo(GUEST) == 0
-                fun isUser(user: AuthPerson) = user.activeRole.compareTo(USER) == 0
-                fun isEmployee(user: AuthPerson) = user.activeRole.compareTo(EMPLOYEE) == 0
-                fun isManager(user: AuthPerson) = user.activeRole.compareTo(MANAGER) == 0
-                fun isAdmin(user: AuthPerson) = user.activeRole.compareTo(ADMIN) == 0
-            }
+        object Roles {
+            fun isGuest(user: AuthPerson) = user.activeRole.compareTo(GUEST) == 0
+            fun isUser(user: AuthPerson) = user.activeRole.compareTo(USER) == 0
+            fun isEmployee(user: AuthPerson) = user.activeRole.compareTo(EMPLOYEE) == 0
+            fun isManager(user: AuthPerson) = user.activeRole.compareTo(MANAGER) == 0
+            fun isAdmin(user: AuthPerson) = user.activeRole.compareTo(ADMIN) == 0
         }
     }
 }

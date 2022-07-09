@@ -3,6 +3,7 @@ package pt.isel.ps.project.responses
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.person.PersonDetailsDto
@@ -15,11 +16,16 @@ import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
-import pt.isel.ps.project.util.Validator.Ticket.Person.personHasTwoRoles
-import pt.isel.ps.project.util.Validator.Ticket.Person.personIsBanned
-import pt.isel.ps.project.util.Validator.Ticket.Person.personIsEmployee
-import pt.isel.ps.project.util.Validator.Ticket.Person.personIsInactive
-import pt.isel.ps.project.util.Validator.Ticket.Person.personIsManager
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.Roles.isUser
+import pt.isel.ps.project.util.Validator.Person.employeeHasTwoSkills
+import pt.isel.ps.project.util.Validator.Person.isSamePerson
+import pt.isel.ps.project.util.Validator.Person.personHasTwoRoles
+import pt.isel.ps.project.util.Validator.Person.personIsBanned
+import pt.isel.ps.project.util.Validator.Person.personIsEmployee
+import pt.isel.ps.project.util.Validator.Person.personIsInactive
+import pt.isel.ps.project.util.Validator.Person.personIsManager
 import java.util.*
 
 object PersonResponses {
@@ -77,25 +83,28 @@ object PersonResponses {
             )
         )
 
-        fun rehirePerson(personId: UUID, companyId: Long) = QRreportJsonModel.Action(
+        fun rehirePerson(personId: UUID) = QRreportJsonModel.Action(
             name = "rehire-person",
             title = "Rehire person",
             method = HttpMethod.POST,
-            href = Persons.makeRehire(companyId, personId),
+            href = Persons.makeRehire(personId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property(name = "company", type = "number"),
-            ),
+                QRreportJsonModel.Property(name = "company", type = "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
+            ),      // TODO: Path to get only the auth person companies
         )
 
-        fun firePerson(personId: UUID, companyId: Long) = QRreportJsonModel.Action(
+        fun firePerson(personId: UUID) = QRreportJsonModel.Action(
             name = "fire-person",
             title = "Fire person",
             method = HttpMethod.POST,
-            href = Persons.makeFire(companyId, personId),
+            href = Persons.makeFire(personId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property(name = "company", type = "number"),
+                QRreportJsonModel.Property(name = "company", type = "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
+                    // TODO: Path to get only the auth person companies
                 QRreportJsonModel.Property(name = "reason", type = "string"),
             ),
         )
@@ -204,8 +213,7 @@ object PersonResponses {
         Response.setLocationHeader(Persons.makeSpecific(person.id)),
     )
 
-    // TODO: Verify logged person role and if it's profile hide some actions as well
-    fun getPersonRepresentation(personDetails: PersonDetailsDto) = buildResponse(
+    fun getPersonRepresentation(user: AuthPerson, personDetails: PersonDetailsDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = personDetails.person,
@@ -213,28 +221,37 @@ object PersonResponses {
                     listOf(getTicketsRepresentation(personDetails.personTickets, 1))
                 else null,
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (personIsBanned(personDetails.person)) {
-                    add(Actions.unbanPerson(personDetails.person.id))
-                    return@apply
-                } else if (personIsInactive(personDetails.person)) {
-                    add(Actions.rehirePerson(personDetails.person.id, 1)) // TODO: Put company of logged person
-                    return@apply
-                }
-                if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
-                    add(Actions.firePerson(personDetails.person.id, 1)) // TODO: Put company of logged person
-                    add(Actions.assignPersonToCompany(personDetails.person.id))
-                }
-                if (personDetails.person.roles.containsAll(listOf("employee"))) {
-                    add(Actions.addSkill(personDetails.person.id))
-                    add(Actions.removeSkill(personDetails.person.id))
-                }
+                // Delete
                 if (personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
-                add(Actions.banPerson(personDetails.person.id))
-                add(Actions.updatePerson(personDetails.person.id))
-                add(Actions.addRole(personDetails.person.id))
-                if (personHasTwoRoles(personDetails.person.roles))
-                    add(Actions.removeRole(personDetails.person.id))
+                // Update
+                if (isSamePerson(user, personDetails.person.id)) {
+                    add(Actions.updatePerson(personDetails.person.id))
+                    if (!isManager(user) || !isAdmin(user)) return@apply
+                }
+                // Ban
+                add(if (personIsBanned(personDetails.person)) Actions.unbanPerson(personDetails.person.id)
+                    else Actions.banPerson(personDetails.person.id))
+                // Fire
+                if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
+                    if (personIsInactive(personDetails.person)) {
+                        add(Actions.rehirePerson(personDetails.person.id))
+                    } else {
+                        add(Actions.firePerson(personDetails.person.id))
+                        add(Actions.assignPersonToCompany(personDetails.person.id))
+                    }
+                }
+                // Roles and skills
+                if (isAdmin(user)) {
+                    if (personDetails.person.roles.containsAll(listOf("employee"))) {
+                        add(Actions.addSkill(personDetails.person.id))
+                        if (employeeHasTwoSkills(personDetails.person.skills!!))
+                            add(Actions.removeSkill(personDetails.person.id))
+                    }
+                    add(Actions.addRole(personDetails.person.id))
+                    if (personHasTwoRoles(personDetails.person.roles))
+                        add(Actions.removeRole(personDetails.person.id))
+                }
             },
             links = listOf(
                 Response.Links.self(Persons.makeSpecific(personDetails.person.id)),

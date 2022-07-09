@@ -24,4 +24,5 @@ data class PaginationDto(
     }
 }
 
+fun elemsToSkip(pageIdx: Int, pageSize: Int) = (pageIdx - 1) * pageSize
 fun PaginationDto.toEntity() = PaginationEntity(limit, page * limit)

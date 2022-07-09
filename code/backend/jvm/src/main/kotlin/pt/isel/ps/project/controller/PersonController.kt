@@ -19,6 +19,7 @@ import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.person.*
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.PersonResponses.createPersonRepresentation
 import pt.isel.ps.project.responses.PersonResponses.deleteUserRepresentation
@@ -34,21 +35,24 @@ import java.util.*
 class PersonController(private val service: PersonService) {
 
     @GetMapping(Persons.BASE_PATH)
-    fun getPersons(user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+    fun getPersons(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
         getPersonsAuthorization(user)
-        return getPersonsRepresentation(service.getPersons(), 1)
+        return getPersonsRepresentation(service.getPersons(user, page), page)
     }
 
     @PostMapping(Persons.BASE_PATH)
     fun createPerson(@RequestBody person: CreatePersonEntity, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
         createPersonsAuthorization(user)
-        return createPersonRepresentation(service.createPerson(person))
+        return createPersonRepresentation(service.createPerson(user, person))
     }
 
     @GetMapping(Persons.SPECIFIC_PATH)
     fun getPerson(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
         getPersonAuthorization(user)
-        return getPersonRepresentation(service.getPerson(personId))
+        return getPersonRepresentation(user, service.getPerson(user, personId))
     }
 
     @PutMapping(Persons.SPECIFIC_PATH)
@@ -58,7 +62,7 @@ class PersonController(private val service: PersonService) {
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         updatePersonAuthorization(user)
-        return updatePersonRepresentation(service.updatePerson(personId, person))
+        return updatePersonRepresentation(service.updatePerson(user, personId, person))
     }
 
     @DeleteMapping(Persons.SPECIFIC_PATH)
@@ -75,7 +79,7 @@ class PersonController(private val service: PersonService) {
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         firePersonAuthorization(user)
-        return fireBanRoleCompanyPersonRepresentation(service.firePerson(personId, companyId, info))
+        return fireBanRoleCompanyPersonRepresentation(service.firePerson(user, personId, companyId, info))
     }
 
     @PostMapping(Persons.REHIRE_PATH)
@@ -85,7 +89,7 @@ class PersonController(private val service: PersonService) {
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         rehirePersonAuthorization(user)
-        return fireBanRoleCompanyPersonRepresentation(service.rehirePerson(personId, companyId))
+        return fireBanRoleCompanyPersonRepresentation(service.rehirePerson(user, personId, companyId))
     }
 
     @PostMapping(Persons.BAN_PATH)
@@ -95,13 +99,13 @@ class PersonController(private val service: PersonService) {
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         banPersonAuthorization(user)
-        return fireBanRoleCompanyPersonRepresentation(service.banPerson(personId, info))
+        return fireBanRoleCompanyPersonRepresentation(service.banPerson(user, personId, info))
     }
 
     @PostMapping(Persons.UNBAN_PATH)
     fun unbanPerson(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
         unbanPersonAuthorization(user)
-        return fireBanRoleCompanyPersonRepresentation(service.unbanPerson(personId))
+        return fireBanRoleCompanyPersonRepresentation(service.unbanPerson(user, personId))
     }
 
     @PutMapping(Persons.ADD_ROLE_PATH)

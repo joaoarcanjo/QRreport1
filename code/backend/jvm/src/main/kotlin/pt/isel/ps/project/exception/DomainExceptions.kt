@@ -30,6 +30,24 @@ data class ForbiddenException(
     override val data: Any? = null,
 ): BaseException(message, detail, data)
 
+data class PersonDismissalException(
+    override val message: String,
+    override val detail: String? = null,
+    override val data: Any? = null,
+): BaseException(message, detail, data)
+
+data class PersonBanException(
+    override val message: String,
+    override val detail: String? = null,
+    override val data: Any? = null,
+): BaseException(message, detail, data)
+
+data class MinimumRolesSkillsException(
+    override val message: String,
+    override val detail: String? = null,
+    override val data: Any? = null,
+): BaseException(message, detail, data)
+
 data class InvalidParameter(
     var name: String,
     var local: String,

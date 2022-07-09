@@ -3,6 +3,7 @@ package pt.isel.ps.project.responses
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.company.CompaniesDto
 import pt.isel.ps.project.model.company.CompanyDto
@@ -10,6 +11,7 @@ import pt.isel.ps.project.model.company.CompanyItemDto
 import pt.isel.ps.project.model.company.removeBuildings
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.model.state.States.INACTIVE
 import pt.isel.ps.project.responses.BuildingResponses.BUILDING_MAX_PAGE_SIZE
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
 import pt.isel.ps.project.responses.Response.Classes
@@ -18,6 +20,7 @@ import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildCollectionLinks
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 
 object CompanyResponses {
     const val COMPANY_PAGE_MAX_SIZE = 10
@@ -68,7 +71,7 @@ object CompanyResponses {
     )
 
 
-    fun getCompaniesRepresentation(companiesDto: CompaniesDto, collection: CollectionModel) = buildResponse(
+    fun getCompaniesRepresentation(user: AuthPerson, companiesDto: CompaniesDto, collection: CollectionModel) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY, Classes.COLLECTION),
             properties = collection,
@@ -76,7 +79,9 @@ object CompanyResponses {
                 if (companiesDto.companies != null)
                     addAll(companiesDto.companies.map { getCompanyItem(it, listOf(Relations.ITEM)) })
             },
-            actions = listOf(Actions.createCompany()),
+            actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                if (isAdmin(user)) add(Actions.createCompany())
+            },
             links = listOf(
                 QRreportJsonModel.Link(listOf(Relations.SELF), Uris.makePagination(collection.pageIndex, Uris.Companies.BASE_PATH)),
                 QRreportJsonModel.Link(listOf(Relations.PAGINATION), Uris.Companies.COMPANIES_PAGINATION, templated = true)
@@ -94,7 +99,7 @@ object CompanyResponses {
         setLocationHeader(Uris.Companies.makeSpecific(company.id)),
     )
 
-    fun getCompanyRepresentation(company: CompanyDto) = buildResponse(
+    fun getCompanyRepresentation(user: AuthPerson, company: CompanyDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY),
             properties = company.removeBuildings(),
@@ -107,11 +112,12 @@ object CompanyResponses {
                 )
             ),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (company.state.compareTo("inactive") == 0) {
-                    add(Actions.activateCompany(company.id))
-                    return@apply
+                if (isAdmin(user)) {
+                    if (company.state.compareTo(INACTIVE) == 0)
+                        add(Actions.activateCompany(company.id))
+                    else
+                        add(Actions.deactivateCompany(company.id))
                 }
-                add(Actions.deactivateCompany(company.id))
                 add(Actions.updateCompany(company.id))
             },
             links = listOf(

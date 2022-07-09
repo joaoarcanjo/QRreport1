@@ -12,7 +12,7 @@ import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_TYPE
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.MISSING_SESSION_COOKIE
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
 import pt.isel.ps.project.exception.UnauthorizedException
-import pt.isel.ps.project.util.Validator.Ticket.AccessWithoutAuth.isAuthURI
+import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isAuthURI
 import javax.crypto.SecretKey
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse

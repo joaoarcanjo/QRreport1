@@ -6,7 +6,7 @@ import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_CREDENTIALS
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.exception.UnauthorizedException
-import pt.isel.ps.project.util.Validator.Ticket.Auth.Signup.verifySignupInput
+import pt.isel.ps.project.util.Validator.Auth.Signup.verifySignupInput
 import pt.isel.ps.project.util.deserializeJsonTo
 
 @Service

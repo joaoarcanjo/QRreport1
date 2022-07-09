@@ -1,6 +1,7 @@
 package pt.isel.ps.project.auth
 
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
@@ -30,67 +31,67 @@ object Authorizations {
         fun updatePersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun deleteUserAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == USER || userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun firePersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun rehirePersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun banPersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun unbanPersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun addRoleToPersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun removeRoleFromPersonAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun addSkillToEmployeeAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun removeSkillFromEmployeeAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun assignPersonToCompanyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
     }
 

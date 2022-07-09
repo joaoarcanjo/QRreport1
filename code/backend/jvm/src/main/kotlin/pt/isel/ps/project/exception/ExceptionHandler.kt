@@ -15,6 +15,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.MISSING_MISMATCH_REQ_BODY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Templated.MUST_HAVE_TYPE
+import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles.Message.COMPANY_PERSON_ROLES
 import pt.isel.ps.project.exception.Errors.MethodNotAllowed.Message.METHOD_NOT_ALLOWED
 import pt.isel.ps.project.exception.Errors.NotFound.Message.RESOURCE_DETAIL_NOT_FOUND_TEMPLATE
 import pt.isel.ps.project.exception.Errors.UniqueConstraint
@@ -30,6 +31,16 @@ import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_CREDENTI
 import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER
 import pt.isel.ps.project.exception.Errors.Unauthorized.WWW_AUTH_HEADER_VALUE
 import pt.isel.ps.project.exception.Errors.Forbidden
+import pt.isel.ps.project.exception.Errors.PersonDismissal
+import pt.isel.ps.project.exception.Errors.InactiveBannedPerson
+import pt.isel.ps.project.exception.Errors.PersonBan
+import pt.isel.ps.project.exception.Errors.MinimumRolesSkills
+import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles
+import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
+import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
+import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_SKILLS
+import pt.isel.ps.project.exception.Errors.PersonBan.Message.MANAGER_BAN_PERMS
+import pt.isel.ps.project.exception.Errors.PersonDismissal.Message.WRONG_PERSON_DISMISSAL
 import pt.isel.ps.project.exception.Errors.buildMessage
 import pt.isel.ps.project.model.representations.ProblemJsonModel
 import java.net.URI
@@ -114,6 +125,51 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message,
             req.requestURI,
             Forbidden.STATUS,
+            ex.detail,
+            ex.data
+        )
+    }
+
+    @ExceptionHandler(PersonDismissalException::class)
+    fun handlePersonDismissal(
+        ex: PersonDismissalException,
+        req: HttpServletRequest
+    ): ResponseEntity<Any> {
+        return buildExceptionResponse(
+            PersonDismissal.TYPE,
+            ex.message,
+            req.requestURI,
+            PersonDismissal.STATUS,
+            ex.detail,
+            ex.data
+        )
+    }
+
+    @ExceptionHandler(PersonBanException::class)
+    fun handlePersonBan(
+        ex: PersonBanException,
+        req: HttpServletRequest
+    ): ResponseEntity<Any> {
+        return buildExceptionResponse(
+            PersonBan.TYPE,
+            ex.message,
+            req.requestURI,
+            PersonBan.STATUS,
+            ex.detail,
+            ex.data
+        )
+    }
+
+    @ExceptionHandler(MinimumRolesSkillsException::class)
+    fun handlePersonBan(
+        ex: MinimumRolesSkillsException,
+        req: HttpServletRequest
+    ): ResponseEntity<Any> {
+        return buildExceptionResponse(
+            MinimumRolesSkills.TYPE,
+            ex.message,
+            req.requestURI,
+            MinimumRolesSkills.STATUS,
             ex.detail,
             ex.data
         )
@@ -212,6 +268,54 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 buildExceptionResponse(
                     TYPE,
                     INVALID_CREDENTIALS,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            InactiveBannedPerson.SQL_TYPE -> InactiveBannedPerson.run {
+                buildExceptionResponse(
+                    TYPE,
+                    INACTIVE_BANNED_PERSON,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            PersonDismissal.SQL_TYPE -> PersonDismissal.run {
+                buildExceptionResponse(
+                    TYPE,
+                    WRONG_PERSON_DISMISSAL,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            PersonBan.SQL_TYPE_MANAGER_PERMS -> PersonBan.run {
+                buildExceptionResponse(
+                    TYPE,
+                    MANAGER_BAN_PERMS,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            MinimumRolesSkills.SQL_TYPE_ROLES -> MinimumRolesSkills.run {
+                buildExceptionResponse(
+                    TYPE,
+                    MINIMUM_ROLES,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            MinimumRolesSkills.SQL_TYPE_SKILLS -> MinimumRolesSkills.run {
+                buildExceptionResponse(
+                    TYPE,
+                    MINIMUM_SKILLS,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            CompanyPersonsRoles.SQL_TYPE -> CompanyPersonsRoles.run {
+                buildExceptionResponse(
+                    TYPE,
+                    COMPANY_PERSON_ROLES,
                     requestUri,
                     STATUS,
                 )

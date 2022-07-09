@@ -8,12 +8,12 @@ import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.model.company.*
-import pt.isel.ps.project.responses.CompanyResponses
+import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.responses.CompanyResponses.COMPANY_PAGE_MAX_SIZE
 import pt.isel.ps.project.util.Validator.Company.personBelongsToCompany
 import pt.isel.ps.project.util.Validator.Company.verifyCreateCompanyInput
 import pt.isel.ps.project.util.Validator.Company.verifyUpdateCompanyInput
-import pt.isel.ps.project.util.Validator.Ticket.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.deserializeJsonTo
 
 @Service
@@ -22,7 +22,7 @@ class CompanyService(private val companyDao: CompanyDao) {
     fun getCompanies(user: AuthPerson, page: Int): CompaniesDto {
         // If he's a manager, get only the companies that he belongs
         val userId = if (isManager(user)) user.id else null
-        return companyDao.getCompanies(userId, (page - 1) * COMPANY_PAGE_MAX_SIZE).deserializeJsonTo()
+        return companyDao.getCompanies(userId, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
     fun createCompany(company: CreateCompanyEntity): CompanyItemDto {

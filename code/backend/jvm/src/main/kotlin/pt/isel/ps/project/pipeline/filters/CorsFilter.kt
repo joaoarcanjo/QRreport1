@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class CorsFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
+        // In case there isn't a preflight request, continue...
+        if (request.method != "OPTIONS") filterChain.doFilter(request, response)
+
         response.addHeader("Access-Control-Allow-Origin", "http://localhost:3000")
         response.addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, HEAD")
         response.addHeader(
@@ -23,9 +26,6 @@ class CorsFilter : OncePerRequestFilter() {
         )
         response.addHeader("Access-Control-Allow-Credentials", "true")
         response.addIntHeader("Access-Control-Max-Age", 60)
-
-        // In case there isn't a preflight request, continue...
-        if (request.method != "OPTIONS") filterChain.doFilter(request, response)
-        else response.status = 200
+        response.status = 200
     }
 }

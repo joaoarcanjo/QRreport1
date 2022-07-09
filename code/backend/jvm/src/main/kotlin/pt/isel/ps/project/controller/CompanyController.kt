@@ -12,6 +12,7 @@ import pt.isel.ps.project.auth.Authorizations.Company.updateCompanyAuthorization
 import pt.isel.ps.project.model.Uris.Companies
 import pt.isel.ps.project.model.company.*
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.CompanyResponses.COMPANY_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.CompanyResponses.createCompanyRepresentation
@@ -25,10 +26,14 @@ import pt.isel.ps.project.service.CompanyService
 class CompanyController(private val service: CompanyService) {
 
     @GetMapping(Companies.BASE_PATH)
-    fun getCompanies(@RequestParam page: Int, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+    fun getCompanies(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
         getCompaniesAuthorization(user)
         val companies = service.getCompanies(user, page)
         return getCompaniesRepresentation(
+            user,
             companies,
             CollectionModel(page, COMPANY_PAGE_MAX_SIZE, companies.companiesCollectionSize)
         )
@@ -43,7 +48,7 @@ class CompanyController(private val service: CompanyService) {
     @GetMapping(Companies.SPECIFIC_PATH)
     fun getCompany(@PathVariable companyId: Long, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
         getCompanyAuthorization(user)
-        return getCompanyRepresentation(service.getCompany(companyId, user))
+        return getCompanyRepresentation(user, service.getCompany(companyId, user))
     }
 
     @PutMapping(Companies.SPECIFIC_PATH)
