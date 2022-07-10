@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Style.css"
-import { useLoggedInState } from "../../user/Session";
+import { useLoggedInState } from "../../user/Session.tsx";
 
 export default function NavBar() {
 
@@ -24,7 +24,7 @@ export default function NavBar() {
     return (
         <header>
             <h3>QRreport</h3>
-            <nav ref={navRef}>
+            <nav ref={navRef} className="flex items-center">
                 <NavElement navTo='/' text='Home'/>
                 {!userSession?.isLoggedIn && <NavElement navTo='login' text='Login'/>}
                 {userSession?.isLoggedIn && <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>}

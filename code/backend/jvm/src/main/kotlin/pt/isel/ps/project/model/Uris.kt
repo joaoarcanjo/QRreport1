@@ -172,7 +172,7 @@ object Uris {
         private val REMOVE_SKILL_TEMPLATE = UriTemplate(REMOVE_SKILL_PATH)
         private val ASSIGN_COMPANY_TEMPLATE = UriTemplate(ASSIGN_COMPANY_PATH)
         fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
-        fun makeFire(personId: UUID) = FIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
+        fun makeFire(personId: UUID) = FIRE_TEMPLATE.expand(mapOf("companyId" to 1, "personId" to personId)).toString()
         fun makeRehire(personId: UUID) = REHIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
         fun makeBan(id: UUID) = BAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeUnban(id: UUID) = UNBAN_TEMPLATE.expand(mapOf("personId" to id)).toString()

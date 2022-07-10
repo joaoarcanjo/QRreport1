@@ -66,7 +66,7 @@ export default function SignupForm() {
     
     return (
         <section className="info-section">
-            <div className="space-y-3">
+            <div className="space-y-3 grid h-screen place-items-center">
                 <Form onSubmitHandler = { onSubmitHandler }>
                     <Header heading='Welcome to QRreport'>
                         <HeaderParagraph paragraph='Insert your credentials below'/>
@@ -77,8 +77,8 @@ export default function SignupForm() {
                     <Input value = {passwordInput}/>
                     <Input value = {passwordVerifyInput}/>
                     <SubmitButton text={'Create account'}/>
+                    <Paragraph value = {'(*) Required'}/>
                 </Form>
-                <Paragraph value = {'(*) Required'}/>
             </div>
         </section>
     )

@@ -4,7 +4,7 @@ import * as QRreport from '../models/QRJsonModel'
 import { ProblemJson } from "../models/ProblemJson"
 import { useMemo, useState } from "react"
 import { Collection } from "../pagination/CollectionPagination"
-import { PERSONS_URL } from "../Urls"
+import { PERSONS_URL_API } from "../Urls"
 import { DisplayError } from "../Error"
 import SignupForm from "./signup/SignupForm"
 import { getActionsOrUndefined, getEntitiesOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
@@ -72,7 +72,7 @@ export function ListPersons() {
     const init = useMemo(() => credentials ,[])
     
     //const [currentPage, setPage] = useState(0)
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(PERSONS_URL/* + currentPage*/, init)
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(PERSONS_URL_API/* + currentPage*/, init)
 
     const [isAction, setAction] = useState(false)
 

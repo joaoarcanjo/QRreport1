@@ -118,7 +118,7 @@ export function Input({value}: {value: InputProps}) {
             <InputLabel text= {value.inputLabelName}/>
             <input
                 {...value.register}
-                className= "w-full p-2 border rounded-lg mt-1"
+                className= "w-full p-2 border rounded-lg"
                 style= {value.style}
                 name= {value.name}
                 type={value.type}

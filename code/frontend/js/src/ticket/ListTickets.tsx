@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
-import { useLoggedInState } from "../user/Session";
+import { useLoggedInState } from "../user/Session.tsx";
 import React from "react";
 import { TicketItem } from "../Models";
 

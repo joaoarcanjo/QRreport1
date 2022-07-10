@@ -65,8 +65,8 @@ export type Person = {
     phone: string,
     email: string,
     state: string,
-    roles: Role[],
-    skills?: Skill[],
+    roles: string[],
+    skills?: string[],
     timestamp: Date,
     numberOfReports?: string,
     reportsRejected?: string
@@ -94,4 +94,11 @@ export type Device = {
     id: number,
     name: string,
     state: State
+}
+
+export type CategoryItem = {
+    id: number,
+    name: string,
+    state: string,
+    timestamp: Date
 }

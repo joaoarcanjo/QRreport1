@@ -27,10 +27,10 @@ data class PersonDto (
     val roles: List<String>,
     val skills: List<String>?,
     val companies: List<String>?,
-    val timestamp: Timestamp,
+    val timestamp: Timestamp?,
     val state: String,
     val reason: String?,
-    val bannedBy: UUID?,
+    val bannedBy: PersonDto?,
 )
 
 data class PersonDetailsDto(

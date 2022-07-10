@@ -5,11 +5,10 @@ import { emailInputForm, nameInputForm, passwordInputForm, passwordVerifyInputFo
 import { DisplayError } from "../Error";
 import { useFetch } from "../hooks/useFetch";
 import * as QRreport from '../models/QRJsonModel';
+import { BASE_URL_API } from "../Urls";
 import { Profile } from "./Profile";
 
-const BASE_URL = "http://localhost:8080"
-
-export function UpdateProfile({ action, setAction }: { action: QRreport.Action, setAction: React.Dispatch<React.SetStateAction<string>>}) {
+export function UpdateProfile({ action }: { action: QRreport.Action }) {
 
     type userData = {
         name: string, 
@@ -58,7 +57,7 @@ export function UpdateProfile({ action, setAction }: { action: QRreport.Action, 
             credentials: 'include',
             body: JSON.stringify(payload)
         })
-        setFetchUrl(BASE_URL + action.href) 
+        setFetchUrl(BASE_URL_API + action.href) 
     })
 
     function Inputs() {
@@ -76,15 +75,15 @@ export function UpdateProfile({ action, setAction }: { action: QRreport.Action, 
     
     return (
         <section className="info-section">
-            <div className="space-y-3">
+            <div className="grid place-items-center">
                 <Form onSubmitHandler = { onSubmitHandler }>
                     <Header heading='Update your account'>
                         <HeaderParagraph paragraph='Insert new credentials below'/>
                     </Header>
                     <Inputs/>
                     <SubmitButton text={'Update account'}/>
+                    <Paragraph value = {'(*) Required'}/>
                 </Form>
-                <Paragraph value = {'(*) Required'}/>
             </div>
         </section>
     )

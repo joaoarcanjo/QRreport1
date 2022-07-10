@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../../components/FormComponents";
-import { useLoggedInState } from "../Session";
+import { useLoggedInState } from "../Session.tsx";
 
 export default function LoginForm() {
 
@@ -42,7 +42,7 @@ export default function LoginForm() {
     //email and password
     return useLoggedInState()?.isLoggedIn ? <Navigate to={'/'}/> : (
         <section className="info-section">
-            <div className="space-y-3"> 
+            <div className="space-y-3 grid place-items-center"> 
                 <Form onSubmitHandler = { onSubmitHandler }>
                     <Header heading='Great to see you again'>
                         <HeaderParagraph paragraph='Insert your credentials below'/>
@@ -50,9 +50,9 @@ export default function LoginForm() {
                     <Input value = {emailInput}/>
                     <Input value = {passwordInput}/>
                     <SubmitButton text={'Login'}/>
+                    <CreateButton text={'Signup'} redirectUrl={'/signup'}/>
+                    <Paragraph value = {'(*) Required'}/>
                 </Form>
-                <CreateButton text={'Signup'} redirectUrl={'/signup'}/>
-                <Paragraph value = {'(*) Required'}/>
             </div>
         </section>
     )

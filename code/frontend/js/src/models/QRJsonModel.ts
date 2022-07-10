@@ -21,6 +21,12 @@ export type Link = {
     type: PropertyType,
     itemsType?: PropertyType,
     required?: boolean,
+    possibleValues?: PropertyValue
+}
+
+type PropertyValue = {
+    href: String | null,
+    values: any,
 }
 
 /**
