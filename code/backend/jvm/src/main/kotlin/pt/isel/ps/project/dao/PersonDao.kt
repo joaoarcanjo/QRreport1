@@ -17,8 +17,8 @@ interface PersonDao {
     @SqlCall("CALL create_person(:$PERSON_REP, :role, :name, :email, :password, :phone, :company, :skill);")
     fun createPerson(@BindBean person: CreatePersonEntity): OutParameters
 
-    @SqlQuery("SELECT get_person('4b341de0-65c0-4526-8898-24de463fc315', :reqPersonId);") // TODO: Diogo Novo | Admin
-    fun getPerson(reqPersonId: UUID): String
+    @SqlQuery("SELECT get_person(:reqPersonId, :personId);")
+    fun getPerson(reqPersonId: UUID, personId: UUID): String
 
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL update_person(:$PERSON_REP, :personId, :name, :phone, :email, :encPassword);")

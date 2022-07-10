@@ -149,7 +149,8 @@ object PersonResponses {
             href = Persons.makeAddSkill(personId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property(name = "skill", type = "number"),
+                QRreportJsonModel.Property(name = "skill", type = "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Categories.BASE_PATH)),
             ),
         )
 

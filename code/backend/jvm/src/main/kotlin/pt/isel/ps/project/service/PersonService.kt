@@ -45,8 +45,9 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun getPerson(user: AuthPerson, reqPersonId: UUID): PersonDetailsDto { // TODO <------------------------
-        return personDao.getPerson(reqPersonId).deserializeJsonTo()
+    fun getPerson(user: AuthPerson, reqPersonId: UUID): PersonDetailsDto {
+        if (!isManager(user) && !isAdmin(user) && !isSamePerson(user, reqPersonId)) throw ForbiddenException(ACCESS_DENIED)
+        return personDao.getPerson(user.id, reqPersonId).deserializeJsonTo()
     }
 
     fun updatePerson(user: AuthPerson, personId: UUID, person: UpdatePersonEntity): PersonItemDto {

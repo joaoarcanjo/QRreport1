@@ -25,7 +25,7 @@ object Errors {
     object Forbidden {
         val TYPE = URI("/errors/forbidden")
         val STATUS = HttpStatus.FORBIDDEN
-
+        const val SQL_TYPE = "resource-permission-denied"
         object Message {
             const val ACCESS_DENIED = "Forbidden access, not enough permissions to access the required resource."
             const val CHANGE_DENIED = "Forbidden access, not enough permissions to change the required resource."

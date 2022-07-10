@@ -165,22 +165,26 @@ RETURNS JSON
 AS
 $$
 DECLARE
-    pstate TEXT; req_role TEXT; res_role TEXT; is_profile BOOL = FALSE;
+    pstate TEXT; req_role TEXT; res_roles TEXT[]; is_profile BOOL = FALSE;
 BEGIN
     req_role = get_person_active_role(req_person_id);
-    res_role = get_person_active_role(res_person_id);
+    res_roles = get_person_roles(res_person_id);
 
     CASE
         -- Equal ids means access to own profile OR admin accessing profile of another admin or manager
-        WHEN (req_person_id = res_person_id OR (req_role = 'admin' AND (res_role = 'manager' OR res_role = 'admin'))) THEN
+        WHEN (req_person_id = res_person_id OR (req_role = 'admin' AND ('admin' = ANY(res_roles) OR 'manager' = ANY(res_roles)))) THEN
             pstate = get_person_state(req_person_id);
             IF (req_person_id = res_person_id AND (pstate = 'banned' OR pstate = 'inactive')) THEN
-                RAISE 'inactive-or-banned-person-access' USING DETAIL = pstate;
+                RAISE 'change-inactive-or-banned-person';
             END IF;
             is_profile = TRUE;
-        WHEN (req_role = 'employee' OR (req_role = 'manager'AND (res_role = 'manager' OR res_role = 'admin'))) THEN
-            -- Employees can't access anyone's profile other than their own
-            -- Managers cannot access to data of other managers or admins
+        WHEN (req_role = 'manager'AND ('admin' = ANY(res_roles) AND 'manager' != ANY(res_roles))) THEN
+            -- Managers cannot access to data of other managers (different company) or admins
+            RAISE 'resource-permission-denied';
+        WHEN (req_role = 'manager' AND 'manager' = ANY(res_roles)
+                  AND NOT EXISTS(SELECT company FROM PERSON_COMPANY WHERE person = req_person_id AND company IN
+                      (SELECT company FROM PERSON_COMPANY WHERE person = res_person_id))) THEN
+            -- A manager is trying to access a profile of a manager in a different company
             RAISE 'resource-permission-denied';
         ELSE
         -- A manager or admin is accessing the profile of an employee or guest/user
@@ -468,7 +472,7 @@ END$$LANGUAGE plpgsql;
   * Returns the representation of the changes made
   * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
   */
-CREATE OR REPLACE PROCEDURE add_skill_to_employee(person_rep OUT JSON, person_id UUID, skill INT)
+CREATE OR REPLACE PROCEDURE add_skill_to_employee(person_rep OUT JSON, person_id UUID, skill BIGINT)
 AS
 $$
 BEGIN
@@ -491,7 +495,7 @@ END$$LANGUAGE plpgsql;
   * Returns the representation of the changes made
   * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
   */
-CREATE OR REPLACE PROCEDURE remove_skill_from_employee(person_rep OUT JSON, person_id UUID, skill INT)
+CREATE OR REPLACE PROCEDURE remove_skill_from_employee(person_rep OUT JSON, person_id UUID, skill BIGINT)
 AS
 $$
 BEGIN

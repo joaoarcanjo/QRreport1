@@ -36,6 +36,7 @@ import pt.isel.ps.project.exception.Errors.InactiveBannedPerson
 import pt.isel.ps.project.exception.Errors.PersonBan
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills
 import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_SKILLS
@@ -316,6 +317,14 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 buildExceptionResponse(
                     TYPE,
                     COMPANY_PERSON_ROLES,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            Forbidden.SQL_TYPE -> Forbidden.run {
+                buildExceptionResponse(
+                    TYPE,
+                    ACCESS_DENIED,
                     requestUri,
                     STATUS,
                 )
