@@ -2,6 +2,11 @@ package pt.isel.ps.project.model.representations
 
 const val DEFAULT_PAGE = 1
 const val QUERY_PAGE_KEY = "page"
+const val DEFAULT_SORT = "date"
+const val QUERY_SORT_KEY = "sort_by"
+const val DEFAULT_DIRECTION = "desc"
+const val QUERY_DIRECTION_KEY = "direction"
+const val QUERY_SEARCH_KEY = "search"
 
 data class CollectionModel(
     val pageIndex: Int,

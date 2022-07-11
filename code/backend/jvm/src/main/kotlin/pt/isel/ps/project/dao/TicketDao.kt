@@ -11,11 +11,12 @@ import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 import pt.isel.ps.project.model.ticket.ChangeTicketStateEntity
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.TicketEmployeeEntity
+import java.util.*
 
 interface TicketDao {
 
-    @SqlQuery("SELECT get_tickets('0a8b83ec-7675-4467-91e5-33e933441eee', null, null, null, null, null, null, null, null);")
-    fun getTickets(): String
+    @SqlQuery("SELECT get_tickets(:personId, null, null, :sort_by, :direction, null, null, null, null);")
+    fun getTickets(personId: UUID, direction: String, sort_by: String): String
 
     @SqlQuery("SELECT get_ticket(:ticketId, null, null);")
     fun getTicket(ticketId: Long): String

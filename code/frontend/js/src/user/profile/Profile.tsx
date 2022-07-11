@@ -15,6 +15,8 @@ import { Roles } from './UserRoles';
 import { FireAction } from './FireAction';
 import { BanAction } from './BanAction';
 import { useLoggedInState } from '../Session';
+import { Loading } from '../../components/Various';
+import { MdOutlineLogout } from 'react-icons/md';
 
 export function Profile() {
     
@@ -31,14 +33,19 @@ export function Profile() {
     const [action, setAction] = useState<QRreport.Action | undefined>(undefined)
     //Used when any action need to send some payload
     const [auxInfo, setAuxInfo] = useState('')
+    const [isLogout, setLogout] = useState(false)
 
     const { isFetching, isCanceled, cancel, result, error } = useFetch<Person>(BASE_URL_API + PERSON_URL_API(personId), init)
 
-    if (isFetching) return <p>Fetching...</p>
+    if (isFetching) return <Loading/>
     if (isCanceled) return <p>Canceled</p>
     if (error !== undefined) {
         console.log(error)
         return <DisplayError error={error}/>
+    }
+    if(isLogout) {
+        userSession?.logout()
+        return <Navigate to='/'/>
     }
 
     switch (action?.name) {
@@ -143,11 +150,17 @@ export function Profile() {
                             src="https://media.istockphoto.com/photos/hot-air-balloons-flying-over-the-botan-canyon-in-turkey-picture-id1297349747?b=1&k=20&m=1297349747&s=170667a&w=0&h=oH31fJty_4xWl_JQ4OIQWZKP8C6ji9Mz7L4XmEnbqRU="
                             alt=""/>
                     </div>
-
                     <div>
                         <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                             <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{person.name.split(' ')[0]}</span>
-                            <UpdateAction action={actions?.find(action => action.name === 'update-person')}/>
+                            <UpdateAction action={actions?.find(action => action.name === 'update-person')}/> 
+                        <div>
+                        <div className="flex justify-end">
+                            <button onClick={() => setLogout(true)} className="flex items-center text-white bg-red-700 hover:bg-red-800 rounded-lg px-2">
+                                <MdOutlineLogout/> Logout
+                            </button>
+                        </div>
+                    </div>
                         </div>
                         <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                             <UserState state={person.state}/>

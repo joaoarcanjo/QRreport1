@@ -68,7 +68,7 @@ class AuthController(private val jwtConfig: JwtConfig, private val secretKey: Se
     }
 
     @PostMapping(LOGOUT_PATH)
-    fun logout(@RequestBody loginDto: LoginDto, request: HttpServletRequest, response: HttpServletResponse) {
+    fun logout(/*@RequestBody loginDto: LoginDto,*/ request: HttpServletRequest, response: HttpServletResponse) {
         when (getOriginRequestHeader(request)) {
             ORIGIN_WEBAPP -> response.addHeader(
                 HttpHeaders.SET_COOKIE,

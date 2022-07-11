@@ -253,12 +253,13 @@ END$$ LANGUAGE plpgsql;
  * Gets all the tickets
  * Returns a list with all the tickets item representation
  */
+
 CREATE OR REPLACE FUNCTION get_tickets(
     person_id UUID,
     limit_rows INT DEFAULT NULL,
     skip_rows INT DEFAULT NULL,
     sort_by TEXT DEFAULT 'date',
-    direction TEXT DEFAULT 'DESC',
+    direction TEXT DEFAULT 'desc',
     company_name TEXT DEFAULT NULL,
     building_name TEXT DEFAULT NULL,
     room_name TEXT DEFAULT NULL,
@@ -299,10 +300,10 @@ BEGIN
                 ELSE t.id > 0
             END
         ORDER BY
-            CASE WHEN direction='DESC' AND sort_by='date' THEN creation_timestamp END DESC,
-            CASE WHEN direction='ASC' AND sort_by='date'  THEN creation_timestamp END ASC,
-            CASE WHEN direction='DESC' AND sort_by='name' THEN t.subject END DESC,
-            CASE WHEN direction='ASC' AND sort_by='name'  THEN t.subject END ASC
+            CASE WHEN direction='desc' AND sort_by='date' THEN creation_timestamp END DESC,
+            CASE WHEN direction='asc' AND sort_by='date'  THEN creation_timestamp END ASC,
+            CASE WHEN direction='desc' AND sort_by='name' THEN t.subject END DESC,
+            CASE WHEN direction='asc' AND sort_by='name'  THEN t.subject END ASC
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         tickets = array_append(

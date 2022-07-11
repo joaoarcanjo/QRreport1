@@ -41,7 +41,7 @@ function AppRouter() {
                 <Route path="/signup" element= {<SignupForm/>}/>
                 <Route path="/qrcode/:hash" element= {<FormValidator/>}/>
                 <Route path="/persons/:personId" element= {<Profile/>}/>
-                <Route path="/tickets" element= {<ListTickets/>}/>
+                <Route path="/persons/:personId/tickets/" element= {<ListTickets/>}/>
                 <Route path="/managerTickets" element= {<ManagerTickets/>}/>
                 <Route path="/deliveTicket/:id" element= {<DeliverTicket/>}/>
                 <Route path="/employees" element= {<ListEmployees/>}/>
@@ -101,7 +101,7 @@ function App() {
         logout: () => {
             userSessionRepo.logout().then(response => {
                 if(response === 200) {
-                    sessionStorage.setItem(SESSION_KEY, JSON.stringify(false))
+                    setLoggedIn(false)
                 }
             })
         }

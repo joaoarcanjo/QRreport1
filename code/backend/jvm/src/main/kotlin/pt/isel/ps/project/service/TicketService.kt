@@ -3,6 +3,7 @@ package pt.isel.ps.project.service
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Isolation
 import org.springframework.transaction.annotation.Transactional
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.TicketDao
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.InternalServerException
@@ -16,8 +17,8 @@ import pt.isel.ps.project.util.deserializeJsonTo
 class TicketService(val ticketDao: TicketDao) {
 
     //@Transactional(isolation = Isolation.READ_COMMITTED)
-    fun getTickets(): TicketsDto {
-        return ticketDao.getTickets().deserializeJsonTo()
+    fun getTickets(user: AuthPerson, direction: String, sort_by: String): TicketsDto {
+        return ticketDao.getTickets(user.id, direction, sort_by).deserializeJsonTo()
     }
 
     //@Transactional(isolation = Isolation.READ_COMMITTED)

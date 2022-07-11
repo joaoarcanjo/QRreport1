@@ -176,4 +176,12 @@ object Authorizations {
             throw ForbiddenException(CHANGE_DENIED)
         }
     }
+
+    object Ticket {
+        fun getTicketsAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+    }
 }

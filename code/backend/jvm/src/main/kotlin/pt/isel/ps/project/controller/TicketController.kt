@@ -2,8 +2,13 @@ package pt.isel.ps.project.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
+import pt.isel.ps.project.model.representations.DEFAULT_SORT
+import pt.isel.ps.project.model.representations.PaginationDto.Companion.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
@@ -22,8 +27,14 @@ import pt.isel.ps.project.service.TicketService
 class TicketController(private val service: TicketService) {
 
     @GetMapping(Tickets.BASE_PATH)
-    fun getTickets(): QRreportJsonModel {
-        return getTicketsRepresentation(service.getTickets(), 1)
+    fun getTickets(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        @RequestParam(defaultValue = DEFAULT_DIRECTION) direction: String,
+        @RequestParam(defaultValue = DEFAULT_SORT) sort_by: String,
+        user: AuthPerson
+    ): QRreportJsonModel {
+        getTicketsAuthorization(user)
+        return getTicketsRepresentation(service.getTickets(user, direction, sort_by), page)
     }
 
     @GetMapping(Tickets.SPECIFIC_PATH)

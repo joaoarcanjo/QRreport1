@@ -1,45 +1,67 @@
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useMemo, useState } from "react"
+import { Link, useParams } from "react-router-dom"
 import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
 import React from "react";
 import { TicketItem } from "../Models";
 import { useLoggedInState } from "../user/Session";
+import { useFetch } from "../hooks/useFetch";
+import { Collection } from "../pagination/CollectionPagination";
+import { BASE_URL_API, TICKETS_URL_API } from "../Urls";
+import { Loading } from "../components/Various";
+import { DisplayError } from "../Error";
+import { Entity } from "../models/QRJsonModel";
+import { getEntitiesOrUndefined } from "../models/ModelUtils"
 
 export function ListTickets() {
 
-    //with false, direction is desc, else is asc
-    const [direction, setDirections] = useState(false)
+    const [direction, setDirection] = useState('desc')
+    const [sortBy, setSortBy] = useState('date')
+    const [search, setSearch] = useState<string | undefined>(undefined)
 
-    React.useEffect(()=> {
-        fetch("http://localhost:8080/v1/tickets")
-            .then(async response => {
-                console.log(await response.json())
-            })
-    },[])
+    //todo: initValues will be the same for all get requests
+    const initValues: RequestInit = {
+        credentials: 'include',
+        headers: { 'Request-Origin': 'WebApp' }
+    }
+
+    const init = useMemo(() => initValues ,[])
+
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(TICKETS_URL_API(sortBy, direction), init)
+    if (isFetching) return <Loading/>
+    if (isCanceled) return <p>Canceled</p>
+    if (error !== undefined) {
+        console.log(error)
+        return <DisplayError error={error}/>
+    }
 
     function Filters() {
+
+        const [directionAux, setDirectionAux] = useState(direction)
+        const [sortByAux, setSortByAux] = useState(sortBy)
+
         return (
             <div className='flex w-full gap-4'>
-                <select className='border rounded-lg'>
+                <select className='border rounded-lg' onChange={value => setSortByAux(value.target.value)}>
                     <option value='date'>Date</option>
                     <option value='name'>Name</option>
-                </select>        
+                </select>       
                 <button 
                     className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
-                    onClick= {() => setDirections(!direction)}>
-                    {direction && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
-                    {!direction && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
+                    onClick= {() => { setDirectionAux(directionAux === 'desc' ? 'asc' : 'desc') }}>
+                    {directionAux === 'desc' && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
+                    {directionAux === 'asc' && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
                 </button>     
-                <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'>
+                <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
+                        onClick= {() => {setDirection(directionAux); setSortBy(sortByAux) }}>
                     <MdFilterList style= {{ color: 'white', fontSize: '2em' }} /> 
-                    Filter
                 </button>
             </div>    
         )
     }
 
-    function TicketItemComponent({ticket}: {ticket: TicketItem}) {
+    function TicketItemComponent({entity}: {entity: Entity<TicketItem>}) {
+        const ticket = entity.properties
 
         const [moreInfo, showMoreInfo] = useState<boolean>(false)
 
@@ -74,22 +96,23 @@ export function ListTickets() {
         )
     }
 
-    function Tickets({tickets}: {tickets: TicketItem[]}) {
-        return <> {tickets.map((ticket, idx) => <TicketItemComponent key= {idx} ticket= {ticket}/>)} </>
+    function ListTickets({ entities }: { entities?: Entity<TicketItem>[]}) {
+        if (!entities) return null
+        return (
+            <>
+                {entities.map((entity, idx) => {
+                    if (entity.class.includes('ticket') && entity.rel?.includes('item')) {
+                        return <TicketItemComponent key={idx} entity={entity}/>
+                    }
+                })}
+            </>
+        )
     }
-
-    const ticketsMocks = [
-        {'id': 1, 'subject': 'Torneira avariada', 'employeeState': 'Employee State', 'userState': 'UserState'},
-        {'id': 2, 'subject': 'Torneira suja', 'employeeState': 'Employee State', 'userState': 'UserState'},
-        {'id': 3, 'subject': 'Parede mal cheirosa e cheia de bolor que nojo', 'employeeState': 'Employee State', 'userState': 'UserState'},
-        {'id': 4, 'subject': 'Chão partido', 'employeeState': 'Employee State', 'userState': 'UserState'},
-        {'id': 5, 'subject': 'Cadeira partida', 'employeeState': 'Employee State', 'userState': 'UserState'}
-    ]
 
     return (
         <div className='px-3 pt-3 space-y-4'>
             <Filters/>
-            <Tickets tickets={ticketsMocks}/>
+            <ListTickets entities={getEntitiesOrUndefined(result?.body)}/>
         </div>
     )
 }

@@ -7,8 +7,7 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.Pagination.PAGE_TY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.TYPE_MISMATCH_REQ_QUERY
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
-import pt.isel.ps.project.model.representations.DEFAULT_PAGE
-import pt.isel.ps.project.model.representations.QUERY_PAGE_KEY
+import pt.isel.ps.project.model.representations.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -29,6 +28,13 @@ class QueryParamsValidatorInterceptor: HandlerInterceptor {
         } catch (e: NumberFormatException) {
             throwInvalidParameterException()
         }
+
+        val direction = request.getParameter(QUERY_DIRECTION_KEY) ?: DEFAULT_DIRECTION
+        if (direction != "asc" && direction != "desc") throwInvalidParameterException()
+
+        val sortBy = request.getParameter(QUERY_SORT_KEY) ?: DEFAULT_SORT
+        if (sortBy != "name" && sortBy != "date") throwInvalidParameterException()
+
         return true
     }
 }
