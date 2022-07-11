@@ -22,6 +22,7 @@ export async function loginUser(email: string, password: string): Promise<Respon
 }
 
 export async function logoutUser(): Promise<number> {
+  console.log("logout called")
   const response = await fetch("http://localhost:8080/v1/logout",  
   { 
      method: "POST",

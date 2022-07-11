@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../components/FormComponents";
-import { emailInputForm, nameInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm } from "../components/FormInputs";
-import { DisplayError } from "../Error";
-import { useFetch } from "../hooks/useFetch";
-import * as QRreport from '../models/QRJsonModel';
-import { BASE_URL_API } from "../Urls";
+import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../../components/form/FormComponents";
+import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm, simpleInputForm } from "../../components/form/FormInputs";
+import { DisplayError } from "../../Error";
+import { useFetch } from "../../hooks/useFetch";
+import * as QRreport from '../../models/QRJsonModel';
+import { BASE_URL_API } from "../../Urls";
 import { Profile } from "./Profile";
 
 export function UpdateProfile({ action }: { action: QRreport.Action }) {
@@ -59,15 +59,19 @@ export function UpdateProfile({ action }: { action: QRreport.Action }) {
         })
         setFetchUrl(BASE_URL_API + action.href) 
     })
-
+//(register: any, errors: any, isRequired: boolean | undefined, name: string, type: string): InputProps => {
     function Inputs() {
 
         let componentsInputs = action.properties.map(prop => {
             switch (prop.name) {
-                case 'name': return <Input value={nameInputForm(register, errors, prop.required)}/>
-                case 'phone': return <Input value={phoneInputForm(register, errors, prop.required)}/>
-                case 'email': return <Input value={emailInputForm(register, errors, prop.required)}/>
-                case 'password': return <><Input value={passwordInputForm(register, errors, prop.required)}/><Input value={passwordVerifyInputForm(register, errors, getValues, prop.required)}/></>
+                case 'name': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
+                case 'phone': return <Input value={phoneInputForm(register, errors, prop.required, prop.name)}/>
+                case 'email': return <Input value={emailInputForm(register, errors, prop.required, prop.name)}/>
+                case 'password': return (
+                    <>
+                        <Input value={passwordInputForm(register, errors, prop.required, prop.name)}/>
+                        <Input value={passwordVerifyInputForm(register, errors, getValues, prop.required)}/>
+                    </>)
             }
         })
         return <>{componentsInputs}</>

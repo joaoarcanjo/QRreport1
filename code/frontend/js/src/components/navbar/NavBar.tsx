@@ -1,9 +1,9 @@
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 //import { useLoggedInState } from "../authentication/Session
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Style.css"
-import { useLoggedInState } from "../../user/Session.tsx";
+import { useLoggedInState } from "../../user/Session";
 
 export default function NavBar() {
 
@@ -23,15 +23,18 @@ export default function NavBar() {
 
     return (
         <header>
-            <h3>QRreport</h3>
+            <>
+            <Link to='/'>
+                <h3>QRreport</h3>
+            </Link>
             <nav ref={navRef} className="flex items-center">
-                <NavElement navTo='/' text='Home'/>
                 {!userSession?.isLoggedIn && <NavElement navTo='login' text='Login'/>}
                 {userSession?.isLoggedIn && <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>}
-                <NavElement navTo='managerTickets' text='Manager tickets'/>
-                <NavElement navTo='persons' text='Persons'/>
-                <NavElement navTo='employees' text='Employees'/>
-                <NavElement navTo='companies' text='Companies'/>
+                {userSession?.isLoggedIn && <NavElement navTo='managerTickets' text='Manager tickets'/>}
+                {userSession?.isLoggedIn && <NavElement navTo='persons' text='Persons'/>}
+                {userSession?.isLoggedIn && <NavElement navTo='employees' text='Employees'/>}
+                {userSession?.isLoggedIn && <NavElement navTo='companies' text='Companies'/>}
+                {userSession?.isLoggedIn && <NavElement navTo='logout' text='Logout'/>}
                 <button className='nav-btn nav-close-btn'>
                     <FaTimes onClick={showNavbar}/>
                 </button>
@@ -39,6 +42,7 @@ export default function NavBar() {
             <button className='nav-btn'>
                 <FaBars onClick={showNavbar}/>
             </button>
+            </>
         </header>
     )
 }

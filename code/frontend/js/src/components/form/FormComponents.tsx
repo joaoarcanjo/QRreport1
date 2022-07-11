@@ -8,11 +8,14 @@ type HeaderProps = {
 }
 
 export type OptionsType = { 
-    value: string,
+    value: any,
     label: string
 }
 
 export type OptionsProps = {
+    optionsText: string,
+    otherValueText?: string,
+    defaultOtherValue?: any,
     register: UseFormRegisterReturn,
     options?: OptionsType[]
 }
@@ -87,7 +90,7 @@ export function CreateButton({text, redirectUrl}: CreateButtonProps) {
     )
 }
 
-export function InputLabel ({text}: {text:string}) {
+export function InputLabel({text}: {text:string}) {
     return (
         <label className="text-sm font-bold text-gray-600 block">
             {text}
@@ -95,18 +98,18 @@ export function InputLabel ({text}: {text:string}) {
     )
 }
 
-export function Options ({value}: {value: OptionsProps}) {
+export function Options({value}: {value: OptionsProps}) {
     const options = value.options?.map((option, idx) => {
         return <option key={idx} value={option.label}>{option.value}</option>
     })
-
     return (
         <>
-            <InputLabel text={'Choose an anomaly:'}/>
+            <InputLabel text={value.optionsText}/>
             <select {...value.register} 
-                className= "w-full p-2 border rounded-lg mt-1">
+                className= "w-full p-2 border rounded-lg">
                 {options}
-                <option value={'other value'}>Other problem...</option>
+                {value.otherValueText !== undefined && 
+                <option value={value.defaultOtherValue}>{value.otherValueText}</option>}
             </select>
         </>
     )
@@ -142,7 +145,7 @@ export function TextArea({value}: {value: TextAreaProps}) { //está a dar um war
             <InputLabel text= {value.textAreaLabelName}/>
             <textarea 
                 {...value.register} 
-                className="w-full p-2 border rounded-lg mt-1" 
+                className="w-full p-2 border rounded-lg" 
                 style= {value.style}>
                 {value.text}
             </textarea>

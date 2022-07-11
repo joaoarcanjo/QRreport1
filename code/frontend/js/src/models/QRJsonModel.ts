@@ -25,7 +25,7 @@ export type Link = {
 }
 
 type PropertyValue = {
-    href: String | null,
+    href: string | null,
     values: any,
 }
 

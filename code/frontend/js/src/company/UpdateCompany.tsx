@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/FormComponents";
+import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/form/FormComponents";
 
 export function UpdateCompany() {
 

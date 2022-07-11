@@ -3,7 +3,6 @@ import { MdExpandLess, MdExpandMore, MdFilterList } from "react-icons/md"
 import { TbArrowBigDown, TbArrowBigTop } from "react-icons/tb"
 import { Link } from "react-router-dom"
 import { Company } from "../Models"
-import { useLoggedInState } from "../user/Session.tsx"
 
 export function ListCompanies() {
     

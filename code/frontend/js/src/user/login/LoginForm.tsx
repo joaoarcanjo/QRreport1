@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
-import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../../components/FormComponents";
-import { useLoggedInState } from "../Session.tsx";
+import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../../components/form/FormComponents";
+import { useLoggedInState } from "../Session";
 
 export default function LoginForm() {
 

@@ -1,4 +1,4 @@
-import { Form, Header, HeaderParagraph, Input, InputProps, Options, OptionsProps, OptionsType, SubmitButton, TextArea, TextAreaProps } from '../components/FormComponents'
+import { Form, Header, HeaderParagraph, Input, InputProps, Options, OptionsProps, OptionsType, SubmitButton, TextArea, TextAreaProps } from '../components/form/FormComponents'
 import { useForm } from 'react-hook-form'
 
 type formTicketProps = {
@@ -24,13 +24,13 @@ export default function FormTicket({hash, possibleAnomalies}: formTicketProps) {
     const onSubmitHandler = handleSubmit(({ subject , description, anomaly, name, phone, email }) => {
         const payload: any = {}
         
-        if (description !== undefined && anomaly === 'other value' && description.length !== 0) {
+        if (description !== undefined && anomaly === 'empty' && description.length !== 0) {
             payload['description'] = description
         }
         if (phone !== undefined && phone.length !== 0) {
             payload['phone'] = phone
         }
-        payload['subject'] = anomaly === 'other value' ? subject : anomaly
+        payload['subject'] = anomaly === 'empty' ? subject : anomaly
         payload['hash'] = hash
         payload['name'] = name
         payload['email'] = email
@@ -41,8 +41,11 @@ export default function FormTicket({hash, possibleAnomalies}: formTicketProps) {
     })
 
     const anomaliesOptions: OptionsProps = {
+        optionsText: 'Choose an anomaly:',
+        otherValueText: 'Other problem...',
         register: register("anomaly", { required: true }),
-        options: possibleAnomalies
+        options: possibleAnomalies,
+        defaultOtherValue: 'empty'
     }
 
     const subjectInput: InputProps = {

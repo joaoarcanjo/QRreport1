@@ -8,10 +8,9 @@ import LoginForm from './user/login/LoginForm';
 import SignupForm from './user/signup/SignupForm';
 import FormValidator from './ticket/TicketValidator';
 import { useEffect, useState } from 'react';
-import { SESSION_KEY, NAME_KEY, ROLE_KEY, createRepository, LoggedInContext } from './user/Session';
-import { Profile } from './user/Profile';
+import { Profile } from './user/profile/Profile';
 import { ListTickets } from './ticket/ListTickets';
-import { UpdateProfile } from './user/UpdateProfile';
+import { UpdateProfile } from './user/profile/UpdateProfile';
 import { ManagerTickets } from './ticket/ManagerTickets';
 import { DeliverTicket } from './ticket/DeliverTicket';
 import { ListPersons } from './user/ListUsers';
@@ -26,6 +25,8 @@ import { UpdateBuilding } from './building/UpdateBuilding';
 import { CreateCompany } from './company/CreateCompany';
 import { CreateBuilding } from './building/CreateBuilding';
 import { CreateRoom } from './room/CreateRoom';
+import { createRepository, LoggedInContext, NAME_KEY, ROLE_KEY, SESSION_KEY } from './user/Session';
+import { Logout } from './user/logout';
 
 const userSessionRepo = createRepository()
 
@@ -36,6 +37,7 @@ function AppRouter() {
             <Routes>
                 <Route path="/" element= {<Home/>}/>
                 <Route path="/login" element= {<LoginForm/>}/>
+                <Route path="/logout" element= {<Logout/>}/>
                 <Route path="/signup" element= {<SignupForm/>}/>
                 <Route path="/qrcode/:hash" element= {<FormValidator/>}/>
                 <Route path="/persons/:personId" element= {<Profile/>}/>
@@ -99,7 +101,7 @@ function App() {
         logout: () => {
             userSessionRepo.logout().then(response => {
                 if(response === 200) {
-                    setLoggedIn(false)
+                    sessionStorage.setItem(SESSION_KEY, JSON.stringify(false))
                 }
             })
         }

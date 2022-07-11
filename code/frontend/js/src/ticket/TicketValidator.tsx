@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { OptionsType } from "../components/FormComponents";
+import { OptionsType } from "../components/form/FormComponents";
 import FormTicket from "./TicketForm";
 
 export default function FormValidator() {

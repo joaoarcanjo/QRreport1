@@ -150,8 +150,10 @@ object Uris {
     object Persons {
         const val BASE_PATH = "$VERSION/persons"
         const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
-        const val FIRE_PATH = "${Companies.SPECIFIC_PATH}/persons/{personId}/fire"
-        const val REHIRE_PATH = "${Companies.SPECIFIC_PATH}/persons/{personId}/rehire"
+        private const val BASE_FIRE_PATH = "/persons/{personId}/fire"
+        private const val BASE_REHIRE_PATH = "/persons/{personId}/rehire"
+        const val FIRE_PATH = "${Companies.SPECIFIC_PATH}$BASE_FIRE_PATH"
+        const val REHIRE_PATH = "${Companies.SPECIFIC_PATH}$BASE_REHIRE_PATH"
         const val BAN_PATH = "$SPECIFIC_PATH/ban"
         const val UNBAN_PATH = "$SPECIFIC_PATH/unban"
         const val ADD_ROLE_PATH = "$SPECIFIC_PATH/add-role"
@@ -162,8 +164,8 @@ object Uris {
         const val PERSONS_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
-        private val FIRE_TEMPLATE = UriTemplate(FIRE_PATH)
-        private val REHIRE_TEMPLATE = UriTemplate(REHIRE_PATH)
+        private val FIRE_TEMPLATE = UriTemplate(BASE_FIRE_PATH)
+        private val REHIRE_TEMPLATE = UriTemplate(BASE_REHIRE_PATH)
         private val BAN_TEMPLATE = UriTemplate(BAN_PATH)
         private val UNBAN_TEMPLATE = UriTemplate(UNBAN_PATH)
         private val ADD_ROLE_TEMPLATE = UriTemplate(ADD_ROLE_PATH)
@@ -172,8 +174,8 @@ object Uris {
         private val REMOVE_SKILL_TEMPLATE = UriTemplate(REMOVE_SKILL_PATH)
         private val ASSIGN_COMPANY_TEMPLATE = UriTemplate(ASSIGN_COMPANY_PATH)
         fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
-        fun makeFire(personId: UUID) = FIRE_TEMPLATE.expand(mapOf("companyId" to 1, "personId" to personId)).toString()
-        fun makeRehire(personId: UUID) = REHIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
+        fun makeFire(personId: UUID) = Companies.SPECIFIC_PATH + FIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
+        fun makeRehire(personId: UUID) = Companies.SPECIFIC_PATH + REHIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
         fun makeBan(id: UUID) = BAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeUnban(id: UUID) = UNBAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeAddRole(id: UUID) = ADD_ROLE_TEMPLATE.expand(mapOf("personId" to id)).toString()
