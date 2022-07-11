@@ -78,6 +78,9 @@ import pt.isel.ps.project.model.room.RoomEntity.ROOM_FLOOR
 import pt.isel.ps.project.model.room.RoomEntity.ROOM_NAME
 import pt.isel.ps.project.model.room.RoomEntity.ROOM_NAME_MAX_CHARS
 import pt.isel.ps.project.model.room.UpdateRoomEntity
+import pt.isel.ps.project.model.state.States.ACTIVE
+import pt.isel.ps.project.model.state.States.BANNED
+import pt.isel.ps.project.model.state.States.INACTIVE
 import pt.isel.ps.project.model.ticket.CreateTicketEntity
 import pt.isel.ps.project.model.ticket.TicketEntity.MAX_RATE
 import pt.isel.ps.project.model.ticket.TicketEntity.MIN_RATE
@@ -444,7 +447,10 @@ object Validator {
 
         fun isSamePerson(user: AuthPerson, reqPersonId: UUID) = user.id == reqPersonId
 
-        fun userHasCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull { it.id == companyId } != null
+        fun belongsToCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull { it.id == companyId } != null
+
+        fun isBuildingManager(user: AuthPerson, buildingId: Long) =
+            user.companies?.firstOrNull { it.id == buildingId && it.manages?.contains(buildingId) ?: false } != null
 
         fun verifyAddRoleInput(input: AddRoleToPersonEntity): Boolean {
             if ((input.role == EMPLOYEE || input.role == MANAGER) && input.company == null)
@@ -492,6 +498,12 @@ object Validator {
             fun isEmployee(user: AuthPerson) = user.activeRole.compareTo(EMPLOYEE) == 0
             fun isManager(user: AuthPerson) = user.activeRole.compareTo(MANAGER) == 0
             fun isAdmin(user: AuthPerson) = user.activeRole.compareTo(ADMIN) == 0
+        }
+
+        object States {
+            fun isInactive(state: String) = state.compareTo(INACTIVE) == 0
+            fun isActive(state: String) = state.compareTo(ACTIVE) == 0
+            fun isBanned(state: String) = state.compareTo(BANNED) == 0
         }
     }
 }

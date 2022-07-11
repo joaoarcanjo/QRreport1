@@ -37,7 +37,12 @@ data class SignupDto(
     val confirmPassword: String,
 )
 
-data class AuthItem(val id: Long, val name: String)
+data class AuthCompany(
+    val id: Long,
+    val name: String,
+    val state: String,
+    val manages: List<Long>?,
+)
 
 const val ORIGIN_HEADER = "Request-Origin"
 const val ORIGIN_MOBILE = "Mobile"
@@ -51,7 +56,7 @@ data class AuthPerson(
     val email: String,
     val activeRole: String,
     val skills: List<String>?,
-    val companies: List<AuthItem>?,
+    val companies: List<AuthCompany>?,
     val timestamp: Timestamp,
     val state: String,
     val reason: String?,

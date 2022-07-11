@@ -1,6 +1,8 @@
 package pt.isel.ps.project.exception
 
 import org.springframework.http.HttpStatus
+import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.BUILDING_MANAGER_COMPANY
+import pt.isel.ps.project.exception.Errors.InvalidRole.Message.BUILDING_MANAGER_ROLE
 import java.net.URI
 
 object Errors {
@@ -29,6 +31,7 @@ object Errors {
         object Message {
             const val ACCESS_DENIED = "Forbidden access, not enough permissions to access the required resource."
             const val CHANGE_DENIED = "Forbidden access, not enough permissions to change the required resource."
+            const val CREATION_DENIED = "Forbidden access, not enough permissions to create the required resource."
             const val MANAGER_CREATE_PERSON = "A manager can only add another manager or an employee."
             const val MANAGER_CREATE_PERSON_COMPANY = "A manager can only add a person to a company that belongs."
             const val UPDATE_PERSON = "You can only update your own profile."
@@ -224,6 +227,34 @@ object Errors {
         const val SQL_TYPE = "company-persons"
         object Message {
             const val COMPANY_PERSON_ROLES = "Only an employee or a manager can be assigned to a company."
+        }
+    }
+
+    object InvalidRole {
+        val TYPE = URI("/errors/invalid-role")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "invalid-role"
+
+        object Message {
+            const val BUILDING_MANAGER_ROLE = "The building manager must have the manager role."
+        }
+
+        val mapDetails = HashMap<String, String>().apply {
+            put("building-manager", BUILDING_MANAGER_ROLE)
+        }
+    }
+
+    object InvalidCompany {
+        val TYPE = URI("/errors/invalid-company")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "invalid-company"
+
+        object Message {
+            const val BUILDING_MANAGER_COMPANY = "The building manager must belong to the building company."
+        }
+
+        val mapDetails = HashMap<String, String>().apply {
+            put("building-manager", BUILDING_MANAGER_COMPANY)
         }
     }
 

@@ -11,7 +11,7 @@ DECLARE
     building_id BIGINT = 1;
     building_name TEXT = 'Building name test';
     building_floors INT = 12;
-    building_state TEXT = 'Active';
+    building_state TEXT = 'active';
     building_timestamp TIMESTAMP;
     building_rep JSON;
 BEGIN
@@ -44,12 +44,12 @@ DECLARE
     floors INT = 12;
     company_id BIGINT = 1;
     manager UUID = 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057';
-    state TEXT = 'Active';
+    state TEXT = 'active';
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Building creation test |---';
 
-    CALL create_building(company_id, name, floors, manager, building_rep);
+    CALL create_building(building_rep, company_id, name, floors, manager);
     id = building_rep->>'id';
     IF (
         assert_json_is_not_null(building_rep, 'id') AND
@@ -86,13 +86,13 @@ DECLARE
 BEGIN
     RAISE INFO '---| Building creation, throws unique_building_name test |---';
 
-    CALL create_building(company_id, name, floors, manager, building_rep);
+    CALL create_building(building_rep, company_id, name, floors, manager);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN unique_violation THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'unique_building_name') THEN
+        IF (ex_constraint = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -100,7 +100,7 @@ EXCEPTION
 END$$;
 
 /*
- * Tests the creation of a new building, throws manager_not_valid
+ * Tests the creation of a new building, throws invalid-role
  * -> Doesn't have the manager role
  */
 DO
@@ -113,15 +113,15 @@ DECLARE
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Building creation throws manager_not_valid, does not have the manager role test |---';
+    RAISE INFO '---| Building creation throws invalid-role, does not have the manager role test |---';
 
-    CALL create_building(company_id, name, floors, manager, building_rep);
+    CALL create_building(building_rep, company_id, name, floors, manager);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'manager_not_valid') THEN
+        IF (ex_constraint = 'invalid-role') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -142,15 +142,15 @@ DECLARE
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Building creation throws manager_not_valid, belongs to other company test |---';
+    RAISE INFO '---| Building creation throws invalid-company, belongs to other company test |---';
 
-    CALL create_building(company_id, name, floors, manager, building_rep);
+    CALL create_building(building_rep, company_id, name, floors, manager);
 
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'manager_not_valid') THEN
+        IF (ex_constraint = 'invalid-company') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -171,7 +171,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building name and floors test |---';
 
-    CALL update_building(company_id, id, building_rep, name, floors);
+    CALL update_building(building_rep, company_id, id, name, floors);
 
     IF (
         assert_json_value(building_rep, 'name', name) AND
@@ -197,7 +197,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building name test |---';
 
-    CALL update_building(company_id, id, building_rep, new_name:= name);
+    CALL update_building(building_rep, company_id, id, new_name:= name);
 
     IF (assert_json_value(building_rep, 'name', name)) THEN
         RAISE INFO '-> Test succeeded!';
@@ -220,7 +220,7 @@ DECLARE
 BEGIN
     RAISE INFO '---| Update building floors test |---';
 
-    CALL update_building(company_id, id, building_rep, new_floors:= floors);
+    CALL update_building(building_rep, company_id, id, new_floors:= floors);
 
     IF (assert_json_value(building_rep, 'floors', floors::TEXT)) THEN
         RAISE INFO '-> Test succeeded!';
@@ -228,31 +228,6 @@ BEGIN
         RAISE EXCEPTION '-> Test failed!';
     END IF;
     ROLLBACK;
-END$$;
-
-/*
- * Tests update with both parameters with null values, throws update_parameters_all_null
- */
-DO
-$$
-DECLARE
-    id BIGINT = 1;
-    company_id BIGINT = 1;
-    building_rep JSON;
-    ex_constraint TEXT;
-BEGIN
-    RAISE INFO '---| Update building, throws update_parameters_all_null test |---';
-
-     CALL update_building(company_id, id, building_rep);
-    RAISE EXCEPTION '-> Test failed!';
-EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'update_parameters_all_null') THEN
-            RAISE INFO '-> Test succeeded!';
-        ELSE
-            RAISE EXCEPTION '-> Test failed!';
-        END IF;
 END$$;
 
 /*
@@ -267,14 +242,14 @@ DECLARE
     name TEXT = 'A.v2.0';
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Update building, throws building_not_found test |---';
+    RAISE INFO '---| Update building, throws resource-not-found test |---';
 
-     CALL update_building(company_id, id, building_rep, new_name := name);
+     CALL update_building(building_rep, company_id, id, new_name := name);
      RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'building_not_found') THEN
+        IF (ex_constraint = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -287,20 +262,20 @@ END$$;
 DO
 $$
 DECLARE
-    id BIGINT = 4;
-    company_id BIGINT = 2;
+    id BIGINT = 3;
+    company_id BIGINT = 1;
     building_rep JSON;
     name TEXT = 'A.v2.0';
     ex_constraint TEXT;
 BEGIN
     RAISE INFO '---| Update building, throws inactive_building test |---';
 
-    CALL update_building(company_id, id, building_rep, new_name := name);
+    CALL update_building(building_rep, company_id, id, new_name := name);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'inactive_building') THEN
+        IF (ex_constraint = 'inactive-resource') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -319,14 +294,14 @@ DECLARE
     name TEXT = 'A';
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Update building, throws unique_building_name test |---';
+    RAISE INFO '---| Update building, throws unique-constraint test |---';
 
-    CALL update_building(company_id, id, building_rep, new_name := name);
+    CALL update_building(building_rep, company_id, id, new_name := name);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN unique_violation THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'unique_building_name') THEN
+        IF (ex_constraint = 'unique-constraint') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -339,7 +314,7 @@ END$$;
 DO
 $$
 DECLARE
-    buildings_col_size INT = 2;
+    buildings_col_size INT = 3;
     company_id BIGINT = 1;
     building_rep JSON;
 BEGIN
@@ -365,7 +340,7 @@ DECLARE
     company_id BIGINT = 1;
     return_rep JSON;
     rooms_rep JSON;
-    rooms_col_size INT = 3;
+    rooms_col_size INT = 2;
 BEGIN
     RAISE INFO '---| Get building test |---';
 
@@ -401,7 +376,7 @@ BEGIN
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'building_not_found') THEN
+        IF (ex_constraint = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -416,12 +391,12 @@ $$
 DECLARE
     id BIGINT = 1;
     company_id BIGINT = 1;
-    state TEXT = 'Inactive';
+    state TEXT = 'inactive';
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Building deactivation test |---';
 
-    CALL deactivate_building(company_id, id, building_rep);
+    CALL deactivate_building(building_rep, company_id, id);
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
         assert_json_value(building_rep, 'state', state) AND
@@ -435,7 +410,7 @@ BEGIN
 END$$;
 
 /*
- * Tests the exception thrown when the building id does not exist, throws building_not_found
+ * Tests the exception thrown when the building id does not exist, throws resource-not-found
  */
 DO
 $$
@@ -445,14 +420,14 @@ DECLARE
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Deactivate building, throws building_not_found test |---';
+    RAISE INFO '---| Deactivate building, throws resource-not-found test |---';
 
-    CALL deactivate_building(company_id, id, building_rep);
+    CALL deactivate_building(building_rep, company_id, id);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'building_not_found') THEN
+        IF (ex_constraint = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -465,14 +440,14 @@ END$$;
 DO
 $$
 DECLARE
-    id BIGINT = 4;
-    company_id BIGINT = 2;
-    state TEXT = 'Active';
+    id BIGINT = 3;
+    company_id BIGINT = 1;
+    state TEXT = 'active';
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Building activation test |---';
 
-    CALL activate_building(company_id, id, building_rep);
+    CALL activate_building(building_rep, company_id, id);
 
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
@@ -487,7 +462,7 @@ BEGIN
 END$$;
 
 /*
- * Tests the exception thrown when the building id does not exist, throws building_not_found
+ * Tests the exception thrown when the building id does not exist, throws resource-not-found
  */
 DO
 $$
@@ -497,14 +472,14 @@ DECLARE
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Activate building, throws building_not_found test |---';
+    RAISE INFO '---| Activate building, throws resource-not-found test |---';
 
-    CALL activate_building(company_id, id, building_rep);
+    CALL activate_building(building_rep, company_id, id);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'building_not_found') THEN
+        IF (ex_constraint = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -517,14 +492,14 @@ END$$;
 DO
 $$
 DECLARE
-    id BIGINT = 1;
+    id BIGINT = 2;
     company_id BIGINT = 1;
-    new_manager UUID = '996aff17-9d5c-48d4-b178-da7463e85652';
+    new_manager UUID = '4b341de0-65c0-4526-8898-24de463fc315';
     building_rep JSON;
 BEGIN
     RAISE INFO '---| Changing manager test |---';
 
-    CALL change_building_manager(company_id, id, new_manager, building_rep);
+    CALL change_building_manager(building_rep, company_id, id, new_manager);
     IF (
         assert_json_value(building_rep, 'id', id::TEXT) AND
         assert_json_value(building_rep, 'manager', new_manager::TEXT)
@@ -537,7 +512,7 @@ BEGIN
 END$$;
 
 /*
- * Tests the exception thrown when changing for a invalid manager, throws manager_not_valid
+ * Tests the exception thrown when changing for a invalid manager, throws invalid-company
  * -> Belongs to other company, but have the manager role
  */
 DO
@@ -549,14 +524,14 @@ DECLARE
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Activate building, throws manager_not_valid test |---';
+    RAISE INFO '---| Activate building, throws invalid-company test |---';
 
-    CALL change_building_manager(company_id, id, new_manager, building_rep);
+    CALL change_building_manager(building_rep, company_id, id, new_manager);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'manager_not_valid') THEN
+        IF (ex_constraint = 'invalid-company') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -564,7 +539,7 @@ EXCEPTION
 END$$;
 
 /*
- * Tests the exception thrown when changing for a invalid manager, throws manager_not_valid
+ * Tests the exception thrown when changing for a invalid manager, throws invalid-role
  * -> Doesn't have the manager role
  */
 DO
@@ -572,18 +547,18 @@ $$
 DECLARE
     id BIGINT = 1;
     company_id BIGINT = 1;
-    new_manager UUID = '4b341de0-65c0-4526-8898-24de463fc315';
+    new_manager UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Activate building, throws manager_not_valid test |---';
+    RAISE INFO '---| Activate building, throws invalid-role test |---';
 
-    CALL change_building_manager(company_id, id, new_manager, building_rep);
+    CALL change_building_manager(building_rep, company_id, id, new_manager);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'manager_not_valid') THEN
+        IF (ex_constraint = 'invalid-role') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -603,16 +578,16 @@ DECLARE
 BEGIN
     RAISE INFO '---| Trigger -> Change rooms states test |---';
 
-    UPDATE BUILDING SET state = 'Inactive' WHERE id = building_id AND company = company_id
+    UPDATE BUILDING SET state = 'inactive' WHERE id = building_id AND company = company_id
     RETURNING state INTO building_state;
 
-    IF (building_state != 'Inactive') THEN
+    IF (building_state != 'inactive') THEN
             RAISE EXCEPTION '-> Test failed!';
     END IF;
     FOR rec IN
         SELECT state FROM ROOM WHERE building = building_id
     LOOP
-        IF (building_state != 'Inactive') THEN
+        IF (rec.state != 'inactive') THEN
             RAISE EXCEPTION '-> Test failed!';
         END IF;
     END LOOP;

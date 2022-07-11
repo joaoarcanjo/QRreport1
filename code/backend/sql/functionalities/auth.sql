@@ -3,7 +3,39 @@
  */
 
 /**
-  * Auxiliary function to build the JSON object with the representation of an authenticated person
+  * Auxiliary function to get the buildings that a person manages inside a certain company
+  */
+CREATE OR REPLACE FUNCTION get_manager_buildings(person_id UUID, company_id BIGINT)
+RETURNS BIGINT[] AS
+$$
+DECLARE
+BEGIN
+    RETURN (SELECT array_agg(id) FROM BUILDING WHERE company = company_id AND manager = person_id);
+END$$LANGUAGE plpgsql;
+
+/**
+  * Auxiliary function to build the companies item for each authenticated person
+  */
+CREATE OR REPLACE FUNCTION get_person_auth_companies_item(person_id UUID)
+RETURNS JSON[] AS
+$$
+DECLARE rec RECORD; companies JSON[];
+BEGIN
+    FOR rec IN
+        SELECT company, state, (SELECT name FROM COMPANY WHERE id = pc.company) AS name
+        FROM PERSON_COMPANY pc WHERE person = person_id
+    LOOP
+        companies = array_append(
+            companies,
+            json_build_object('id', rec.company, 'name', rec.name, 'state', rec.state,
+                'manages', get_manager_buildings(person_id, rec.company))
+        );
+    END LOOP;
+    RETURN companies;
+END$$LANGUAGE plpgsql;
+
+/**
+  *  function to build the JSON object with the representation of an authenticated person
   */
 CREATE OR REPLACE FUNCTION auth_representation(person_id UUID)
 RETURNS JSON AS
@@ -17,7 +49,7 @@ BEGIN
 
     RETURN json_build_object('id', person_id, 'name', pname, 'phone', pphone, 'email', pemail,
         'activeRole', get_person_active_role(person_id), 'state', pstate, 'timestamp', ptimestamp, 'reason', preason,
-        'skills', get_employee_skills(person_id), 'companies', get_person_companies_with_id(person_id));
+        'skills', get_employee_skills(person_id), 'companies', get_person_auth_companies_item(person_id));
 END$$LANGUAGE plpgsql;
 
 /**

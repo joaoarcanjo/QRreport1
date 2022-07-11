@@ -4,7 +4,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.Uris.Companies.Buildings
 import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
@@ -18,21 +20,26 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.getRoomsRepresentation
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.States.isInactive
+import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
 object BuildingResponses {
-    const val BUILDING_MAX_PAGE_SIZE = 10
+    const val BUILDING_PAGE_MAX_SIZE = 10
 
     object Actions {
         fun createBuilding(companyId: Long) = QRreportJsonModel.Action(
             name = "create-building",
             title = "Create building",
             method = HttpMethod.POST,
-            href = Uris.Companies.Buildings.makeBase(companyId),
+            href = Buildings.makeBase(companyId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("name", "string"),
                 QRreportJsonModel.Property("floors", "number"),
-                QRreportJsonModel.Property("managerId", "string")
+                QRreportJsonModel.Property("managerId", "string",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH))
+                    // TODO: Make path to get only managers inside a specific company
             )
         )
 
@@ -40,35 +47,35 @@ object BuildingResponses {
             name = "update-building",
             title = "Update building",
             method = HttpMethod.PUT,
-            href = Uris.Companies.Buildings.makeSpecific(companyId, buildingId),
+            href = Buildings.makeSpecific(companyId, buildingId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("name", "string"),
-                QRreportJsonModel.Property("floors", "number")
+                QRreportJsonModel.Property("name", "string", required = false),
+                QRreportJsonModel.Property("floors", "number", required = false)
             )
         )
 
         fun activateBuilding(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "activate-building",
             title = "Activate building",
-            method = HttpMethod.PUT,
-            href = Uris.Companies.Buildings.makeSpecific(companyId, buildingId)
+            method = HttpMethod.POST,
+            href = Buildings.makeSpecific(companyId, buildingId)
         )
 
         fun deactivateBuilding(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "deactivate-building",
             title = "Deactivate building",
-            method = HttpMethod.PUT,
-            href = Uris.Companies.Buildings.makeSpecific(companyId, buildingId)
+            method = HttpMethod.POST,
+            href = Buildings.makeSpecific(companyId, buildingId)
         )
 
         fun changeBuildingManager(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "change-building-manager",
             title = "Change building manager",
             method = HttpMethod.PUT,
-            href = Uris.Companies.Buildings.makeManager(companyId, buildingId),
+            href = Buildings.makeManager(companyId, buildingId),
             type = MediaType.APPLICATION_JSON.toString(),
-            properties = listOf(QRreportJsonModel.Property("managerId", "string", required = true))
+            properties = listOf(QRreportJsonModel.Property("managerId", "string"))
         )
     }
 
@@ -76,7 +83,7 @@ object BuildingResponses {
         clazz = listOf(Classes.BUILDING),
         rel = rel,
         properties = building,
-        links = listOf(Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)))
+        links = listOf(Links.self(Buildings.makeSpecific(companyId, building.id)))
     )
 
     fun getBuildingsRepresentation(
@@ -93,80 +100,66 @@ object BuildingResponses {
                 getBuildingItem(companyId, it, listOf(Relations.ITEM))
             })
         },
-        actions = listOf(Actions.createBuilding(companyId)),
-        links = listOf(Links.self(Uris.Companies.Buildings.makeBase(companyId)), Links.tickets())
-    )
-
-    fun getBuildingRepresentation(companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
-        val building = buildingDto.building
-        return buildResponse(
-            QRreportJsonModel(
-                clazz = listOf(Classes.BUILDING),
-                properties = building,
-                entities = mutableListOf<QRreportJsonModel>().apply {
-                    add(getRoomsRepresentation(
-                        buildingDto.rooms,
-                        companyId,
-                        building.id,
-                        CollectionModel(
-                            0,
-                            if (ROOM_PAGE_MAX_SIZE < buildingDto.rooms.roomsCollectionSize)
-                                ROOM_PAGE_MAX_SIZE
-                            else
-                                buildingDto.rooms.roomsCollectionSize
-                            , buildingDto.rooms.roomsCollectionSize),
-                        listOf(Relations.BUILDING_ROOMS)))
-                    add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
-                },
-                actions = listOf(
-                    Actions.deactivateBuilding(companyId, building.id),
-                    Actions.activateBuilding(companyId, building.id),
-                    Actions.updateBuilding(companyId, building.id),
-                    Actions.changeBuildingManager(companyId, building.id)
-                ),
-                links = listOf(
-                    Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)),
-                    Links.buildings(companyId),
-                    Links.company(companyId)
-                )
-            )
-        )
-    }
-
-    fun updateBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
-        QRreportJsonModel(
-            clazz = listOf(Classes.BUILDING),
-            properties = building,
-            links = listOf(Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)))
-        )
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            add(Actions.createBuilding(companyId))
+        },
+        links = listOf(Links.self(Buildings.makeBase(companyId)))
     )
 
     fun createBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
             properties = building,
-            links = listOf(Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)))
+            links = listOf(Links.self(Buildings.makeSpecific(companyId, building.id)))
         ),
         HttpStatus.CREATED,
-        setLocationHeader(Uris.Companies.Buildings.makeSpecific(companyId, building.id))
+        setLocationHeader(Buildings.makeSpecific(companyId, building.id))
     )
 
-    fun deactivateBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
+    fun getBuildingRepresentation(companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
+        val building = buildingDto.building
+        return buildResponse(QRreportJsonModel(
+            clazz = listOf(Classes.BUILDING),
+            properties = building,
+            entities = mutableListOf<QRreportJsonModel>().apply {
+                add(getRoomsRepresentation(
+                    buildingDto.rooms,
+                    companyId,
+                    building.id,
+                    CollectionModel(1, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
+                    listOf(Relations.BUILDING_ROOMS)))
+                add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
+            },
+            actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                add(if (isInactive(buildingDto.building.state)) Actions.activateBuilding(companyId, building.id)
+                    else Actions.deactivateBuilding(companyId, building.id))
+                Actions.updateBuilding(companyId, building.id)
+                Actions.changeBuildingManager(companyId, building.id)
+
+            },
+            links = listOf(
+                Links.self(Buildings.makeSpecific(companyId, building.id)),
+                Links.company(companyId)
+            )
+        ))
+    }
+
+    fun updateBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
+        QRreportJsonModel(
+            clazz = listOf(Classes.BUILDING),
+            properties = building,
+            links = listOf(Links.self(Buildings.makeSpecific(companyId, building.id)))
+        )
+    )
+
+    fun deactivateActivateBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
             properties = building,
             links = listOf(
-                Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)),
-                Links.buildings(companyId) //todo: alterar na documentação, o rel está companies em vez de buildings
+                Links.self(Buildings.makeSpecific(companyId, building.id)),
+                Links.company(companyId)
             )
-        )
-    )
-
-    fun activateBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
-        QRreportJsonModel(
-            clazz = listOf(Classes.BUILDING),
-            properties = building,
-            links = listOf(Links.self(Uris.Companies.Buildings.makeSpecific(companyId, building.id)))
         )
     )
 
@@ -174,7 +167,7 @@ object BuildingResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
             properties = buildingManager,
-            links = listOf(Links.self(Uris.Companies.Buildings.makeSpecific(companyId, buildingManager.id)))
+            links = listOf(Links.self(Buildings.makeSpecific(companyId, buildingManager.id)))
         )
     )
 }

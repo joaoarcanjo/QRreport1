@@ -4,7 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
-import pt.isel.ps.project.auth.AuthItem
+import pt.isel.ps.project.auth.AuthCompany
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_TOKEN
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
@@ -38,7 +38,7 @@ object JwtValidator {
                 body.get("email", String::class.java),
                 body.get("activeRole", String::class.java),
                 body["skills"] as ArrayList<String>?,
-                body["companies"] as ArrayList<AuthItem>?,
+                body["companies"] as ArrayList<AuthCompany>?,
                 Timestamp(body["timestamp"] as Long),
                 body.get("state", String::class.java),
                 body.get("reason", String::class.java),

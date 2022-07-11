@@ -36,8 +36,12 @@ import pt.isel.ps.project.exception.Errors.InactiveBannedPerson
 import pt.isel.ps.project.exception.Errors.PersonBan
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills
 import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles
+import pt.isel.ps.project.exception.Errors.InvalidRole
+import pt.isel.ps.project.exception.Errors.InvalidCompany
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
+import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.BUILDING_MANAGER_COMPANY
+import pt.isel.ps.project.exception.Errors.InvalidRole.Message.BUILDING_MANAGER_ROLE
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_SKILLS
 import pt.isel.ps.project.exception.Errors.PersonBan.Message.MANAGER_BAN_PERMS
@@ -325,6 +329,22 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 buildExceptionResponse(
                     TYPE,
                     ACCESS_DENIED,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            InvalidRole.SQL_TYPE -> InvalidRole.run {
+                buildExceptionResponse(
+                    TYPE,
+                    mapDetails[error.detail]!!,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            InvalidCompany.SQL_TYPE -> InvalidCompany.run {
+                buildExceptionResponse(
+                    TYPE,
+                    mapDetails[error.detail]!!,
                     requestUri,
                     STATUS,
                 )

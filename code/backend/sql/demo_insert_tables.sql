@@ -41,18 +41,19 @@ BEGIN;
         ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'); -- Zé Manuel(employee), ISEL
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
-        ('A', 4, 'Active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
-        ('F', 6, 'Active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'); -- Pedro Miguens, ISEL
+        ('A', 4, 'active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
+        ('F', 6, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Pedro Miguens, ISEL
+        ('Z', 6, 'inactive', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'); -- Pedro Miguens, ISEL
 
     INSERT INTO ROOM(name, floor, state, building) VALUES
-        ('1 - Bathroom', 1, 'Active', 1),
-        ('2', 1, 'Active', 1),
-        ('1', 1, 'Active', 2);
+        ('1 - Bathroom', 1, 'active', 1),
+        ('2', 1, 'active', 1),
+        ('1', 1, 'active', 2);
 
     INSERT INTO DEVICE(name, state, category) VALUES
-        ('Toilet1', 'Active', 1),
-        ('Lights', 'Active', 2),
-        ('Faucet', 'Active', 1);
+        ('Toilet1', 'active', 1),
+        ('Lights', 'active', 2),
+        ('Faucet', 'active', 1);
 
     INSERT INTO ANOMALY(id, device, anomaly) VALUES
         (1, 1, 'The flush doesn''t work'),

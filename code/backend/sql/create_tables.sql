@@ -20,7 +20,7 @@ BEGIN;
     (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL CONSTRAINT company_name_max_length CHECK ( char_length(name) <= 50 ),
-        phone TEXT, -- TODO: check if there are only digits, put UNIQUE constraint
+        phone TEXT,
         email TEXT NOT NULL
             CONSTRAINT unique_person_email UNIQUE
             CONSTRAINT valid_person_email_format CHECK ( email LIKE '%@%' )
@@ -38,7 +38,7 @@ BEGIN;
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT building_name_max_length CHECK ( char_length(name) <= 50 ),
         floors SMALLINT NOT NULL,
-        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_building_state CHECK ( state IN ('Active', 'Inactive') ),
+        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_building_state CHECK ( state IN ('active', 'inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         company BIGINT NOT NULL REFERENCES COMPANY(id),
         manager UUID NOT NULL REFERENCES PERSON(id)
@@ -48,8 +48,8 @@ BEGIN;
     (
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT room_name_max_length CHECK ( char_length(name) <= 50 ),
-        floor SMALLINT NOT NULL, -- TODO: Verificar se está dentro dos floors de building
-        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_room_state CHECK ( state IN ('Active', 'Inactive') ),
+        floor SMALLINT NOT NULL,
+        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_room_state CHECK ( state IN ('active', 'inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         building BIGINT NOT NULL REFERENCES BUILDING(id)
     );
@@ -80,7 +80,7 @@ BEGIN;
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
         name TEXT NOT NULL CONSTRAINT unique_device_name UNIQUE
             CONSTRAINT device_name_max_length CHECK ( char_length(name) <= 50 ),
-        state TEXT NOT NULL DEFAULT 'Active' CONSTRAINT valid_device_state CHECK ( state IN ('Active', 'Inactive') ),
+        state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_device_state CHECK ( state IN ('active', 'inactive') ),
         category BIGINT NOT NULL REFERENCES CATEGORY(id),
         timestamp  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );

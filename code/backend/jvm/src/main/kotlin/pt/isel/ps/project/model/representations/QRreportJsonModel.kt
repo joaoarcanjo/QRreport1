@@ -31,6 +31,7 @@ class QRreportJsonModel(
         val title: String,
         val method: HttpMethod,
         val href: String,
+        val templated: Boolean? = null,
         val type: String? = null,
         val properties: List<Property>? = null,
     )

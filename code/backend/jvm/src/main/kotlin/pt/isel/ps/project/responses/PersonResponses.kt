@@ -88,6 +88,7 @@ object PersonResponses {
             title = "Rehire person",
             method = HttpMethod.POST,
             href = Persons.makeRehire(personId),
+            templated = true,
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",
@@ -100,6 +101,7 @@ object PersonResponses {
             title = "Fire person",
             method = HttpMethod.POST,
             href = Persons.makeFire(personId),
+            templated = true,
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",

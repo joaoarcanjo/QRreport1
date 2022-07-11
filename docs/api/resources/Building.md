@@ -71,8 +71,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" },
-        { "rel": [ "company" ], "href": "/companies/1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" }
     ]
 }
 ```
@@ -205,7 +204,7 @@ Status: 200 OK
                         "state": "active"
                     },
                     "links": [
-                        { "rel": [ "self" ], "href": "/rooms/1"}
+                        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1"}
                     ]
                 }
             ],
@@ -232,7 +231,10 @@ Status: 200 OK
             "properties": {
                 "id": "cf128ed3-0d65-42d9-8c96-8ff2e05b3d08",
                 "name": "José Bonifácio",
-                "email": "joca@gmail.com"
+                "phone": "962561654",
+                "email": "joca@gmail.com",
+                "roles": [ "manager" ],
+                "state": "active"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/persons/cf128ed3-0d65-42d9-8c96-8ff2e05b3d08" }
@@ -243,7 +245,7 @@ Status: 200 OK
         {
             "name": "deactivate-building",
             "title": "Deactivate building",
-            "method": "PUT",
+            "method": "POST",
             "href": "/buildings/1"
         },
         {
@@ -258,8 +260,8 @@ Status: 200 OK
             ]
         },
         {
-            "name": "change-manager",
-            "title": "Change manager",
+            "name": "change-building-manager",
+            "title": "Change building manager",
             "method": "PUT",
             "href": "/companies/1/buildings/1/manager",
             "type": "application/json",
@@ -271,7 +273,6 @@ Status: 200 OK
     ],
     "links": [
         { "rel": [ "self" ], "href": "/companies/1/buildings/1" },
-        { "rel": [ "buildings" ], "href": "/companies/1/buildings" },
         { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
@@ -303,7 +304,7 @@ PUT /companies/{companyId}/buildings/{buildingId}
 | `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
-| `name` | string | body | no | New name for the building. |
+| `name` | string | body | no | New name for the building, must be **unique** inside the company. |
 | `floors` | number | body | no | New number of floors. |
 
 **Notice:** At least one of the body parameters **should** be inserted.
@@ -343,7 +344,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **inactive-resource**
+* `types`: **inactive-resource**, **unique-constraint**
 
 ```http
 Status: 415 Unsupported Media Type
@@ -353,7 +354,7 @@ Status: 415 Unsupported Media Type
 Deactivate a certain building.
 
 ```http
-PUT /companies/{companyId}/buildings/{buildingId}/deactivate
+POST /companies/{companyId}/buildings/{buildingId}/deactivate
 ```
 
 ### Parameters
@@ -380,7 +381,7 @@ Status: 200 OK
     },
     "links": [
         { "rel": [ "self" ], "href": "/companies/1/buildings/1" },
-        { "rel": [ "companies" ], "href": "/companies/1/buildings" }
+        { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
 ```
@@ -402,7 +403,7 @@ Status: 404 Not Found
 Activate a certain building.
 
 ```http
-PUT /companies/{companyId}/buildings/{buildingId}/activate
+POST /companies/{companyId}/buildings/{buildingId}/activate
 ```
 
 ### Parameters
@@ -428,7 +429,8 @@ Status: 200 OK
         "timestamp": "2022-06-20 12:42:12415"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/companies/1/buildings/1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1" },
+        { "rel": [ "company" ], "href": "/companies/1" }
     ]
 }
 ```
@@ -504,7 +506,7 @@ Status: 415 Unsupported Media Type
 | `id` | number | **Unique** and **stable** identifier of the building. **Unique for each company, but not globally.** |
 | `name` | string | Name of the building. |
 | `floors` | number | Number of floors of the building. |
-| `state` | string | Current state of the building, the possible values are `Active` or `Inactive`. |
+| `state` | string | Current state of the building, the possible values are `active` or `inactive`. |
 | `timestamp` | string | Timestamp of the moment that the building state changed to the current state. |
 | `manager` | string | Identifier of the building manager (uuid).
 

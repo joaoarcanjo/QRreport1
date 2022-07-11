@@ -108,7 +108,7 @@ BEGIN
     END IF;
 
     CASE
-        WHEN (cstate = 'inactive' ) THEN
+        WHEN (cstate = 'inactive') THEN
             RAISE 'inactive-resource';
         WHEN (new_name = current_name) THEN
             -- Does not update when the names are the same, returns the representation with the same values.

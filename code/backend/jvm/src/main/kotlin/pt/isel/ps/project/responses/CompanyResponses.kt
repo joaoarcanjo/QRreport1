@@ -12,12 +12,11 @@ import pt.isel.ps.project.model.company.removeBuildings
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.model.state.States.INACTIVE
-import pt.isel.ps.project.responses.BuildingResponses.BUILDING_MAX_PAGE_SIZE
+import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
 import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.Relations
-import pt.isel.ps.project.responses.Response.buildCollectionLinks
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
@@ -107,7 +106,7 @@ object CompanyResponses {
                 getBuildingsRepresentation(
                     company.buildings,
                     company.id,
-                    CollectionModel(1, BUILDING_MAX_PAGE_SIZE, company.buildingsCollectionSize ?: 0),
+                    CollectionModel(1, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
                     listOf(Relations.COMPANY_BUILDINGS)
                 )
             ),

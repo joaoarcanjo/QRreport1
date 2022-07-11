@@ -117,19 +117,63 @@ object Authorizations {
         fun updateCompanyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun deactivateCompanyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CHANGE_DENIED)
         }
 
         fun activateCompanyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+    }
+
+    object Building {
+        fun getBuildingsAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createBuildingAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun getBuildingAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun updateBuildingAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deactivateBuildingAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun activateBuildingAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun changeBuildingManagerAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
         }
     }
 }

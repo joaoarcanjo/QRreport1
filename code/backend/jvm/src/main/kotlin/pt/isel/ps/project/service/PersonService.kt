@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.PersonDao
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
-import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.UPDATE_PERSON
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.Errors.PersonBan.Message.WRONG_PERSON_BAN
@@ -20,7 +19,7 @@ import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Person.isSamePerson
-import pt.isel.ps.project.util.Validator.Person.userHasCompany
+import pt.isel.ps.project.util.Validator.Person.belongsToCompany
 import pt.isel.ps.project.util.Validator.Person.verifyAddRoleInput
 import pt.isel.ps.project.util.Validator.Person.verifyCreatePersonInput
 import pt.isel.ps.project.util.Validator.Person.verifyManagerCreationPermissions
@@ -64,14 +63,14 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
     }
 
     fun firePerson(user: AuthPerson, personId: UUID, companyId: Long, info: FireBanPersonEntity): PersonDto {
-        if (isManager(user) && (isSamePerson(user, personId) || !userHasCompany(user, companyId)))
+        if (isManager(user) && (isSamePerson(user, personId) || !belongsToCompany(user, companyId)))
             throw PersonDismissalException(WRONG_PERSON_DISMISSAL)
         val personDto = personDao.firePerson(personId, companyId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     fun rehirePerson(user: AuthPerson, personId: UUID, companyId: Long): PersonDto {
-        if (isManager(user) && (isSamePerson(user, personId) || !userHasCompany(user, companyId)))
+        if (isManager(user) && (isSamePerson(user, personId) || !belongsToCompany(user, companyId)))
             throw PersonDismissalException(WRONG_PERSON_DISMISSAL)
         val personDto = personDao.rehirePerson(personId, companyId).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)

@@ -2,15 +2,23 @@ package pt.isel.ps.project.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.Authorizations.Building.activateBuildingAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.changeBuildingManagerAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.createBuildingAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.deactivateBuildingAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.getBuildingAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.getBuildingsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Building.updateBuildingAuthorization
+import pt.isel.ps.project.model.Uris.Companies.Buildings
 import pt.isel.ps.project.model.building.*
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
-import pt.isel.ps.project.responses.BuildingResponses.BUILDING_MAX_PAGE_SIZE
-import pt.isel.ps.project.responses.BuildingResponses.activateBuildingRepresentation
+import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.BuildingResponses.changeBuildingManagerRepresentation
 import pt.isel.ps.project.responses.BuildingResponses.createBuildingRepresentation
-import pt.isel.ps.project.responses.BuildingResponses.deactivateBuildingRepresentation
+import pt.isel.ps.project.responses.BuildingResponses.deactivateActivateBuildingRepresentation
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingRepresentation
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
 import pt.isel.ps.project.responses.BuildingResponses.updateBuildingRepresentation
@@ -19,63 +27,84 @@ import pt.isel.ps.project.service.BuildingService
 @RestController
 class BuildingController(private val service: BuildingService) {
 
-    @GetMapping(Uris.Companies.Buildings.BASE_PATH)
-    fun getBuildings(@PathVariable companyId: Long): QRreportJsonModel {
-        val buildingsDto = service.getBuildings(companyId)
+    @GetMapping(Buildings.BASE_PATH)
+    fun getBuildings(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        @PathVariable companyId: Long,
+        user: AuthPerson,
+    ): QRreportJsonModel {
+        getBuildingsAuthorization(user)
+        val buildingsDto = service.getBuildings(user, companyId, page)
         return getBuildingsRepresentation(
             buildingsDto.buildings,
             companyId,
-            CollectionModel(1, BUILDING_MAX_PAGE_SIZE, buildingsDto.buildingsCollectionSize),
+            CollectionModel(page, BUILDING_PAGE_MAX_SIZE, buildingsDto.buildingsCollectionSize),
             null
         )
     }
 
-    @PostMapping(Uris.Companies.Buildings.BASE_PATH)
+    @PostMapping(Buildings.BASE_PATH)
     fun createBuilding(
         @PathVariable companyId: Long,
-        @RequestBody building: CreateBuildingEntity
+        @RequestBody building: CreateBuildingEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return createBuildingRepresentation(companyId,service.createBuilding(companyId, building))
+        createBuildingAuthorization(user)
+        return createBuildingRepresentation(companyId, service.createBuilding(user, companyId, building))
     }
 
-    @GetMapping(Uris.Companies.Buildings.SPECIFIC_PATH)
-    fun getBuilding(@PathVariable companyId: Long, @PathVariable buildingId: Long): ResponseEntity<QRreportJsonModel> {
-        return getBuildingRepresentation(companyId, service.getBuilding(companyId, buildingId))
+    @GetMapping(Buildings.SPECIFIC_PATH)
+    fun getBuilding(
+        @PathVariable companyId: Long,
+        @PathVariable buildingId: Long,
+        user: AuthPerson,
+    ): ResponseEntity<QRreportJsonModel> {
+        getBuildingAuthorization(user)
+        return getBuildingRepresentation(companyId, service.getBuilding(user, companyId, buildingId))
     }
 
-    @PutMapping(Uris.Companies.Buildings.SPECIFIC_PATH)
+    @PutMapping(Buildings.SPECIFIC_PATH)
     fun updateBuilding(
         @PathVariable companyId: Long,
         @PathVariable buildingId: Long,
-        @RequestBody building: UpdateBuildingEntity
+        @RequestBody building: UpdateBuildingEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return updateBuildingRepresentation(companyId, service.updateBuilding(companyId, buildingId, building))
+        updateBuildingAuthorization(user)
+        return updateBuildingRepresentation(companyId, service.updateBuilding(user, companyId, buildingId, building))
     }
 
-    @DeleteMapping(Uris.Companies.Buildings.SPECIFIC_PATH)
+    @PostMapping(Buildings.SPECIFIC_PATH)
     fun deactivateBuilding(
         @PathVariable companyId: Long,
-        @PathVariable buildingId: Long
+        @PathVariable buildingId: Long,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return deactivateBuildingRepresentation(companyId, service.deactivateBuilding(companyId, buildingId))
+        deactivateBuildingAuthorization(user)
+        return deactivateActivateBuildingRepresentation(companyId, service.deactivateBuilding(user, companyId, buildingId))
     }
 
-    @PutMapping(Uris.Companies.Buildings.ACTIVATE_PATH)
+    @PostMapping(Buildings.ACTIVATE_PATH)
     fun activateBuilding(
         @PathVariable companyId: Long,
-        @PathVariable buildingId: Long
+        @PathVariable buildingId: Long,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return activateBuildingRepresentation(companyId, service.activateBuilding(companyId, buildingId))
+        activateBuildingAuthorization(user)
+        return deactivateActivateBuildingRepresentation(companyId, service.activateBuilding(user, companyId, buildingId))
     }
 
-    @PutMapping(Uris.Companies.Buildings.MANAGER_PATH)
+    @PutMapping(Buildings.MANAGER_PATH)
     fun changeBuildingManager(
         @PathVariable companyId: Long,
         @PathVariable buildingId: Long,
-        @RequestBody manager: ChangeManagerEntity
+        @RequestBody manager: ChangeManagerEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
+        changeBuildingManagerAuthorization(user)
         return changeBuildingManagerRepresentation(
-            companyId, service.changeBuildingManager(companyId, buildingId, manager)
+            companyId,
+            service.changeBuildingManager(user, companyId, buildingId, manager)
         )
     }
 }
