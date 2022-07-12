@@ -28,7 +28,7 @@ GET /companies/{companyId}/buildings/{buildingId}/rooms
 | `companyId` | integer | path | yes | Identifier of the company. |
 | `buildingId` | integer | path | yes | Identifier of the building. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no | Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no | Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -39,8 +39,8 @@ Status: 200 OK
 {
     "class": [ "room", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -51,10 +51,11 @@ Status: 200 OK
                 "id": 1,
                 "name": "9",
                 "floor": 1,
-                "state": "Active"
+                "state": "active",
+                "timestamp": "2022-05-12 20:12:87632"
             },
             "links": [
-                { "rel": [ "self" ], "href": "/rooms/1" }
+                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" }
             ]
         }
     ],
@@ -72,7 +73,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=0" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=1" },
+        { "rel": [ "pagination" ], "href": "/companies/1/buildings/1/rooms{?page}", "templated": true }
     ]
 }
 ```
@@ -103,13 +105,13 @@ POST /companies/{companyId}/buildings/{buildingId}/rooms
 | `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
-| `name` | string | body |  yes | **Unique** name for the room inside the building. |
+| `name` | string | body |  yes | **Unique** name (not globally) for the room inside the building. |
 | `floor` | integer | body |  yes | Floor number of the room. |
 
 ### Response
 ```http
 Status: 201 Created
-Location: /rooms/{roomId}
+Location: /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}
 ```
 ```json
 {
@@ -118,10 +120,11 @@ Location: /rooms/{roomId}
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Active"
+        "state": "active",
+        "timestamp": "2022-05-12 13:26:87632"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" }
     ]
 }
 ```
@@ -146,12 +149,14 @@ Status: 409 Conflict
 Get a specific room.
 
 ```http
-GET /rooms/{roomId}
+GET /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomyId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
@@ -167,7 +172,7 @@ Status: 200 OK
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 20:26:87632"
     },
     "entities": [
@@ -176,7 +181,7 @@ Status: 200 OK
             "rel": [ "room-devices" ],
             "properties": {
                 "pageIndex": 0,
-                "pageSize": 1,
+                "pageMaxSize": 10,
                 "collectionSize": 1
             },
             "entities": [
@@ -186,19 +191,28 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "Toilet 1",
-                        "state": "Active"
+                        "state": "active",
+                        "timestamp": "2022-05-13 22:23:65423"
                     },
+                    "actions": [
+                        {
+                            "name": "remove-device",
+                            "title": "Remove device",
+                            "method": "DELETE",
+                            "href": "/companies/1/buildings/1/rooms/1/devices/1"
+                        }
+                    ],
                     "links": [
-                        { "rel": [ "self" ], "href": "/rooms/1/devices/1" }
+                        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1/devices/1" }
                     ]
                 }
             ],
             "actions": [
                 {
-                    "name": "add-device-to-room",
-                    "title": "Add a device to the room",
+                    "name": "add-room-device",
+                    "title": "Add device",
                     "method": "POST",
-                    "href": "/rooms/1/devices",
+                    "href": "/companies/1/buildings/1/rooms/1/devices",
                     "type": "application/json",
                     "properties": [
                         { "name": "device", "type": "number" }
@@ -206,7 +220,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/rooms/1/devices?page=0" }
+                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1/devices?page=1" },
+                { "rel": [ "pagination" ], "href": "/companies/1/buildings/1/rooms/1/devices{?page}", "templated": true }
             ]
         }
     ],
@@ -214,14 +229,14 @@ Status: 200 OK
         {
             "name": "deactivate-room",
             "title": "Deactivate room",
-            "method": "PUT",
-            "href": "/rooms/1"
+            "method": "POST",
+            "href": "/companies/1/buildings/1/rooms/1/deactivate"
         },
         {
             "name": "update-room",
             "title": "Update room",
             "method": "PUT",
-            "href": "/rooms/1",
+            "href": "/companies/1/buildings/1/rooms/1",
             "type": "application/json",
             "properties": [
                 { "name": "name", "type": "string" }
@@ -230,7 +245,7 @@ Status: 200 OK
     ],
     "links": [
         { "rel": [ "self" ], "href": "/rooms/1" },
-        { "rel": [ "rooms" ], "href": "/companies/1/buildings/1/rooms" }
+        { "rel": [ "building" ], "href": "/companies/1/buildings/1" }
     ]
 }
 ```
@@ -251,12 +266,14 @@ Status: 404 Not Found
 Update the name of a specific room.
 
 ```http
-PUT /rooms/{roomId}
+PUT /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
@@ -271,13 +288,14 @@ Status: 200 OK
 {
     "class": [ "room" ],
     "properties": {
-        "id": 1,
+        "id": 4,
         "name": "9 - Restroom",
         "floor": 1,
-        "state": "Active"
+        "state": "active",
+        "timestamp": "2022-05-13 22:23:65423"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/4" }
     ]
 }
 ```
@@ -296,18 +314,20 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **unique-constraint**, **inactive-entity**
+* `types`: **unique-constraint**, **inactive-resource**
 
 ## Add a device to a room
 Add a device to a specific room of a company building.
 
 ```http
-POST /room/{roomId}/devices
+POST /companies/{companyId}/buildings/{buildingId}/room/{roomId}/devices
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomId` | integer | path | yes | Identifier of the room. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `deviceId` | integer | body | yes | Identifier of the device to add to the room. |
@@ -315,7 +335,7 @@ POST /room/{roomId}/devices
 ### Response
 ```http
 Status: 201 Created
-Location: /room/{roomId}/devices/{deviceId}
+Location: /companies/{companyId}/buildings/{buildingId}/room/{roomId}
 ```
 
 ```json
@@ -325,7 +345,7 @@ Location: /room/{roomId}/devices/{deviceId}
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 23:20:32452"
     },
     "entities": [
@@ -335,7 +355,7 @@ Location: /room/{roomId}/devices/{deviceId}
             "properties": {
                 "id": 2,
                 "name": "Toilet 2",
-                "state": "Active"
+                "state": "active"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/devices/2" }
@@ -343,7 +363,7 @@ Location: /room/{roomId}/devices/{deviceId}
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/2" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" }
     ]
 }
 ```
@@ -364,12 +384,14 @@ Status: 404 Not Found
 Remove a device from a specific room of a company building.
 
 ```http
-DELETE /room/{roomId}/devices/{deviceId}
+DELETE /companies/{companyId}/buildings/{buildingId}/room/{roomId}/devices/{deviceId}
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomId` | integer | path | yes | Identifier of the room. |
 | `deviceId` | integer | path | yes | Identifier of the room device to remove. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
@@ -386,7 +408,7 @@ Status: 200 OK
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-12 23:20:32452"
     },
     "entities": [
@@ -396,7 +418,7 @@ Status: 200 OK
             "properties": {
                 "id": 2,
                 "name": "Toilet 2",
-                "state": "Active"
+                "state": "active"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/devices/2" }
@@ -404,7 +426,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" }
     ]
 }
 ```
@@ -425,12 +447,14 @@ Status: 404 Not Found
 Deactivate a specific room.
 
 ```http
-PUT /room/{roomId}/deactivate
+POST /companies/{companyId}/buildings/{buildingId}/room/{roomId}/deactivate
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
@@ -446,12 +470,12 @@ Status: 200 OK
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Inactive",
+        "state": "inactive",
         "timestamp": "2022-05-12 23:20:32452"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1" },
-        { "rel": [ "rooms" ], "href": "/companies/1/buildings/1/rooms" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" },
+        { "rel": [ "building" ], "href": "/companies/1/buildings/1" }
     ]
 }
 ```
@@ -472,12 +496,14 @@ Status: 404 Not Found
 Activate a specific room.
 
 ```http
-PUT /rooms/{roomId}/activate
+POST /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/activate
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:
+| `companyId` | integer | path | yes | Identifier of the company. Must be greater than 0. |
+| `buildingId` | integer | path | yes | Identifier of the building. Must be greater than 0. |
 | `roomId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
@@ -493,11 +519,11 @@ Status: 200 OK
         "id": 1,
         "name": "9",
         "floor": 1,
-        "state": "Active",
+        "state": "active",
         "timestamp": "2022-05-13 10:15:87312"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1" }
     ]
 }
 ```
@@ -518,9 +544,9 @@ Status: 404 Not Found
 | Name | Type | Description |
 |:-:|:-:|:-:|
 | `id` | number | **Unique** and **stable** identifier of the room. Must be greater than 0. |
-| `name` | string | **Unique** name of the room inside a specific building. |
+| `name` | string | **Unique** name of the room inside a specific building, it **isn't globally unique**. |
 | `floor` | number | Number of the floor the room is in. The floor can be greater, less or equal to zero. |
-| `state` | string | Current state of the room, the possible values are `Active` or `Inactive`. |
+| `state` | string | Current state of the room, the possible values are `active` or `inactive`. |
 | `timestamp` | string | Timestamp of the moment that the room state changed to the current state. |
 
 ### Domain specific link relations

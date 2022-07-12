@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Companies.Buildings
+import pt.isel.ps.project.model.Uris.Companies.Buildings.BUILDINGS_PAGINATION
 import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
@@ -59,14 +60,14 @@ object BuildingResponses {
             name = "activate-building",
             title = "Activate building",
             method = HttpMethod.POST,
-            href = Buildings.makeSpecific(companyId, buildingId)
+            href = Buildings.makeActivate(companyId, buildingId)
         )
 
         fun deactivateBuilding(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "deactivate-building",
             title = "Deactivate building",
             method = HttpMethod.POST,
-            href = Buildings.makeSpecific(companyId, buildingId)
+            href = Buildings.makeDeactivate(companyId, buildingId)
         )
 
         fun changeBuildingManager(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
@@ -103,7 +104,10 @@ object BuildingResponses {
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             add(Actions.createBuilding(companyId))
         },
-        links = listOf(Links.self(Buildings.makeBase(companyId)))
+        links = listOf(
+            Links.self(Buildings.makeBase(companyId)),
+            Links.pagination(BUILDINGS_PAGINATION),
+        )
     )
 
     fun createBuildingRepresentation(companyId: Long, building: BuildingItemDto) = buildResponse(
@@ -116,16 +120,17 @@ object BuildingResponses {
         setLocationHeader(Buildings.makeSpecific(companyId, building.id))
     )
 
-    fun getBuildingRepresentation(companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
+    fun getBuildingRepresentation(user: AuthPerson, companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
         val building = buildingDto.building
         return buildResponse(QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
             properties = building,
             entities = mutableListOf<QRreportJsonModel>().apply {
                 add(getRoomsRepresentation(
-                    buildingDto.rooms,
+                    user,
                     companyId,
                     building.id,
+                    buildingDto.rooms,
                     CollectionModel(1, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
                     listOf(Relations.BUILDING_ROOMS)))
                 add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))

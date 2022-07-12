@@ -2,6 +2,7 @@ package pt.isel.ps.project.auth
 
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.CREATION_DENIED
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
@@ -19,7 +20,7 @@ object Authorizations {
         fun createPersonsAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CREATION_DENIED)
         }
 
         fun getPersonAuthorization(user: AuthPerson): Boolean {
@@ -105,7 +106,7 @@ object Authorizations {
         fun createCompanyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CREATION_DENIED)
         }
 
         fun getCompanyAuthorization(user: AuthPerson): Boolean {
@@ -143,7 +144,7 @@ object Authorizations {
         fun createBuildingAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
+            throw ForbiddenException(CREATION_DENIED)
         }
 
         fun getBuildingAuthorization(user: AuthPerson): Boolean {
@@ -182,6 +183,56 @@ object Authorizations {
             val userRole = user.activeRole
             if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(ACCESS_DENIED)
+        }
+    }
+
+    object Room {
+        fun getRoomsAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createRoomAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CREATION_DENIED)
+        }
+
+        fun getRoomAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun updatRoomAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deactivateRoomAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun activateRoomAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun addRoomDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun removeRoomDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
         }
     }
 }

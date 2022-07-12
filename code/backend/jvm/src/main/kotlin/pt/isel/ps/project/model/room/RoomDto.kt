@@ -15,19 +15,11 @@ data class RoomItemDto (
 data class RoomDto (
     val room: RoomItemDto,
     val devices: DevicesDto,
-    val buildingId: Long,
-    val companyId: Long
 )
 
 data class RoomDeviceDto (
     val room: RoomItemDto,
     val device: DeviceItemDto
-)
-
-data class RoomDeactivateDto (
-    val room: RoomItemDto,
-    val buildingId: Long,
-    val companyId: Long
 )
 
 data class RoomsDto (

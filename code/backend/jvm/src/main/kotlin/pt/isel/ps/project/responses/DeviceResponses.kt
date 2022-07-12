@@ -62,11 +62,11 @@ object DeviceResponses {
             )
         )
 
-        fun removeRoomDevice(roomId: Long, deviceId: Long) = QRreportJsonModel.Action(
+        fun removeRoomDevice(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) = QRreportJsonModel.Action(
             name = "remove-room-device",
-            title = "Remove device from room",
+            title = "Remove device",
             method = HttpMethod.DELETE,
-            href = Uris.Companies.Buildings.Rooms.makeSpecificDevice(roomId, deviceId)
+            href = Uris.Companies.Buildings.Rooms.makeSpecificDevice(companyId, buildingId, roomId, deviceId)
         )
     }
 
@@ -179,8 +179,8 @@ object DeviceResponses {
             properties = collection,
             entities = mutableListOf<QRreportJsonModel>().apply {
                 if (devicesDto.devices != null) addAll(devicesDto.devices.map { getDeviceItem(it, listOf(Relations.ITEM)) })
-            },
-            actions = listOf(RoomResponses.Actions.addDeviceToRoom(roomId)),
+            }, // TODO
+            actions = listOf(RoomResponses.Actions.addRoomDevice(1, 1, roomId)),
             links = listOf(Links.self(Uris.Devices.BASE_PATH))
         )
     )
@@ -189,10 +189,10 @@ object DeviceResponses {
         clazz = listOf(Classes.DEVICE),
         properties = roomDeviceDto.device,
         //entities = listOf(QrCode.getQrCodeItem(roomId, roomDeviceDto.device.id, roomDeviceDto.qrcode)),
-        actions = listOf(Actions.removeRoomDevice(roomId, roomDeviceDto.device.id)),
-        links = listOf(
-            Links.self(Uris.Companies.Buildings.Rooms.makeSpecificDevice(roomId, roomDeviceDto.device.id)),
-            Links.roomDevices(roomId)
+        actions = listOf(Actions.removeRoomDevice(1, 1, roomId, roomDeviceDto.device.id)),
+        links = listOf( // TODO
+            Links.self(Uris.Companies.Buildings.Rooms.makeSpecificDevice(1, 1, roomId, roomDeviceDto.device.id)),
+            Links.roomDevices(1, 1, roomId)
         )
     )
 }

@@ -9,36 +9,37 @@ import pt.isel.ps.project.model.room.AddDeviceEntity
 import pt.isel.ps.project.model.room.CreateRoomEntity
 import pt.isel.ps.project.model.room.ROOM_REP
 import pt.isel.ps.project.model.room.UpdateRoomEntity
+import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 
 interface RoomDao {
 
-    @SqlQuery("SELECT get_rooms(:companyId, :buildingId, null, null);") // :limit, :offset
-    fun getRooms(companyId: Long, buildingId: Long): String
+    @SqlQuery("SELECT get_rooms(:companyId, :buildingId, $ROOM_PAGE_MAX_SIZE, :skip);")
+    fun getRooms(companyId: Long, buildingId: Long, skip: Int): String
 
-    @SqlQuery("SELECT get_room(:roomId, null, null);")
-    fun getRoom(roomId: Long): String
-
-    @SqlCall("CALL create_room(:companyId, :buildingId, :name, :floor, :$ROOM_REP);")
+    @SqlCall("CALL create_room(:$ROOM_REP, :companyId, :buildingId, :name, :floor);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
     fun createRoom(companyId: Long, buildingId: Long, @BindBean room: CreateRoomEntity): OutParameters
 
-    @SqlCall("CALL update_room(:roomId, :name, :$ROOM_REP);")
-    @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
-    fun updateRoom(roomId: Long, @BindBean room: UpdateRoomEntity): OutParameters
+    @SqlQuery("SELECT get_room(:companyId, :buildingId, :roomId, 10, 0);")
+    fun getRoom(companyId: Long, buildingId: Long, roomId: Long): String
 
-    @SqlCall("CALL add_room_device(:roomId, :deviceId, :$ROOM_REP);")
+    @SqlCall("CALL update_room(:$ROOM_REP, :companyId, :buildingId, :roomId, :name);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
-    fun addRoomDevice(roomId: Long, @BindBean device: AddDeviceEntity): OutParameters
+    fun updateRoom(companyId: Long, buildingId: Long, roomId: Long, @BindBean room: UpdateRoomEntity): OutParameters
 
-    @SqlCall("CALL remove_room_device(:roomId, :deviceId, :$ROOM_REP);")
+    @SqlCall("CALL deactivate_room(:$ROOM_REP, :companyId, :buildingId, :roomId);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
-    fun removeRoomDevice(roomId: Long, deviceId: Long): OutParameters
+    fun deactivateRoom(companyId: Long, buildingId: Long, roomId: Long): OutParameters
 
-    @SqlCall("CALL activate_room(:roomId, :$ROOM_REP);")
+    @SqlCall("CALL activate_room(:$ROOM_REP, :companyId, :buildingId, :roomId);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
-    fun activateRoom(roomId: Long): OutParameters
+    fun activateRoom(companyId: Long, buildingId: Long, roomId: Long): OutParameters
 
-    @SqlCall("CALL deactivate_room(:roomId, :$ROOM_REP);")
+    @SqlCall("CALL add_room_device(:$ROOM_REP, :companyId, :buildingId, :roomId, :deviceId);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
-    fun deactivateRoom(roomId: Long): OutParameters
+    fun addRoomDevice(companyId: Long, buildingId: Long, roomId: Long, @BindBean device: AddDeviceEntity): OutParameters
+
+    @SqlCall("CALL remove_room_device(:$ROOM_REP, :companyId, :buildingId, :roomId, :deviceId);")
+    @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
+    fun removeRoomDevice(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long): OutParameters
 }

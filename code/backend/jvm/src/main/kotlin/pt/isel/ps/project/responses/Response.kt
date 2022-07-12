@@ -56,24 +56,30 @@ object Response {
         const val COMPANY = "company"
         const val ROOM_DEVICES = "room-devices"
         const val ROOMS = "rooms"
+        const val ROOM = "room"
         const val ROOM_DEVICE = "room-device"
         const val ROOM_DEVICE_REMOVED = "room-device-removed"
+        const val CATEGORIES = "categories"
     }
 
     object Links {
         fun self(href: String) = QRreportJsonModel.Link(listOf(Relations.SELF), href)
         fun companies() = QRreportJsonModel.Link(listOf(Relations.COMPANIES), Uris.Companies.BASE_PATH)
+        fun company(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.COMPANY), Uris.Companies.makeSpecific(companyId))
         fun anomalies(deviceId: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICE_ANOMALIES), Uris.Devices.Anomalies.makeBase(deviceId))
         fun tickets() = QRreportJsonModel.Link(listOf(Relations.TICKETS), Uris.Tickets.BASE_PATH)
         fun ticket(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENT_TICKET), Uris.Tickets.makeSpecific(ticketId))
         fun comments(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENTS), Uris.Tickets.Comments.makeBase(ticketId))
         fun devices() = QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Devices.BASE_PATH)
-        fun roomDevices(roomId: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Companies.Buildings.Rooms.makeDevices(roomId))
+        fun roomDevices(companyId: Long, buildingId: Long, roomId: Long) =
+            QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Companies.Buildings.Rooms.makeDevices(companyId, buildingId, roomId))
         fun buildings(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.BUILDINGS), Uris.Companies.Buildings.makeBase(companyId))
-        fun company(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.COMPANY), Uris.Companies.makeSpecific(companyId))
         fun rooms(companyId: Long, buildingId: Long) = QRreportJsonModel.Link(
             listOf(Relations.ROOMS), Uris.Companies.Buildings.Rooms.makeBase(companyId, buildingId))
-        fun categories() = QRreportJsonModel.Link(listOf(Classes.CATEGORIES), Uris.Categories.BASE_PATH)
+        fun room(companyId: Long, buildingId: Long, roomId: Long) = QRreportJsonModel.Link(
+            listOf(Relations.ROOM), Uris.Companies.Buildings.Rooms.makeSpecific(companyId, buildingId, roomId))
+        fun categories() = QRreportJsonModel.Link(listOf(Relations.CATEGORIES), Uris.Categories.BASE_PATH)
+        fun pagination(href: String) = QRreportJsonModel.Link(listOf(Relations.PAGINATION), href, templated = true)
     }
 
     fun buildResponse(

@@ -60,7 +60,7 @@ class BuildingController(private val service: BuildingService) {
         user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
         getBuildingAuthorization(user)
-        return getBuildingRepresentation(companyId, service.getBuilding(user, companyId, buildingId))
+        return getBuildingRepresentation(user, companyId, service.getBuilding(user, companyId, buildingId))
     }
 
     @PutMapping(Buildings.SPECIFIC_PATH)
@@ -74,7 +74,7 @@ class BuildingController(private val service: BuildingService) {
         return updateBuildingRepresentation(companyId, service.updateBuilding(user, companyId, buildingId, building))
     }
 
-    @PostMapping(Buildings.SPECIFIC_PATH)
+    @PostMapping(Buildings.DEACTIVATE_PATH)
     fun deactivateBuilding(
         @PathVariable companyId: Long,
         @PathVariable buildingId: Long,

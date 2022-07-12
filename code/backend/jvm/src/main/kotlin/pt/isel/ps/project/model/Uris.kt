@@ -66,12 +66,14 @@ object Uris {
             const val BASE_PATH = "${Companies.SPECIFIC_PATH}/buildings"
             const val SPECIFIC_PATH = "$BASE_PATH/{buildingId}"
             const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+            const val DEACTIVATE_PATH = "$SPECIFIC_PATH/deactivate"
             const val MANAGER_PATH = "$SPECIFIC_PATH/manager"
             const val BUILDINGS_PAGINATION = "$BASE_PATH{?page}"
 
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
             private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+            private val DEACTIVATE_TEMPLATE = UriTemplate(DEACTIVATE_PATH)
             private val MANAGER_TEMPLATE = UriTemplate(MANAGER_PATH)
 
             fun makeBase(companyId: Long) =
@@ -80,13 +82,16 @@ object Uris {
                 SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
             fun makeActivate(companyId: Long, id: Long) =
                 ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+            fun makeDeactivate(companyId: Long, id: Long) =
+                DEACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
             fun makeManager(companyId: Long, id: Long) =
                 MANAGER_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
 
             object Rooms {
                 const val BASE_PATH = "${Buildings.SPECIFIC_PATH}/rooms"
-                const val SPECIFIC_PATH = "$VERSION/rooms/{roomId}"
+                const val SPECIFIC_PATH = "$BASE_PATH/{roomId}"
                 const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+                const val DEACTIVATE_PATH = "$SPECIFIC_PATH/deactivate"
                 const val DEVICES_PATH = "$SPECIFIC_PATH/devices"
                 const val SPECIFIC_DEVICE_PATH = "$DEVICES_PATH/{deviceId}"
                 const val ROOMS_PAGINATION = "$BASE_PATH{?page}"
@@ -95,19 +100,24 @@ object Uris {
                 private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
                 private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
                 private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+                private val DEACTIVATE_TEMPLATE = UriTemplate(DEACTIVATE_PATH)
                 private val DEVICES_TEMPLATE = UriTemplate(DEVICES_PATH)
                 private val SPECIFIC_DEVICE_TEMPLATE = UriTemplate(SPECIFIC_DEVICE_PATH)
 
-                fun makeBase(companyId: Long, buildingId: Long) = //todo test
+                fun makeBase(companyId: Long, buildingId: Long) =
                     BASE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId)).toString()
-                fun makeSpecific(id: Long) =
-                    SPECIFIC_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeActivate(id: Long) =
-                    ACTIVATE_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeDevices(id: Long) =
-                    DEVICES_TEMPLATE.expand(mapOf("roomId" to id)).toString()
-                fun makeSpecificDevice(roomId: Long, deviceId: Long) =
-                    SPECIFIC_DEVICE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
+                fun makeSpecific(companyId: Long, buildingId: Long, roomId: Long) =
+                    SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
+                fun makeActivate(companyId: Long, buildingId: Long, roomId: Long) =
+                    ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
+                fun makeDeactivate(companyId: Long, buildingId: Long, roomId: Long) =
+                    DEACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
+                fun makeDevices(companyId: Long, buildingId: Long, roomId: Long) =
+                    DEVICES_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
+                fun makeSpecificDevice(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) =
+                    SPECIFIC_DEVICE_TEMPLATE.expand(
+                        mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId, "deviceId" to deviceId)
+                    ).toString()
 
                 object QRCode {
                     const val BASE_PATH = "$SPECIFIC_DEVICE_PATH/qrcode"

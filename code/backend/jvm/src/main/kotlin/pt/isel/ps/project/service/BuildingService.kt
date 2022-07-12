@@ -7,6 +7,7 @@ import pt.isel.ps.project.exception.Errors
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CREATION_DENIED
+import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.model.building.BuildingsDto
@@ -39,7 +40,7 @@ class BuildingService(val buildingDao: BuildingDao) {
         verifyCreateBuildingInput(building)
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(CREATION_DENIED)
         return buildingDao.createBuilding(companyId, building).getString(BUILDING_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+            ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
@@ -53,27 +54,27 @@ class BuildingService(val buildingDao: BuildingDao) {
         verifyUpdateBuildingInput(building)
         if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.updateBuilding(companyId, buildingId, building).getString(BUILDING_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+            ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun deactivateBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingItemDto {
         if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.deactivateBuilding(companyId, buildingId).getString(BUILDING_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+            ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun activateBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingItemDto {
         if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.activateBuilding(companyId, buildingId).getString(BUILDING_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+            ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun changeBuildingManager(user: AuthPerson, companyId: Long, buildingId: Long, manager: ChangeManagerEntity): BuildingManagerDto {
         if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.changeBuildingManager(companyId, buildingId, manager).getString(BUILDING_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(Errors.InternalServerError.Message.INTERNAL_ERROR)
+            ?: throw InternalServerException(INTERNAL_ERROR)
     }
 }

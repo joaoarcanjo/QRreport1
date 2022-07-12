@@ -203,7 +203,7 @@ Status: 200 OK
             ],
             "links": [
                 { "rel": [ "self" ], "href": "/companies/1/buildings" },
-                { "rel": [ "pagination" ], "href": "/companies/1/buildings{?page}" }
+                { "rel": [ "pagination" ], "href": "/companies/1/buildings{?page}", "templated": true }
             ]
         }
     ],

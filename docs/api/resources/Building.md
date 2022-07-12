@@ -71,7 +71,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings?page=1" },
+        { "rel": [ "pagination" ], "href": "/companies/1/buildings{?page}", "templated": true }
     ]
 }
 ```
@@ -222,7 +223,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=1"}
+                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms?page=1"},
+                { "rel": [ "pagination" ], "href": "/companies/1/buildings/1/rooms{?page}", "templated": true }
             ]
         },
         {

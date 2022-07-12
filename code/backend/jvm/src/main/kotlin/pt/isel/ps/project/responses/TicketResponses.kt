@@ -73,7 +73,7 @@ object TicketResponses {
                 listOf(Relations.TICKET_COMMENTS)))
             add(getCompanyItem(ticketInfo.company, listOf(Relations.TICKET_COMPANY)))
             add(getBuildingItem(ticketInfo.company.id, ticketInfo.building, listOf(Relations.TICKET_BUILDING)))
-            add(getRoomItem(ticketInfo.room, listOf(Relations.TICKET_ROOM)))
+            add(getRoomItem(1, 1, ticketInfo.room, listOf(Relations.TICKET_ROOM))) // TODO
             add(getDeviceItem(ticketInfo.device, listOf(Relations.TICKET_DEVICE)))
             add(getPersonItem(ticketInfo.person, listOf(Relations.TICKET_AUTHOR)))
         },
