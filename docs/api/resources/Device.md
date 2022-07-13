@@ -27,7 +27,7 @@ GET /devices
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no | Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no | Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -39,7 +39,7 @@ Status: 200 OK
     "class": [ "device", "collection" ],
     "properties": {
         "pageIndex": 0,
-        "pageSize": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -48,9 +48,10 @@ Status: 200 OK
             "rel": [ "item" ],
             "properties": {
                 "id": 1,
-                "name": "Toilet 1",
-                "category": "Water",
-                "state": "Active"
+                "name": "Toilet1",
+                "category": "water",
+                "state": "active",
+                "timestamp": "2022-05-12 20:54:32452"
             },
             "links": [
                 { "rel": [ "self" ], "href": "/devices/1" }
@@ -71,7 +72,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/devices?page=0" }
+        { "rel": [ "self" ], "href": "/devices?page=1" },
+        { "rel": [ "pagination" ], "href": "/devices{?page}" }
     ]
 }
 ```
@@ -101,12 +103,12 @@ POST /devices
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
 | `name` | string | body |  yes | **Unique** device name. |
-| `category` | number | body |  yes | Category of the device. |
+| `category` | number | body |  yes | Category identifier for the device. |
 
 ### Request body example
 ```json
 {
-    "name": "Toilet 1",
+    "name": "Toilet1",
     "category": 1
 }
 ```
@@ -121,9 +123,10 @@ Location: /devices/{deviceId}
     "class": [ "device" ],
     "properties": {
         "id": 1,
-        "name": "Toilet 1",
-        "category": "Water",
-        "state": "Active"
+        "name": "Toilet1",
+        "category": "water",
+        "state": "active",
+        "timestamp": "2022-05-12 20:54:32452"
     },
     "links": [
         { "rel": [ "self" ], "href": "/devices/1" }
@@ -168,8 +171,8 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "Toilet 1",
-        "category": "Water",
-        "state": "Active",
+        "category": "water",
+        "state": "active",
         "timestamp": "2022-05-12 20:54:32452"
     },
     "entities": [
@@ -178,7 +181,7 @@ Status: 200 OK
             "rel": [ "device-anomalies" ],
             "properties": {
                 "pageIndex": 0,
-                "pageSize": 1,
+                "pageMaxSize": 10,
                 "collectionSize": 1
             },
             "entities": [
@@ -225,7 +228,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/devices/1/anomalies?page=0"}
+                { "rel": [ "self" ], "href": "/devices/1/anomalies?page=1"},
+                { "rel": [ "pagination" ], "href": "/devices/1/anomalies{?page}"}
             ]
         }
     ],
@@ -233,7 +237,7 @@ Status: 200 OK
         {
             "name": "deactivate-device",
             "title": "Deactivate device",
-            "method": "PUT",
+            "method": "POST",
             "href": "/devices/1"
         },
         {
@@ -301,9 +305,9 @@ Status: 200 OK
     "class": [ "device" ],
     "properties": {
         "id": 1,
-        "name": "Toilet-1",
-        "category": "Water",
-        "state": "Active",
+        "name": "Toilet1",
+        "category": "water",
+        "state": "active",
         "timestamp": "2022-05-12 20:54:32452"
     },
     "links": [
@@ -353,9 +357,9 @@ Status: 200 OK
     "class": [ "device" ],
     "properties": {
         "id": 1,
-        "name": "Toilet 1",
-        "category": "Plumbing",
-        "state": "Active",
+        "name": "Toilet1",
+        "category": "canalization",
+        "state": "active",
         "timestamp": "2022-05-12 20:54:32452"
     },
     "links": [
@@ -384,7 +388,7 @@ Status: 409 Conflict
 Deactivate a specific device.
 
 ```http
-PUT /devices/{deviceId}/deactivate
+POST /devices/{deviceId}/deactivate
 ```
 
 ### Parameters
@@ -404,8 +408,8 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "Toilet 1",
-        "category": "Water",
-        "state": "Inactive",
+        "category": "water",
+        "state": "inactive",
         "timestamp": "2022-05-12 20:54:32452"
     },
     "links": [
@@ -431,7 +435,7 @@ Status: 404 Not Found
 Activate a specific device.
 
 ```http
-PUT /devices/{deviceId}/activate
+POST /devices/{deviceId}/activate
 ```
 
 ### Parameters
@@ -451,13 +455,12 @@ Status: 200 OK
     "properties": {
         "id": 1,
         "name": "Toilet 1",
-        "category": "Water",
-        "state": "Active",
+        "category": "water",
+        "state": "active",
         "timestamp": "2022-05-14 14:23:56788"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/devices/1" },
-        { "rel": [ "devices" ], "href": "/devices" }
+        { "rel": [ "self" ], "href": "/devices/1" }
     ]
 }
 ```
@@ -478,12 +481,14 @@ Status: 404 Not Found
 List the devices of a specific room.
 
 ```http
-GET rooms/{roomId}/devices
+GET /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/devices
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. |
+| `buildingId` | integer | path | yes | Identifier of the building. |
 | `roomId` | integer | path | yes | Identifier of the room. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
@@ -497,7 +502,7 @@ Status: 200 OK
     "class": [ "device", "collection" ],
     "properties": {
         "pageIndex": 0,
-        "pageSize": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -507,28 +512,30 @@ Status: 200 OK
             "properties": {
                 "id": 1,
                 "name": "Toilet 1",
-                "category": "Water",
-                "state": "Active"
+                "category": "water",
+                "state": "active",
+                "timestamp": "2022-05-14 14:23:56788"
             },
             "links": [
-                { "rel": [ "self" ], "href": "/rooms/1/devices/1" }
+                { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1/devices/1" }
             ]
         }
     ],
     "actions": [
         {
-            "name": "add-device-to-room",
-            "title": "Add a device to the room",
+            "name": "add-room-device",
+            "title": "Add device",
             "method": "POST",
-            "href": "/rooms/1/devices",
+            "href": "/companies/1/buildings/1/rooms/1/devices",
             "type": "application/json",
             "properties": [
-                { "name": "device", "type": "number" }
+                { "name": "device", "type": "number", "possibleValues": { "href": "/devices" } }
             ]
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices?page=0" }
+        { "rel": [ "self" ], "href": "/companies/1/buildings/1/rooms/1/devices?page=1" },
+        { "rel": [ "pagination" ], "href": "/companies/1/buildings/1/rooms/1/devices{?page}" }
     ]
 }
 ```
@@ -549,12 +556,14 @@ Status: 404 Not Found
 Get the room device with the associated QR Code.
 
 ```http
-GET rooms/{roomId}/devices/{deviceId}
+GET /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/devices/{deviceId}
 ```
 
 ### Parameters
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. |
+| `buildingId` | integer | path | yes | Identifier of the building. |
 | `roomId` | integer | path | yes | Identifier of the room. |
 | `deviceId` | integer | path | yes | Identifier of the device. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
@@ -569,41 +578,38 @@ Status: 200 OK
     "class": [ "device" ],
     "properties": {
         "id": 1,
-        "name": "Toilet 1",
-        "category": "Water",
-        "state": "Active"
+        "name": "Toilet1",
+        "category": "water",
+        "state": "active"
     },
     "entities": [
         {
             "class": [ "qrcode" ],
             "rel": [ "room-device-qrcode" ],
             "properties": {
-                "qrcode": "http://api.qrreport.com/qr-code/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                "qrcode": "/company/1/building/1/rooms/1/devices/1/qrcode"
             },
             "actions": [
                 {
                     "name": "generate-new-qrcode",
                     "title": "Generate new QR Code",
                     "method": "POST",
-                    "href": "/rooms/1/devices/1/qrcode"
+                    "href": "/company/1/building/1/rooms/1/devices/1/qrcode"
                 }
-            ],
-            "links": [
-                { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
             ]
         }
     ],
     "actions": [
         {
             "name": "remove-room-device",
-            "title": "Remove device from room",
+            "title": "Remove device",
             "method": "DELETE",
-            "href": "/rooms/1/devices/1"
+            "href": "/company/1/building/1/rooms/1/devices/1"
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/1" },
-        { "rel": [ "devices" ], "href": "/rooms/1/devices" }
+        { "rel": [ "self" ], "href": "/company/1/building/1/rooms/1/devices/1" },
+        { "rel": [ "room" ], "href": "/company/1/building/1/rooms/1" }
     ]
 }
 ```
@@ -625,8 +631,8 @@ Status: 404 Not Found
 |:-:|:-:|:-:|
 | `id` | number | **Unique** and **stable** identifier of the device. Must be greater than 0. |
 | `name` | string | **Unique** name of the device. |
-| `category` | string | Name of the category of the device. |
-| `state` | string | Current state of the device, the possible values are `Active` or `Inactive`. |
+| `category` | string | Name of the device category . |
+| `state` | string | Current state of the device, the possible values are `active` or `inactive`. |
 | `timestamp` | string | Timestamp of the moment that the device state changed to the current state. |
 
 ### Domain specific link relations

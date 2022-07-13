@@ -8,6 +8,7 @@ import pt.isel.ps.project.model.Uris.makePagination
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import java.net.URI
+import java.util.UUID
 
 object Response {
     object Classes {
@@ -23,6 +24,8 @@ object Response {
         const val QRCODE = "qrcode"
         const val CATEGORY = "category"
         const val CATEGORIES = "categories"
+        const val REPORT = "report"
+        const val AUTH = "auth"
     }
 
     object Relations {
@@ -50,7 +53,6 @@ object Response {
         const val DEVICES = "devices"
         const val BUILDINGS = "buildings"
         const val COMMENT_TICKET = "comment-ticket"
-        const val ROOM_DEVICE_QRCODE = "room-device-qrcode"
         const val BUILDING_MANAGER = "building-manager"
         const val BUILDING_ROOMS = "building-rooms"
         const val COMPANY = "company"
@@ -60,10 +62,15 @@ object Response {
         const val ROOM_DEVICE = "room-device"
         const val ROOM_DEVICE_REMOVED = "room-device-removed"
         const val CATEGORIES = "categories"
+        const val QRCODE = "room-device-qrcode"
+        const val PERSONS = "persons"
+        const val PROFILE = "profile"
     }
 
     object Links {
         fun self(href: String) = QRreportJsonModel.Link(listOf(Relations.SELF), href)
+        fun persons() = QRreportJsonModel.Link(listOf(Relations.PERSONS), Uris.Persons.BASE_PATH)
+        fun profile(id: UUID) = QRreportJsonModel.Link(listOf(Relations.PROFILE), Uris.Persons.makeSpecific(id))
         fun companies() = QRreportJsonModel.Link(listOf(Relations.COMPANIES), Uris.Companies.BASE_PATH)
         fun company(companyId: Long) = QRreportJsonModel.Link(listOf(Relations.COMPANY), Uris.Companies.makeSpecific(companyId))
         fun anomalies(deviceId: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICE_ANOMALIES), Uris.Devices.Anomalies.makeBase(deviceId))
@@ -97,27 +104,5 @@ object Response {
         val headers = HttpHeaders()
         headers.location = URI(uri)
         return headers
-    }
-
-    fun buildCollectionLinks(
-        collection: CollectionModel,
-        maxPageSize: Int,
-        uri: String,
-        otherLinks: List<QRreportJsonModel.Link>? = null
-    ): MutableList<QRreportJsonModel.Link> {
-        val links = mutableListOf<QRreportJsonModel.Link>()
-        links.add(QRreportJsonModel.Link(listOf(Relations.SELF), makePagination(collection.pageIndex, uri)))
-        if (collection.pageIndex * maxPageSize + maxPageSize <= collection.collectionSize) {
-            links.add(QRreportJsonModel.Link(listOf(Relations.NEXT), makePagination(collection.pageIndex + 1, uri)))
-            links.add(QRreportJsonModel.Link(listOf(Relations.LAST), makePagination(collection.collectionSize / maxPageSize, uri)))
-        }
-        if (collection.pageIndex > 1) {
-            links.add(QRreportJsonModel.Link(listOf(Relations.PREV), makePagination(collection.pageIndex - 1, uri)))
-            links.add(QRreportJsonModel.Link(listOf(Relations.FIRST), makePagination(0, uri)))
-        }
-        if (otherLinks != null) {
-            links.addAll(otherLinks)
-        }
-        return links
     }
 }

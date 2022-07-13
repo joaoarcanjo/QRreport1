@@ -18,6 +18,6 @@ class AuthPersonArgumentResolver: HandlerMethodArgumentResolver {
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?
-    ): AuthPerson = webRequest
-        .getAttribute(REQ_ATTRIBUTE_AUTHPERSON, RequestAttributes.SCOPE_REQUEST) as AuthPerson
+    ): AuthPerson? = webRequest
+        .getAttribute(REQ_ATTRIBUTE_AUTHPERSON, RequestAttributes.SCOPE_REQUEST) as AuthPerson?
 }

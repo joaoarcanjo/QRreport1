@@ -1,5 +1,17 @@
 package pt.isel.ps.project.model.qrcode
 
-data class QRCodeDto (
-    val qrhash: String
+/*
+ * Name of the building representation output parameter
+ */
+const val QRCODE_REP = "qrcodeRep"
+
+data class QRCodeItem(
+    val qrcode: String,
+)
+
+data class QRCodeDto(
+    val company: String,
+    val building: String,
+    val room: String,
+    val device: String,
 )

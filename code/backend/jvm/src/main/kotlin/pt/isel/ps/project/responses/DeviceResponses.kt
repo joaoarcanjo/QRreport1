@@ -4,18 +4,29 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms
+import pt.isel.ps.project.model.Uris.Devices
+import pt.isel.ps.project.model.Uris.Devices.DEVICES_PAGINATION
 import pt.isel.ps.project.model.device.DeviceDto
 import pt.isel.ps.project.model.device.DeviceItemDto
 import pt.isel.ps.project.model.device.DeviceQrCodeDto
 import pt.isel.ps.project.model.device.DevicesDto
+import pt.isel.ps.project.model.qrcode.QRCodeItem
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.responses.AnomalyResponses.ANOMALY_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.States.isInactive
+import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
 object DeviceResponses {
     const val DEVICES_PAGE_MAX_SIZE = 10
@@ -23,13 +34,14 @@ object DeviceResponses {
     object Actions {
         fun createDevice() = QRreportJsonModel.Action(
             name = "create-device",
-            title = "Create new device",
+            title = "Create device",
             method = HttpMethod.POST,
-            href = Uris.Devices.BASE_PATH,
+            href = Devices.BASE_PATH,
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("name", "string"),
-                QRreportJsonModel.Property("category", "number")
+                QRreportJsonModel.Property("category", "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Categories.BASE_PATH))
             )
         )
 
@@ -37,28 +49,35 @@ object DeviceResponses {
             name = "update-device",
             title = "Update device",
             method = HttpMethod.PUT,
-            href = Uris.Devices.makeSpecific(deviceId),
+            href = Devices.makeSpecific(deviceId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("name", "string", required = true)
+                QRreportJsonModel.Property("name", "string")
             )
         )
 
         fun deactivateDevice(deviceId: Long) = QRreportJsonModel.Action(
             name = "deactivate-device",
             title = "Deactivate device",
-            method = HttpMethod.PUT,
-            href = Uris.Devices.makeSpecific(deviceId)
+            method = HttpMethod.POST,
+            href = Devices.makeDeactivate(deviceId)
+        )
+
+        fun activateDevice(deviceId: Long) = QRreportJsonModel.Action(
+            name = "activate-device",
+            title = "Activate device",
+            method = HttpMethod.POST,
+            href = Devices.makeActivate(deviceId)
         )
 
         fun changeDeviceCategory(deviceId: Long) = QRreportJsonModel.Action(
             name = "change-device-category",
             title = "Change device category",
             method = HttpMethod.PUT,
-            href = Uris.Devices.makeSpecific(deviceId),
+            href = Devices.makeCategory(deviceId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("category", "number", required = true)
+                QRreportJsonModel.Property("category", "number")
             )
         )
 
@@ -66,7 +85,14 @@ object DeviceResponses {
             name = "remove-room-device",
             title = "Remove device",
             method = HttpMethod.DELETE,
-            href = Uris.Companies.Buildings.Rooms.makeSpecificDevice(companyId, buildingId, roomId, deviceId)
+            href = Rooms.makeSpecificDevice(companyId, buildingId, roomId, deviceId)
+        )
+
+        fun generateNewQRCode(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) = QRreportJsonModel.Action(
+            name = "generate-new-qrcode",
+            title = "Generate new QR Code",
+            method = HttpMethod.POST,
+            href = Uris.QRCode.makeSpecific(companyId, buildingId, roomId, deviceId)
         )
     }
 
@@ -74,7 +100,7 @@ object DeviceResponses {
         clazz = listOf(Classes.DEVICE),
         rel = rel,
         properties = device,
-        links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)))
+        links = listOf(Links.self(Devices.makeSpecific(device.id)))
     )
 
     fun devicesRepresentation(
@@ -90,15 +116,26 @@ object DeviceResponses {
             if (devices != null) addAll(devices.map { getDeviceItem(it, listOf(Relations.ITEM)) })
         },
         actions = actions,
-        links = listOf(Links.self(Uris.Devices.BASE_PATH))
+        links = listOf(
+            Links.self(Devices.BASE_PATH),
+            Links.pagination(DEVICES_PAGINATION),
+        )
     )
 
     fun getDevicesRepresentation(
+        user: AuthPerson,
         devices: List<DeviceItemDto>?,
         collection: CollectionModel,
-    ) = devicesRepresentation( devices,collection,null,listOf(Actions.createDevice()))
+    ) = devicesRepresentation(
+        devices,
+        collection,
+        null,
+        mutableListOf<QRreportJsonModel.Action>().apply {
+            if (isAdmin(user)) add(Actions.createDevice())
+        }
+    )
 
-    fun getDeviceRepresentation(deviceDto: DeviceDto): ResponseEntity<QRreportJsonModel> {
+    fun getDeviceRepresentation(user: AuthPerson, deviceDto: DeviceDto): ResponseEntity<QRreportJsonModel> {
         val device = deviceDto.device
         return buildResponse(
             QRreportJsonModel(
@@ -108,48 +145,53 @@ object DeviceResponses {
                     add(AnomalyResponses.getAnomaliesRepresentation(
                         deviceDto.anomalies,
                         device.id,
-                        CollectionModel(
-                            0,
-                            if (AnomalyResponses.ANOMALY_PAGE_MAX_SIZE < deviceDto.anomalies.anomaliesCollectionSize)
-                                AnomalyResponses.ANOMALY_PAGE_MAX_SIZE
-                            else
-                                deviceDto.anomalies.anomaliesCollectionSize
-                            , deviceDto.anomalies.anomaliesCollectionSize),
-                        listOf(Relations.DEVICE_ANOMALIES)))
+                        CollectionModel(DEFAULT_PAGE, ANOMALY_PAGE_MAX_SIZE, deviceDto.anomalies.anomaliesCollectionSize),
+                        listOf(Relations.DEVICE_ANOMALIES))
+                    )
                 },
-                actions = listOf(
-                    Actions.deactivateDevice(device.id),
-                    Actions.updateDevice(device.id),
-                    Actions.changeDeviceCategory(device.id)
-                ),
-                links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)), Links.devices())
+                actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                    if (!isAdmin(user)) return@apply
+                    add(if (isInactive(deviceDto.device.state))
+                            Actions.deactivateDevice(device.id)
+                        else Actions.activateDevice(device.id)
+                    )
+                    add(Actions.updateDevice(device.id))
+                    add(Actions.changeDeviceCategory(device.id))
+                },
+                links = listOf(
+                    Links.self(Devices.makeSpecific(device.id)),
+                    Links.devices(),
+                )
             )
         )
     }
-
-    fun updateDeviceRepresentation(device: DeviceItemDto) = buildResponse(
-        QRreportJsonModel(
-            clazz = listOf(Classes.DEVICE),
-            properties = device,
-            links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)))
-        )
-    )
 
     fun createDeviceRepresentation(device: DeviceItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.DEVICE),
             properties = device,
-            links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)))
+            links = listOf(Links.self(Devices.makeSpecific(device.id)))
         ),
         HttpStatus.CREATED,
-        setLocationHeader(Uris.Devices.makeSpecific(device.id))
+        setLocationHeader(Devices.makeSpecific(device.id))
+    )
+
+    fun updateDeviceRepresentation(device: DeviceItemDto) = buildResponse(
+        QRreportJsonModel(
+            clazz = listOf(Classes.DEVICE),
+            properties = device,
+            links = listOf(Links.self(Devices.makeSpecific(device.id)))
+        )
     )
 
     fun deactivateDeviceRepresentation(device: DeviceItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.DEVICE),
             properties = device,
-            links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)), Links.devices())
+            links = listOf(
+                Links.self(Devices.makeSpecific(device.id)),
+                Links.devices(),
+            )
         )
     )
 
@@ -157,7 +199,9 @@ object DeviceResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.DEVICE),
             properties = device,
-            links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)), Links.devices())
+            links = listOf(
+                Links.self(Devices.makeSpecific(device.id)),
+            )
         )
     )
 
@@ -165,34 +209,61 @@ object DeviceResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.DEVICE),
             properties = device,
-            links = listOf(Links.self(Uris.Devices.makeSpecific(device.id)))
+            links = listOf(Links.self(Devices.makeSpecific(device.id)))
         )
     )
 
     fun getRoomDevicesRepresentation(
+        user: AuthPerson,
+        companyId: Long,
+        buildingId: Long,
+        roomId: Long,
         devicesDto: DevicesDto,
         collection: CollectionModel,
-        roomId: Long
-    ) = buildResponse(
-        QRreportJsonModel(
-            clazz = listOf(Classes.DEVICE, Classes.COLLECTION),
-            properties = collection,
-            entities = mutableListOf<QRreportJsonModel>().apply {
-                if (devicesDto.devices != null) addAll(devicesDto.devices.map { getDeviceItem(it, listOf(Relations.ITEM)) })
-            }, // TODO
-            actions = listOf(RoomResponses.Actions.addRoomDevice(1, 1, roomId)),
-            links = listOf(Links.self(Uris.Devices.BASE_PATH))
+    ) = buildResponse(QRreportJsonModel(
+        clazz = listOf(Classes.DEVICE, Classes.COLLECTION),
+        properties = collection,
+        entities = mutableListOf<QRreportJsonModel>().apply {
+            if (devicesDto.devices != null) addAll(devicesDto.devices.map { getDeviceItem(it, listOf(Relations.ITEM)) })
+        },
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            add(RoomResponses.Actions.addRoomDevice(companyId, buildingId, roomId))
+        },
+        links = listOf(
+            Links.self(Devices.BASE_PATH),
+            Links.pagination(Rooms.ROOM_DEVICES_PAGINATION)
         )
-    )
+    ))
 
-    fun getRoomDeviceRepresentation(roomId: Long, roomDeviceDto: DeviceQrCodeDto) = QRreportJsonModel(
+    fun getRoomDeviceRepresentation(
+        user: AuthPerson,
+        companyId: Long,
+        buildingId: Long,
+        roomId: Long,
+        roomDeviceDto: DeviceQrCodeDto
+    ) = buildResponse(QRreportJsonModel(
         clazz = listOf(Classes.DEVICE),
         properties = roomDeviceDto.device,
-        //entities = listOf(QrCode.getQrCodeItem(roomId, roomDeviceDto.device.id, roomDeviceDto.qrcode)),
-        actions = listOf(Actions.removeRoomDevice(1, 1, roomId, roomDeviceDto.device.id)),
-        links = listOf( // TODO
-            Links.self(Uris.Companies.Buildings.Rooms.makeSpecificDevice(1, 1, roomId, roomDeviceDto.device.id)),
-            Links.roomDevices(1, 1, roomId)
+        entities = listOf(getQRCodeItem(user, companyId, buildingId, roomId, roomDeviceDto.device.id)),
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            add(Actions.removeRoomDevice(companyId, buildingId, roomId, roomDeviceDto.device.id))
+        },
+        links = listOf(
+            Links.self(Rooms.makeSpecificDevice(companyId, buildingId, roomId, roomDeviceDto.device.id)),
+            Links.room(companyId, buildingId, roomId)
         )
+    ))
+
+    private fun getQRCodeItem(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) = QRreportJsonModel(
+        clazz = listOf(Classes.QRCODE),
+        rel = listOf(Relations.QRCODE),
+        properties = QRCodeItem(Uris.QRCode.makeSpecific(companyId, buildingId, roomId, deviceId)),
+        actions = mutableListOf<QRreportJsonModel.Action>().apply {
+            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            add(Actions.generateNewQRCode(companyId, buildingId, roomId, deviceId))
+        },
+        links = listOf()
     )
 }

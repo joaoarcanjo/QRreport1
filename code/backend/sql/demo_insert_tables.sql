@@ -1,7 +1,8 @@
 BEGIN;
-    INSERT INTO CATEGORY(name) VALUES
-        ('water'),
-        ('electricity');
+    INSERT INTO CATEGORY(name,state) VALUES
+        ('water', 'active'),
+        ('electricity', 'active'),
+        ('garden', 'inactive');
 
     INSERT INTO ROLE(name) VALUES
         ('guest'),
@@ -54,7 +55,8 @@ BEGIN;
     INSERT INTO DEVICE(name, state, category) VALUES
         ('Toilet1', 'active', 1),
         ('Lights', 'active', 2),
-        ('Faucet', 'active', 1);
+        ('Faucet', 'active', 1),
+        ('Front grass', 'inactive', 3);
 
     INSERT INTO ANOMALY(id, device, anomaly) VALUES
         (1, 1, 'The flush doesn''t work'),

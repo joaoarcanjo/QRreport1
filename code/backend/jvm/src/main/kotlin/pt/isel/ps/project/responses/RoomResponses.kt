@@ -4,7 +4,13 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.exception.Errors
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
+import pt.isel.ps.project.exception.ForbiddenException
+import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms
+import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms.ROOMS_PAGINATION
+import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms.ROOM_DEVICES_PAGINATION
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -17,7 +23,9 @@ import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
+import pt.isel.ps.project.util.Validator
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Person.belongsToCompany
 import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
 object RoomResponses {
@@ -68,7 +76,8 @@ object RoomResponses {
             href = Rooms.makeDevices(companyId, buildingId, roomId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("device", "number")
+                QRreportJsonModel.Property("device", "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Devices.BASE_PATH))
             )
         )
     }
@@ -100,7 +109,10 @@ object RoomResponses {
             if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
             add(Actions.createRoom(companyId, buildingId))
         },
-        links = listOf(Links.self(Rooms.makeBase(companyId, buildingId)))
+        links = listOf(
+            Links.self(Rooms.makeBase(companyId, buildingId)),
+            Links.pagination(ROOMS_PAGINATION)
+        )
     )
 
     fun getRoomRepresentation(
@@ -117,7 +129,11 @@ object RoomResponses {
                     roomDto.devices.devices,
                     CollectionModel(DEFAULT_PAGE, DEVICES_PAGE_MAX_SIZE, roomDto.devices.devicesCollectionSize),
                     listOf(Relations.ROOM_DEVICES),
-                    listOf(Actions.addRoomDevice(companyId, buildingId, roomDto.room.id))
+                    mutableListOf<QRreportJsonModel.Action>().apply action@{
+                        if (isManager(user) && (!belongsToCompany(user, companyId) || !isBuildingManager(user, buildingId)))
+                            return@action
+                        add(Actions.addRoomDevice(companyId, buildingId, roomDto.room.id))
+                    }
             ))
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {

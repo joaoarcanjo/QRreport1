@@ -235,4 +235,74 @@ object Authorizations {
             throw ForbiddenException(CHANGE_DENIED)
         }
     }
+
+    object Device {
+        fun getDevicesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CREATION_DENIED)
+        }
+
+        fun getDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun updateDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deactivateDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun activateDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun changeDeviceCategoryAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun getRoomDevicesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun getRoomDeviceAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+    }
+
+    object QRCode {
+        fun getQRCodeAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createQRCodeAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+    }
 }

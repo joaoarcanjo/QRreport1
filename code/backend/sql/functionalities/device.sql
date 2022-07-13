@@ -3,6 +3,35 @@
  */
 
 /*
+ * Auxiliary function to verify if a device exists
+ */
+CREATE OR REPLACE FUNCTION device_exists(device_id BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (NOT EXISTS (SELECT id FROM DEVICE WHERE id = device_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'device', HINT = device_id;
+    END IF;
+    RETURN TRUE;
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Auxiliary function to return the device item representation by device id
+ */
+CREATE OR REPLACE FUNCTION device_item_representation(device_id BIGINT)
+RETURNS JSON
+AS
+$$
+DECLARE
+    device_name TEXT; device_category TEXT; device_state TEXT; tmstamp TIMESTAMP;
+BEGIN
+    SELECT name, state, timestamp, (SELECT name FROM CATEGORY WHERE id = category)
+    INTO device_name, device_state, tmstamp, device_category FROM DEVICE WHERE id = device_id;
+    RETURN json_build_object('id', device_id, 'name', device_name, 'category', device_category, 'state', device_state, 'timestamp', tmstamp);
+END$$ LANGUAGE plpgsql;
+
+/*
  * Auxiliary function to return the device item representation
  */
 CREATE OR REPLACE FUNCTION device_item_representation(d_id BIGINT, d_name TEXT, d_category TEXT, d_state TEXT, tmstamp TIMESTAMP)
@@ -18,24 +47,24 @@ END$$ LANGUAGE plpgsql;
  * Returns the device item representation
  * Throws exception in case there is no row added or when the category no exists/is inactive.
  */
-CREATE OR REPLACE PROCEDURE create_device(device_name TEXT, category_id BIGINT, device_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_device(device_rep OUT JSON, device_name TEXT, category_id BIGINT)
 AS
 $$
 DECLARE
     device_id BIGINT; device_state TEXT; device_category TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT name INTO device_category FROM CATEGORY WHERE id = category_id AND state != 'Inactive';
+    SELECT name, state INTO device_category, device_state FROM CATEGORY WHERE id = category_id;
     IF (device_category IS NULL) THEN
-        RAISE 'not_valid_category';
+        RAISE 'resource-not-found' USING DETAIL = 'category', HINT = category_id;
+    ELSEIF (device_state = 'inactive') THEN
+        RAISE 'inactive-resource';
     END IF;
     INSERT INTO DEVICE (name, category) VALUES (device_name, category_id)
     RETURNING id, state, timestamp INTO device_id, device_state, tmstamp;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_creating_resource';
-    END IF;
+
     device_rep = device_item_representation(device_id, device_name, device_category, device_state, tmstamp);
 END$$
-SET default_transaction_isolation = 'serializable'
+-- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -43,19 +72,22 @@ LANGUAGE plpgsql;
  * Returns the device item representation
  * Throws exception in case there is no row affected
  */
-CREATE OR REPLACE PROCEDURE update_device(device_id BIGINT, new_name TEXT, device_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE update_device(device_rep OUT JSON, device_id BIGINT, new_name TEXT)
 AS
 $$
 DECLARE
-    category_id INT; device_category TEXT; device_state TEXT; tmstamp TIMESTAMP;
+    category_id INT; device_state TEXT;
 BEGIN
-    UPDATE DEVICE SET name = new_name WHERE id = device_id
-    RETURNING id, name, category, state, timestamp INTO device_id, new_name, category_id, device_state, tmstamp;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
+    SELECT category, state INTO category_id, device_state FROM DEVICE WHERE id = device_id;
+    IF (category_id IS NULL) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'device', HINT = device_id;
+    ELSEIF (device_state = 'inactive') THEN
+        RAISE 'inactive-resource';
     END IF;
-    SELECT name INTO device_category FROM CATEGORY WHERE id = category_id;
-    device_rep = device_item_representation(device_id, new_name, device_category, device_state, tmstamp);
+
+    UPDATE DEVICE SET name = new_name WHERE id = device_id;
+
+    device_rep = device_item_representation(device_id);
 END$$
 LANGUAGE plpgsql;
 
@@ -76,10 +108,12 @@ BEGIN
         FROM DEVICE d INNER JOIN CATEGORY c ON d.category = c.id
         LIMIT limit_rows OFFSET skip_rows
     LOOP
-        devices = array_append(devices, device_item_representation(rec.id, rec.name, rec.category, rec.state, rec.timestamp));
-        collection_size = collection_size + 1;
+        devices = array_append(
+            devices,
+            device_item_representation(rec.id, rec.name, rec.category, rec.state, rec.timestamp)
+        );
     END LOOP;
-
+    SELECT COUNT(id) INTO collection_size FROM DEVICE;
     RETURN json_build_object('devices', devices, 'devicesCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
@@ -94,25 +128,22 @@ DECLARE
     rec RECORD;
     anomalies JSON[];
     collection_size INT = 0;
-    device_name TEXT; device_category TEXT; device_state TEXT; tmstamp TIMESTAMP;
+    device_name TEXT;
 BEGIN
-    SELECT d.name, c.name AS category, d.state, d.timestamp
-    INTO device_name, device_category, device_state, tmstamp
-    FROM DEVICE d INNER JOIN CATEGORY c ON d.category = c.id
-    WHERE d.id = device_id;
+    PERFORM device_exists(device_id);
 
     --get all device anomalies
     FOR rec IN
         SELECT id, anomaly FROM ANOMALY WHERE device = device_id
     LOOP
         anomalies = array_append(anomalies, anomaly_item_representation(rec.id, rec.anomaly));
-        collection_size = collection_size + 1;
     END LOOP;
-    return json_build_object(
-            'device', device_item_representation(device_id, device_name, device_category, device_state, tmstamp),
+    SELECT COUNT(id) INTO collection_size FROM ANOMALY WHERE device = device_id;
+    RETURN json_build_object(
+            'device', device_item_representation(device_id),
             'anomalies', json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size));
 END$$
-SET default_transaction_isolation = 'repeatable read'
+-- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -120,22 +151,22 @@ LANGUAGE plpgsql;
  * Returns the device item representation
  * Throws exception when the category is inactive or when no rows was affected.
  */
-CREATE OR REPLACE PROCEDURE change_device_category(device_id BIGINT, new_category_id BIGINT, device_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE change_device_category(device_rep OUT JSON, device_id BIGINT, new_category_id BIGINT)
 AS
 $$
 DECLARE
-    device_category TEXT; device_name TEXT; device_state TEXT; tmstamp TIMESTAMP;
+    device_category TEXT; device_state TEXT;
 BEGIN
-    SELECT name INTO device_category FROM CATEGORY WHERE id = new_category_id AND state != 'Inactive';
+    SELECT name, state INTO device_category, device_state FROM CATEGORY WHERE id = new_category_id;
     IF (device_category IS NULL) THEN
-        RAISE 'not_valid_category';
+        RAISE 'resource-not-found' USING DETAIL = 'category', HINT = new_category_id;
+    ELSEIF (device_state = 'inactive') THEN
+        RAISE 'inactive-resource';
     END IF;
-    UPDATE DEVICE SET category = new_category_id WHERE id = device_id
-    RETURNING id, name, state, timestamp INTO device_id, device_name, device_state, tmstamp;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
-    END IF;
-    device_rep = device_item_representation(device_id, device_name, device_category, device_state, tmstamp);
+
+    UPDATE DEVICE SET category = new_category_id WHERE id = device_id AND category != new_category_id;
+
+    device_rep = device_item_representation(device_id);
 END$$
 LANGUAGE plpgsql;
 
@@ -144,19 +175,13 @@ LANGUAGE plpgsql;
  * Returns the device item representation
  * Throws exception when no rows was affected.
  */
-CREATE OR REPLACE PROCEDURE deactivate_device(device_id BIGINT, device_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE deactivate_device(device_rep OUT JSON, device_id BIGINT)
 AS
 $$
-DECLARE
-    device_name TEXT; device_state TEXT; tmstamp TIMESTAMP; category_id BIGINT; device_category TEXT;
 BEGIN
-    UPDATE DEVICE SET state = 'Inactive', timestamp = CURRENT_TIMESTAMP WHERE id = device_id
-    RETURNING id, name, category, state, timestamp INTO device_id, device_name, category_id, device_state, tmstamp;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
-    END IF;
-    SELECT name INTO device_category FROM CATEGORY WHERE id = category_id;
-    device_rep = device_item_representation(device_id, device_name, device_category, device_state, tmstamp);
+    PERFORM device_exists(device_id);
+    UPDATE DEVICE SET state = 'inactive', timestamp = CURRENT_TIMESTAMP WHERE id = device_id AND state = 'active';
+    device_rep = device_item_representation(device_id);
 END$$
 LANGUAGE plpgsql;
 
@@ -165,19 +190,14 @@ LANGUAGE plpgsql;
  * Returns the device item representation
  * Throws exception when no rows was affected.
  */
-CREATE OR REPLACE PROCEDURE activate_device(device_id BIGINT, device_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE activate_device(device_rep OUT JSON, device_id BIGINT)
 AS
 $$
-DECLARE
-    device_name TEXT; device_state TEXT; tmstamp TIMESTAMP; category_id BIGINT; device_category TEXT;
 BEGIN
-    UPDATE DEVICE SET state = 'Active', timestamp = CURRENT_TIMESTAMP WHERE id = device_id
-    RETURNING id, name, category, state, timestamp INTO device_id, device_name, category_id, device_state, tmstamp;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
-    END IF;
-    SELECT name INTO device_category FROM CATEGORY WHERE id = category_id;
-    device_rep = device_item_representation(device_id, device_name, device_category, device_state, tmstamp);
+    PERFORM device_exists(device_id);
+    UPDATE DEVICE SET state = 'active', timestamp = CURRENT_TIMESTAMP WHERE id = device_id AND state = 'inactive';
+
+    device_rep = device_item_representation(device_id);
 END$$
 LANGUAGE plpgsql;
 
@@ -185,7 +205,13 @@ LANGUAGE plpgsql;
  * Get all room devices
  * Returns all devices presents in a room
  */
-CREATE OR REPLACE FUNCTION get_room_devices(room_id BIGINT, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+CREATE OR REPLACE FUNCTION get_room_devices(
+    company_id BIGINT,
+    building_id BIGINT,
+    room_id BIGINT,
+    limit_rows INT DEFAULT NULL,
+    skip_rows INT DEFAULT NULL
+)
 RETURNS JSON
 AS
 $$
@@ -194,40 +220,41 @@ DECLARE
     devices JSON[];
     collection_size INT = 0;
 BEGIN
+    PERFORM room_exists(company_id, building_id, room_id);
     FOR rec IN
-        SELECT d.id, d.name, c.name AS category, d.state, d.timestamp
-        FROM DEVICE d INNER JOIN CATEGORY c ON d.category = c.id
-        INNER JOIN ROOM_DEVICE ON device = d.id AND room = room_id
+        SELECT d.id, d.name, c.name AS category, d.state, d.timestamp FROM DEVICE d
+            INNER JOIN CATEGORY c ON (d.category = c.id)
+            INNER JOIN ROOM_DEVICE ON (device = d.id AND room = room_id)
         LIMIT limit_rows OFFSET skip_rows
     LOOP
-        devices = array_append(devices,
-            device_item_representation(rec.id, rec.name, rec.category, rec.state, rec.timestamp));
-        collection_size = collection_size + 1;
+        devices = array_append(
+            devices,
+            device_item_representation(rec.id, rec.name, rec.category, rec.state, rec.timestamp)
+        );
     END LOOP;
-
+    SELECT COUNT(device) INTO collection_size FROM ROOM_DEVICE WHERE room = room_id;
     RETURN json_build_object('devices', devices, 'devicesCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
 /*
  * Get a room device
  */
-CREATE OR REPLACE FUNCTION get_room_device(room_id BIGINT, device_id BIGINT)
+CREATE OR REPLACE FUNCTION get_room_device(
+    company_id BIGINT,
+    building_id BIGINT,
+    room_id BIGINT,
+    device_id BIGINT
+)
 RETURNS JSON
 AS
 $$
-DECLARE
-    device_id BIGINT; device_name TEXT; device_category TEXT; device_state TEXT; hash TEXT; tmstamp TIMESTAMP;
 BEGIN
-    SELECT d.id, d.name, d.state, c.name AS category, rd.qr_hash, d.timestamp
-    INTO device_id, device_name, device_state, device_category, hash, tmstamp
-    FROM ROOM_DEVICE rd
-        INNER JOIN DEVICE d ON rd.device = d.id
-        INNER JOIN CATEGORY c ON d.category = c.id
-    WHERE rd.room = room_id;
+    PERFORM room_exists(company_id, building_id, room_id);
+    PERFORM device_exists(device_id);
 
     RETURN json_build_object(
-        'device', device_item_representation(device_id, device_name, device_category, device_state, tmstamp),
-        'qrcode', qrhash_item_representation(hash));
+        'device', device_item_representation(device_id),
+        'hash', (SELECT qr_hash FROM ROOM_DEVICE WHERE room = room_id AND device = device_id));
 END$$ LANGUAGE plpgsql;
 
 /**
@@ -237,7 +264,7 @@ CREATE OR REPLACE FUNCTION device_deactivate_delete_qr_codes() RETURNS TRIGGER
 AS
 $$
 BEGIN
-	IF NEW.state = 'Inactive' THEN
+	IF NEW.state = 'inactive' THEN
         UPDATE ROOM_DEVICE SET qr_hash = NULL WHERE device = NEW.id;
 	END IF;
 	RETURN NEW;

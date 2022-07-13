@@ -37,6 +37,7 @@ import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
 import pt.isel.ps.project.model.Uris.Auth.LOGIN_PATH
 import pt.isel.ps.project.model.Uris.Auth.SIGNUP_PATH
+import pt.isel.ps.project.model.Uris.QRCode.REPORT_PATH
 import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY
 import pt.isel.ps.project.model.anomaly.AnomalyEntity.ANOMALY_ANOMALY_MAX_CHARS
 import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
@@ -470,6 +471,11 @@ object Validator {
     object AccessWithoutAuth {
         fun isAuthURI(requestURI: String): Boolean {
             return requestURI.compareTo(SIGNUP_PATH) == 0 || requestURI.compareTo(LOGIN_PATH) == 0
+        }
+
+        fun isReportURI(requestURI: String): Boolean {
+            val req = requestURI.substringBeforeLast("/").plus("/{hash}")
+            return req.compareTo(REPORT_PATH) == 0
         }
     }
 

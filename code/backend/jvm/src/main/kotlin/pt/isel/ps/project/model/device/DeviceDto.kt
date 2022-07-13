@@ -1,8 +1,6 @@
 package pt.isel.ps.project.model.device
 
 import pt.isel.ps.project.model.anomaly.AnomaliesDto
-import pt.isel.ps.project.model.anomaly.AnomalyItemDto
-import pt.isel.ps.project.model.qrcode.QRCodeDto
 import java.sql.Timestamp
 
 data class DeviceItemDto (
@@ -20,8 +18,7 @@ data class DeviceDto (
 
 data class DeviceQrCodeDto (
     val device: DeviceItemDto,
-    val qrcode: QRCodeDto
-
+    val hash: String,
 )
 
 data class DevicesDto (

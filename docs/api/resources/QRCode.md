@@ -8,17 +8,20 @@ All the **vocabulary** used in the QR Code representations is described [**here*
 ## QR Code API contents
 * [**Create or change a QR Code**](#create-or-change-a-qr-code)
 * [**Get a QR Code**](#get-a-qr-code)
+* [**Get report form**](#get-report-form)
 
 ## Create or change a QR Code
 Create or change a QR Code for a specific room device.
 
 ```http
-POST /rooms/{roomId}/devices/{deviceId}/qrcode
+POST /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/devices/{deviceId}/qrcode
 ```
 
 ### Parameters:
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. |
+| `buildingId` | integer | path | yes | Identifier of the building. |
 | `roomId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `deviceId` | integer | path | yes | Identifier of the device. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
@@ -26,19 +29,9 @@ POST /rooms/{roomId}/devices/{deviceId}/qrcode
 ### Response
 ```http
 Status: 201 Created
-Location: /rooms/{roomId}/devices/{deviceId}/qrcode
+Location: /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/devices/{deviceId}/qrcode
 ```
-```json
-{
-    "class": [ "qrcode" ],
-    "properties": {
-        "qrcode": "http://api.qrreport.com/qr-code/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    },
-    "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
-    ]
-}
-```
+
 ```http
 Status: 400 Bad Request
 ```
@@ -51,23 +44,52 @@ Status: 403 Forbidden
 ```http
 Status: 404 Not Found
 ```
-```http
-Status: 409 Conflict
-```
-* `type`: **unique-constraint**
 
 ## Get a QR Code
 Get the QR Code of a room device.
 
 ```http
-GET /rooms/{roomId}/devices/{deviceId}/qrcode
+GET /companies/{companyId}/buildings/{buildingId}/rooms/{roomId}/devices/{deviceId}/qrcode
 ```
 
 ### Parameters:
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
+| `companyId` | integer | path | yes | Identifier of the company. |
+| `buildingId` | integer | path | yes | Identifier of the building. |
 | `roomId` | integer | path | yes | Identifier of the room. Must be greater than 0. |
 | `deviceId` | integer | path | yes | Identifier of the device. Must be greater than 0. |
+| `accept` | string | header | yes | Set to `image/png`. |
+
+### Response
+```http
+Status: 200 OK
+```
+
+```http
+Status: 400 Bad Request
+```
+```http
+Status: 401 Unauthorized
+```
+```http
+Status: 403 Forbidden
+```
+```http
+Status: 404 Not Found
+```
+
+## Get report form
+Get the report form after reading a QR Code.
+
+```http
+GET /report/{hash}
+```
+
+### Parameters:
+| Name | Type | In | Required | Description |
+|:-:|:-:|:-:|:-:|:-:|
+| `hash` | string | path | yes | **Unique** hash that is associated to a room device. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 
 ### Response
@@ -76,23 +98,42 @@ Status: 200 OK
 ```
 ```json
 {
-    "class": [ "qrcode" ],
+    "class": [ "report" ],
     "properties": {
-        "qrcode": "http://api.qrreport.com/qrcode/ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "company": "ISEL",
+        "building": "A",
+        "room": "1 - Bathroom",
+        "device": "Toilet1"
     },
     "actions": [
         {
-            "name": "create-qrcode",
-            "title": "Create new QRCode",
+            "name": "report",
+            "title": "Report",
             "method": "POST",
-            "href": "/rooms/1/devices/1/qrcode"
+            "href": "/tickets",
+            "type": "application/json",
+            "properties": [
+                { "name": "subject", "type": "string" },
+                { "name": "description", "type": "string" },
+                { "name": "hash", "type": "string" },
+                { "name": "name", "type": "string" },
+                { "name": "phone", "type": "string", "required": false },
+                { "name": "email", "type": "string" }
+            ]
+        },
+        {
+            "name": "logout",
+            "title": "Logout",
+            "method": "POST",
+            "href": "/logout"
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/rooms/1/devices/1/qrcode" }
+        { "rel": [ "self" ], "href": "/report/5abd4089b7921fd6af09d1cc1cbe5220" }
     ]
 }
 ```
+
 ```http
 Status: 400 Bad Request
 ```
@@ -109,6 +150,10 @@ Status: 404 Not Found
 ## QR Code representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `qrcode` | string | URL to obtain the QR Code with a **unique** hash for each room device. |
+| `hash` | string | **Unique** hash associated to a room device. |
+| `company` | string | Company name where the QR Code is localized. |
+| `building` | string | Building name where the QR Code is localized. |
+| `room` | string | Room name where the QR Code is localized. |
+| `device` | string | Device name that is associated to the QR Code used. |
 
 The **documentation** for the `media-type`, `classes`, `standard link relations` and `generic errors` used in the representations are described [**here**](../README.md).

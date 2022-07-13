@@ -23,14 +23,17 @@ object Uris {
         const val BASE_PATH = "$VERSION/devices"
         const val SPECIFIC_PATH = "$BASE_PATH/{deviceId}"
         const val ACTIVATE_PATH ="$SPECIFIC_PATH/activate"
+        const val DEACTIVATE_PATH ="$SPECIFIC_PATH/deactivate"
         const val CATEGORY_PATH ="$SPECIFIC_PATH/category"
         const val DEVICES_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+        private val DEACTIVATE_TEMPLATE = UriTemplate(DEACTIVATE_PATH)
         private val CATEGORY_TEMPLATE = UriTemplate(CATEGORY_PATH)
         fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
         fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
+        fun makeDeactivate(id: Long) = DEACTIVATE_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
         fun makeCategory(id: Long) = CATEGORY_TEMPLATE.expand(mapOf("deviceId" to id)).toString()
 
         object Anomalies {
@@ -118,16 +121,21 @@ object Uris {
                     SPECIFIC_DEVICE_TEMPLATE.expand(
                         mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId, "deviceId" to deviceId)
                     ).toString()
-
-                object QRCode {
-                    const val BASE_PATH = "$SPECIFIC_DEVICE_PATH/qrcode"
-                    private val SPECIFIC_QRCODE_TEMPLATE = UriTemplate(BASE_PATH)
-
-                    fun makeSpecific(roomId: Long, deviceId: Long) =
-                        SPECIFIC_QRCODE_TEMPLATE.expand(mapOf("roomId" to roomId, "deviceId" to deviceId)).toString()
-                }
             }
         }
+    }
+
+    object QRCode {
+        const val BASE_PATH = "${Companies.Buildings.Rooms.SPECIFIC_DEVICE_PATH}/qrcode"
+        const val REPORT_PATH = "$VERSION/report/{hash}"
+
+        private val SPECIFIC_QRCODE_TEMPLATE = UriTemplate(BASE_PATH)
+        private val REPORT_PATH_TEMPLATE = UriTemplate(REPORT_PATH)
+
+        fun makeSpecific(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) =
+            SPECIFIC_QRCODE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId,
+                "roomId" to roomId, "deviceId" to deviceId)).toString()
+        fun makeReport(hash: String) = REPORT_PATH_TEMPLATE.expand(mapOf("hash" to hash)).toString()
     }
 
     object Tickets {
