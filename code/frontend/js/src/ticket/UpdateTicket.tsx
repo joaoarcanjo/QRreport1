@@ -5,11 +5,11 @@ import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputF
 import { Loading } from "../components/Various";
 import { DisplayError } from "../Error";
 import { useFetch } from "../hooks/useFetch";
-import * as QRreport from '../models/QRJsonModel';
+import { Action } from "../models/QRJsonModel";
 import { BASE_URL_API } from "../Urls";
 import { TicketRep } from "./Ticket";
 
-export function UpdateTicket({ action }: { action: QRreport.Action }) {
+export function UpdateTicket({ action }: { action: Action }) {
 
     type userData = {
         subject: string, 
@@ -66,11 +66,11 @@ export function UpdateTicket({ action }: { action: QRreport.Action }) {
         <section className="info-section">
             <div className="grid place-items-center">
                 <Form onSubmitHandler = { onSubmitHandler }>
-                    <Header heading='Update your account'>
-                        <HeaderParagraph paragraph='Insert new credentials below'/>
+                    <Header heading='Update your ticket'>
+                        <HeaderParagraph paragraph='Insert new information below'/>
                     </Header>
                     <Inputs/>
-                    <SubmitButton text={'Update account'}/>
+                    <SubmitButton text={'Update ticket'}/>
                     <Paragraph value = {'(*) Required'}/>
                 </Form>
             </div>

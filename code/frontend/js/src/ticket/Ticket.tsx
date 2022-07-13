@@ -8,13 +8,13 @@ import { Ticket } from "../Models";
 import { TICKETS_URL,  TICKET_URL_API } from "../Urls";
 import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from '../models/ModelUtils';
 import { Action, Entity } from "../models/QRJsonModel";
-import { FaEdit, FaRegBuilding, FaRegSadTear } from "react-icons/fa";
+import { FaEdit, FaRegBuilding } from "react-icons/fa";
 import { ActionComponent } from "../user/profile/ActionRequest";
 import { SetEmployeeAction } from "./SetEmployeeAction";
 import { UpdateTicket } from "./UpdateTicket";
 import { TicketRate } from "./TicketRate";
 import { UpdateState } from "./TicketState";
-import { ListComments } from "../components/ListComments";
+import { ListComments } from "../comment/ListComments";
 
 export function TicketRep() {
 

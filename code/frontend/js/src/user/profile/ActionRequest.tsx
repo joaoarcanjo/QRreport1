@@ -38,8 +38,8 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
                 return <Navigate to={redirectUrl}/>
             }
             return <>{returnComponent}</>
-        } else {
-            return <DisplayError message={'Error deleting.'}/>
-        }
+        } 
+        if (error) return <DisplayError message={'Error deleting.'}/>
+        return <></>
     }
 }

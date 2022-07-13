@@ -2,25 +2,25 @@ export type Building = {
     id: number,
     name: string,
     floors: number,
-    state: State,
+    state: string,
     timestamp?: Date
-    numberOfRooms?: number
+    numberOfRooms?: number //TODO
 }
 
 export type Company = {
     id: number,
     name: string,
-    state: State,
+    state: string,
     timestamp?: Date
-    numberOfBuildings?: number
+    numberOfBuildings?: number //TODO
 }
 
 export type Room = {
     id: number,
     name: string,
     floor: number,
-    state: State,
-    numberOfReports?: number
+    state: string,
+    numberOfReports?: number //TODO
 }
 
 export type State = {
@@ -68,8 +68,8 @@ export type Person = {
     roles: string[],
     skills?: string[],
     timestamp: Date,
-    numberOfReports?: string,
-    reportsRejected?: string
+    numberOfReports?: string, //TODO
+    reportsRejected?: string //TODO
 }
 
 export type PersonItem = {
@@ -93,7 +93,7 @@ export type Skill = {
 export type Device = {
     id: number,
     name: string,
-    state: State
+    state: string
 }
 
 export type CategoryItem = {

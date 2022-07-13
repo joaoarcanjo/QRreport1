@@ -4,10 +4,10 @@ import { Room, Building, State } from "../Models";
 
 export function BuildingRep() {
 
-    function BuildingState({state}: {state: State}) {
+    function BuildingState({state}: {state: string}) {
 
-        const stateColor = state.name === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state.name}</span>
+        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
+        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state}</span>
         
         return <span className="ml-auto">{stateElement}</span>
     }
@@ -36,7 +36,7 @@ export function BuildingRep() {
 
     function RoomItem({room} : {room: Room}) {
 
-        const bgColor = room.state?.name === 'active' ? 'bg-white' : 'bg-red-100'
+        const bgColor = room.state === 'active' ? 'bg-white' : 'bg-red-100'
         
         return (
             <Link to={`/rooms/${room.id}`}>
@@ -56,14 +56,14 @@ export function BuildingRep() {
         )
     }
 
-    const mockBuilding = {'id': 22, 'name': 'Bloco A', 'state': { 'id': 1, 'name': 'active' }, 'floors': 4, 'numberOfRooms': 5 }
+    const mockBuilding = {'id': 22, 'name': 'Bloco A', 'state': 'active', 'floors': 4, 'numberOfRooms': 5 }
 
     const mockRoomsValues = [
-        {'id': 1, 'name': 'Secretaria', 'state': { 'id': 1, 'name': 'active' }, 'floor': 1, 'numberOfReports': 2},
-        {'id': 2, 'name': 'Gabinete x', 'state': { 'id': 1, 'name': 'active' }, 'floor': 2, 'numberOfReports': 43},
-        {'id': 3, 'name': 'Tesouraria', 'state': { 'id': 1, 'name': 'inactive' }, 'floor': -1, 'numberOfReports': 12},
-        {'id': 4, 'name': 'Refeitório', 'state': { 'id': 1, 'name': 'active' }, 'floor': 4, 'numberOfReports': 33},
-        {'id': 5, 'name': 'Sala de estudos', 'state': { 'id': 1, 'name': 'active' }, 'floor': 1, 'numberOfReports': 43},
+        {'id': 1, 'name': 'Secretaria', 'state': 'active', 'floor': 1, 'numberOfReports': 2},
+        {'id': 2, 'name': 'Gabinete x', 'state': 'active', 'floor': 2, 'numberOfReports': 43},
+        {'id': 3, 'name': 'Tesouraria', 'state': 'active', 'floor': -1, 'numberOfReports': 12},
+        {'id': 4, 'name': 'Refeitório', 'state': 'active', 'floor': 4, 'numberOfReports': 33},
+        {'id': 5, 'name': 'Sala de estudos', 'state': 'active', 'floor': 1, 'numberOfReports': 43},
     ]
 
     return (

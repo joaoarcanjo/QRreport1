@@ -18,6 +18,14 @@ export const TICKET_URL_API = (ticketId: string | undefined): string => {
     return url
 }
 
+export const COMPANIES_URL_API = (): string => {
+    return BASE_URL_API + `/v1/companies`
+} 
+
+export const COMPANY_URL_API = (companyId: string | undefined): string => {
+    return BASE_URL_API + `/v1/companies/${companyId}`
+} 
+
 export const BASE_URL = "http://localhost:3000"
 
 export const PERSONS_URL = "/persons"

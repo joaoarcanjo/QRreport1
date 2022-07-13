@@ -25,10 +25,10 @@ export function RoomRep() {
         )
     }
 
-    function RoomState({state}: {state: State}) {
+    function RoomState({state}: {state: string}) {
 
-        const stateColor = state.name === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state.name}</span>
+        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
+        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state}</span>
         
         return <span className="ml-auto">{stateElement}</span>
     }
@@ -57,13 +57,13 @@ export function RoomRep() {
 
     function DeviceItem({device}: {device: Device}) {
 
-        const bgColor = device.state?.name === 'active' ? 'bg-white' : 'bg-red-100'
+        const bgColor = device.state === 'active' ? 'bg-white' : 'bg-red-100'
         
         return (
             <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md`}> 
                 <div className="flex items-center">
                     <span className='text-xl font-md text-gray-900'>{device.name}</span>
-                    {device.state.name === 'active' ? 
+                    {device.state === 'active' ? 
                     <button className={'bg-slate-400 ml-auto py-4 px-4 rounded text-white text-sm'}
                         onClick={()=> setPopup(!popup)}> Generate new QRcode</button> : ''}
                 </div>
@@ -79,13 +79,13 @@ export function RoomRep() {
         )
     }
 
-    const mockRoom = {'id': 1, 'name': 'Secretaria', 'state': { 'id': 1, 'name': 'active' }, 'floor': 1, 'numberOfReports': 2}
+    const mockRoom = {'id': 1, 'name': 'Secretaria', 'state': 'active', 'floor': 1, 'numberOfReports': 2}
 
     const mockDevicesValues = [
-        {'id': 1, 'name': 'Toilet 1', 'state': { 'id': 1, 'name': 'active' }},
-        {'id': 2, 'name': 'Door', 'state': { 'id': 1, 'name': 'active' }},
-        {'id': 3, 'name': 'Lamp', 'state': { 'id': 1, 'name': 'inactive'}},
-        {'id': 4, 'name': 'Faucet', 'state': { 'id': 1, 'name': 'active' }}
+        {'id': 1, 'name': 'Toilet 1', 'state': 'active'},
+        {'id': 2, 'name': 'Door', 'state': 'active'},
+        {'id': 3, 'name': 'Lamp', 'state': 'active'},
+        {'id': 4, 'name': 'Faucet', 'state': 'active'}
     ]
 
     return (
