@@ -149,9 +149,11 @@ object Uris {
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val EMPLOYEE_TEMPLATE = UriTemplate(EMPLOYEE_PATH)
         private val RATE_TEMPLATE = UriTemplate(RATE_PATH)
+        private val STATE_TEMPLATE = UriTemplate(STATE_PATH)
         fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeEmployee(id: Long) = EMPLOYEE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeRate(id: Long) = RATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+        fun makeState(id: Long) = STATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
 
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"

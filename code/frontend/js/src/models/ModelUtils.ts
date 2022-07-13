@@ -22,6 +22,14 @@ export function getEntitiesOrUndefined<T>(result?: FetchResult<T>): QrJson.Entit
     }
 }
 
+export function getSpecificEntity<T>(classes: string[], rel: string, entities?: QrJson.Entity<any>[]): QrJson.Entity<any> | undefined {
+    return entities!!.find(entity => {
+        classes.forEach(c => {if(!entity.class.includes(c)) return undefined;})
+        if(!entity.rel?.includes(rel)) return undefined;
+        return entity 
+    })
+} 
+
 export function getActionsOrUndefined<T>(result?: FetchResult<T>): QrJson.Action[] | undefined {
     switch (result?.type) {
         case 'success': return result.entity.actions

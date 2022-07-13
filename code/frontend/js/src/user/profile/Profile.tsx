@@ -3,7 +3,7 @@ import { FaEdit, FaUserAlt } from 'react-icons/fa';
 import { Person } from '../../Models';
 import { useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
-import { BASE_URL, BASE_URL_API, PERSONS_URL, PERSON_URL_API } from '../../Urls';
+import { BASE_URL, PERSONS_URL, PERSON_URL_API } from '../../Urls';
 import { DisplayError } from '../../Error';
 import * as QRreport from '../../models/QRJsonModel';
 import { getEntityOrUndefined, getActionsOrUndefined } from '../../models/ModelUtils';
@@ -35,7 +35,7 @@ export function Profile() {
     const [auxInfo, setAuxInfo] = useState('')
     const [isLogout, setLogout] = useState(false)
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Person>(BASE_URL_API + PERSON_URL_API(personId), init)
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Person>(PERSON_URL_API(personId), init)
 
     if (isFetching) return <Loading/>
     if (isCanceled) return <p>Canceled</p>
@@ -133,7 +133,7 @@ export function Profile() {
             <button onClick={() => setAction(action)} className="my-1">
                 <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
             </button>
-        ): <></>
+        ): null
     }   
 
     function MainInfo({ entity, actions }: { entity: QRreport.Entity<Person> | undefined, actions?: QRreport.Action[] }){
@@ -195,7 +195,7 @@ export function Profile() {
         const isEmployee = person.roles.find(role => role === 'employee') === null
 
         return (
-            <div className="w-full bg-white p-3 shadow-sm rounded-sm">
+            <div className="w-full bg-white p-3 shadow-sm rounded-smw-full bg-white p-3 shadow-sm rounded-sm">
                 <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                     <FaUserAlt style= {{color: "green"}} /> <span className="tracking-wide">About</span>
                 </div>

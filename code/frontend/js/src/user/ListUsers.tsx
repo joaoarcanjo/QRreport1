@@ -70,11 +70,13 @@ export function ListPersons() {
         }
     }
     const init = useMemo(() => credentials ,[])
+    const [direction, setDirection] = useState('desc')
+    const [sortBy, setSortBy] = useState('date')
+    const [isAction, setAction] = useState(false)
     
     //const [currentPage, setPage] = useState(0)
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(PERSONS_URL_API/* + currentPage*/, init)
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(PERSONS_URL_API(sortBy, direction), init)
 
-    const [isAction, setAction] = useState(false)
 
     if (isCanceled) return <p>Canceled</p>
     if (error !== undefined) {  

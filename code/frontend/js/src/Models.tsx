@@ -39,9 +39,9 @@ export type Ticket = {
     id: number;
     subject: string;
     description: string;
-    category: string;
-    buildingName: string;
-    roomName: string;
+    creationTimestamp: Date;
+    employeeState: string;
+    userState: string;
     possibleTransitions: State[];
 }
 

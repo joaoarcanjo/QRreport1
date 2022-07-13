@@ -7,6 +7,7 @@ import org.jdbi.v3.sqlobject.statement.SqlCall
 import org.jdbi.v3.sqlobject.statement.SqlQuery
 import pt.isel.ps.project.model.comment.COMMENT_REP
 import pt.isel.ps.project.model.comment.CreateCommentEntity
+import java.util.*
 
 interface CommentDao {
 
@@ -18,7 +19,7 @@ interface CommentDao {
 
     @OutParameter(name = COMMENT_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL create_comment(:$COMMENT_REP, :person, :ticketId, :comment);")
-    fun createComment(ticketId: Long, @BindBean comment: CreateCommentEntity): OutParameters
+    fun createComment(ticketId: Long, @BindBean comment: CreateCommentEntity, person: UUID): OutParameters
 
     @OutParameter(name = COMMENT_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL update_comment(:commentId, :ticketId, :comment, :$COMMENT_REP);")

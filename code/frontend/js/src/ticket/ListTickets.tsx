@@ -2,12 +2,11 @@ import { useMemo, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
-import React from "react";
 import { TicketItem } from "../Models";
 import { useLoggedInState } from "../user/Session";
 import { useFetch } from "../hooks/useFetch";
 import { Collection } from "../pagination/CollectionPagination";
-import { BASE_URL_API, TICKETS_URL_API } from "../Urls";
+import { TICKETS_URL_API } from "../Urls";
 import { Loading } from "../components/Various";
 import { DisplayError } from "../Error";
 import { Entity } from "../models/QRJsonModel";
@@ -17,7 +16,6 @@ export function ListTickets() {
 
     const [direction, setDirection] = useState('desc')
     const [sortBy, setSortBy] = useState('date')
-    const [search, setSearch] = useState<string | undefined>(undefined)
 
     //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
@@ -49,12 +47,12 @@ export function ListTickets() {
                 <button 
                     className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
                     onClick= {() => { setDirectionAux(directionAux === 'desc' ? 'asc' : 'desc') }}>
-                    {directionAux === 'desc' && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
-                    {directionAux === 'asc' && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
+                    {directionAux === 'asc' && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
+                    {directionAux === 'desc' && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
                 </button>     
                 <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
                         onClick= {() => {setDirection(directionAux); setSortBy(sortByAux) }}>
-                    <MdFilterList style= {{ color: 'white', fontSize: '2em' }} /> 
+                    <MdFilterList style= {{ color: 'white', fontSize: '2em' }} />
                 </button>
             </div>    
         )

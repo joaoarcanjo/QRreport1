@@ -14,5 +14,5 @@ object CommentEntity {
 
 data class CreateCommentEntity(
     val comment: String,
-    val person: UUID,
+    //val person: UUID,
 )

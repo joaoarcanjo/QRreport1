@@ -42,6 +42,45 @@ object TicketResponses {
                 QRreportJsonModel.Property("description", "string")
             )
         )
+        fun changeTicketState(ticketId: Long) = QRreportJsonModel.Action(
+            name = "update-ticket-state",
+            title = "Update ticket state",
+            method = HttpMethod.PUT,
+            href = Uris.Tickets.makeState((ticketId)),
+            type = MediaType.APPLICATION_JSON.toString(),
+            properties = listOf(
+                QRreportJsonModel.Property("state", "number"),
+            )
+        )
+
+        fun setEmployee(ticketId: Long) = QRreportJsonModel.Action(
+            name = "set-employee",
+            title = "Set employee",
+            method = HttpMethod.POST,
+            href = Uris.Tickets.makeEmployee((ticketId)),
+            type = MediaType.APPLICATION_JSON.toString(),
+            properties = listOf(
+                QRreportJsonModel.Property(name = "employee", type = "string",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH)),
+            )
+        )
+
+        fun removeEmployee(ticketId: Long) = QRreportJsonModel.Action(
+            name = "remove-employee",
+            title = "Remove employee",
+            method = HttpMethod.DELETE,
+            href = Uris.Tickets.makeEmployee((ticketId))
+        )
+
+        fun addRate(ticketId: Long) = QRreportJsonModel.Action(
+            name = "add-rate",
+            title = "Submit rating",
+            method = HttpMethod.PUT,
+            href = Uris.Tickets.makeRate((ticketId)),
+            properties = listOf(
+                QRreportJsonModel.Property("rate", "number"),
+            )
+        )
     }
 
     private fun getTicketItem(ticket: TicketItemDto, rel: List<String>?) = QRreportJsonModel(
@@ -80,7 +119,12 @@ object TicketResponses {
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (ticketInfo.ticket.employeeState.compareTo("Archived") == 0) return@apply
             add(Actions.deleteTicket(ticketInfo.ticket.id))
-            add(Actions.updateTicket(ticketInfo.ticket.id))
+            if (ticketInfo.ticket.employeeState.compareTo("To assign") == 0)
+                add(Actions.updateTicket(ticketInfo.ticket.id))
+            add(Actions.changeTicketState(ticketInfo.ticket.id))
+            add(Actions.setEmployee(ticketInfo.ticket.id))
+            //add(Actions.removeEmployee(ticketInfo.ticket.id))
+            add(Actions.addRate(ticketInfo.ticket.id))
         },
         links = listOf(Links.self(Uris.Tickets.makeSpecific(ticketInfo.ticket.id)), Links.tickets())
     )

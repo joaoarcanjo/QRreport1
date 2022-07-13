@@ -68,7 +68,7 @@ BEGIN
     RETURN (
         json_build_object(
             'comment', comment_item_representation(comment_id, comment, comment_timestamp),
-            'person', person_item_representation(person_id, person_email, person_phone, person_email))
+            'person', person_item_representation(person_id))
         );
 END$$ LANGUAGE plpgsql;
 
@@ -102,7 +102,7 @@ BEGIN
         comments = array_append(comments,
             json_build_object(
                 'comment', comment_item_representation(rec.comment_id, rec.comment, rec.comment_timestamp),
-                'person', person_item_representation(rec.person_id, rec.name, rec.phone, rec.email)
+                'person', person_item_representation(rec.person_id)
         ));
         collection_size = collection_size + 1;
     END LOOP;

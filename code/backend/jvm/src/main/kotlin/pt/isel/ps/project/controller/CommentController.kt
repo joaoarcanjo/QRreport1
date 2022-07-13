@@ -2,6 +2,7 @@ package pt.isel.ps.project.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.comment.CommentDto
 import pt.isel.ps.project.model.comment.CommentItemDto
@@ -34,9 +35,10 @@ class CommentController(private val service: CommentService) {
     @PostMapping(Uris.Tickets.Comments.BASE_PATH)
     fun createComment(
         @PathVariable ticketId: Long,
-        @RequestBody comment: CreateCommentEntity
+        @RequestBody comment: CreateCommentEntity,
+        user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
-        return createCommentRepresentation(ticketId, service.createComment(ticketId, comment))
+        return createCommentRepresentation(ticketId, service.createComment(ticketId, comment, user))
     }
 
     @GetMapping(Uris.Tickets.Comments.SPECIFIC_PATH)

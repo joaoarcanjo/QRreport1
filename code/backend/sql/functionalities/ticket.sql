@@ -241,13 +241,12 @@ BEGIN
             'creationTimestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
             'possibleTransitions', t_possibleTransitions),
         'ticketComments', get_comments(ticket_id, limit_rows, skip_rows, comments_direction),
-        'person', person_item_representation(p_id, p_name, p_phone, p_email),
+        'person', person_item_representation(p_id),
         'company', company_item_representation(c_id, c_name, c_state, c_timestamp),
         'building', building_item_representation(b_id, b_name, b_floors, b_state, b_timestamp),
         'room', room_item_representation(r_id, r_name, r_floor, r_state, r_timestamp),
         'device', device_item_representation(d_id, d_name, ct_name, d_state, d_timestamp));
 END$$ LANGUAGE plpgsql;
-
 
 /*
  * Gets all the tickets
@@ -384,7 +383,7 @@ BEGIN
     SELECT name, email, phone FROM PERSON WHERE id = new_employee_id INTO employee_name, employee_email, employee_phone;
     ticket_rep = json_build_object(
         'ticket', ticket_item_representation(ticket_id, t_subject, t_description, t_employeeState),
-        'person', person_item_representation(new_employee_id, employee_name, employee_phone, employee_email));
+        'person', person_item_representation(new_employee_id));
 END$$
 SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

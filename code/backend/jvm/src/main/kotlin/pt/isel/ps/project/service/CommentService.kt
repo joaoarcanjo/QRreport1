@@ -1,6 +1,7 @@
 package pt.isel.ps.project.service
 
 import org.springframework.stereotype.Service
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.CommentDao
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.InternalServerException
@@ -22,9 +23,9 @@ class CommentService(val commentDao: CommentDao) {
     }
 
     //@Transactional(isolation = Isolation.SERIALIZABLE)
-    fun createComment(ticketId: Long, comment: CreateCommentEntity): CommentItemDto {
+    fun createComment(ticketId: Long, comment: CreateCommentEntity, person: AuthPerson): CommentItemDto {
         verifyCommentInput(comment)
-        return commentDao.createComment(ticketId, comment).getString(COMMENT_REP)
+        return commentDao.createComment(ticketId, comment, person.id).getString(COMMENT_REP)
             ?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }

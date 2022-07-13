@@ -39,6 +39,7 @@ class TicketController(private val service: TicketService) {
 
     @GetMapping(Tickets.SPECIFIC_PATH)
     fun getTicket(@PathVariable ticketId: Long): QRreportJsonModel {
+        //todo: verificar se o user é manager, admin, o user que criou o ticket ou o employee q está a tratar do mesmo
         return getTicketRepresentation(service.getTicket(ticketId))
     }
 

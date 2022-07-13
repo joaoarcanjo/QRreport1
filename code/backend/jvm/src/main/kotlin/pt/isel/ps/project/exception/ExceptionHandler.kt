@@ -53,7 +53,7 @@ import javax.servlet.http.HttpServletRequest
 
 @ControllerAdvice
 class ExceptionHandler : ResponseEntityExceptionHandler() {
-
+/*
     fun buildExceptionResponse(
         type: URI,
         title: String,
@@ -358,5 +358,5 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 )
             }
         }
-    }
+    }*/
 }

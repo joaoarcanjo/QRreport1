@@ -125,9 +125,8 @@ function RemoveRoleAction({ action, setAction, setAuxInfo }: {
     return <div>
         <Form onSubmitHandler = { onSubmitHandler }>
             <Inputs/>
-            <button
-                className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
-                    {action.title}
+            <button className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                {action.title}
             </button>
         </Form>
     </div>

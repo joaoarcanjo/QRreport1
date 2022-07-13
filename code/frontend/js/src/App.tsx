@@ -10,9 +10,6 @@ import FormValidator from './ticket/TicketValidator';
 import { useEffect, useState } from 'react';
 import { Profile } from './user/profile/Profile';
 import { ListTickets } from './ticket/ListTickets';
-import { UpdateProfile } from './user/profile/UpdateProfile';
-import { ManagerTickets } from './ticket/ManagerTickets';
-import { DeliverTicket } from './ticket/DeliverTicket';
 import { ListPersons } from './user/ListUsers';
 import { ListEmployees } from './user/ListEmployees';
 import { TicketRep } from './ticket/Ticket';
@@ -41,9 +38,7 @@ function AppRouter() {
                 <Route path="/signup" element= {<SignupForm/>}/>
                 <Route path="/qrcode/:hash" element= {<FormValidator/>}/>
                 <Route path="/persons/:personId" element= {<Profile/>}/>
-                <Route path="/persons/:personId/tickets/" element= {<ListTickets/>}/>
-                <Route path="/managerTickets" element= {<ManagerTickets/>}/>
-                <Route path="/deliveTicket/:id" element= {<DeliverTicket/>}/>
+                <Route path="/tickets/" element= {<ListTickets/>}/>
                 <Route path="/employees" element= {<ListEmployees/>}/>
                 <Route path="/persons" element= {<ListPersons/>}/>
                 <Route path="/companies" element= {<ListCompanies/>}/>
@@ -55,7 +50,7 @@ function AppRouter() {
                 <Route path="/updatebuilding/:id" element= {<UpdateBuilding/>}/>
                 <Route path="/rooms/:id" element= {<RoomRep/>}/>
                 <Route path="/createRoom" element= {<CreateRoom buildingId={1}/>}/>
-                <Route path="/tickets/:id" element= {<TicketRep/>}/>
+                <Route path="/tickets/:ticketId" element= {<TicketRep/>}/>
             </Routes>
         </Router>
     )
