@@ -93,7 +93,14 @@ export type Skill = {
 export type Device = {
     id: number,
     name: string,
-    state: string
+    state: string,
+    category: string,
+    timestamp: Date
+}
+
+export type DeviceQrCode = {
+    device: Device,
+    hash?: String,
 }
 
 export type CategoryItem = {
@@ -101,4 +108,8 @@ export type CategoryItem = {
     name: string,
     state: string,
     timestamp: Date
+}
+
+export type QrCode = {
+    qrcode: string
 }

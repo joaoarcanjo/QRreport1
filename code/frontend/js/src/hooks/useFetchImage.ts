@@ -75,10 +75,8 @@ async function doFetch<T>(url: string, dispatcher: (action: Action<T>) => void, 
     dispatcher({ type: States.FETCH_STARTED, url: url })
     try {
         const response = await fetch(url, {...init})
-        console.log(`Payload: ${response}`)
         dispatcher({ type: States.RESPONSE, responseHeaders: response })
         const payload = await response.blob()
-        console.log(`Payload: ${payload}`)
         dispatcher({ type: States.PAYLOAD, payload: mapToFetchResult(payload, response.headers.get('content-type')) })
     } catch (error) {
         dispatcher({ type: States.ERROR, error: error as Error }) 
@@ -89,7 +87,6 @@ export function useFetchImage<T>(url: string, init?: RequestInit): State<T> {
     const [state, dispatcher] = useReducer(reducer, { isFetching: false, isCanceled: false })
     useEffect(
         () => { 
-            console.log("fetching")
             doFetch(url, dispatcher, init)
         }
         ,[url, init, dispatcher]

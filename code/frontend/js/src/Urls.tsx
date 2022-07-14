@@ -34,6 +34,15 @@ export const ROOM_URL_API = (companyId: string | undefined, buildingId: string |
     return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}`
 } 
 
+export const ROOM_DEVICE_URL_API = (companyId: string | undefined, buildingId: string | undefined, roomId: string | undefined, deviceId: number | undefined): string => {
+    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}/devices/${deviceId}`
+} 
+
+export const QRCODE_URL_API = (url: string | undefined): string => {
+    if(!url) return ''
+    return BASE_URL_API + url
+}
+
 export const BASE_URL = "http://localhost:3000"
 
 export const PERSONS_URL = "/persons"
