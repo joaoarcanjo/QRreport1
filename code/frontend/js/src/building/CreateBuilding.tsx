@@ -5,8 +5,7 @@ import { simpleInputForm } from "../components/form/FormInputs";
 import { ListPossibleValues } from "../components/form/ListPossibleValues";
 import { Action } from "../models/QRJsonModel";
 
-export function CreateBuilding({companyId, action, setAction, setAuxAction, setPayload }: {  
-    companyId: string | undefined,
+export function CreateBuilding({action, setAction, setAuxAction, setPayload }: {  
     action?: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>

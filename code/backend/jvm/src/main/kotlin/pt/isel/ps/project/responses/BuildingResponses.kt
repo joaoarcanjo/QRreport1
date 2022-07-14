@@ -74,7 +74,8 @@ object BuildingResponses {
             method = HttpMethod.PUT,
             href = Buildings.makeManager(companyId, buildingId),
             type = MediaType.APPLICATION_JSON.toString(),
-            properties = listOf(QRreportJsonModel.Property("managerId", "string"))
+            properties = listOf(QRreportJsonModel.Property("managerId", "string",
+                possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH)))
         )
     }
 

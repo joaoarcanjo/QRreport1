@@ -1,6 +1,6 @@
 import { AiFillTool, AiFillStar } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import { PersonItem } from "../Models";
+import { PersonItem } from "../models/Models";
 
 export function ListEmployees() {
 

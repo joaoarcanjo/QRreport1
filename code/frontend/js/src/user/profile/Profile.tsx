@@ -1,6 +1,6 @@
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { FaEdit, FaUserAlt } from 'react-icons/fa';
-import { Person } from '../../Models';
+import { Person } from '../../models/Models';
 import { useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { BASE_URL, PERSONS_URL, PERSON_URL_API } from '../../Urls';

@@ -36,11 +36,11 @@ interface BuildingDao {
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)
     fun deactivateBuilding(companyId: Long, buildingId: Long): OutParameters
 
-    @SqlCall("CALL activate_building(:$BUILDING_REP:companyId, :buildingId);")
+    @SqlCall("CALL activate_building(:$BUILDING_REP, :companyId, :buildingId);")
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)
     fun activateBuilding(companyId: Long, buildingId: Long): OutParameters
 
-    @SqlCall("CALL change_building_manager(:$BUILDING_REP:companyId, :buildingId, :manager);")
+    @SqlCall("CALL change_building_manager(:$BUILDING_REP, :companyId, :buildingId, :manager);")
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)
     fun changeBuildingManager(companyId: Long, buildingId: Long, @BindBean manager: ChangeManagerEntity): OutParameters
 }

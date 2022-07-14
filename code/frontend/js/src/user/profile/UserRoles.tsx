@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Person } from "../../Models"
+import { Person } from "../../models/Models"
 import { Action } from "../../models/QRJsonModel"
 import * as QRreport from '../../models/QRJsonModel';
 import { MdAddCircleOutline, MdRemoveCircleOutline, MdOutlineAssignmentInd } from "react-icons/md";

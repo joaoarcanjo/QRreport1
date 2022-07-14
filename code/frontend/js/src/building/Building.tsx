@@ -1,8 +1,47 @@
+import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa"
-import { Link } from "react-router-dom"
-import { Room, Building, State } from "../Models";
+import { Link, useParams } from "react-router-dom"
+import { Loading } from "../components/Various";
+import { DisplayError } from "../Error";
+import { useFetch } from "../hooks/useFetch";
+import { Building } from "../models/Models";
+import { Action, Entity } from "../models/QRJsonModel";
+import { BUILDING_URL_API } from "../Urls";
+import { ActionComponent } from "../user/profile/ActionRequest";
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
+import { UpdateBuilding } from "./UpdateBuilding";
+import { Rooms, RoomsActions } from "../room/ListRooms";
+import { ChangeManager } from "./ChangeManager";
+
 
 export function BuildingRep() {
+
+    const { companyId, buildingId } = useParams()
+    
+    const initValues: RequestInit = {
+        credentials: 'include',
+        headers: { 'Request-Origin': 'WebApp' }
+    }
+    
+    const init = useMemo(() => initValues ,[])
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
+
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Building>(BUILDING_URL_API(companyId, buildingId), init)
+    
+    switch (action?.name) {
+        case 'update-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
+        case 'change-building-manager': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
+        case 'create-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
+        case 'create-room': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
+        case 'deactivate-building': return <ActionComponent action={action} returnComponent={<BuildingRep/>} />
+        case 'activate-building': return <ActionComponent action={action} returnComponent={<BuildingRep/>} />
+    }
+
+    if (isFetching) return <Loading/>
+    if (isCanceled) return <p>Canceled</p>
+    if (error !== undefined) return <DisplayError error={error}/>
+    
 
     function BuildingState({state}: {state: string}) {
 
@@ -12,74 +51,79 @@ export function BuildingRep() {
         return <span className="ml-auto">{stateElement}</span>
     }
 
-    function BuildingInfo({building}: {building: Building}) {
+    function BuildingInfo({entity}: {entity: Entity<Building> | undefined}) {
+
+        const [updateAction, setUpdateAction] = useState<Action>()
+        if(!entity) return null
+
+        const building = entity.properties
 
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3'>
                 <div className='items-center space-y-4'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{building.name}</span>
-                        <Link to = {`/updatebuilding/${building.id}`}>
-                            <button className="my-1">
-                                <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
-                            </button>
-                        </Link>
+                        {entity.actions?.map(action => {
+                            if(action.name === 'update-building') {
+                                return (
+                                    !updateAction && (
+                                    <button className="my-1" onClick={()=> setUpdateAction(action)}>
+                                        <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
+                                    </button>)
+                                )
+                            }
+                        })}
                     </div>
                     <div className='flex flex-col space-y-4'>
                         <p> Number of rooms: {building.numberOfRooms} </p>
                     </div>
                     <div> <BuildingState state={building.state}/> </div>
+                    {updateAction && <UpdateBuilding action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>
         )
     }
 
-    function RoomItem({room} : {room: Room}) {
+    function BuildingActions({ actions }: {actions: Action[] | undefined}) {
 
-        const bgColor = room.state === 'active' ? 'bg-white' : 'bg-red-100'
-        
+        const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
+        if(!actions) return null
+
+        let componentsActions = actions?.map(action => {
+            switch(action.name) {
+                case 'deactivate-building': return (
+                        <button onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                            {action.title}
+                        </button>
+                    )
+                case 'activate-building': return (
+                        <button onClick={() => setAction(action)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            {action.title}
+                        </button>
+                    )
+                case 'change-building-manager': return (
+                    <button onClick={() => setAuxAction(action)} className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>
+                )
+            }
+        })
+
         return (
-            <Link to={`/rooms/${room.id}`}>
-                <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 hover:bg-gray-200 shadow-md`}>  
-                    <h5 className='text-xl font-md text-gray-900'>{room.name}</h5>
-                    <p>Number of reports: {room.numberOfReports}</p>
-                </div>
-            </Link>
-        )
+            <>
+                <div className="flex space-x-2"> {componentsActions} </div>
+                {auxAction?.name === 'change-building-manager' && 
+                <ChangeManager action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+            </>
+        ) 
     }
-
-    function Rooms({rooms}: {rooms: Room[]}) {
-        return (
-            <div className='flex flex-col space-y-3'>
-                {Array.from(rooms).map((comment, idx) => <RoomItem key={idx} room={comment}/>)}
-            </div>
-        )
-    }
-
-    const mockBuilding = {'id': 22, 'name': 'Bloco A', 'state': 'active', 'floors': 4, 'numberOfRooms': 5 }
-
-    const mockRoomsValues = [
-        {'id': 1, 'name': 'Secretaria', 'state': 'active', 'floor': 1, 'numberOfReports': 2},
-        {'id': 2, 'name': 'Gabinete x', 'state': 'active', 'floor': 2, 'numberOfReports': 43},
-        {'id': 3, 'name': 'Tesouraria', 'state': 'active', 'floor': -1, 'numberOfReports': 12},
-        {'id': 4, 'name': 'Refeitório', 'state': 'active', 'floor': 4, 'numberOfReports': 33},
-        {'id': 5, 'name': 'Sala de estudos', 'state': 'active', 'floor': 1, 'numberOfReports': 43},
-    ]
-
+    
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
-            <BuildingInfo building={mockBuilding}/>
-            <div className='flex space-x-4'>
-                <Link className='w-1/2' to='/createRoom'>
-                    <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                        Add room
-                    </button>
-                </Link>
-                <button className='w-1/2 py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
-                    Deactivate
-                </button>
-            </div>
-            <Rooms rooms={mockRoomsValues}/>
+            <BuildingInfo entity={getEntityOrUndefined(result?.body)}/>
+            <BuildingActions actions={getActionsOrUndefined(result?.body)}/>
+            <RoomsActions entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
+            <Rooms entities={getEntitiesOrUndefined(result?.body)}/>
         </div>
     )
 }

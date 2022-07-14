@@ -4,25 +4,25 @@ import { Form, Input } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 
-export function CreateRoom({action, setAction, setAuxAction, setPayload }: {  
+
+export function UpdateRoom({action, setAction, setAuxAction, setPayload }: {  
     action?: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
 
-    type buildingData = {
-        name: string,
-        floor: number
+    type roomData = {
+        name: string
     }
 
-    const { register, handleSubmit, formState: { errors } } = useForm<buildingData>();
+    const { register, handleSubmit, formState: { errors } } = useForm<roomData>();
 
     if(!action || !setAction || !setAuxAction || !setPayload) return null
 
-    const onSubmitHandler = handleSubmit(({ name, floor }) => {
+    const onSubmitHandler = handleSubmit(({ name }) => {
         setAction(action)
-        setPayload(JSON.stringify({name: name, floor: floor}))//todo
+        setPayload(JSON.stringify({name: name}))
     })
 
     function Inputs() {
@@ -30,7 +30,6 @@ export function CreateRoom({action, setAction, setAuxAction, setPayload }: {
             console.log(prop);
             switch (prop.name) {
                 case 'name': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
-                case 'floor': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
             }
         })
         return <>{componentsInputs}</>

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { DisplayError } from "../Error";
 import { useFetch } from "../hooks/useFetch";
-import { Ticket } from "../Models";
+import { Ticket } from "../models/Models";
 import { TICKETS_URL,  TICKET_URL_API } from "../Urls";
 import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from '../models/ModelUtils';
 import { Action, Entity } from "../models/QRJsonModel";
@@ -112,7 +112,7 @@ export function TicketRep() {
         )
     }
 
-    function TicketActions({ actions }: {actions?: Action[]}) {
+    function TicketActions({ actions }: {actions?: Action[] | undefined}) {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 

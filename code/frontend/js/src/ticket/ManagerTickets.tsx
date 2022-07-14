@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
-import { TicketItem } from "../Models";
+import { TicketItem } from "../models/Models";
 
 export function ManagerTickets() {
 

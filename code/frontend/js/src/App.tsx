@@ -17,9 +17,6 @@ import { ListCompanies } from './company/ListCompanies';
 import { CompanyRep } from './company/Company';
 import { BuildingRep } from './building/Building';
 import { RoomRep } from './room/Room';
-import { UpdateBuilding } from './building/UpdateBuilding';
-import { CreateBuilding } from './building/CreateBuilding';
-import { CreateRoom } from './room/CreateRoom';
 import { createRepository, LoggedInContext, NAME_KEY, ROLE_KEY, SESSION_KEY } from './user/Session';
 import { Logout } from './user/logout';
 
@@ -41,10 +38,8 @@ function AppRouter() {
                 <Route path="/persons" element= {<ListPersons/>}/>
                 <Route path="/companies" element= {<ListCompanies/>}/>
                 <Route path="/companies/:companyId" element= {<CompanyRep/>}/>
-                <Route path="/buildings/:id" element= {<BuildingRep/>}/>
-                <Route path="/updatebuilding/:id" element= {<UpdateBuilding/>}/>
-                <Route path="/rooms/:id" element= {<RoomRep/>}/>
-                <Route path="/createRoom" element= {<CreateRoom buildingId={1}/>}/>
+                <Route path="/companies/:companyId/buildings/:buildingId" element= {<BuildingRep/>}/>
+                <Route path="/companies/:companyId/buildings/:buildingId/rooms/:roomId" element= {<RoomRep/>}/>
                 <Route path="/tickets/:ticketId" element= {<TicketRep/>}/>
             </Routes>
         </Router>

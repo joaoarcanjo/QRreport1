@@ -26,6 +26,14 @@ export const COMPANY_URL_API = (companyId: string | undefined): string => {
     return BASE_URL_API + `/v1/companies/${companyId}`
 } 
 
+export const BUILDING_URL_API = (companyId: string | undefined, buildingId: string | undefined): string => {
+    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}`
+} 
+
+export const ROOM_URL_API = (companyId: string | undefined, buildingId: string | undefined, roomId: string | undefined): string => {
+    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}`
+} 
+
 export const BASE_URL = "http://localhost:3000"
 
 export const PERSONS_URL = "/persons"

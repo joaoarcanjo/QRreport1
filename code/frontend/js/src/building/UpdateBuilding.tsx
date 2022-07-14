@@ -1,7 +1,16 @@
 import { useForm } from "react-hook-form";
+import { AiFillCloseCircle } from "react-icons/ai";
 import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/form/FormComponents";
+import { simpleInputForm } from "../components/form/FormInputs";
+import { Action } from "../models/QRJsonModel";
 
-export function UpdateBuilding() {
+
+export function UpdateBuilding({action, setAction, setAuxAction, setPayload }: {  
+    action?: Action,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
+    setPayload: React.Dispatch<React.SetStateAction<string>>
+}) {
 
     type buildingData = {
         name: string,
@@ -10,41 +19,35 @@ export function UpdateBuilding() {
 
     const { register, handleSubmit, formState: { errors } } = useForm<buildingData>();
 
-    const onSubmitHandler = handleSubmit(({ name }) => {
-        console.log(name);
+    if(!action || !setAction || !setAuxAction || !setPayload) return null
+
+    const onSubmitHandler = handleSubmit(({ name, floors }) => {
+        setAction(action)
+        setPayload(JSON.stringify({name: name, floors: floors}))//todo
     })
 
-    const nameInput: InputProps = {
-        inputLabelName: 'New name',
-        register: register('name', {minLength: 1, maxLength: 50}),
-        style: {borderColor: errors.name ? 'red': 'black'},
-        name: 'name',
-        type: 'text',
-        errorMessage: errors.name && 'Invalid name'
+    function Inputs() {
+        let componentsInputs = action!!.properties.map(prop => {
+            console.log(prop);
+            switch (prop.name) {
+                case 'name': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
+                case 'floors': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
+            }
+        })
+        return <>{componentsInputs}</>
     }
-
-    const floorsInput: InputProps = {
-        inputLabelName: 'New number of floors',
-        register: register('floors', {minLength: 1, maxLength: 50}),
-        style: {borderColor: errors.name ? 'red': 'black'},
-        name: 'floors',
-        type: 'number',
-        errorMessage: errors.name && 'Invalid floors number'
-    }
-
+    
     return (
-        <section className='info-section'>
-            <div className='space-y-3'>
-                <Form onSubmitHandler = { onSubmitHandler }>
-                    <Header heading='Update building'>
-                        <HeaderParagraph paragraph='Insert new values below'/>
-                    </Header>
-                    <Input value = {nameInput}/>
-                    <Input value = {floorsInput}/>
-                    <SubmitButton text={'Update building'}/>
-                </Form>
-                <Paragraph value = {'(*) Required'}/>
-            </div>
-        </section>
+        <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200">
+            <button onClick={() => setAuxAction(undefined)}>
+                <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
+            </button>
+            <Form onSubmitHandler = { onSubmitHandler }>
+                <Inputs/>
+                <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2">
+                    {action.title}
+                </button>
+            </Form>
+        </div> 
     )
 }

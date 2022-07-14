@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { State } from "../Models";
+import { State } from "../models/Models";
 import { Action } from "../models/QRJsonModel";
 
 export function UpdateState({states, action, setPayload, setAction}: {

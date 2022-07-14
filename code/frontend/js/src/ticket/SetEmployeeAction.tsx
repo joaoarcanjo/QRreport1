@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { MdFilterList } from "react-icons/md";
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
 import { AiFillTool, AiFillStar, AiFillCloseCircle } from "react-icons/ai";
-import { Employee, Ticket } from "../Models";
+import { Employee, Ticket } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { Loading } from "../components/Various";
 import { DisplayError } from "../Error";
@@ -11,11 +11,6 @@ import { BASE_URL_API } from "../Urls";
 import { useFetch } from "../hooks/useFetch";
 import { Collection } from "../pagination/CollectionPagination";
 import { getEntityOrUndefined } from '../models/ModelUtils';
-
-/*
-data class TicketEmployeeEntity (
-    val employeeId: UUID
-)*/
 
 export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}: {
     action: Action,
@@ -76,7 +71,6 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
     function EmployeeItem({entity}: {entity: Entity<any>}) {
         if (!entity) return null;
         const employee = entity.properties
-        console.log(employee)
         return (
             <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
                 <div className='w-full flex space-x-4'>

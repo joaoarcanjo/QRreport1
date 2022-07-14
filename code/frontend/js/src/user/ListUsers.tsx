@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import { PersonItem } from "../Models"
+import { PersonItem } from "../models/Models"
 import * as QRreport from '../models/QRJsonModel'
 import { ProblemJson } from "../models/ProblemJson"
 import { useMemo, useState } from "react"

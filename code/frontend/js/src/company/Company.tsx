@@ -1,14 +1,14 @@
 import { FaEdit } from "react-icons/fa"
-import { Link, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { Loading } from "../components/Various";
 import { DisplayError } from "../Error";
-import { Building, Company } from "../Models";
+import { Company } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { ActionComponent } from "../user/profile/ActionRequest";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { useMemo, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
-import { COMPANIES_URL_API, COMPANY_URL_API } from "../Urls";
+import { COMPANY_URL_API } from "../Urls";
 import { InsertCompany } from "./InsertCompany";
 import { Buildings, BuildingsActions } from "../building/ListBuildings";
 

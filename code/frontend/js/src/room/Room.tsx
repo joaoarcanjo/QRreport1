@@ -1,29 +1,43 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import Popup from "reactjs-popup";
-import { Device, Room, State } from "../Models";
-import './Popup.css';
+import { useParams } from "react-router-dom";
+import { Loading } from "../components/Various";
+import { DisplayError } from "../Error";
+import { useFetch } from "../hooks/useFetch";
+import { Room } from "../models/Models";
+import { Action, Entity } from "../models/QRJsonModel";
+import { ROOM_URL_API } from "../Urls";
+import { ActionComponent } from "../user/profile/ActionRequest";
+import { AddRoomDevice } from "./AddRoomDevice";
+import { UpdateRoom } from "./UpdateRoom";
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
+import { Devices } from "../devices/ListDevices";
 
 export function RoomRep() {
     
-    const [popup, setPopup] = useState(false);
+    const { companyId, buildingId, roomId } = useParams()
 
-    function PopupComp() {
-        return (
-            <Popup className='popup-overlay' open = {popup} modal>
-                <div className='w-full p-16'>
-                    <div className='bg-white p-8 space-y-3'>
-                        <div className="image overflow-hidden">
-                            <img className="h-auto w-full mx-auto"
-                                src="https://br.qr-code-generator.com/wp-content/themes/qr/new_structure/markets/core_market/generator/dist/generator/assets/images/websiteQRCode_noFrame.png"
-                                alt=""/>
-                        </div>
-                    </div>
-                </div>
-            </Popup>
-        )
+    const initValues: RequestInit = {
+        credentials: 'include',
+        headers: { 'Request-Origin': 'WebApp' }
     }
+    
+    const init = useMemo(() => initValues ,[])
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
+
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Room>(ROOM_URL_API(companyId, buildingId, roomId), init)
+    
+    switch (action?.name) {
+        case 'update-room': return <ActionComponent action={action} extraInfo={payload} returnComponent={<RoomRep/>} />
+        case 'add-room-device': return <ActionComponent action={action} extraInfo={payload} returnComponent={<RoomRep/>} />
+        case 'deactivate-room': return <ActionComponent action={action} returnComponent={<RoomRep/>} />
+        case 'activate-room': return <ActionComponent action={action} returnComponent={<RoomRep/>} />
+    }
+    
+    if (isFetching) return <Loading/>
+    if (isCanceled) return <p>Canceled</p>
+    if (error !== undefined) return <DisplayError error={error}/>
 
     function RoomState({state}: {state: string}) {
 
@@ -33,78 +47,78 @@ export function RoomRep() {
         return <span className="ml-auto">{stateElement}</span>
     }
 
-    function RoomInfo({room}: {room: Room}) {
+    function RoomInfo({entity}: {entity: Entity<Room> | undefined}) {
+
+        const [updateAction, setUpdateAction] = useState<Action>()
+        if(!entity) return null
+
+        const room = entity.properties
 
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3'>
                 <div className='items-center space-y-4'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{room.name}</span>
-                        <Link to = {`/updateRoom/${room.id}`}>
-                            <button className="my-1">
-                                <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
-                            </button>
-                        </Link>
+                        {entity.actions?.map(action => {
+                            if(action.name === 'update-room') {
+                                return (
+                                    !updateAction && (
+                                    <button className="my-1" onClick={()=> setUpdateAction(action)}>
+                                        <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
+                                    </button>)
+                                )
+                            }
+                        })}
                     </div>
                     <div className='flex flex-col space-y-4'>
                         <p> Number of reports: {room.numberOfReports} </p>
                     </div>
                     <div> <RoomState state={room.state}/> </div>
+                    {updateAction && <UpdateRoom action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>
         )
     }
 
-    function DeviceItem({device}: {device: Device}) {
+    function RoomActions({ actions }: {actions: Action[] | undefined}) {
 
-        const bgColor = device.state === 'active' ? 'bg-white' : 'bg-red-100'
-        
-        return (
-            <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md`}> 
-                <div className="flex items-center">
-                    <span className='text-xl font-md text-gray-900'>{device.name}</span>
-                    {device.state === 'active' ? 
-                    <button className={'bg-slate-400 ml-auto py-4 px-4 rounded text-white text-sm'}
-                        onClick={()=> setPopup(!popup)}> Generate new QRcode</button> : ''}
-                </div>
-            </div>
-        )
-    }
+        const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
+        if(!actions) return null
 
-    function Devices({devices}: {devices: Device[]}) {
-        return (
-            <div className='flex flex-col space-y-4'>
-                {Array.from(devices).map((device, idx) => <DeviceItem key={idx} device={device}/>)}
-            </div>
-        )
-    }
-
-    const mockRoom = {'id': 1, 'name': 'Secretaria', 'state': 'active', 'floor': 1, 'numberOfReports': 2}
-
-    const mockDevicesValues = [
-        {'id': 1, 'name': 'Toilet 1', 'state': 'active'},
-        {'id': 2, 'name': 'Door', 'state': 'active'},
-        {'id': 3, 'name': 'Lamp', 'state': 'active'},
-        {'id': 4, 'name': 'Faucet', 'state': 'active'}
-    ]
-
-    return (
-        <div>
-            <div className='w-full px-3 pt-3 space-y-3'>
-                <RoomInfo room={mockRoom}/>
-                <div className='flex space-x-4'>
-                    <Link className='w-1/2' to='/addDevice'>
-                        <button className='w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm'>
-                            Add device
+        let componentsActions = actions?.map(action => {
+            switch(action.name) {
+                case 'deactivate-room': return (
+                        <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                            {action.title}
                         </button>
-                    </Link>
-                    <button className='w-1/2 py-2 px-4 bg-red-700 hover:bg-red-900 rounded-md text-white text-sm'>
-                        Deactivate
+                    )
+                case 'activate-room': return (
+                        <button onClick={() => setAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                            {action.title}
+                        </button>
+                    )
+                case 'add-room-device': return (
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
                     </button>
-                </div>
-                <Devices devices={mockDevicesValues}/>
-                <PopupComp/>
-            </div>
+                )
+            }
+        })
+
+        return (
+            <>
+                <div className="flex space-x-2"> {componentsActions} </div>
+                {auxAction?.name === 'add-room-device' && 
+                <AddRoomDevice action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+            </>
+        ) 
+    }
+    
+    return (
+        <div className='w-full px-3 pt-3 space-y-3'>
+            <RoomInfo entity={getEntityOrUndefined(result?.body)}/>
+            <RoomActions actions={getActionsOrUndefined(result?.body)}/>
+            <Devices entities={getEntitiesOrUndefined(result?.body)}/>
         </div>
     )
 }
