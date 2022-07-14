@@ -11,7 +11,6 @@ import pt.isel.ps.project.model.company.CompanyItemDto
 import pt.isel.ps.project.model.company.removeBuildings
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
-import pt.isel.ps.project.model.state.States.INACTIVE
 import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
 import pt.isel.ps.project.responses.Response.Classes
@@ -20,6 +19,7 @@ import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 
 object CompanyResponses {
     const val COMPANY_PAGE_MAX_SIZE = 10
@@ -112,12 +112,13 @@ object CompanyResponses {
             ),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (isAdmin(user)) {
-                    if (company.state.compareTo(INACTIVE) == 0)
+                    if (isInactive(company.state))
                         add(Actions.activateCompany(company.id))
-                    else
+                    else {
                         add(Actions.deactivateCompany(company.id))
+                        add(Actions.updateCompany(company.id))
+                    }
                 }
-                add(Actions.updateCompany(company.id))
             },
             links = listOf(
                 Links.self(Uris.Companies.makeSpecific(company.id)),

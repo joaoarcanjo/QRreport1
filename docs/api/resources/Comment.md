@@ -24,7 +24,7 @@ GET /tickets/{ticketId}/comments
 |:-:|:-:|:-:|:-:|:-:|
 | `ticketId` | integer | path | yes | Identifier of the ticket. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no| Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no| Page number of the results to fetch. **Default:** `1` |
 | `direction` | string | query | no | Direction of the date order. **Possible values:** `asc` and `desc`. **Default:** `desc` |
 
 ### Response
@@ -36,8 +36,8 @@ Status: 200 OK
 {
     "class": [ "comment", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -80,16 +80,13 @@ Status: 200 OK
                         { "name": "comment", "type": "string" }
                     ]
                 }            
-            ],
-            "links": [
-                { "rel": [ "self" ], "href": "/tickets/1/comments/1" }
             ]
         }
     ],
     "actions": [
         {
             "name": "create-comment",
-            "title": "Create a comment",
+            "title": "Create comment",
             "method": "POST",
             "href": "/tickets/1/comments",
             "type": "application/json",
@@ -99,8 +96,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/tickets/1/comments?page=0" },
-        { "rel": [ "ticket" ], "href": "/tickets/1" }
+        { "rel": [ "self" ], "href": "/tickets/1/comments?page=1" },
+        { "rel": [ "pagination" ], "href": "/tickets/1/comments{?page}", "templated": true }
     ]
 }
 ```
@@ -142,7 +139,7 @@ POST /tickets/{ticketId}/comments
 ### Response
 ```http
 Status: 201 Created
-Location: /tickets/1/comments/1
+Location: /tickets/{ticketId}/comments
 ```
 
 ```json
@@ -154,7 +151,7 @@ Location: /tickets/1/comments/1
         "timestamp": "2022-09-12 09:32:53.123654"
     },
      "links": [
-        { "rel": [ "self" ], "href": "/tickets/1/comments/1" }
+        { "rel": [ "self" ], "href": "/tickets/1/comments" }
     ]
 }
 ```
@@ -239,9 +236,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/tickets/1/comments/1" },
-        { "rel": [ "comments" ], "href": "/tickets/1/comments" },
-        { "rel": [ "comment-ticket" ], "href": "/tickets/1" }
+        { "rel": [ "self" ], "href": "/tickets/1/comments/1" }
     ]
 }
 ```
@@ -287,7 +282,7 @@ Status: 200 OK
         "timestamp": "2022-04-08 21:55:47.012620"
     },
     "links": [
-        { "rel": [ "self" ], "href": "/ticket/1/comments/1" }
+        { "rel": [ "self" ], "href": "/ticket/1/comments" }
     ]
 }
 ```

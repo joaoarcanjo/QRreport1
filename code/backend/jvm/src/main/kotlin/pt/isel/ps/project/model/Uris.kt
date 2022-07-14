@@ -11,12 +11,15 @@ object Uris {
         const val BASE_PATH = "$VERSION/categories"
         const val SPECIFIC_PATH = "$BASE_PATH/{categoryId}"
         const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
+        const val DEACTIVATE_PATH = "$SPECIFIC_PATH/deactivate"
         const val CATEGORIES_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
+        private val DEACTIVATE_TEMPLATE = UriTemplate(DEACTIVATE_PATH)
         fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
         fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
+        fun makeDeactivate(id: Long) = DEACTIVATE_TEMPLATE.expand(mapOf("categoryId" to id)).toString()
     }
 
     object Devices {
@@ -44,8 +47,7 @@ object Uris {
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
 
-            fun makeBase(deviceId: Long) = //TODO make test to this function
-                BASE_TEMPLATE.expand(mapOf("deviceId" to deviceId)).toString()
+            fun makeBase(deviceId: Long) = BASE_TEMPLATE.expand(mapOf("deviceId" to deviceId)).toString()
             fun makeSpecific(deviceId: Long, id: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("deviceId" to deviceId, "anomalyId" to id)).toString()
         }
@@ -158,6 +160,7 @@ object Uris {
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
             const val SPECIFIC_PATH = "${BASE_PATH}/{commentId}"
+            const val COMMENTS_PAGINATION = "$BASE_PATH{?page}"
 
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)

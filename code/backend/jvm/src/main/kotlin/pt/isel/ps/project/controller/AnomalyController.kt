@@ -2,10 +2,15 @@ package pt.isel.ps.project.controller
 
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.ps.project.model.Uris.Devices.Anomalies.BASE_PATH
-import pt.isel.ps.project.model.Uris.Devices.Anomalies.SPECIFIC_PATH
+import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.Authorizations.Anomaly.createAnomalyAuthorization
+import pt.isel.ps.project.auth.Authorizations.Anomaly.deleteAnomalyAuthorization
+import pt.isel.ps.project.auth.Authorizations.Anomaly.getAnomaliesAuthorization
+import pt.isel.ps.project.auth.Authorizations.Anomaly.updateAnomalyAuthorization
+import pt.isel.ps.project.model.Uris.Devices.Anomalies
 import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.AnomalyResponses.ANOMALY_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.AnomalyResponses.createAnomalyRepresentation
@@ -17,36 +22,47 @@ import pt.isel.ps.project.responses.AnomalyResponses.updateAnomalyRepresentation
 @RestController
 class AnomalyController(private val service: AnomalyService) {
 
-    @GetMapping(BASE_PATH)
-    fun getAnomalies(@PathVariable deviceId: Long): QRreportJsonModel {
-        val anomalies = service.getAnomalies(deviceId)
+    @GetMapping(Anomalies.BASE_PATH)
+    fun getAnomalies(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        @PathVariable deviceId: Long,
+        user: AuthPerson,
+    ): QRreportJsonModel {
+        getAnomaliesAuthorization(user)
+        val anomalies = service.getAnomalies(deviceId, page)
         return getAnomaliesRepresentation(
+            user,
             anomalies,
             deviceId,
-            CollectionModel(10, ANOMALY_PAGE_MAX_SIZE, anomalies.anomaliesCollectionSize),
+            CollectionModel(page, ANOMALY_PAGE_MAX_SIZE, anomalies.anomaliesCollectionSize),
             null
         )
     }
 
-    @PostMapping(BASE_PATH)
+    @PostMapping(Anomalies.BASE_PATH)
     fun createAnomaly(
         @PathVariable deviceId: Long,
-        @RequestBody anomaly: InputAnomalyEntity
+        @RequestBody anomaly: InputAnomalyEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
+        createAnomalyAuthorization(user)
         return createAnomalyRepresentation(deviceId, service.createAnomaly(deviceId, anomaly))
     }
 
-    @PutMapping(SPECIFIC_PATH)
+    @PutMapping(Anomalies.SPECIFIC_PATH)
     fun updateAnomaly(
         @PathVariable deviceId: Long,
         @PathVariable anomalyId: Long,
-        @RequestBody anomaly: InputAnomalyEntity
+        @RequestBody anomaly: InputAnomalyEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
+        updateAnomalyAuthorization(user)
         return updateAnomalyRepresentation(deviceId, service.updateAnomaly(deviceId, anomalyId, anomaly))
     }
 
-    @DeleteMapping(SPECIFIC_PATH)
-    fun deleteAnomaly(@PathVariable deviceId: Long, @PathVariable anomalyId: Long): ResponseEntity<QRreportJsonModel> {
+    @DeleteMapping(Anomalies.SPECIFIC_PATH)
+    fun deleteAnomaly(@PathVariable deviceId: Long, @PathVariable anomalyId: Long, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        deleteAnomalyAuthorization(user)
         return deleteAnomalyRepresentation(deviceId, service.deleteAnomaly(deviceId, anomalyId))
     }
 }

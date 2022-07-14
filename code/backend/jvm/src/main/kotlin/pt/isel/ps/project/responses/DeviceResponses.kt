@@ -117,7 +117,7 @@ object DeviceResponses {
         },
         actions = actions,
         links = listOf(
-            Links.self(Devices.BASE_PATH),
+            Links.self(Uris.makePagination(collection.pageIndex, Devices.BASE_PATH)),
             Links.pagination(DEVICES_PAGINATION),
         )
     )
@@ -143,6 +143,7 @@ object DeviceResponses {
                 properties = device,
                 entities = mutableListOf<QRreportJsonModel>().apply {
                     add(AnomalyResponses.getAnomaliesRepresentation(
+                        user,
                         deviceDto.anomalies,
                         device.id,
                         CollectionModel(DEFAULT_PAGE, ANOMALY_PAGE_MAX_SIZE, deviceDto.anomalies.anomaliesCollectionSize),
@@ -151,12 +152,13 @@ object DeviceResponses {
                 },
                 actions = mutableListOf<QRreportJsonModel.Action>().apply {
                     if (!isAdmin(user)) return@apply
-                    add(if (isInactive(deviceDto.device.state))
-                            Actions.deactivateDevice(device.id)
-                        else Actions.activateDevice(device.id)
-                    )
-                    add(Actions.updateDevice(device.id))
-                    add(Actions.changeDeviceCategory(device.id))
+                    if (isInactive(deviceDto.device.state))
+                        add(Actions.activateDevice(device.id))
+                    else {
+                        add(Actions.deactivateDevice(device.id))
+                        add(Actions.updateDevice(device.id))
+                        add(Actions.changeDeviceCategory(device.id))
+                    }
                 },
                 links = listOf(
                     Links.self(Devices.makeSpecific(device.id)),
@@ -227,7 +229,7 @@ object DeviceResponses {
             if (devicesDto.devices != null) addAll(devicesDto.devices.map { getDeviceItem(it, listOf(Relations.ITEM)) })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
             add(RoomResponses.Actions.addRoomDevice(companyId, buildingId, roomId))
         },
         links = listOf(
@@ -247,7 +249,7 @@ object DeviceResponses {
         properties = roomDeviceDto.device,
         entities = listOf(getQRCodeItem(user, companyId, buildingId, roomId, roomDeviceDto.device.id)),
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
             add(Actions.removeRoomDevice(companyId, buildingId, roomId, roomDeviceDto.device.id))
         },
         links = listOf(
@@ -261,7 +263,7 @@ object DeviceResponses {
         rel = listOf(Relations.QRCODE),
         properties = QRCodeItem(Uris.QRCode.makeSpecific(companyId, buildingId, roomId, deviceId)),
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isManager(user) && !isBuildingManager(user, buildingId)) return@apply
+            if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
             add(Actions.generateNewQRCode(companyId, buildingId, roomId, deviceId))
         },
         links = listOf()

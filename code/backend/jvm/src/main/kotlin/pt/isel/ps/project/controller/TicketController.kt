@@ -5,13 +5,11 @@ import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
 import pt.isel.ps.project.model.Uris.Tickets
-import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
 import pt.isel.ps.project.model.representations.DEFAULT_SORT
 import pt.isel.ps.project.model.representations.PaginationDto.Companion.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.model.ticket.*
-import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.TicketResponses.addTicketRateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.changeTicketStateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.createTicketRepresentation
@@ -38,9 +36,9 @@ class TicketController(private val service: TicketService) {
     }
 
     @GetMapping(Tickets.SPECIFIC_PATH)
-    fun getTicket(@PathVariable ticketId: Long): QRreportJsonModel {
+    fun getTicket(@PathVariable ticketId: Long, user: AuthPerson): QRreportJsonModel {
         //todo: verificar se o user é manager, admin, o user que criou o ticket ou o employee q está a tratar do mesmo
-        return getTicketRepresentation(service.getTicket(ticketId))
+        return getTicketRepresentation(user, service.getTicket(ticketId))
     }
 
     @PostMapping(Tickets.BASE_PATH)

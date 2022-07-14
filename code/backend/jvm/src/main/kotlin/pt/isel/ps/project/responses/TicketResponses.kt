@@ -3,12 +3,13 @@ package pt.isel.ps.project.responses
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingItem
-import pt.isel.ps.project.responses.CommentResponses.COMMENT_MAX_PAGE_SIZE
+import pt.isel.ps.project.responses.CommentResponses.COMMENT_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.CommentResponses.getCommentsRepresentation
 import pt.isel.ps.project.responses.CompanyResponses.getCompanyItem
 import pt.isel.ps.project.responses.DeviceResponses.getDeviceItem
@@ -99,16 +100,17 @@ object TicketResponses {
         links = listOf(Links.self(Uris.makePagination(pageIdx, Uris.Tickets.BASE_PATH))),
     )
 
-    fun getTicketRepresentation(ticketInfo: TicketExtraInfo)
+    fun getTicketRepresentation(user: AuthPerson, ticketInfo: TicketExtraInfo)
             = QRreportJsonModel(
         clazz = listOf(Classes.TICKET),
         properties = ticketInfo.ticket,
         entities = mutableListOf<QRreportJsonModel>().apply {
             add(getCommentsRepresentation(
+                user,
                 ticketInfo.ticketComments,
                 ticketInfo.ticket.id,
                 ticketInfo.ticket.employeeState,
-                CollectionModel(0, COMMENT_MAX_PAGE_SIZE, ticketInfo.ticketComments.collectionSize),
+                CollectionModel(0, COMMENT_PAGE_MAX_SIZE, ticketInfo.ticketComments.collectionSize),
                 listOf(Relations.TICKET_COMMENTS)))
             add(getCompanyItem(ticketInfo.company, listOf(Relations.TICKET_COMPANY)))
             add(getBuildingItem(ticketInfo.company.id, ticketInfo.building, listOf(Relations.TICKET_BUILDING)))

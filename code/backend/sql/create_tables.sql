@@ -57,7 +57,7 @@ BEGIN;
     CREATE TABLE CATEGORY
     (
         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-        name TEXT NOT NULL CONSTRAINT category_name_max_length CHECK ( char_length(name) <= 50 ),
+        name TEXT NOT NULL CONSTRAINT category_name_max_length CHECK ( char_length(name) <= 50 ) UNIQUE,
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_category_state CHECK ( state IN ('active', 'inactive') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -86,10 +86,10 @@ BEGIN;
     );
 
     CREATE TABLE ANOMALY(
-        id BIGINT NOT NULL,
+        id BIGINT GENERATED ALWAYS AS IDENTITY UNIQUE,
         device BIGINT NOT NULL REFERENCES DEVICE(id),
         anomaly TEXT NOT NULL CONSTRAINT device_anomaly_max_length CHECK ( char_length(anomaly) <= 150 ),
-        PRIMARY KEY (id, device, anomaly)
+        PRIMARY KEY (device, anomaly)
     );
 
     CREATE TABLE ROOM_DEVICE(
@@ -151,7 +151,7 @@ BEGIN;
 
     CREATE TABLE COMMENT
     (
-        id BIGINT NOT NULL,
+        id BIGINT GENERATED ALWAYS AS IDENTITY,
         comment TEXT NOT NULL CONSTRAINT comment_max_length CHECK ( char_length(comment) <= 200 ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         person UUID NOT NULL REFERENCES PERSON(id),
@@ -159,9 +159,7 @@ BEGIN;
         PRIMARY KEY (id, person, ticket)
     );
 
-    -- TODO: Trigger para quando este estado se alterar para inativo, alterar os employees em PERSON para inativo e colocar
-    -- a razão que a company ficou inativa, mas só se o employee não estiver em mais NENHUMA empresa!!!
-    CREATE TABLE PERSON_COMPANY
+   CREATE TABLE PERSON_COMPANY
     (
         person UUID NOT NULL REFERENCES PERSON(id),
         company BIGINT NOT NULL REFERENCES COMPANY(id),

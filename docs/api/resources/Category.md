@@ -23,7 +23,7 @@ GET /categories
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no| Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no| Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -34,8 +34,8 @@ Status: 200 OK
 {
     "class": [ "category", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [ 
@@ -44,14 +44,15 @@ Status: 200 OK
             "rel": [ "item" ],
             "properties": {
                 "id": 1,
-                "name": "Climatization",
-                "state": "Active"
+                "name": "garden",
+                "state": "active",
+                "timestamp": "2022-04-08 21:52:47.012620"
             },
             "actions": [
                 {
                     "name": "deactivate-category",
                     "title": "Deactivate category",
-                    "method": "PUT",
+                    "method": "POST",
                     "href": "/categories/1"
                 },
                 {
@@ -70,7 +71,7 @@ Status: 200 OK
     "actions": [
         {
             "name": "create-category",
-            "title": "Create a category",
+            "title": "Create category",
             "method": "POST",
             "href": "/categories",
             "type": "application/json",
@@ -80,7 +81,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/categories?page=0" }
+        { "rel": [ "self" ], "href": "/categories?page=1" },
+        { "rel": [ "pagination" ], "href": "/categories{?page}", "templated": true }
     ]
 }
 ```
@@ -114,7 +116,7 @@ POST /categories
 ### Request body example
 ```json
 {
-    "name": "Climatization"
+    "name": "garden"
 }
 ```
 
@@ -129,12 +131,12 @@ Location: /categories/1
     "class": [ "category" ],
     "properties": {
         "id": 1,
-        "name": "Climatization",
-        "state": "Active",
+        "name": "garden",
+        "state": "active",
         "timestamp": "2022-04-08 21:52:47.012620"
     },
      "links": [
-        { "rel": [ "self" ], "href": "/categories/1" }
+        { "rel": [ "self" ], "href": "/categories" }
     ]
 }
 ```
@@ -156,7 +158,7 @@ Status: 415 Unsupported Media Type
 ```
 
 ## Update a category
-Update the name of a specific category. This action just can be performed if doesn't exist any device or employee with this category.
+Update the name of a specific category.
 
 ```http
 PUT /categories/{categoryId}
@@ -168,7 +170,7 @@ PUT /categories/{categoryId}
 | `categoryId` | integer | path | yes | Identifier of the category. Must be greater than 0. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
-| `name` | string | body | yes | New name for the category. |
+| `name` | string | body | yes | New **unique** name for the category. |
 
 ### Response
 ```http
@@ -180,12 +182,12 @@ Status: 200 OK
     "class": [ "category" ],
     "properties": {
         "id": 1,
-        "name": "New Climatization",
-        "state": "Active",
+        "name": "window",
+        "state": "active",
         "timestamp": "2022-05-14 14:23:56788"
     },
      "links": [
-        { "rel": [ "self" ], "href": "/categories/1" }
+        { "rel": [ "self" ], "href": "/categories" }
     ]
 }
 ```
@@ -204,16 +206,16 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: **inactive-entity**, [**used-category**](#domain-specific-errors)
+* `type`: **inactive-resource**
 ```http
 Status: 415 Unsupported Media Type
 ```
 
 ## Deactivate a category
-Deactivate a determined category.
+Deactivate a determined category. This action can only be performed if doesn't exist any device or employee with this category.
 
 ```http
-PUT /categories/{categoryId}/deactivate
+POST /categories/{categoryId}/deactivate
 ```
 
 ### Parameters
@@ -232,13 +234,12 @@ Status: 200 OK
     "class": [ "category" ],
     "properties": {
         "id": 1,
-        "name": "Climatization",
-        "state": "Inactive",
+        "name": "garden",
+        "state": "inactive",
         "timestamp": "2022-05-14 14:23:56788"
     },
      "links": [
-        { "rel": [ "self" ], "href": "/categories/1" },
-        { "rel": [ "categories" ], "href": "/categories" }
+        { "rel": [ "self" ], "href": "/categories" }
     ]
 }
 ```
@@ -254,12 +255,16 @@ Status: 403 Forbidden
 ```http
 Status: 404 Not Found
 ```
+```http
+Status: 409 Conflict
+```
+* `types`: **inactive-resource**, [**category-being-used**](#domain-specific-errors)
 
 ## Activate a category
 Activate a determined category.
 
 ```http
-PUT /categories/{categoryId}/activate
+POST /categories/{categoryId}/activate
 ```
 
 ### Parameters
@@ -278,12 +283,12 @@ Status: 200 OK
     "class": [ "category" ],
     "properties": {
         "id": 1,
-        "name": "Climatization",
-        "state": "Active",
+        "name": "garden",
+        "state": "active",
         "timestamp": "2022-05-14 14:23:56788"
     },
      "links": [
-        { "rel": [ "self" ], "href": "/categories/1" }
+        { "rel": [ "self" ], "href": "/categories" }
     ]
 }
 ```
@@ -299,23 +304,27 @@ Status: 403 Forbidden
 ```http
 Status: 404 Not Found
 ```
+```http
+Status: 409 Conflict
+```
+* `type`: **inactive-resource**
 
 ## Category representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
 | `id` | number | **Unique** and **stable** identifier of the category. |
-| `name` | string | Name of the category. |
-| `state` | string | Current state of the category, the possible values are `Active` or `Inactive`. |
+| `name` | string | **Unique** name of the category. |
+| `state` | string | Current state of the category, the possible values are `active` or `inactive`. |
 | `timestamp` | string | Timestamp of the moment that the category state changed to the current state. |
 
 ### Domain specific errors
-* `used-category`: Happens when it's requested to deactivate a category that is in use. 
+* `category-being-used`: Happens when it's requested to deactivate a category that is in use. 
   * It is thrown with the HTTP status code `409 Conflict`.
 ```json
 {
-    "type": "/errors/used-category",
-    "title": "It's not possible to deactivate a category that is in use.",
-    "instance": "/categories/1"
+    "type": "/errors/category-being-used",
+    "title": "To deactivate a category, it must not be linked to a device or an employee.",
+    "instance": "/categories/1/deactivate"
 }
 ```
 

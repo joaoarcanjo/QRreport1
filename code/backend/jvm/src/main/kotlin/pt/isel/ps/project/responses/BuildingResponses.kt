@@ -21,9 +21,7 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.getRoomsRepresentation
-import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
-import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
 object BuildingResponses {
     const val BUILDING_PAGE_MAX_SIZE = 10
@@ -105,7 +103,7 @@ object BuildingResponses {
             add(Actions.createBuilding(companyId))
         },
         links = listOf(
-            Links.self(Buildings.makeBase(companyId)),
+            Links.self(Uris.makePagination(collection.pageIndex, Buildings.makeBase(companyId))),
             Links.pagination(BUILDINGS_PAGINATION),
         )
     )
@@ -136,11 +134,13 @@ object BuildingResponses {
                 add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
             },
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                add(if (isInactive(buildingDto.building.state)) Actions.activateBuilding(companyId, building.id)
-                    else Actions.deactivateBuilding(companyId, building.id))
-                Actions.updateBuilding(companyId, building.id)
-                Actions.changeBuildingManager(companyId, building.id)
-
+                if (isInactive(buildingDto.building.state))
+                    add(Actions.activateBuilding(companyId, building.id))
+                else {
+                    add(Actions.deactivateBuilding(companyId, building.id))
+                    add(Actions.updateBuilding(companyId, building.id))
+                    add(Actions.changeBuildingManager(companyId, building.id))
+                }
             },
             links = listOf(
                 Links.self(Buildings.makeSpecific(companyId, building.id)),

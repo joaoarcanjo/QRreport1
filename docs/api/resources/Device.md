@@ -38,7 +38,7 @@ Status: 200 OK
 {
     "class": [ "device", "collection" ],
     "properties": {
-        "pageIndex": 0,
+        "pageIndex": 1,
         "pageMaxSize": 10,
         "collectionSize": 1
     },
@@ -73,7 +73,7 @@ Status: 200 OK
     ],
     "links": [
         { "rel": [ "self" ], "href": "/devices?page=1" },
-        { "rel": [ "pagination" ], "href": "/devices{?page}" }
+        { "rel": [ "pagination" ], "href": "/devices{?page}", "templated": true }
     ]
 }
 ```

@@ -13,8 +13,10 @@ import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
+import pt.isel.ps.project.exception.Errors.ArchivedTicket.Message.ARCHIVED_TICKET
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.MISSING_MISMATCH_REQ_BODY
 import pt.isel.ps.project.exception.Errors.BadRequest.Message.Templated.MUST_HAVE_TYPE
+import pt.isel.ps.project.exception.Errors.CategoryBeingUsed.Message.CATEGORY_BEING_USED
 import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles.Message.COMPANY_PERSON_ROLES
 import pt.isel.ps.project.exception.Errors.MethodNotAllowed.Message.METHOD_NOT_ALLOWED
 import pt.isel.ps.project.exception.Errors.NotFound.Message.RESOURCE_DETAIL_NOT_FOUND_TEMPLATE
@@ -38,10 +40,10 @@ import pt.isel.ps.project.exception.Errors.MinimumRolesSkills
 import pt.isel.ps.project.exception.Errors.CompanyPersonsRoles
 import pt.isel.ps.project.exception.Errors.InvalidRole
 import pt.isel.ps.project.exception.Errors.InvalidCompany
+import pt.isel.ps.project.exception.Errors.CategoryBeingUsed
+import pt.isel.ps.project.exception.Errors.ArchivedTicket
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
-import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.BUILDING_MANAGER_COMPANY
-import pt.isel.ps.project.exception.Errors.InvalidRole.Message.BUILDING_MANAGER_ROLE
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_SKILLS
 import pt.isel.ps.project.exception.Errors.PersonBan.Message.MANAGER_BAN_PERMS
@@ -345,6 +347,22 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 buildExceptionResponse(
                     TYPE,
                     mapDetails[error.detail]!!,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            CategoryBeingUsed.SQL_TYPE -> CategoryBeingUsed.run {
+                buildExceptionResponse(
+                    TYPE,
+                    CATEGORY_BEING_USED,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            ArchivedTicket.SQL_TYPE -> ArchivedTicket.run {
+                buildExceptionResponse(
+                    TYPE,
+                    ARCHIVED_TICKET,
                     requestUri,
                     STATUS,
                 )

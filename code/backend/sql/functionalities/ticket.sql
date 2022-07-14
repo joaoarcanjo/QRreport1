@@ -2,6 +2,51 @@
  * Ticket functionalities
  */
 
+/**
+  * Auxiliary function to verify if a ticket is archived
+  */
+CREATE OR REPLACE FUNCTION is_ticket_archived(ticket_id BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF EXISTS (
+        SELECT id FROM TICKET
+        WHERE id = ticket_id AND employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
+    ) THEN
+        RAISE 'archived-ticket';
+    END IF;
+    RETURN TRUE;
+END$$LANGUAGE plpgsql;
+
+/*
+ * Auxiliary function to verify if a ticket exists
+ */
+CREATE OR REPLACE FUNCTION ticket_exists(ticket_id BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (NOT EXISTS (SELECT id FROM TICKET WHERE id = ticket_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'ticket', HINT = ticket_id;
+    END IF;
+    RETURN TRUE;
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Auxiliary function to verify if a ticket is responsibility of a certain employee
+ */
+CREATE OR REPLACE FUNCTION ticket_belongs_to_employee(ticket_id BIGINT, person_id UUID)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (NOT EXISTS (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND person = person_id)) THEN
+        RAISE 'resource-permission-denied';
+    END IF;
+    RETURN TRUE;
+END$$ LANGUAGE plpgsql;
+
 /*
  * Auxiliary function to return the ticket item representation
  */

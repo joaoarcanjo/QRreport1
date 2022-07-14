@@ -2,6 +2,34 @@
  * Comment functionalities
  */
 
+
+/*
+ * Auxiliary function to verify if a comment exists
+ */
+CREATE OR REPLACE FUNCTION comment_exists(comment_id BIGINT, person_id UUID, ticket_id BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (NOT EXISTS (SELECT id FROM COMMENT WHERE id = comment_id AND person = person_id AND ticket = ticket_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'comment', HINT = comment_id;
+    END IF;
+    RETURN TRUE;
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Auxiliary function to return the comment item representation by its id
+ */
+CREATE OR REPLACE FUNCTION comment_item_representation(comment_id BIGINT)
+RETURNS JSON
+AS
+$$
+DECLARE ticket_comment TEXT; ticket_timestamp TIMESTAMP;
+BEGIN
+    SELECT comment, timestamp INTO ticket_comment, ticket_timestamp FROM COMMENT WHERE id = comment_id;
+    RETURN json_build_object('id', comment_id, 'comment', ticket_comment, 'timestamp', ticket_timestamp);
+END$$ LANGUAGE plpgsql;
+
 /*
  * Auxiliary function to return the comment item representation
  */
@@ -22,28 +50,24 @@ CREATE OR REPLACE PROCEDURE create_comment(comment_rep OUT JSON, person_id UUID,
 AS
 $$
 DECLARE
-    comment_id BIGINT; comment_timestamp TIMESTAMP;
+    comment_id BIGINT;
 BEGIN
-    IF EXISTS (
-        SELECT id FROM TICKET WHERE employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')
-        AND id = ticket_id
-    ) THEN
-        RAISE 'archived-ticket';
-    ELSE
-        comment_id = (SELECT MAX(id) FROM COMMENT WHERE ticket = ticket_id) + 1;
-        IF (comment_id IS NULL) THEN
-            comment_id = 1;
-        END IF;
-        INSERT INTO COMMENT (id, comment, person, ticket) VALUES (comment_id, ticket_comment, person_id, ticket_id)
-        RETURNING timestamp INTO comment_timestamp;
+    PERFORM ticket_exists(ticket_id);
+    PERFORM is_ticket_archived(ticket_id);
 
-        IF (comment_id IS NULL) THEN
-            RAISE 'unknown-error-writing-resource' USING DETAIL = 'writing';
-        END IF;
-        comment_rep = comment_item_representation(comment_id, ticket_comment, comment_timestamp);
+    -- Check if person is employee, and if so check if the ticket is his responsibility
+    IF (EXISTS(SELECT person FROM PERSON_ROLE WHERE person = person_id
+        AND role = (SELECT id FROM ROLE WHERE name = 'employee'))
+    ) THEN
+        PERFORM ticket_belongs_to_employee(ticket_id, person_id);
     END IF;
+
+    INSERT INTO COMMENT (comment, person, ticket) VALUES (ticket_comment, person_id, ticket_id)
+    RETURNING id INTO comment_id;
+
+    comment_rep = comment_item_representation(comment_id);
 END$$
-SET default_transaction_isolation = 'serializable'
+-- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -63,7 +87,7 @@ BEGIN
     WHERE comment.id = comment_id AND comment.ticket = ticket_id
     INTO person_id, person_name, person_phone, person_email, comment, comment_timestamp;
     IF (NOT FOUND) THEN
-        RAISE 'comment_not_found';
+        RAISE 'resource-not-found';
     END IF;
     RETURN (
         json_build_object(
@@ -78,9 +102,9 @@ END$$ LANGUAGE plpgsql;
  */
 CREATE OR REPLACE FUNCTION get_comments(
     t_id BIGINT,
+    direction TEXT DEFAULT 'DESC',
     limit_rows INT DEFAULT NULL,
-    skip_rows INT DEFAULT NULL,
-    direction TEXT DEFAULT 'DESC'
+    skip_rows INT DEFAULT NULL
 )
 RETURNS JSON
 AS
@@ -95,8 +119,8 @@ BEGIN
         FROM COMMENT c INNER JOIN PERSON p ON c.person = p.id
         WHERE ticket = t_id
         ORDER BY
-            CASE WHEN direction='DESC' THEN c.timestamp END DESC,
-            CASE WHEN direction='ASC' THEN c.timestamp END ASC
+            CASE WHEN direction = 'DESC' THEN c.timestamp END DESC,
+            CASE WHEN direction = 'ASC' THEN c.timestamp END ASC
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         comments = array_append(comments,
@@ -104,8 +128,8 @@ BEGIN
                 'comment', comment_item_representation(rec.comment_id, rec.comment, rec.comment_timestamp),
                 'person', person_item_representation(rec.person_id)
         ));
-        collection_size = collection_size + 1;
     END LOOP;
+    SELECT COUNT(id) INTO collection_size FROM COMMENT WHERE ticket = t_id;
     RETURN json_build_object('comments', comments, 'collectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
@@ -115,64 +139,50 @@ END$$ LANGUAGE plpgsql;
  * Throws exception when cant change a comment that belongs to a archived ticket
  */
 CREATE OR REPLACE PROCEDURE update_comment(
+    comment_rep OUT JSON,
     comment_id BIGINT,
+    person_id UUID,
     ticket_id BIGINT,
-    new_comment TEXT,
-    comment_rep OUT JSON
+    new_comment TEXT
 )
 AS
 $$
-DECLARE
-    comment_timestamp TIMESTAMP;
 BEGIN
-    IF NOT EXISTS (SELECT id FROM COMMENT WHERE id = comment_id AND ticket = ticket_id) THEN
-        RAISE 'comment_not_found';
-    END IF;
-   IF ((SELECT employee_state FROM TICKET WHERE id = ticket_id)
-            = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')) THEN
-        RAISE 'cant_comment_archived_ticket';
-    ELSE
-        UPDATE COMMENT SET comment = new_comment WHERE id = comment_id AND ticket = ticket_id
-        RETURNING timestamp INTO comment_timestamp;
-        IF (comment_timestamp IS NULL) THEN
-            RAISE 'unknown_error_updating_resource';
-        END IF;
-        comment_rep = json_build_object('id', comment_id, 'comment', new_comment, 'timestamp', comment_timestamp);
-    END IF;
+    PERFORM ticket_exists(ticket_id);
+    PERFORM is_ticket_archived(ticket_id);
+    PERFORM comment_exists(comment_id, person_id, ticket_id);
+
+    UPDATE COMMENT SET comment = new_comment
+    WHERE id = comment_id AND ticket = ticket_id AND person = person_id AND comment != new_comment;
+
+    comment_rep = comment_item_representation(comment_id);
 END$$
-SET default_transaction_isolation = 'repeatable read'
+-- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
  * Delete a specific comment
  * Returns the comment representation
- * Throws exception when try delete a comment  belongs to an archived ticket
+ * Throws exception when the comment belongs to an archived ticket
  */
 CREATE OR REPLACE PROCEDURE delete_comment(
+    comment_rep OUT JSON,
     comment_id BIGINT,
-    ticket_id BIGINT,
-    comment_rep OUT JSON
+    person_id UUID,
+    ticket_id BIGINT
 )
 AS
 $$
-DECLARE
-    comment_timestamp TIMESTAMP; ticket_comment TEXT;
+DECLARE cc TEXT; ctm TIMESTAMP;
 BEGIN
-    IF NOT EXISTS (SELECT id FROM COMMENT WHERE id = comment_id AND ticket = ticket_id) THEN
-        RAISE 'comment_not_found';
-    END IF;
-    IF ((SELECT employee_state FROM TICKET WHERE id = ticket_id)
-            = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived')) THEN
-        RAISE 'cant_delete_comment_from_archived_ticket';
-    ELSE
-        DELETE FROM COMMENT WHERE id = comment_id AND ticket = ticket_id
-        RETURNING CURRENT_TIMESTAMP, comment INTO comment_timestamp, ticket_comment;
+    PERFORM ticket_exists(ticket_id);
+    PERFORM is_ticket_archived(ticket_id);
+    PERFORM comment_exists(comment_id, person_id, ticket_id);
 
-        IF (comment_timestamp IS NULL) THEN
-            RAISE 'unknown_error_deleting_resource';
-        END IF;
-        comment_rep = comment_item_representation(comment_id, ticket_comment, comment_timestamp);
-    END IF;
+    DELETE FROM COMMENT WHERE id = comment_id AND ticket = ticket_id AND person = person_id
+    RETURNING comment, timestamp INTO cc, ctm;
+
+    comment_rep = comment_item_representation(comment_id, cc, ctm);
 END$$
-SET default_transaction_isolation = 'repeatable read'
+-- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

@@ -258,6 +258,26 @@ object Errors {
         }
     }
 
+    object CategoryBeingUsed {
+        val TYPE = URI("/errors/category-being-used")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "category-being-used"
+
+        object Message {
+            const val CATEGORY_BEING_USED = "To deactivate a category, it must not be linked to a device or an employee."
+        }
+    }
+
+    object ArchivedTicket {
+        val TYPE = URI("/errors/archived-ticket")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "archived-ticket"
+
+        object Message {
+            const val ARCHIVED_TICKET = "It's not possible to change an archived ticket."
+        }
+    }
+
     fun buildMessage(message: String, value: Any): String {
         return message.replace("{}", value.toString())
     }

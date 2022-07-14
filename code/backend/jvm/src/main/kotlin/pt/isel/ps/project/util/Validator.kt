@@ -450,8 +450,8 @@ object Validator {
 
         fun belongsToCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull { it.id == companyId } != null
 
-        fun isBuildingManager(user: AuthPerson, buildingId: Long) =
-            user.companies?.firstOrNull { it.id == buildingId && it.manages?.contains(buildingId) ?: false } != null
+        fun isBuildingManager(user: AuthPerson, companyId: Long, buildingId: Long) =
+            user.companies?.firstOrNull { it.id == companyId && it.manages?.contains(buildingId) ?: false } != null
 
         fun verifyAddRoleInput(input: AddRoleToPersonEntity): Boolean {
             if ((input.role == EMPLOYEE || input.role == MANAGER) && input.company == null)

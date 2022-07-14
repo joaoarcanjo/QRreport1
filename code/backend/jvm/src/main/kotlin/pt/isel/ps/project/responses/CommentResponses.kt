@@ -3,7 +3,10 @@ package pt.isel.ps.project.responses
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.Uris.Tickets.Comments
+import pt.isel.ps.project.model.Uris.Tickets.Comments.COMMENTS_PAGINATION
 import pt.isel.ps.project.model.comment.CommentDto
 import pt.isel.ps.project.model.comment.CommentItemDto
 import pt.isel.ps.project.model.comment.CommentsDto
@@ -15,16 +18,17 @@ import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 
 object CommentResponses {
-    const val COMMENT_MAX_PAGE_SIZE = 10
+    const val COMMENT_PAGE_MAX_SIZE = 10
 
     object Actions {
         fun createComment(ticketId: Long) = QRreportJsonModel.Action(
             name = "create-comment",
-            title = "Create new comment",
+            title = "Create comment",
             method = HttpMethod.POST,
-            href = Uris.Tickets.Comments.makeBase(ticketId),
+            href = Comments.makeBase(ticketId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("comment", "string")
@@ -35,7 +39,7 @@ object CommentResponses {
             name = "update-comment",
             title = "Update comment",
             method = HttpMethod.PUT,
-            href = Uris.Tickets.Comments.makeSpecific(ticketId, commentId),
+            href = Comments.makeSpecific(ticketId, commentId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("comment", "string")
@@ -46,11 +50,11 @@ object CommentResponses {
             name = "delete-comment",
             title = "Delete comment",
             method = HttpMethod.DELETE,
-            href = Uris.Tickets.Comments.makeSpecific(ticketId, commentId)
+            href = Comments.makeSpecific(ticketId, commentId)
         )
     }
 
-    private fun getCommentItem(ticketId: Long, ticketState: String, commentDto: CommentDto, rel: List<String>?): QRreportJsonModel {
+    private fun getCommentItem(user: AuthPerson, ticketId: Long, ticketState: String, commentDto: CommentDto, rel: List<String>?): QRreportJsonModel {
         val comment = commentDto.comment
         return QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
@@ -59,14 +63,18 @@ object CommentResponses {
             entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (ticketState.compareTo("Archived") == 0) return@apply
-                add(Actions.deleteComment(ticketId, comment.id))
-                add(Actions.updateComment(ticketId, comment.id))
+                if (user.id == commentDto.person.id) {
+                    if (isAdmin(user))
+                        add(Actions.deleteComment(ticketId, comment.id))
+                    add(Actions.updateComment(ticketId, comment.id))
+                }
             },
-            links = listOf(Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)))
+            links = listOf(Links.self(Comments.makeSpecific(ticketId, comment.id)))
         )
     }
 
     fun getCommentsRepresentation(
+        user: AuthPerson,
         commentsDto: CommentsDto,
         ticketId: Long,
         ticketState: String,
@@ -78,28 +86,32 @@ object CommentResponses {
         properties = collection,
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (commentsDto.comments != null) addAll(commentsDto.comments.map {
-                getCommentItem(ticketId, ticketState, it, listOf(Relations.ITEM))
+                getCommentItem(user, ticketId, ticketState, it, listOf(Relations.ITEM))
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (ticketState.compareTo("Archived") == 0) return@apply
             add(Actions.createComment(ticketId))
         },
-        links = listOf(Links.self(Uris.Tickets.Comments.makeBase(ticketId)), Links.tickets())
+        links = listOf(
+            Links.self(Uris.makePagination(collection.pageIndex, Comments.makeBase(ticketId))),
+            Links.pagination(COMMENTS_PAGINATION),
+        )
     )
 
-    fun getCommentRepresentation(ticketId: Long, commentDto: CommentDto): QRreportJsonModel {
+    fun getCommentRepresentation(user: AuthPerson, ticketId: Long, commentDto: CommentDto): QRreportJsonModel {
         val comment = commentDto.comment
         return QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
             properties = comment,
             entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
-            actions = listOf(
-                Actions.deleteComment(ticketId, comment.id),
-                Actions.updateComment(ticketId, comment.id)
-            ),
+            actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                if (isAdmin(user))
+                    add(Actions.deleteComment(ticketId, comment.id))
+                add(Actions.updateComment(ticketId, comment.id))
+            },
             links = listOf(
-                Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)),
+                Links.self(Comments.makeSpecific(ticketId, comment.id)),
                 Links.comments(ticketId),
                 Links.ticket(ticketId)
             )
@@ -110,7 +122,7 @@ object CommentResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
             properties = comment,
-            links = listOf(Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)))
+            links = listOf(Links.self(Comments.makeBase(ticketId)))
         )
     )
 
@@ -118,10 +130,10 @@ object CommentResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
             properties = comment,
-            links = listOf(Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)))
+            links = listOf(Links.self(Comments.makeBase(ticketId)))
         ),
         HttpStatus.CREATED,
-        setLocationHeader(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id))
+        setLocationHeader(Comments.makeBase(ticketId))
     )
 
     fun deleteCommentRepresentation(ticketId: Long, comment: CommentItemDto) = buildResponse(
@@ -129,7 +141,7 @@ object CommentResponses {
             clazz = listOf(Classes.COMMENT),
             properties = comment,
             links = listOf(
-                Links.self(Uris.Tickets.Comments.makeSpecific(ticketId, comment.id)),
+                Links.self(Comments.makeSpecific(ticketId, comment.id)),
                 Links.comments(ticketId)
             )
         )

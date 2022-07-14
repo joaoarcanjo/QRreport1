@@ -67,7 +67,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/companies" },
+        { "rel": [ "self" ], "href": "/companies?page=1" },
         { "rel": [ "pagination" ], "href": "/companies{?page}", "templated": true }
     ]
 }

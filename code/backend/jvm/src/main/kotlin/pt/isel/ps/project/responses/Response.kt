@@ -4,8 +4,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import pt.isel.ps.project.model.Uris
-import pt.isel.ps.project.model.Uris.makePagination
-import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import java.net.URI
 import java.util.UUID
@@ -23,19 +21,13 @@ object Response {
         const val DEVICE = "device"
         const val QRCODE = "qrcode"
         const val CATEGORY = "category"
-        const val CATEGORIES = "categories"
         const val REPORT = "report"
         const val AUTH = "auth"
     }
 
     object Relations {
         const val SELF = "self"
-        const val NEXT = "next"
-        const val FIRST = "first"
-        const val LAST = "last"
-        const val PREV = "prev"
         const val ITEM = "item"
-        const val AUTHOR = "author"
         const val PAGINATION = "pagination"
         const val COMPANIES = "companies"
         const val COMPANY_BUILDINGS = "company-buildings"
@@ -50,6 +42,7 @@ object Response {
         const val TICKET_EMPLOYEE = "ticket-employee"
         const val TICKETS = "tickets"
         const val COMMENTS = "comments"
+        const val DEVICE = "device"
         const val DEVICES = "devices"
         const val BUILDINGS = "buildings"
         const val COMMENT_TICKET = "comment-ticket"
@@ -77,6 +70,7 @@ object Response {
         fun tickets() = QRreportJsonModel.Link(listOf(Relations.TICKETS), Uris.Tickets.BASE_PATH)
         fun ticket(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENT_TICKET), Uris.Tickets.makeSpecific(ticketId))
         fun comments(ticketId: Long) = QRreportJsonModel.Link(listOf(Relations.COMMENTS), Uris.Tickets.Comments.makeBase(ticketId))
+        fun device(id: Long) = QRreportJsonModel.Link(listOf(Relations.DEVICE), Uris.Devices.makeSpecific(id))
         fun devices() = QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Devices.BASE_PATH)
         fun roomDevices(companyId: Long, buildingId: Long, roomId: Long) =
             QRreportJsonModel.Link(listOf(Relations.DEVICES), Uris.Companies.Buildings.Rooms.makeDevices(companyId, buildingId, roomId))

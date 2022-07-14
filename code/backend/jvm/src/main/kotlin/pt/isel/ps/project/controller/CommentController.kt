@@ -3,17 +3,18 @@ package pt.isel.ps.project.controller
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
-import pt.isel.ps.project.model.Uris
-import pt.isel.ps.project.model.comment.CommentDto
-import pt.isel.ps.project.model.comment.CommentItemDto
-import pt.isel.ps.project.model.comment.CommentsDto
+import pt.isel.ps.project.auth.Authorizations.Comment.createCommentAuthorization
+import pt.isel.ps.project.auth.Authorizations.Comment.deleteCommentAuthorization
+import pt.isel.ps.project.auth.Authorizations.Comment.getCommentsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Comment.updateCommentAuthorization
+import pt.isel.ps.project.model.Uris.Tickets.Comments
 import pt.isel.ps.project.model.comment.CreateCommentEntity
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
-import pt.isel.ps.project.responses.CommentResponses.COMMENT_MAX_PAGE_SIZE
+import pt.isel.ps.project.responses.CommentResponses.COMMENT_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.CommentResponses.createCommentRepresentation
 import pt.isel.ps.project.responses.CommentResponses.deleteCommentRepresentation
-import pt.isel.ps.project.responses.CommentResponses.getCommentRepresentation
 import pt.isel.ps.project.responses.CommentResponses.getCommentsRepresentation
 import pt.isel.ps.project.responses.CommentResponses.updateCommentRepresentation
 import pt.isel.ps.project.service.CommentService
@@ -21,42 +22,56 @@ import pt.isel.ps.project.service.CommentService
 @RestController
 class CommentController(private val service: CommentService) {
 
-    @GetMapping(Uris.Tickets.Comments.BASE_PATH)
-    fun getComments(@PathVariable ticketId: Long): QRreportJsonModel {
-        val comments = service.getComments(ticketId)
+    @GetMapping(Comments.BASE_PATH)
+    fun getComments(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        @PathVariable ticketId: Long,
+        user: AuthPerson,
+    ): QRreportJsonModel {
+        getCommentsAuthorization(user)
+        val comments = service.getComments(ticketId, page)
         return getCommentsRepresentation(
+            user,
             comments,
             ticketId,
             "Not started", // TODO: Get ticket state from db
-            CollectionModel(1, COMMENT_MAX_PAGE_SIZE, comments.collectionSize),
+            CollectionModel(page, COMMENT_PAGE_MAX_SIZE, comments.collectionSize),
             null)
     }
 
-    @PostMapping(Uris.Tickets.Comments.BASE_PATH)
+    @PostMapping(Comments.BASE_PATH)
     fun createComment(
         @PathVariable ticketId: Long,
         @RequestBody comment: CreateCommentEntity,
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
+        createCommentAuthorization(user)
         return createCommentRepresentation(ticketId, service.createComment(ticketId, comment, user))
     }
 
-    @GetMapping(Uris.Tickets.Comments.SPECIFIC_PATH)
+/*    @GetMapping(Comments.SPECIFIC_PATH) // TODO: Delete?
     fun getComment(@PathVariable ticketId: Long, @PathVariable commentId: Long): QRreportJsonModel {
         return getCommentRepresentation(ticketId, service.getComment(ticketId, commentId))
-    }
+    }*/
 
-    @PutMapping(Uris.Tickets.Comments.SPECIFIC_PATH)
+    @PutMapping(Comments.SPECIFIC_PATH)
     fun updateComment(
         @PathVariable ticketId: Long,
         @PathVariable commentId: Long,
-        @RequestBody comment: CreateCommentEntity
+        @RequestBody comment: CreateCommentEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return updateCommentRepresentation(ticketId, service.updateComment(ticketId, commentId, comment))
+        updateCommentAuthorization(user)
+        return updateCommentRepresentation(ticketId, service.updateComment(user, ticketId, commentId, comment))
     }
 
-    @DeleteMapping(Uris.Tickets.Comments.SPECIFIC_PATH)
-    fun deactivateCompany(@PathVariable ticketId: Long, @PathVariable commentId: Long): ResponseEntity<QRreportJsonModel> {
-        return deleteCommentRepresentation(ticketId, service.deleteComment(ticketId, commentId))
+    @DeleteMapping(Comments.SPECIFIC_PATH)
+    fun deleteComment(
+        @PathVariable ticketId: Long,
+        @PathVariable commentId: Long,
+        user: AuthPerson,
+    ): ResponseEntity<QRreportJsonModel> {
+        deleteCommentAuthorization(user)
+        return deleteCommentRepresentation(ticketId, service.deleteComment(user, ticketId, commentId))
     }
 }

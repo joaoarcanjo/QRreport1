@@ -10,7 +10,7 @@ $$
 DECLARE
     category_id BIGINT = 1;
     category_name TEXT = 'Building name test';
-    category_state TEXT = 'Active';
+    category_state TEXT = 'active';
     category_timestamp TIMESTAMP;
     category_rep JSON;
 BEGIN
@@ -37,11 +37,11 @@ DO
 $$
 DECLARE
     categories_rep JSON;
-    expected_collection_size INT = 9;
+    expected_collection_size INT = 3;
 BEGIN
     RAISE INFO '---| Get categories function test |---';
 
-    categories_rep = get_categories(50, 0);
+    categories_rep = get_categories(10, 0);
     IF (
         assert_json_is_not_null(categories_rep, 'categories') AND
         assert_json_value(categories_rep, 'categoriesCollectionSize', expected_collection_size::TEXT)
@@ -60,12 +60,12 @@ $$
 DECLARE
     id BIGINT;
     category_name TEXT = 'Category name test';
-    category_state TEXT = 'Active';
+    category_state TEXT = 'active';
     category_rep JSON;
 BEGIN
     RAISE INFO '---| Category creation test |---';
 
-    CALL create_category(category_name, category_rep);
+    CALL create_category(category_rep, category_name);
     id = category_rep->>'id';
     IF (
         assert_json_is_not_null(category_rep, 'id') AND
@@ -93,13 +93,13 @@ END$$;
 DO
 $$
 DECLARE
-    category_id BIGINT = 9;
+    category_id BIGINT = 1;
     category_name TEXT = 'Category name test';
     category_rep JSON;
 BEGIN
     RAISE INFO '---| Category update test |---';
 
-    CALL update_category(category_id, category_name, category_rep);
+    CALL update_category(category_rep, category_id, category_name);
     IF (
         assert_json_value(category_rep, 'name', category_name)
     ) THEN
@@ -110,46 +110,20 @@ BEGIN
     ROLLBACK;
 END$$;
 
-
-/*
- * Tests update the name of a category, throws category_in_use exception
- */
-DO
-$$
-DECLARE
-    category_id BIGINT = 1;
-    category_name TEXT = 'Category name test';
-    category_rep JSON;
-    ex_constraint TEXT;
-BEGIN
-    RAISE INFO '---| Update category, throws category_in_use |---';
-
-    CALL update_category(category_id, category_name, category_rep);
-    RAISE EXCEPTION '-> Test failed!';
-EXCEPTION
-    WHEN raise_exception THEN
-        GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'category_in_use') THEN
-            RAISE INFO '-> Test succeeded!';
-        ELSE
-            RAISE EXCEPTION '-> Test failed!';
-        END IF;
-END$$;
-
 /*
  * Tests the category deactivation
  */
 DO
 $$
 DECLARE
-    category_id BIGINT = 8;
-    state TEXT = 'Inactive';
+    category_id BIGINT = 4;
+    state TEXT = 'inactive';
     category_rep JSON;
 BEGIN
     RAISE INFO '---| Category deactivation test |---';
 
-    CALL deactivate_category(category_id, category_rep);
-    RAISE INFO '%', category_rep;
+    CALL deactivate_category(category_rep, category_id);
+
     IF (
         assert_json_value(category_rep, 'state', state)
     ) THEN
@@ -161,7 +135,7 @@ BEGIN
 END$$;
 
 /*
- * Tests the category deactivation, throws category_in_use exception
+ * Tests the category deactivation, throws category-being-used exception
  */
 DO
 $$
@@ -170,14 +144,14 @@ DECLARE
     category_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Category deactivation, throws category_in_use |---';
+    RAISE INFO '---| Category deactivation, throws category-being-used |---';
 
-    CALL deactivate_category(category_id, category_rep);
+    CALL deactivate_category(category_rep, category_id);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'category_in_use') THEN
+        IF (ex_constraint = 'category-being-used') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -190,13 +164,13 @@ END$$;
 DO
 $$
 DECLARE
-    category_id BIGINT = 9;
-    state TEXT = 'Active';
+    category_id BIGINT = 1;
+    state TEXT = 'active';
     category_rep JSON;
 BEGIN
     RAISE INFO '---| Category activation test |---';
 
-    CALL activate_category(category_id, category_rep);
+    CALL activate_category(category_rep, category_id);
     IF (
         assert_json_value(category_rep, 'state', state)
     ) THEN

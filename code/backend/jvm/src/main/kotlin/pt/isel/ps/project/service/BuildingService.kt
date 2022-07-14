@@ -3,7 +3,6 @@ package pt.isel.ps.project.service
 import org.springframework.stereotype.Service
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.BuildingDao
-import pt.isel.ps.project.exception.Errors
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CREATION_DENIED
@@ -52,28 +51,28 @@ class BuildingService(val buildingDao: BuildingDao) {
     //@Transactional(isolation = Isolation.SERIALIZABLE)
     fun updateBuilding(user: AuthPerson, companyId: Long, buildingId: Long, building: UpdateBuildingEntity): BuildingItemDto {
         verifyUpdateBuildingInput(building)
-        if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
+        if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.updateBuilding(companyId, buildingId, building).getString(BUILDING_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun deactivateBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingItemDto {
-        if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
+        if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.deactivateBuilding(companyId, buildingId).getString(BUILDING_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun activateBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingItemDto {
-        if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
+        if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.activateBuilding(companyId, buildingId).getString(BUILDING_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun changeBuildingManager(user: AuthPerson, companyId: Long, buildingId: Long, manager: ChangeManagerEntity): BuildingManagerDto {
-        if (isManager(user) && !belongsToCompany(user, companyId) && !isBuildingManager(user, buildingId)) throw ForbiddenException(CHANGE_DENIED)
+        if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) throw ForbiddenException(CHANGE_DENIED)
         return buildingDao.changeBuildingManager(companyId, buildingId, manager).getString(BUILDING_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }

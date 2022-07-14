@@ -305,4 +305,88 @@ object Authorizations {
             throw ForbiddenException(ACCESS_DENIED)
         }
     }
+
+    object Anomaly {
+        fun getAnomaliesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createAnomalyAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CREATION_DENIED)
+        }
+
+        fun updateAnomalyAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deleteAnomalyAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+    }
+
+    object Category {
+        fun getCategoriesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createCategoryAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CREATION_DENIED)
+        }
+
+        fun updateCategoryAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun activateCategoryAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deactivateCategoryAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+    }
+
+    object Comment {
+        fun getCommentsAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun createCommentAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CREATION_DENIED)
+        }
+
+        fun updateCommentAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun deleteCommentAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+    }
 }

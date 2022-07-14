@@ -84,7 +84,7 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/persons" },
+        { "rel": [ "self" ], "href": "/persons?page=1" },
         { "rel": [ "pagination" ], "href": "/persons{?page}", "templated": true }
     ]
 }

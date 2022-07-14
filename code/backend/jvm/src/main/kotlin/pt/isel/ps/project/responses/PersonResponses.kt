@@ -6,6 +6,7 @@ import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Persons
+import pt.isel.ps.project.model.Uris.Persons.PERSONS_PAGINATION
 import pt.isel.ps.project.model.person.PersonDetailsDto
 import pt.isel.ps.project.model.person.PersonDto
 import pt.isel.ps.project.model.person.PersonItemDto
@@ -14,18 +15,20 @@ import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Relations
+import pt.isel.ps.project.responses.Response.Links
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
-import pt.isel.ps.project.util.Validator.Auth.Roles.isUser
 import pt.isel.ps.project.util.Validator.Person.employeeHasTwoSkills
 import pt.isel.ps.project.util.Validator.Person.isSamePerson
 import pt.isel.ps.project.util.Validator.Person.personHasTwoRoles
 import pt.isel.ps.project.util.Validator.Person.personIsBanned
 import pt.isel.ps.project.util.Validator.Person.personIsEmployee
+import pt.isel.ps.project.util.Validator.Person.personIsGuest
 import pt.isel.ps.project.util.Validator.Person.personIsInactive
 import pt.isel.ps.project.util.Validator.Person.personIsManager
+import pt.isel.ps.project.util.Validator.Person.personIsUser
 import java.util.*
 
 object PersonResponses {
@@ -185,7 +188,7 @@ object PersonResponses {
         clazz = listOf(Classes.PERSON),
         rel = rel,
         properties = person,
-        links = listOf(Response.Links.self(Persons.makeSpecific(person.id))),
+        links = listOf(Links.self(Persons.makeSpecific(person.id))),
     )
 
     fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int) = buildResponse(
@@ -200,8 +203,8 @@ object PersonResponses {
             },
             actions = listOf(Actions.createPerson()),
             links = listOf(
-                QRreportJsonModel.Link(listOf(Relations.SELF), Uris.makePagination(pageIdx, Persons.BASE_PATH)),
-                QRreportJsonModel.Link(listOf(Relations.PAGINATION), Persons.PERSONS_PAGINATION, templated = true)
+                Links.self(Uris.makePagination(pageIdx, Persons.BASE_PATH)),
+                Links.pagination(PERSONS_PAGINATION),
             ),
         )
     )
@@ -210,7 +213,7 @@ object PersonResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,
-            links = listOf(Response.Links.self(Persons.makeSpecific(person.id))),
+            links = listOf(Links.self(Persons.makeSpecific(person.id))),
         ),
         HttpStatus.CREATED,
         Response.setLocationHeader(Persons.makeSpecific(person.id)),
@@ -224,26 +227,36 @@ object PersonResponses {
                     listOf(getTicketsRepresentation(personDetails.personTickets, 1))
                 else null,
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                if (isAdmin(user) || isManager(user)) {
+                    // Fire/Rehire
+                    if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
+                        if (personIsInactive(personDetails.person)) {
+                            add(Actions.rehirePerson(personDetails.person.id))
+                            return@apply
+                        } else {
+                            add(Actions.firePerson(personDetails.person.id))
+                            add(Actions.assignPersonToCompany(personDetails.person.id))
+                        }
+                    // Ban/Unban
+                    } else if (personIsGuest(personDetails.person.roles) || personIsUser(personDetails.person.roles)) {
+                        if (personIsBanned(personDetails.person)) {
+                            add(Actions.unbanPerson(personDetails.person.id))
+                            return@apply
+                        } else add(Actions.banPerson(personDetails.person.id))
+                    }
+                }
+
+                if (personIsInactive(personDetails.person) || personIsBanned(personDetails.person)) return@apply
+
                 // Delete
                 if (personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
                 // Update
-                if (isSamePerson(user, personDetails.person.id)) {
+                if (isSamePerson(user, personDetails.person.id))
                     add(Actions.updatePerson(personDetails.person.id))
-                    if (!isManager(user) || !isAdmin(user)) return@apply
-                }
-                // Ban
-                add(if (personIsBanned(personDetails.person)) Actions.unbanPerson(personDetails.person.id)
-                    else Actions.banPerson(personDetails.person.id))
-                // Fire
-                if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
-                    if (personIsInactive(personDetails.person)) {
-                        add(Actions.rehirePerson(personDetails.person.id))
-                    } else {
-                        add(Actions.firePerson(personDetails.person.id))
-                        add(Actions.assignPersonToCompany(personDetails.person.id))
-                    }
-                }
+
+                if (!isManager(user) || !isAdmin(user)) return@apply
+
                 // Roles and skills
                 if (isAdmin(user)) {
                     if (personDetails.person.roles.containsAll(listOf("employee"))) {
@@ -257,7 +270,7 @@ object PersonResponses {
                 }
             },
             links = listOf(
-                Response.Links.self(Persons.makeSpecific(personDetails.person.id)),
+                Links.self(Persons.makeSpecific(personDetails.person.id)),
             )
         )
     )
@@ -266,7 +279,7 @@ object PersonResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,
-            links = listOf(Response.Links.self(Persons.makeSpecific(person.id)))
+            links = listOf(Links.self(Persons.makeSpecific(person.id)))
         )
     )
 
@@ -274,7 +287,7 @@ object PersonResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,
-            links = listOf(Response.Links.self(Persons.makeSpecific(person.id)))
+            links = listOf(Links.self(Persons.makeSpecific(person.id)))
         )
     )
 
@@ -282,7 +295,7 @@ object PersonResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,
-            links = listOf(Response.Links.self(Persons.makeSpecific(person.id)))
+            links = listOf(Links.self(Persons.makeSpecific(person.id)))
         )
     )
 
@@ -290,7 +303,7 @@ object PersonResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON),
             properties = person,
-            links = listOf(Response.Links.self(Persons.makeSpecific(person.id)))
+            links = listOf(Links.self(Persons.makeSpecific(person.id)))
         )
     )
 }

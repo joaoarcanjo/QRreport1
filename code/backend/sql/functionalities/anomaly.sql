@@ -25,13 +25,14 @@ DECLARE
     collection_size INT = 0;
     rec RECORD;
 BEGIN
+    PERFORM device_exists(device_id);
     FOR rec IN
         SELECT id, anomaly FROM ANOMALY WHERE device = device_id
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         anomalies = array_append(anomalies, anomaly_item_representation(rec.id, rec.anomaly));
-        collection_size = collection_size + 1;
     END LOOP;
+    SELECT COUNT(id) INTO collection_size FROM ANOMALY WHERE device = device_id;
     RETURN json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
@@ -40,27 +41,29 @@ END$$ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row added or when the unique constraint is violated
  */
-CREATE OR REPLACE PROCEDURE create_anomaly(device_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE create_anomaly(anomaly_rep OUT JSON, device_id BIGINT, new_anomaly TEXT)
 AS
 $$
-DECLARE
-    anomaly_id BIGINT;
+DECLARE anomaly_id BIGINT; prev_id BIGINT; current_id BIGINT; ex_constraint TEXT;
 BEGIN
-    IF EXISTS (SELECT id FROM ANOMALY WHERE device = device_id AND anomaly = new_anomaly) THEN
-        RAISE unique_violation USING MESSAGE = 'unique_anomaly_name';
-    END IF;
-    anomaly_id = (SELECT MAX(id) + 1 FROM ANOMALY a WHERE a.device = device_id);
-    IF (anomaly_id IS NULL) THEN
-        anomaly_id = 1;
-    END IF;
-    INSERT INTO ANOMALY (id, device, anomaly) VALUES (anomaly_id, device_id, new_anomaly)
-    RETURNING id, anomaly INTO anomaly_id, new_anomaly;
-    IF (anomaly_id IS NULL) THEN
-        RAISE 'unknown_error_creating_resource';
-    END IF;
+    PERFORM device_exists(device_id);
+    INSERT INTO ANOMALY (device, anomaly) VALUES (device_id, new_anomaly)
+    RETURNING id INTO anomaly_id;
+
     anomaly_rep = anomaly_item_representation(anomaly_id, new_anomaly);
+EXCEPTION
+    WHEN unique_violation THEN
+        SELECT last_value INTO current_id FROM anomaly_id_seq;
+        IF (prev_id < current_id) THEN
+            PERFORM setval('anomaly_id_seq', current_id - 1);
+        END IF;
+
+        GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
+        IF (ex_constraint = 'anomaly_pkey') THEN
+            RAISE 'unique-constraint' USING DETAIL = 'anomaly', HINT = new_anomaly;
+        END IF;
 END$$
-SET default_transaction_isolation = 'serializable'
+-- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -68,21 +71,23 @@ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row added or when the unique constraint is violated
  */
-CREATE OR REPLACE PROCEDURE update_anomaly(device_id BIGINT, anomaly_id BIGINT, new_anomaly TEXT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE update_anomaly(anomaly_rep OUT JSON, device_id BIGINT, anomaly_id BIGINT, new_anomaly TEXT)
 AS
 $$
+DECLARE ex_constraint TEXT;
 BEGIN
-    IF EXISTS (SELECT id FROM ANOMALY WHERE device = device_id AND anomaly = new_anomaly) THEN
-        RAISE unique_violation USING MESSAGE = 'unique_anomaly_name';
-    END IF;
-    UPDATE ANOMALY SET anomaly = new_anomaly WHERE id = anomaly_id AND device = device_id
-    RETURNING id, device, anomaly INTO anomaly_id, device_id, new_anomaly;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
-    END IF;
+    PERFORM device_exists(device_id);
+    UPDATE ANOMALY SET anomaly = new_anomaly WHERE id = anomaly_id AND device = device_id;
+
     anomaly_rep = anomaly_item_representation(anomaly_id, new_anomaly);
+EXCEPTION
+    WHEN unique_violation THEN
+        GET STACKED DIAGNOSTICS ex_constraint = CONSTRAINT_NAME;
+        IF (ex_constraint = 'anomaly_pkey') THEN
+            RAISE 'unique-constraint' USING DETAIL = 'anomaly', HINT = new_anomaly;
+        END IF;
 END$$
-SET default_transaction_isolation = 'serializable'
+-- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -90,16 +95,16 @@ LANGUAGE plpgsql;
  * Returns the anomaly item representation
  * Throws exception in case there is no row deleted.
  */
-CREATE OR REPLACE PROCEDURE delete_anomaly(device_id BIGINT, anomaly_id BIGINT, anomaly_rep OUT JSON)
+CREATE OR REPLACE PROCEDURE delete_anomaly(anomaly_rep OUT JSON, device_id BIGINT, anomaly_id BIGINT)
 AS
 $$
-DECLARE
-    anomaly_value TEXT;
+DECLARE anomaly_value TEXT;
 BEGIN
-    DELETE FROM ANOMALY WHERE id = anomaly_id AND device = device_id
-    RETURNING id, device, anomaly INTO anomaly_id, device_id, anomaly_value;
-    IF (device_id IS NULL) THEN
-        RAISE 'unknown_error_updating_resource';
+    PERFORM device_exists(device_id);
+    IF (NOT EXISTS(SELECT id FROM ANOMALY WHERE id = anomaly_id)) THEN
+        RAISE 'resource-not-found' USING DETAIL = 'anomaly', HINT = anomaly_id;
     END IF;
+    DELETE FROM ANOMALY WHERE id = anomaly_id AND device = device_id RETURNING anomaly INTO anomaly_value;
+
     anomaly_rep = anomaly_item_representation(anomaly_id, anomaly_value);
 END$$ LANGUAGE plpgsql;

@@ -23,7 +23,7 @@ GET /devices/{deviceId}/anomalies
 |:-:|:-:|:-:|:-:|:-:|
 | `deviceId` | integer | path | yes | Identifier of the device. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no | Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no | Page number of the results to fetch. **Default:** `1` |
 
 ### Response
 ```http
@@ -34,8 +34,8 @@ Status: 200 OK
 {
     "class": [ "anomaly", "collection" ],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -72,7 +72,7 @@ Status: 200 OK
     "actions": [
         {
             "name": "create-anomaly",
-            "title": "Create new anomaly",
+            "title": "Create anomaly",
             "method": "POST",
             "href": "/devices/1/anomalies",
             "type": "application/json",
@@ -82,7 +82,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/devices/1/anomalies?page=0"}
+        { "rel": [ "self" ], "href": "/devices/1/anomalies?page=1" },
+        { "rel": [ "pagination" ], "href": "/devices/1/anomalies{?page}", "templated": true }
     ]
 }
 ```
@@ -112,12 +113,12 @@ POST /devices/{deviceId}/anomalies
 | `deviceId` | integer | path | yes | Identifier of the device. |
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
 | `content-type` | string | header | yes | Set to `application/json`. |
-| `anomaly` | string | body |  yes | **Unique** anomaly subject. |
+| `anomaly` | string | body |  yes | **Unique** anomaly. |
 
 ### Response
 ```http
 Status: 201 Created
-Location: /devices/{deviceId}/anomalies/{anomalyId}
+Location: /devices/{deviceId}/anomalies
 ```
 ```json
 {
@@ -242,8 +243,8 @@ Status: 404 Not Found
 ## Company representations vocabulary
 | Name | Type | Description |
 |:-:|:-:|:-:|
-| `id` | number | Identifier of the anomaly. Must be greater than 0. **Unique for each device, but not globally.**  |
-| `anomaly` | string | **Unique** subject for an anomaly of a specific device. |
+| `id` | number | **Unique** identifier of the anomaly. Must be greater than 0. |
+| `anomaly` | string | **Unique** subject for an anomaly of a specific device, but **not globally unique**. |
 
 ### Domain specific link relations
 | Name | Description |

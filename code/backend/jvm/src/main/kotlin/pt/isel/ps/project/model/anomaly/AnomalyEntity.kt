@@ -1,7 +1,5 @@
 package pt.isel.ps.project.model.anomaly
 
-import java.util.*
-
 /*
  * Name of the anomaly representation output parameter
  */

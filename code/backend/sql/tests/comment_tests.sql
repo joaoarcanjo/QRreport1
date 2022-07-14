@@ -34,7 +34,7 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 2;
+    ticket_id BIGINT = 1;
     collection_size_expected INT = 2;
     comments_rep JSON;
 BEGIN
@@ -86,14 +86,16 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 2;
+    id BIGINT;
+    ticket_id BIGINT = 1;
     comment TEXT = 'Comment comment test';
-    person_id UUID = '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3';
+    person_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
     comment_rep JSON;
 BEGIN
     RAISE INFO '---| Comment creation test |---';
 
     CALL create_comment(comment_rep, person_id, ticket_id, comment);
+    id = comment_rep->>'id';
     IF (
         assert_json_is_not_null(comment_rep, 'id') AND
         assert_json_value(comment_rep, 'comment', comment) AND
@@ -104,10 +106,17 @@ BEGIN
         RAISE EXCEPTION '-> Test failed!';
     END IF;
     ROLLBACK;
+
+    -- Remove sequence inc
+    IF (id = 1) THEN
+        ALTER SEQUENCE comment_id_seq RESTART;
+        RETURN;
+    END IF;
+    PERFORM setval('comment_id_seq', (SELECT last_value FROM comment_id_seq) - 1);
 END$$;
 
 /*
- * Tests the creation of a new comment, throws cant_comment_archived_ticket
+ * Tests the creation of a new comment, throws archived-ticket
  */
 DO
 $$
@@ -140,12 +149,13 @@ DO
 $$
 DECLARE
     comment_id BIGINT = 1;
+    person_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
     ticket_id BIGINT = 1;
     new_comment TEXT = 'Comment test';
     comment_rep JSON;
 BEGIN
     RAISE INFO '---| Comment item representation test |---';
-    CALL update_comment(comment_id, ticket_id, new_comment, comment_rep);
+    CALL update_comment(comment_rep, comment_id, person_id, ticket_id, new_comment);
     IF (
         assert_json_value(comment_rep, 'id', comment_id::TEXT) AND
         assert_json_value(comment_rep, 'comment', new_comment) AND
@@ -159,24 +169,25 @@ BEGIN
 END$$;
 
 /*
- * Tests updating an comment from an archived ticket, throw cant_comment_archived_ticket
+ * Tests updating an comment from an archived ticket, throw archived-ticket
  */
 DO
 $$
 DECLARE
     comment_id BIGINT = 1;
+    person_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
     ticket_id BIGINT = 6;
     new_comment TEXT = 'Comment test';
     comment_rep JSON;
     ex_constraint TEXT;
 BEGIN
-    RAISE INFO '---| Update comment, throws cant_comment_archived_ticket |---';
-    CALL update_comment(comment_id, ticket_id, new_comment, comment_rep);
+    RAISE INFO '---| Update comment, throws archived-ticket |---';
+    CALL update_comment(comment_rep, comment_id, person_id, ticket_id, new_comment);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'cant_comment_archived_ticket') THEN
+        IF (ex_constraint = 'archived-ticket') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
@@ -184,18 +195,19 @@ EXCEPTION
 END$$;
 
 /*
- * Test deleting comment
+ * Test comment deletion
  */
 DO
 $$
 DECLARE
-    comment_id BIGINT = 1;
+    comment_id BIGINT = 2;
+    person_id UUID = '4b341de0-65c0-4526-8898-24de463fc315';
     ticket_id BIGINT = 1;
-    expected_comment TEXT = 'Comentário ao trabalho realizado em fuga de água';
+    expected_comment TEXT = 'Tente fazer o possível para estancar a fuga.';
     comment_rep JSON;
 BEGIN
-    RAISE INFO '---| Comment item representation test |---';
-    CALL delete_comment(comment_id, ticket_id, comment_rep);
+    RAISE INFO '---| Comment deletion test |---';
+    CALL delete_comment(comment_rep, comment_id, person_id, ticket_id);
     IF (
         assert_json_value(comment_rep, 'id', comment_id::TEXT) AND
         assert_json_value(comment_rep, 'comment', expected_comment) AND
