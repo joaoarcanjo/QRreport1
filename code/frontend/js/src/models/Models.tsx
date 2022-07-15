@@ -98,6 +98,11 @@ export type Device = {
     timestamp: Date
 }
 
+export type Anomaly = {
+    id: number,
+    anomaly: string
+}
+
 export type DeviceQrCode = {
     device: Device,
     hash?: String,
@@ -112,4 +117,11 @@ export type CategoryItem = {
 
 export type QrCode = {
     qrcode: string
+}
+
+export type FormInfo = {
+    company: string,
+    building: string,
+    room: string,
+    device: string
 }

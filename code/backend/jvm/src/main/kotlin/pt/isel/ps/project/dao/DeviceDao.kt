@@ -20,7 +20,7 @@ interface DeviceDao {
     fun getDevice(deviceId: Long): String
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)
-    @SqlCall("CALL create_device(:$DEVICE_REP, :name, :categoryId);")
+    @SqlCall("CALL create_device(:$DEVICE_REP, :name, :category);")
     fun createDevice(@BindBean device: CreateDeviceEntity): OutParameters
 
     @OutParameter(name = DEVICE_REP, sqlType = java.sql.Types.OTHER)

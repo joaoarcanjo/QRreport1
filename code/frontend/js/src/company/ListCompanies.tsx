@@ -95,6 +95,5 @@ export function ListCompanies() {
             <CompaniesActions actions={getActionsOrUndefined(result?.body)}/>
             <Companies entities={getEntitiesOrUndefined(result?.body)}/>
         </div>
-
     )
 }

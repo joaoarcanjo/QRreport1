@@ -43,6 +43,16 @@ export const QRCODE_URL_API = (url: string | undefined): string => {
     return BASE_URL_API + url
 }
 
+export const DEVICES_URL_API = BASE_URL_API + `/v1/devices`
+
+export const DEVICE_URL_API = (deviceId: string | undefined): string => {
+    return BASE_URL_API + `/v1/devices/${deviceId}`
+}
+
+export const REPORT_FORM_URL_API = (hash: string): string => {
+    return BASE_URL_API + `/v1/report/${hash}`
+}
+
 export const BASE_URL = "http://localhost:3000"
 
 export const PERSONS_URL = "/persons"

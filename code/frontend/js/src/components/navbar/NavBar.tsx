@@ -34,6 +34,7 @@ export default function NavBar() {
                     {userSession?.isLoggedIn && <NavElement navTo='persons' text='Persons'/>}
                     {userSession?.isLoggedIn && <NavElement navTo='employees' text='Employees'/>}
                     {userSession?.isLoggedIn && <NavElement navTo='companies' text='Companies'/>}
+                    {userSession?.isLoggedIn && <NavElement navTo='devices' text='Devices'/>}
                     {userSession?.isLoggedIn && <NavElement navTo='logout' text='Logout'/>}
                     <button className='nav-btn nav-close-btn'>
                         <FaTimes onClick={showNavbar}/>

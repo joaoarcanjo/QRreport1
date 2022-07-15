@@ -6,7 +6,6 @@ import NavBar from './components/navbar/NavBar';
 import { Home } from './Home';
 import LoginForm from './user/login/LoginForm';
 import SignupForm from './user/signup/SignupForm';
-import FormValidator from './ticket/TicketValidator';
 import { useEffect, useState } from 'react';
 import { Profile } from './user/profile/Profile';
 import { ListTickets } from './ticket/ListTickets';
@@ -19,6 +18,9 @@ import { BuildingRep } from './building/Building';
 import { RoomRep } from './room/Room';
 import { createRepository, LoggedInContext, NAME_KEY, ROLE_KEY, SESSION_KEY } from './user/Session';
 import { Logout } from './user/logout';
+import { ListDevices } from './devices/ListDevices';
+import { DeviceRep } from './devices/Device';
+import FormTicket from './ticket/report/TicketForm';
 
 const userSessionRepo = createRepository()
 
@@ -31,11 +33,13 @@ function AppRouter() {
                 <Route path="/login" element= {<LoginForm/>}/>
                 <Route path="/logout" element= {<Logout/>}/>
                 <Route path="/signup" element= {<SignupForm/>}/>
-                <Route path="/qrcode/:hash" element= {<FormValidator/>}/>
+                <Route path="/qrcode/:hash" element= {<FormTicket/>}/>
                 <Route path="/persons/:personId" element= {<Profile/>}/>
                 <Route path="/tickets/" element= {<ListTickets/>}/>
                 <Route path="/employees" element= {<ListEmployees/>}/>
                 <Route path="/persons" element= {<ListPersons/>}/>
+                <Route path="/devices" element= {<ListDevices/>}/>
+                <Route path="/devices/:deviceId" element= {<DeviceRep/>}/>
                 <Route path="/companies" element= {<ListCompanies/>}/>
                 <Route path="/companies/:companyId" element= {<CompanyRep/>}/>
                 <Route path="/companies/:companyId/buildings/:buildingId" element= {<BuildingRep/>}/>

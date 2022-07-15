@@ -13,7 +13,7 @@ object DeviceEntity {
 
 data class CreateDeviceEntity(
     val name: String,
-    val categoryId: Int
+    val category: Int
 )
 
 data class UpdateDeviceEntity(
