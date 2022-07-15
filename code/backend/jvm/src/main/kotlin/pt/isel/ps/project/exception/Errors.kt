@@ -2,6 +2,7 @@ package pt.isel.ps.project.exception
 
 import org.springframework.http.HttpStatus
 import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.BUILDING_MANAGER_COMPANY
+import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.MANAGER_TICKET
 import pt.isel.ps.project.exception.Errors.InvalidRole.Message.BUILDING_MANAGER_ROLE
 import java.net.URI
 
@@ -251,10 +252,12 @@ object Errors {
 
         object Message {
             const val BUILDING_MANAGER_COMPANY = "The building manager must belong to the building company."
+            const val MANAGER_TICKET = "The manager must belong to the ticket company to access or make changes."
         }
 
         val mapDetails = HashMap<String, String>().apply {
             put("building-manager", BUILDING_MANAGER_COMPANY)
+            put("manager-ticket", MANAGER_TICKET)
         }
     }
 
@@ -275,6 +278,36 @@ object Errors {
 
         object Message {
             const val ARCHIVED_TICKET = "It's not possible to change an archived ticket."
+        }
+    }
+
+    object FixingTicket {
+        val TYPE = URI("/errors/fixing-ticket")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "fixing-ticket"
+
+        object Message {
+            const val FIXING_TICKET = "It's not possible to update a ticket that is already being fixed."
+        }
+    }
+
+    object TicketEmployeeSkillMismatch {
+        val TYPE = URI("/errors/ticket-employee-skill-mismatch")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "ticket-employee-skill-mismatch"
+
+        object Message {
+            const val TICKET_EMPLOYEE = "The employee doesn't have the skills to solve the ticket."
+        }
+    }
+
+    object TicketRate {
+        val TYPE = URI("/errors/ticket-rate")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "ticket-rate"
+
+        object Message {
+            const val TICKET_RATE = "The ticket must be archived to be able to receive a rating."
         }
     }
 

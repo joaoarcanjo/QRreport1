@@ -184,6 +184,48 @@ object Authorizations {
             if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(ACCESS_DENIED)
         }
+
+        fun getTicketAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
+
+        fun updateTicketAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == USER || userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun refuseTicketAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun changeTicketStateAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun addTicketRateAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == USER) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun setEmployeeAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun removeEmployeeAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
     }
 
     object Room {

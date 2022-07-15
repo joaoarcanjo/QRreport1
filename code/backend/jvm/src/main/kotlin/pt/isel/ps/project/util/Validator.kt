@@ -453,6 +453,8 @@ object Validator {
         fun isBuildingManager(user: AuthPerson, companyId: Long, buildingId: Long) =
             user.companies?.firstOrNull { it.id == companyId && it.manages?.contains(buildingId) ?: false } != null
 
+        fun isEmployeeTicket(user: AuthPerson, ticketEmployeeId: UUID) = user.id == ticketEmployeeId
+
         fun verifyAddRoleInput(input: AddRoleToPersonEntity): Boolean {
             if ((input.role == EMPLOYEE || input.role == MANAGER) && input.company == null)
                 throw InvalidParameterException(

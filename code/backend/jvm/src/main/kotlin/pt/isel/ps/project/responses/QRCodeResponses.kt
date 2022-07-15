@@ -14,7 +14,7 @@ object QRCodeResponses {
     object Actions {
         fun report() = QRreportJsonModel.Action(
             name = "report",
-            title = "Report",
+            title = "Submit report",
             method = HttpMethod.POST,
             href = Uris.Tickets.BASE_PATH,
             type = MediaType.APPLICATION_JSON.toString(),

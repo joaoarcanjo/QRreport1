@@ -39,15 +39,16 @@ DECLARE
     id BIGINT;
     subject TEXT = 'Ticket subject test';
     description TEXT = 'Ticket description test';
-    person_id UUID = '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3';
-    qr_hash TEXT = 'D793E0C6D5BF864CCB0E64B1AAA6B9BC0FB02B2C64FAA5B8AABB97F9F54A5B90';
-    expected_user_state TEXT = 'Waiting for accept';
+    person_name TEXT = 'Daniela Gomes';
+    person_email TEXT = 'dani@isel.com';
+    qr_hash TEXT = '5abd4089b7921fd6af09d1cc1cbe5220';
+    expected_user_state TEXT = 'Waiting analysis';
     expected_employee_state TEXT = 'To assign';
     ticket_rep JSON;
 BEGIN
     RAISE INFO '---| Ticket creation test |---';
 
-    CALL create_ticket(subject, description, person_id, qr_hash, ticket_rep);
+    CALL create_ticket(ticket_rep, qr_hash, subject, description, person_name, person_email);
     id = ticket_rep->>'id';
     IF (
         assert_json_is_not_null(ticket_rep, 'id') AND
@@ -103,14 +104,15 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 3;
+    ticket_id BIGINT = 6;
+    person_id UUID = '4b341de0-65c0-4526-8898-24de463fc315'; -- Diogo Novo | Admin
     new_subject TEXT = 'Ticket new subject test';
     new_description TEXT = 'Ticket new description test';
     ticket_rep JSON;
 BEGIN
     RAISE INFO '---| Update subject and description test |---';
 
-    CALL update_ticket(ticket_id, ticket_rep, new_subject, new_description);
+    CALL update_ticket(ticket_rep, ticket_id, person_id, new_subject, new_description);
 
     IF (
         assert_json_is_not_null(ticket_rep, 'id') AND
@@ -235,8 +237,8 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 6;
-    ticket_new_state INT = 2;
+    ticket_id BIGINT = 1;
+    ticket_new_state INT = 6;
     ticket_rep JSON;
     ex_constraint TEXT;
 BEGIN
@@ -285,15 +287,16 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 2;
-    ticket_new_state INT = 8;
-    ticket_expected_subject TEXT = 'Torneira avariada';
-    ticket_expected_desc TEXT = 'Descrição de torneira avariada';
-    ticket_expected_state TEXT = 'Concluded';
+    ticket_id BIGINT = 1;
+    person_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Zé Manel | Employee
+    ticket_new_state INT = 6;
+    ticket_expected_subject TEXT = 'Fuga de água';
+    ticket_expected_desc TEXT = 'A sanita está a deixar sair água por baixo';
+    ticket_expected_state TEXT = 'Completed';
     ticket_rep JSON;
 BEGIN
     RAISE INFO '---| Changing ticket state to Concluded |---';
-    CALL change_ticket_state(ticket_id, ticket_new_state, ticket_rep);
+    CALL change_ticket_state(ticket_rep, ticket_id, person_id, ticket_new_state);
     IF (
         assert_json_value(ticket_rep, 'id', ticket_id::TEXT) AND
         assert_json_value(ticket_rep, 'subject', ticket_expected_subject) AND
@@ -302,7 +305,7 @@ BEGIN
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
-        RAISE EXCEPTION '-> Test failed!';
+        RAISE '-> Test failed!';
     END IF;
     ROLLBACK;
 END$$;

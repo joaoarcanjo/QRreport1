@@ -40,7 +40,8 @@ data class TicketExtraInfo (
     val company: CompanyItemDto,
     val building: BuildingItemDto,
     val room: RoomItemDto,
-    val device: DeviceItemDto
+    val device: DeviceItemDto,
+    val employee: PersonItemDto,
 )
 
 data class TicketEmployee (

@@ -42,12 +42,18 @@ import pt.isel.ps.project.exception.Errors.InvalidRole
 import pt.isel.ps.project.exception.Errors.InvalidCompany
 import pt.isel.ps.project.exception.Errors.CategoryBeingUsed
 import pt.isel.ps.project.exception.Errors.ArchivedTicket
+import pt.isel.ps.project.exception.Errors.FixingTicket
+import pt.isel.ps.project.exception.Errors.TicketEmployeeSkillMismatch
+import pt.isel.ps.project.exception.Errors.TicketRate
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_SKILLS
 import pt.isel.ps.project.exception.Errors.PersonBan.Message.MANAGER_BAN_PERMS
 import pt.isel.ps.project.exception.Errors.PersonDismissal.Message.WRONG_PERSON_DISMISSAL
+import pt.isel.ps.project.exception.Errors.FixingTicket.Message.FIXING_TICKET
+import pt.isel.ps.project.exception.Errors.TicketEmployeeSkillMismatch.Message.TICKET_EMPLOYEE
+import pt.isel.ps.project.exception.Errors.TicketRate.Message.TICKET_RATE
 import pt.isel.ps.project.exception.Errors.buildMessage
 import pt.isel.ps.project.model.representations.ProblemJsonModel
 import java.net.URI
@@ -363,6 +369,30 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 buildExceptionResponse(
                     TYPE,
                     ARCHIVED_TICKET,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            FixingTicket.SQL_TYPE -> FixingTicket.run {
+                buildExceptionResponse(
+                    TYPE,
+                    FIXING_TICKET,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            TicketEmployeeSkillMismatch.SQL_TYPE -> TicketEmployeeSkillMismatch.run {
+                buildExceptionResponse(
+                    TYPE,
+                    TICKET_EMPLOYEE,
+                    requestUri,
+                    STATUS,
+                )
+            }
+            TicketRate.SQL_TYPE -> TicketRate.run {
+                buildExceptionResponse(
+                    TYPE,
+                    TICKET_RATE,
                     requestUri,
                     STATUS,
                 )

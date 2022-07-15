@@ -3,7 +3,14 @@ package pt.isel.ps.project.controller
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.Authorizations.Ticket.addTicketRateAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.changeTicketStateAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.refuseTicketAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.removeEmployeeAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.setEmployeeAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.updateTicketAuthorization
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
 import pt.isel.ps.project.model.representations.DEFAULT_SORT
@@ -28,17 +35,17 @@ class TicketController(private val service: TicketService) {
     fun getTickets(
         @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @RequestParam(defaultValue = DEFAULT_DIRECTION) direction: String,
-        @RequestParam(defaultValue = DEFAULT_SORT) sort_by: String,
+        @RequestParam(defaultValue = DEFAULT_SORT) sortBy: String,
         user: AuthPerson
     ): QRreportJsonModel {
         getTicketsAuthorization(user)
-        return getTicketsRepresentation(service.getTickets(user, direction, sort_by), page)
+        return getTicketsRepresentation(service.getTickets(user, direction, sortBy, page), page)
     }
 
     @GetMapping(Tickets.SPECIFIC_PATH)
     fun getTicket(@PathVariable ticketId: Long, user: AuthPerson): QRreportJsonModel {
-        //todo: verificar se o user é manager, admin, o user que criou o ticket ou o employee q está a tratar do mesmo
-        return getTicketRepresentation(user, service.getTicket(ticketId))
+        getTicketAuthorization(user)
+        return getTicketRepresentation(user, service.getTicket(ticketId, user))
     }
 
     @PostMapping(Tickets.BASE_PATH)
@@ -49,42 +56,52 @@ class TicketController(private val service: TicketService) {
     @PutMapping(Tickets.SPECIFIC_PATH)
     fun updateTicket(
         @PathVariable ticketId: Long,
-        @RequestBody ticket: UpdateTicketEntity
+        @RequestBody ticket: UpdateTicketEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return updateTicketRepresentation(service.updateTicket(ticketId, ticket))
+        updateTicketAuthorization(user)
+        return updateTicketRepresentation(service.updateTicket(ticketId, ticket, user))
     }
 
-    @DeleteMapping(Tickets.SPECIFIC_PATH)
-    fun deleteTicket(@PathVariable ticketId: Long): ResponseEntity<QRreportJsonModel> {
-        return deleteTicketRepresentation(service.deleteTicket(ticketId))
-    }
+    /*@DeleteMapping(Tickets.SPECIFIC_PATH) // TODO: Delete?
+    fun refuseTicket(@PathVariable ticketId: Long, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        refuseTicketAuthorization(user)
+        return deleteTicketRepresentation(service.refuseTicket(ticketId))
+    }*/
 
     @PutMapping(Tickets.STATE_PATH)
     fun changeTicketState(
         @PathVariable ticketId: Long,
-        @RequestBody ticketState: ChangeTicketStateEntity
+        @RequestBody ticketState: ChangeTicketStateEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return changeTicketStateRepresentation(service.changeTicketState(ticketId, ticketState))
+        changeTicketStateAuthorization(user)
+        return changeTicketStateRepresentation(service.changeTicketState(ticketId, ticketState, user))
     }
 
     @PutMapping(Tickets.RATE_PATH)
     fun addTicketRate(
         @PathVariable ticketId: Long,
-        @RequestBody ticketRate: TicketRateEntity
+        @RequestBody ticketRate: TicketRateEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return addTicketRateRepresentation(service.addTicketRate(ticketId, ticketRate))
+        addTicketRateAuthorization(user)
+        return addTicketRateRepresentation(service.addTicketRate(ticketId, ticketRate, user))
     }
 
-    @PostMapping(Tickets.EMPLOYEE_PATH)
+    @PutMapping(Tickets.EMPLOYEE_PATH)
     fun setEmployee(
         @PathVariable ticketId: Long,
-        @RequestBody ticketEmployee: TicketEmployeeEntity
+        @RequestBody ticketEmployee: TicketEmployeeEntity,
+        user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
-        return setEmployeeRepresentation(service.setEmployee(ticketId, ticketEmployee))
+        setEmployeeAuthorization(user)
+        return setEmployeeRepresentation(service.setEmployee(ticketId, ticketEmployee, user))
     }
 
     @DeleteMapping(Tickets.EMPLOYEE_PATH)
-    fun removeEmployee(@PathVariable ticketId: Long): QRreportJsonModel {
-        return removeEmployeeRepresentation(service.removeEmployee(ticketId))
+    fun removeEmployee(@PathVariable ticketId: Long, user: AuthPerson): QRreportJsonModel {
+        removeEmployeeAuthorization(user)
+        return removeEmployeeRepresentation(service.removeEmployee(ticketId, user))
     }
 }

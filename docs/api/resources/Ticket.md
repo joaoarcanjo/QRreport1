@@ -27,7 +27,7 @@ GET /tickets
 | Name | Type | In | Required | Description |
 |:-:|:-:|:-:|:-:|:-:|
 | `accept` | string | header | no | Setting to `application/vnd.qrreport+json` is recommended. |
-| `page` | integer | query | no | Page number of the results to fetch. **Default:** `0` |
+| `page` | integer | query | no | Page number of the results to fetch. **Default:** `1` |
 | `sort_by` | string | query | no | Sorts the tickets by one of the possible values. **Possible values:** `name` and `date`. **Default:** `date` |
 | `direction` | string | query | no | Direction of the sorting. **Possible values:** `asc` and `desc`. **Default:** `desc` |
 | `company` | string | query | no | Company name to filter the tickets. |
@@ -46,8 +46,8 @@ Status: 200 OK
 {
     "class": ["ticket", "collection"],
     "properties": {
-        "pageIndex": 0,
-        "pageSize": 1,
+        "pageIndex": 1,
+        "pageMaxSize": 10,
         "collectionSize": 1
     },
     "entities": [
@@ -58,7 +58,7 @@ Status: 200 OK
                 "id": 1,
                 "subject": "Broken faucet",
                 "description": "Faucet does not work, water doesn't come out.",
-                "employeeState": "Unassigned",
+                "employeeState": "To assign",
                 "userState": "Waiting analysis"
             },
             "links": [
@@ -67,7 +67,8 @@ Status: 200 OK
         }
     ],
     "links": [
-        { "rel": [ "self" ], "href": "/tickets?page=0" }
+        { "rel": [ "self" ], "href": "/tickets?page=1" },
+        { "rel": [ "pagination" ], "href": "/tickets{?page}", "templated": true }
     ]
 }
 ```
@@ -92,6 +93,9 @@ POST /tickets
 | `subject` | string | body | yes | Subject of the problem found. |
 | `description` | string | body | yes | Brief description of the problem found. |
 | `hash` | string | body | yes | Hash associated to the company, building, room and device of the problem found. |
+| `name` | string | body | yes | Name of the person that is submitting the ticket. |
+| `email` | string | body | yes | Email of the person that is submitting the ticket. |
+| `phone` | string | body | no | Phone number of the person that is submitting the ticket. |
 
 ### Response
 ```http
@@ -145,7 +149,7 @@ Status: 200 OK
         "subject": "Broken faucet",
         "description": "Faucet does not work, water doesn't come out.",
         "creationTimestamp": "2022-04-08 21:52:47012",
-        "employeeState": "Unassigned",
+        "employeeState": "To assign",
         "userState": "Waiting analysis",
         "possibleTransitions": [
             { "id": 1, "name": "Fixing" },
@@ -159,8 +163,8 @@ Status: 200 OK
             "class": [ "comment", "collection" ],
             "rel": [ "ticket-comments" ],
             "properties": {
-                "pageIndex": 0,
-                "pageSize": 1,
+                "pageIndex": 1,
+                "pageMaxSize": 10,
                 "collectionSize": 1
             },
             "entities": [
@@ -215,7 +219,8 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "ISEL",
-                        "state": "Active"
+                        "state": "active",
+                        "timestamp": "2022-04-09 12:52:47012"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/companies/1" }
@@ -227,7 +232,8 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "A",
-                        "state": "Active"
+                        "state": "active",
+                        "timestamp": "2022-04-09 12:52:47012"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/buildings/1" }
@@ -239,7 +245,8 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "Restroom 1",
-                        "state": "Active"
+                        "state": "active",
+                        "timestamp": "2022-04-09 12:52:47012"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/rooms/1" }
@@ -251,7 +258,8 @@ Status: 200 OK
                     "properties": {
                         "id": 1,
                         "name": "Faucet",
-                        "state": "Active"
+                        "state": "active",
+                        "timestamp": "2022-04-09 12:52:47012"
                     },
                     "links": [
                         { "rel": [ "self" ], "href": "/devices/1" }
@@ -271,7 +279,8 @@ Status: 200 OK
                 }
             ],
             "links": [
-                { "rel": [ "self" ], "href": "/tickets/1/comments?page=0" }
+                { "rel": [ "self" ], "href": "/tickets/1/comments?page=1" },
+                { "rel": [ "pagination" ], "href": "/tickets/1/comments{?page}", "templated": true }
             ]
         },
         {
@@ -289,12 +298,6 @@ Status: 200 OK
         }
     ],
     "actions": [
-        {
-            "name": "delete-ticket",
-            "title": "Delete ticket",
-            "method": "DELETE",
-            "href": "/tickets/1"
-        },
         {
             "name": "edit-ticket",
             "title": "Edit ticket",
@@ -379,7 +382,7 @@ Status: 404 Not Found
 ```http
 Status: 409 Conflict
 ```
-* `types`: [**archived-ticket**](#domain-specific-errors), [**update-fixing-ticket**](#domain-specific-errors)
+* `types`: [**archived-ticket**](#domain-specific-errors), [**fixing-ticket**](#domain-specific-errors)
 
 ## Change a ticket state
 Change the ticket state to one of the possible next states.
@@ -506,7 +509,7 @@ Status: 200 OK
         "id": 1,
         "subject": "Broken faucet",
         "description": "Faucet does not work, water doesn't come out.",
-        "employeeState": "Concluded",
+        "employeeState": "Completed",
         "userState": "Completed",
         "rate": 4
     },
@@ -532,7 +535,7 @@ Status: 404 Not Found
 Set employee responsible for fixing the problem associated to the ticket.
 
 ```http
-POST /tickets/{ticketId}/employee
+PUT /tickets/{ticketId}/employee
 ```
 
 ### Parameters:
@@ -687,12 +690,12 @@ Status: 409 Conflict
     "instance": "/tickets/1"
 }
 ```
-* `update-fixing-ticket`: Happens when a person with a user role requests an update to a ticket that is already under analysis or is been fixed.
+* `fixing-ticket`: Happens when a person with a user role requests an update to a ticket that is already under analysis or is been fixed.
   * It's thrown with the HTTP status code `409 Conflict`.
 
 ```json
 {
-    "type": "/errors/update-fixing-ticket",
+    "type": "/errors/fixing-ticket",
     "title": "It's not possible to update a ticket that is already being fixed.",
     "instance": "/tickets/1"
 }
