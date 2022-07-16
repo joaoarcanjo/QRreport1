@@ -18,8 +18,8 @@ export const TICKET_URL_API = (ticketId: string | undefined): string => {
     return url
 }
 
-export const COMPANIES_URL_API = (): string => {
-    return BASE_URL_API + `/v1/companies`
+export const COMPANIES_URL_API = (page: number): string => {
+    return BASE_URL_API + `/v1/companies?page=${page}`
 } 
 
 export const COMPANY_URL_API = (companyId: string | undefined): string => {
@@ -62,3 +62,7 @@ export const TICKETS_URL = "/tickets"
 export const PERSON_URL = (personId: string | undefined): string => {
     return `/persons/${personId}`
 }
+
+export const CATEGORIES_URL_API = (page: number): string => {
+    return BASE_URL_API + `/v1/categories?page=${page}`
+} 

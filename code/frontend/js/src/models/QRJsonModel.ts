@@ -52,11 +52,3 @@ export type Action = {
     actions?: Action[],
     links?: Link[],
   }
-
-export function getAction<T>(entity: Entity<T>, actionName: string): Action | undefined {
-    return entity?.actions?.find(action => action.name === actionName)
-}
-
-export function getLink<T>(entity: Entity<T>, rel: string): Link | undefined {
-    return entity.links?.find(link => link.rel.includes(rel))
-}

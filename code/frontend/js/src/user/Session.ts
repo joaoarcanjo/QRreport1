@@ -2,7 +2,7 @@ import { createContext, useContext } from 'react'
 
 export const SESSION_KEY = 'IsLogin'
 export const NAME_KEY = 'UserName'
-export const ROLE_KEY = 'UserRole'
+export const EMAIL_KEY = 'UserEmail'
 
 export async function loginUser(email: string, password: string): Promise<Response> {
   console.log('Login User function called')

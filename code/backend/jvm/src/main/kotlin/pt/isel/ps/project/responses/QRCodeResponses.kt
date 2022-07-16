@@ -12,13 +12,15 @@ import pt.isel.ps.project.responses.Response.Links
 
 object QRCodeResponses {
     object Actions {
-        fun report() = QRreportJsonModel.Action(
+        fun report(deviceId: Long) = QRreportJsonModel.Action(
             name = "report",
             title = "Submit report",
             method = HttpMethod.POST,
             href = Uris.Tickets.BASE_PATH,
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
+                QRreportJsonModel.Property("anomaly", "string",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Devices.Anomalies.makeBase(deviceId))),
                 QRreportJsonModel.Property("subject", "string"),
                 QRreportJsonModel.Property("description", "string", required = false),
                 QRreportJsonModel.Property("hash", "string"),
@@ -33,7 +35,7 @@ object QRCodeResponses {
         clazz = listOf(Classes.REPORT),
         properties = qrCodeDto,
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            add(Actions.report())
+            add(Actions.report(qrCodeDto.deviceId))
             if (user != null) add(AuthenticationResponses.Actions.logout())
             else {
                 add(AuthenticationResponses.Actions.signup())

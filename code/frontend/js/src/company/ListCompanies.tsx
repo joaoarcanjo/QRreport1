@@ -1,13 +1,13 @@
 import { useMemo, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { DisplayError } from "../Error"
 import { useFetch } from "../hooks/useFetch"
 import { Company } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
-import { Collection } from "../pagination/CollectionPagination"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { COMPANIES_URL_API } from "../Urls"
-import { getEntitiesOrUndefined, getActionsOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink } from "../models/ModelUtils"
 import { InsertCompany } from "./InsertCompany"
 import { ActionComponent } from "../user/profile/ActionRequest"
 
@@ -21,8 +21,9 @@ export function ListCompanies() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState(COMPANIES_URL_API(1))
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(COMPANIES_URL_API(), init)
+    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(currentUrl, init)
     
     switch (action?.name) {
         case 'create-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListCompanies/>} />
@@ -91,9 +92,11 @@ export function ListCompanies() {
     return (
         <div className='px-3 pt-3 space-y-4'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Companies</h1>
-            {/*<Filters/>*/}
             <CompaniesActions actions={getActionsOrUndefined(result?.body)}/>
             <Companies entities={getEntitiesOrUndefined(result?.body)}/>
+            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

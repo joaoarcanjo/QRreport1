@@ -77,7 +77,8 @@ object DeviceResponses {
             href = Devices.makeCategory(deviceId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("category", "number")
+                QRreportJsonModel.Property("category", "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Categories.BASE_PATH))
             )
         )
 

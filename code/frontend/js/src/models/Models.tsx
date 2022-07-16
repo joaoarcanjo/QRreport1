@@ -125,3 +125,10 @@ export type FormInfo = {
     room: string,
     device: string
 }
+
+export type Category = {
+    id: number,
+    name: string,
+    state: string,
+    timestamp: Date
+}

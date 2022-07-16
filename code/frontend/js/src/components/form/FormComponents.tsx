@@ -98,15 +98,15 @@ export function InputLabel({text}: {text:string}) {
     )
 }
 
-export function Options({value}: {value: OptionsProps}) {
+export function Options({value, setValue}: {value: OptionsProps, setValue?: React.Dispatch<React.SetStateAction<string>>}) {
     const options = value.options?.map((option, idx) => {
         return <option key={idx} value={option.label}>{option.value}</option>
     })
     return (
         <>
             <InputLabel text={value.optionsText}/>
-            <select {...value.register} 
-                className= "w-full p-2 border rounded-lg">
+            <select {...value.register}  
+                className= "w-full p-2 border rounded-lg" onChange={e => {if(setValue) {setValue(e.target.value)}}}>
                 {options}
                 {value.otherValueText !== undefined && 
                 <option value={value.defaultOtherValue}>{value.otherValueText}</option>}

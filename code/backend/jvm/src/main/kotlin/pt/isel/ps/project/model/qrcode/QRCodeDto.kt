@@ -14,4 +14,5 @@ data class QRCodeDto(
     val building: String,
     val room: String,
     val device: String,
+    val deviceId: Long
 )

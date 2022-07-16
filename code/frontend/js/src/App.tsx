@@ -16,11 +16,12 @@ import { ListCompanies } from './company/ListCompanies';
 import { CompanyRep } from './company/Company';
 import { BuildingRep } from './building/Building';
 import { RoomRep } from './room/Room';
-import { createRepository, LoggedInContext, NAME_KEY, ROLE_KEY, SESSION_KEY } from './user/Session';
+import { createRepository, EMAIL_KEY, LoggedInContext, NAME_KEY, SESSION_KEY } from './user/Session';
 import { Logout } from './user/logout';
 import { ListDevices } from './devices/ListDevices';
 import { DeviceRep } from './devices/Device';
-import FormTicket from './ticket/report/TicketForm';
+import { TicketRequest } from './ticket/report/TickerRequest';
+import { ListCategories } from './category/ListCategories';
 
 const userSessionRepo = createRepository()
 
@@ -33,7 +34,7 @@ function AppRouter() {
                 <Route path="/login" element= {<LoginForm/>}/>
                 <Route path="/logout" element= {<Logout/>}/>
                 <Route path="/signup" element= {<SignupForm/>}/>
-                <Route path="/qrcode/:hash" element= {<FormTicket/>}/>
+                <Route path="/qrcode/:hash" element= {<TicketRequest/>}/>
                 <Route path="/persons/:personId" element= {<Profile/>}/>
                 <Route path="/tickets/" element= {<ListTickets/>}/>
                 <Route path="/employees" element= {<ListEmployees/>}/>
@@ -41,6 +42,7 @@ function AppRouter() {
                 <Route path="/devices" element= {<ListDevices/>}/>
                 <Route path="/devices/:deviceId" element= {<DeviceRep/>}/>
                 <Route path="/companies" element= {<ListCompanies/>}/>
+                <Route path="/categories" element= {<ListCategories/>}/>
                 <Route path="/companies/:companyId" element= {<CompanyRep/>}/>
                 <Route path="/companies/:companyId/buildings/:buildingId" element= {<BuildingRep/>}/>
                 <Route path="/companies/:companyId/buildings/:buildingId/rooms/:roomId" element= {<RoomRep/>}/>
@@ -55,35 +57,36 @@ function App() {
 
     const [isLoggedIn, setLoggedIn] = useState(sessionStorage.getItem(SESSION_KEY) === "true")
     const [userName, setUserName] = useState(sessionStorage.getItem(NAME_KEY))
-    const [userRole, setUserRole] = useState(sessionStorage.getItem(ROLE_KEY))
+    const [userEmail, setUserEmail] = useState(sessionStorage.getItem(EMAIL_KEY))
 
-    console.log(isLoggedIn)
+    console.log(sessionStorage.getItem(NAME_KEY))
 
     useEffect(() => {
         console.log("Use effect for save values called")
-        if (isLoggedIn /*&& userName && userRole*/) { 
+        if (isLoggedIn && userName && userEmail) { 
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(isLoggedIn))
-            //sessionStorage.setItem(NAME_KEY, userName)
-            //sessionStorage.setItem(ROLE_KEY, userRole)
+            sessionStorage.setItem(NAME_KEY, userName)
+            sessionStorage.setItem(EMAIL_KEY, userEmail)
         } else {
             sessionStorage.removeItem(SESSION_KEY)
-            //sessionStorage.removeItem(NAME_KEY)
-            //sessionStorage.removeItem(ROLE_KEY)
+            sessionStorage.removeItem(NAME_KEY)
+            sessionStorage.removeItem(EMAIL_KEY)
         }
     }, [isLoggedIn])
 
     const currentSessionContext = { 
         isLoggedIn: isLoggedIn,
         userName: userName,
-        userRole: userRole,
+        userRole: userEmail,
         login: (username: string, password: string) => {
-            userSessionRepo.login(username, password).then(response => {
+            userSessionRepo.login(username, password).then(async response => {
                 let areCredentialsValid = (response.status === 200)
                 if (areCredentialsValid) {
-                    setLoggedIn(areCredentialsValid)
+                    console.log(response)
+                    setLoggedIn(true)
                     //let userInfo = await response.json()
-                    //setUserName(userInfo.name)
-                    //setUserRole(userInfo.role)
+                    setUserName('joao arcanjo')
+                    setUserEmail('joni@isel.com')
                 }
             })
         },
@@ -97,9 +100,10 @@ function App() {
 }
 
 return (
-    <div>
+    <div className="space-y-4">
         <LoggedInContext.Provider value={currentSessionContext}>
             <AppRouter/>
+            <div></div>
         </LoggedInContext.Provider>
     </div>
   )

@@ -80,10 +80,10 @@ CREATE OR REPLACE FUNCTION get_hash_data(hash TEXT)
 RETURNS JSON
 AS
 $$
-DECLARE ret_company TEXT; ret_building TEXT; ret_room TEXT; ret_device TEXT;
+DECLARE ret_company TEXT; ret_building TEXT; ret_room TEXT; ret_device TEXT; ret_device_id BIGINT;
 BEGIN
-    SELECT c.name, b.name, r.name, d.name
-    INTO ret_company, ret_building, ret_room, ret_device FROM ROOM_DEVICE rd
+    SELECT c.name, b.name, r.name, d.name, d.id
+    INTO ret_company, ret_building, ret_room, ret_device, ret_device_id FROM ROOM_DEVICE rd
         INNER JOIN DEVICE d ON (rd.device = d.id)
         INNER JOIN ROOM r ON (rd.room = r.id)
         INNER JOIN BUILDING b ON (r.building = b.id)
@@ -94,5 +94,5 @@ BEGIN
         RAISE 'resource-not-found' USING DETAIL = 'hash', HINT = hash;
     END IF;
 
-    RETURN json_build_object('company', ret_company, 'building', ret_building, 'room', ret_room, 'device', ret_device);
+    RETURN json_build_object('company', ret_company, 'building', ret_building, 'room', ret_room, 'device', ret_device, 'deviceId', ret_device_id);
 END$$LANGUAGE plpgsql;

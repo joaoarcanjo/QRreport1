@@ -1,11 +1,10 @@
-import { FormEventHandler, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Loading } from '../../components/Various';
 import { DisplayError } from '../../Error';
 import { useFetch } from '../../hooks/useFetch';
 import * as QRreport from '../../models/QRJsonModel';
-import { TicketRep } from '../../ticket/Ticket';
-import { BASE_URL, BASE_URL_API } from '../../Urls';
+import { BASE_URL_API } from '../../Urls';
 
 type FormProps = {
     redirectUrl?: string,

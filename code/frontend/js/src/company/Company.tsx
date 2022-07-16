@@ -5,7 +5,7 @@ import { DisplayError } from "../Error";
 import { Company } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { ActionComponent } from "../user/profile/ActionRequest";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity, getLinks } from "../models/ModelUtils"
 import { useMemo, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { COMPANY_URL_API } from "../Urls";
@@ -103,7 +103,7 @@ export function CompanyRep() {
     }
 
     return (
-        <div className='w-full px-3 pt-3 space-y-3'>
+        <div className='w-full px-3 pt-3 space-y-3'>    
             <CompanyInfo entity={getEntityOrUndefined(result?.body)}/>
             <CompanyActions actions={getActionsOrUndefined(result?.body)}/>
             <BuildingsActions companyId={companyId} entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>

@@ -3,7 +3,7 @@ import { InputProps, TextAreaProps } from "./FormComponents"
 export const simpleInputForm = (register: any, errors: any, isRequired: boolean | undefined, name: string, type: string): InputProps => {
 
     return {
-        inputLabelName: name,
+        inputLabelName: name + (isRequired? ' *' : ''),
         register: register(name, {required: isRequired? 'Is required' : '',  minLength: 1, maxLength: 50}),
         style: {borderColor: errors.name ? 'red': 'black'},
         name: name,
@@ -14,7 +14,7 @@ export const simpleInputForm = (register: any, errors: any, isRequired: boolean 
 
 export const simpleTextAreaForm = (register: any, errors: any, isRequired: boolean | undefined, name: string, text: string):TextAreaProps => {
     return {
-        textAreaLabelName: name,
+        textAreaLabelName: name + (isRequired? ' *' : ''),
         register: register(name, {required: isRequired? 'Is required' : '', maxLength: 200 }),
         style: {borderColor: errors.description ? 'red': 'black'},
         text: text,
@@ -24,7 +24,7 @@ export const simpleTextAreaForm = (register: any, errors: any, isRequired: boole
 
 export const emailInputForm = (register: any, errors: any, isRequired: boolean | undefined, name: string): InputProps => {
     return {
-        inputLabelName: name,
+        inputLabelName: name + (isRequired? ' *' : ''),
         register: register(name, {required: isRequired? 'Is required' : '', pattern: /.+@.+/, minLength: 4, maxLength: 320}),
         style: {borderColor: errors.email ? 'red': 'black'},
         name: name,
@@ -35,7 +35,7 @@ export const emailInputForm = (register: any, errors: any, isRequired: boolean |
 
 export const phoneInputForm = (register: any, errors: any, isRequired: boolean | undefined, name: string): InputProps => {
     return {
-        inputLabelName: name,
+        inputLabelName: name + (isRequired? ' *' : ''),
         register: register(name, {required: isRequired? 'Is required' : '', minLength: 1, maxLength: 50}),
         style: {borderColor: errors.phone ? 'red': 'black'},
         name: name,
@@ -46,7 +46,7 @@ export const phoneInputForm = (register: any, errors: any, isRequired: boolean |
 
 export const passwordInputForm = (register: any, errors: any, isRequired: boolean | undefined, name: string): InputProps => {
     return {
-        inputLabelName: name,
+        inputLabelName: name + (isRequired? ' *' : ''),
         register: register(name, {required: isRequired? 'Is required' : '', minLength: 1, maxLength: 50}),
         style: {borderColor: errors.password ? 'red': 'black'},
         name: name,
@@ -57,7 +57,7 @@ export const passwordInputForm = (register: any, errors: any, isRequired: boolea
 
 export const passwordVerifyInputForm = (register: any, errors: any, getValues: any, isRequired: boolean | undefined): InputProps => {
     return {
-        inputLabelName: 'Repeat your password *',
+        inputLabelName: 'Repeat your password' + (isRequired? ' *' : ''),
         register: register("passwordVerify", {required: isRequired? 'Is required' : '', minLength: 1, maxLength: 127, validate: (value: any) => (value === getValues("password") && getValues("password") !== null)}),
         style: {borderColor: errors.passwordVerify ? 'red': 'black'},
         name: "passwordVerify",

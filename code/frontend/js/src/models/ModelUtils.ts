@@ -47,3 +47,13 @@ export function getProblemOrUndefined<T>(result?: FetchResult<T>) {
         case 'problem': return result.problem
     }
 }
+
+export function getLinks<T>(result?: FetchResult<T>): QrJson.Link[] | undefined {
+    const entity = getEntityOrUndefined(result)
+    return entity?.links
+}
+
+export function getLink<T>(linkRel: string, result?: FetchResult<T>): QrJson.Link | undefined {
+    const entity = getEntityOrUndefined(result)
+    return entity?.links?.find(link => link.rel.find(rel => rel === linkRel))
+}

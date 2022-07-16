@@ -28,10 +28,8 @@ export function ListTickets() {
     const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(TICKETS_URL_API(sortBy, direction), init)
     if (isFetching) return <Loading/>
     if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) {
-        console.log(error)
-        return <DisplayError error={error}/>
-    }
+    if (error !== undefined) return <DisplayError error={error}/>
+    
 
     function Filters() {
 

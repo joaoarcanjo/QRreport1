@@ -4,19 +4,18 @@ import { Form, Input } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 
-
-export function UpdateRoom({action, setAction, setAuxAction, setPayload }: {  
+export function InputCategory({action, setAction, setAuxAction, setPayload }: {  
     action?: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
 
-    type roomData = {
+    type companyData = {
         name: string
     }
 
-    const { register, handleSubmit, formState: { errors } } = useForm<roomData>();
+    const { register, handleSubmit, formState: { errors } } = useForm<companyData>();
 
     if(!action || !setAction || !setAuxAction || !setPayload) return null
 
@@ -26,7 +25,7 @@ export function UpdateRoom({action, setAction, setAuxAction, setPayload }: {
     })
 
     function Inputs() {
-        let componentsInputs = action!!.properties.map(prop => {        
+        let componentsInputs = action!!.properties.map(prop => {
             switch (prop.name) {
                 case 'name': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
             }
