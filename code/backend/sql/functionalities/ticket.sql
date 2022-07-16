@@ -306,7 +306,11 @@ DECLARE
     b_floors INT; b_timestamp TIMESTAMP; r_id BIGINT; r_name TEXT; r_state TEXT; r_floor INT; r_timestamp TIMESTAMP;
     d_id BIGINT; d_name TEXT; d_state TEXT; d_timestamp TIMESTAMP; ct_name TEXT;
     role TEXT = get_person_active_role(person_id);
+    employeeId UUID = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
+    employee JSON = NULL;
 BEGIN
+    IF(employeeId IS NOT NULL) THEN employee = person_item_representation(employeeId); END IF;
+
     PERFORM ticket_exists(ticket_id);
     IF (role = 'user') THEN
         PERFORM ticket_belongs_to_user(ticket_id, person_id);
@@ -350,13 +354,13 @@ BEGIN
         'ticket', json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_desc,
             'creationTimestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
             'possibleTransitions', t_possibleTransitions),
-        'ticketComments', get_comments(ticket_id, limit_rows, skip_rows, comments_direction),
+        'ticketComments', get_comments(ticket_id, comments_direction, limit_rows, skip_rows),
         'person', person_item_representation(p_id),
         'company', company_item_representation(c_id, c_name, c_state, c_timestamp),
         'building', building_item_representation(b_id, b_name, b_floors, b_state, b_timestamp),
         'room', room_item_representation(r_id, r_name, r_floor, r_state, r_timestamp),
         'device', device_item_representation(d_id, d_name, ct_name, d_state, d_timestamp),
-        'employee', person_item_representation((SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL))
+        'employee', employee
     );
 END$$ LANGUAGE plpgsql;
 
@@ -364,6 +368,7 @@ END$$ LANGUAGE plpgsql;
  * Gets all the tickets
  * Returns a list with all the tickets item representation
  */
+
 CREATE OR REPLACE FUNCTION get_tickets(
     person_id UUID,
     limit_rows INT DEFAULT NULL,

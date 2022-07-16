@@ -138,7 +138,7 @@ object TicketResponses {
             if (ticketInfo.ticket.employeeState.compareTo("To assign") == 0)
                 add(Actions.updateTicket(ticketInfo.ticket.id))
 //            add(Actions.deleteTicket(ticketInfo.ticket.id)) TODO: Delete?
-            if ((isEmployee(user) && isEmployeeTicket(user, ticketInfo.employee.id)) ||
+            if (ticketInfo.employee != null && (isEmployee(user) && isEmployeeTicket(user, ticketInfo.employee.id)) ||
                 (isManager(user) && belongsToCompany(user, ticketInfo.company.id)) ||
                 isAdmin(user)
             )

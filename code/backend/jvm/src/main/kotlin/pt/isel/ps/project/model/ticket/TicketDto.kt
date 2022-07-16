@@ -13,7 +13,7 @@ import java.sql.Timestamp
 data class TicketItemDto (
     val id: Long,
     val subject: String,
-    val description: String,
+    val description: String?,
     val userState: String?,
     val employeeState: String?,
 )
@@ -41,7 +41,7 @@ data class TicketExtraInfo (
     val building: BuildingItemDto,
     val room: RoomItemDto,
     val device: DeviceItemDto,
-    val employee: PersonItemDto,
+    val employee: PersonItemDto?,
 )
 
 data class TicketEmployee (
