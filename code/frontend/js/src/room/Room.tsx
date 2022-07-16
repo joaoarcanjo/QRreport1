@@ -2,12 +2,12 @@ import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
+import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Room } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { ROOM_URL_API } from "../Urls";
-import { ActionComponent } from "../user/profile/ActionRequest";
+import { ActionComponent } from "../components/ActionComponent";
 import { AddRoomDevice } from "./AddRoomDevice";
 import { UpdateRoom } from "./UpdateRoom";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
@@ -36,8 +36,9 @@ export function RoomRep() {
     }
     
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
+
+    
 
     function RoomState({state}: {state: string}) {
 

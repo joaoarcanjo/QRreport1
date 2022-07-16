@@ -5,9 +5,9 @@ import { useFetch } from '../../hooks/useFetch'
 import { FormInfo } from '../../models/Models'
 import { Action } from '../../models/QRJsonModel'
 import { REPORT_FORM_URL_API } from '../../Urls'
-import { ActionComponent } from '../../user/profile/ActionRequest'
+import { ActionComponent } from '../../components/ActionComponent'
 import { Loading } from '../../components/Various'
-import { DisplayError } from '../../Error'
+import { ErrorView } from '../../errors/Error'
 import { getAction, getActionsOrUndefined, getEntityOrUndefined } from "../../models/ModelUtils"
 import { TicketInfo } from './TicketForm'
 
@@ -34,7 +34,7 @@ export function TicketRequest() {
     
     if (isFetching) return <Loading/>
     if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
 
     const reportAction = getAction('report', result?.body)
     const reportEntity = getEntityOrUndefined(result?.body)

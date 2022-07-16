@@ -6,11 +6,11 @@ import { AiFillTool, AiFillStar, AiFillCloseCircle } from "react-icons/ai";
 import { Employee, Ticket } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
+import { ErrorView } from "../errors/Error";
 import { BASE_URL_API } from "../Urls";
 import { useFetch } from "../hooks/useFetch";
 import { Collection } from "../pagination/CollectionPagination";
-import { getEntityOrUndefined } from '../models/ModelUtils';
+import { getEntityOrUndefined, getProblemOrUndefined } from '../models/ModelUtils';
 
 export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}: {
     action: Action,
@@ -34,14 +34,15 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
 
     const url = href === undefined || null ? '' : BASE_URL_API + href 
     
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(url, init)
+    const { isFetching, result, error } = useFetch<Collection>(url, init)
 
     if (!action || !setPayload || !setAction) return null
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <>Canceled</> //todo
-    if (error) return <DisplayError/>
-    console.log(result)
+    if (error) return <ErrorView/>
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
     
     function Filters() {
 

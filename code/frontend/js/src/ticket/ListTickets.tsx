@@ -8,16 +8,15 @@ import { useFetch } from "../hooks/useFetch"
 import { Collection } from "../pagination/CollectionPagination"
 import { TICKETS_URL_API } from "../Urls"
 import { Loading } from "../components/Various"
-import { DisplayError } from "../Error"
+import { ErrorView } from "../errors/Error"
 import { Entity } from "../models/QRJsonModel"
-import { getEntitiesOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 
 export function ListTickets() {
 
     const [direction, setDirection] = useState('desc')
     const [sortBy, setSortBy] = useState('date')
 
-    //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
         credentials: 'include',
         headers: { 'Request-Origin': 'WebApp' }
@@ -25,11 +24,12 @@ export function ListTickets() {
 
     const init = useMemo(() => initValues ,[])
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(TICKETS_URL_API(sortBy, direction), init)
+    const { isFetching, result, error } = useFetch<Collection>(TICKETS_URL_API(sortBy, direction), init)
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
     
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function Filters() {
 

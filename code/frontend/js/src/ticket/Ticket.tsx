@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 import { MdExpandLess, MdExpandMore, MdOutlineMeetingRoom } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
+import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Ticket } from "../models/Models";
 import { TICKETS_URL,  TICKET_URL_API } from "../Urls";
-import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from '../models/ModelUtils';
+import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity, getProblemOrUndefined } from '../models/ModelUtils';
 import { Action, Entity } from "../models/QRJsonModel";
 import { FaEdit, FaRegBuilding } from "react-icons/fa";
-import { ActionComponent } from "../user/profile/ActionRequest";
+import { ActionComponent } from "../components/ActionComponent";
 import { SetEmployeeAction } from "./SetEmployeeAction";
 import { UpdateTicket } from "./UpdateTicket";
 import { TicketRate } from "./TicketRate";
@@ -33,17 +33,20 @@ export function TicketRep() {
 
     const init = useMemo(() => initValues ,[])
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Ticket>(TICKET_URL_API(ticketId), init)
+    const { isFetching, result, error } = useFetch<Ticket>(TICKET_URL_API(ticketId), init)
+
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
+    
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     switch (action?.name) {
         case 'delete-ticket': return <ActionComponent action={action} redirectUrl={TICKETS_URL} />
         case 'set-employee': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'remove-employee': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'update-ticket-state': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
-        case 'update-ticket': return <UpdateTicket action={action}/>
+        case 'update-ticket': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'create-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'delete-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'update-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
@@ -141,6 +144,8 @@ export function TicketRep() {
                 <div className="flex space-x-2">{componentsActions} </div>
                 {auxAction?.name === 'set-employee' && 
                 <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+                {auxAction?.name === 'update-ticket' &&
+                <UpdateTicket action={action} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
             </>
         )
     }

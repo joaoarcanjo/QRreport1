@@ -6,7 +6,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { simpleTextAreaForm } from "../components/form/FormInputs";
 import { Form, TextArea } from "../components/form/FormComponents";
-import { MdExpandLess, MdExpandMore } from "react-icons/md";
 import { GrUpdate }from "react-icons/gr";
 import { AiFillCloseCircle, AiFillDelete } from "react-icons/ai";
 

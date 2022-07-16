@@ -17,6 +17,6 @@ export type ProblemJson = {
     title: string,
     detail?: string,
     instance: string,
-    invalidParameters?: InvalidParameters,
+    invalidParams?: InvalidParameters[],
     data?: object,
 }

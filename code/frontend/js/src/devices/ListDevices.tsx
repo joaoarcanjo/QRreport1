@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react"
 import { Loading } from "../components/Various"
-import { DisplayError } from "../Error"
+import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
 import { Device } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection } from "../pagination/CollectionPagination"
 import { DEVICES_URL_API } from "../Urls"
 import { InsertDevice } from "./InsertDevice"
-import { getEntitiesOrUndefined, getActionsOrUndefined } from "../models/ModelUtils"
-import { ActionComponent } from "../user/profile/ActionRequest"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { ActionComponent } from "../components/ActionComponent"
 import { MdOutlineCategory } from "react-icons/md"
 import { Link } from "react-router-dom"
 
@@ -23,16 +23,18 @@ export function ListDevices() {
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, isCanceled, result, error } = useFetch<Collection>(DEVICES_URL_API, init)
+    const { isFetching, result, error } = useFetch<Collection>(DEVICES_URL_API, init)
 
     switch (action?.name) {
         case 'create-device': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListDevices/>} />
     }
    
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
     
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
+
     function DeviceItemComponent({entity}: {entity: Entity<Device>}) {
         const device = entity.properties
 

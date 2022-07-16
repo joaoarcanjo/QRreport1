@@ -22,6 +22,7 @@ import { ListDevices } from './devices/ListDevices';
 import { DeviceRep } from './devices/Device';
 import { TicketRequest } from './ticket/report/TickerRequest';
 import { ListCategories } from './category/ListCategories';
+import { ErrorView } from './errors/Error';
 
 const userSessionRepo = createRepository()
 
@@ -47,6 +48,7 @@ function AppRouter() {
                 <Route path="/companies/:companyId/buildings/:buildingId" element= {<BuildingRep/>}/>
                 <Route path="/companies/:companyId/buildings/:buildingId/rooms/:roomId" element= {<RoomRep/>}/>
                 <Route path="/tickets/:ticketId" element= {<TicketRep/>}/>
+                <Route path="/error" element= {<ErrorView/>}/>
             </Routes>
         </Router>
     )

@@ -5,19 +5,23 @@ import { ProblemJson } from "../models/ProblemJson"
 import { useMemo, useState } from "react"
 import { Collection } from "../pagination/CollectionPagination"
 import { PERSONS_URL_API } from "../Urls"
-import { DisplayError } from "../Error"
+import { ErrorView } from "../errors/Error"
 import SignupForm from "./signup/SignupForm"
 import { getActionsOrUndefined, getEntitiesOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { useFetch } from "../hooks/useFetch"
+import { Loading } from "../components/Various"
 
 function PersonItemComponent({ entity }: { entity: QRreport.Entity<PersonItem> }) {
     const person = entity.properties
     return (
-        <div className='p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100'>  
+        <div>
             <Link to={`/persons/${person.id}`}>
-                <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>{person.name}</h5>
+                <div className='p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100'>  
+                    
+                        <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>{person.name}</h5>
+                    <p>{person.email}</p>
+                </div>
             </Link>
-            <p>{person.email}</p>
         </div>
     )
 }
@@ -27,7 +31,6 @@ function PersonsList({ entities }: { entities?: QRreport.Entity<PersonItem>[]}) 
     return (
     <>
         {entities.map((entity, idx) => {
-            console.log(entity)
             if (entity.class.includes('person') && entity.rel?.includes('item')) {
                 return <PersonItemComponent key={idx} entity={entity}/>
             }
@@ -75,21 +78,20 @@ export function ListPersons() {
     const [isAction, setAction] = useState(false)
     
     //const [currentPage, setPage] = useState(0)
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(PERSONS_URL_API(sortBy, direction), init)
+    const { isFetching, result, error } = useFetch<Collection>(PERSONS_URL_API(sortBy, direction), init)
 
-
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) {  
-        return <DisplayError message="Unexpected error"/>
-    }
-
-    if (isAction) return <SignupForm /*action={getAction("create-project", result?.body)!!} setAction={setAction}*//>
+    if (isFetching) return <Loading/>
+    if (error) return <ErrorView message="Unexpected error"/>
     
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
+
+    if (isAction) return <SignupForm/>
     
     return (
         <div className='px-3 pt-3 space-y-4'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Persons</h1>
-            {isFetching ? <p>Fetching...</p> : 
+            {isFetching ? <Loading/> : 
             <>
                 <ProblemComponent problem={getProblemOrUndefined(result?.body)}/>
                 <PersonsList entities={getEntitiesOrUndefined(result?.body)}/>

@@ -18,7 +18,7 @@ export function UpdateRoom({action, setAction, setAuxAction, setPayload }: {
 
     const { register, handleSubmit, formState: { errors } } = useForm<roomData>();
 
-    if(!action || !setAction || !setAuxAction || !setPayload) return null
+    if(!action || !setAction) return null
 
     const onSubmitHandler = handleSubmit(({ name }) => {
         setAction(action)

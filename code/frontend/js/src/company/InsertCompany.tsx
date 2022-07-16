@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/form/FormComponents";
+import { Form, Input } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 

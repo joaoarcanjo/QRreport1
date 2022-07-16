@@ -2,16 +2,15 @@ import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
+import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Device } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { UpdateRoom } from "../room/UpdateRoom";
-import { DEVICE_URL_API, ROOM_URL_API } from "../Urls";
-import { ActionComponent } from "../user/profile/ActionRequest";
+import { DEVICE_URL_API } from "../Urls";
+import { ActionComponent } from "../components/ActionComponent";
 import { ChangeCategory } from "./ChangeCategory";
 import { UpdateDevice } from "./UpdateDevice";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { Anomalies } from "../anomaly/ListAnomalies";
 
 
@@ -28,7 +27,7 @@ export function DeviceRep() {
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Device>(DEVICE_URL_API(deviceId), init)
+    const { isFetching, result, error } = useFetch<Device>(DEVICE_URL_API(deviceId), init)
 
     switch (action?.name) {
         case 'create-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<DeviceRep/>} />
@@ -39,8 +38,10 @@ export function DeviceRep() {
     }
     
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function DeviceState({state}: {state: string}) {
 

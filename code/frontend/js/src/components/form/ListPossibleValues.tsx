@@ -1,7 +1,7 @@
 import { useMemo } from "react"
-import { DisplayError } from "../../Error"
+import { ErrorView } from "../../errors/Error"
 import { useFetch } from "../../hooks/useFetch"
-import { getEntitiesOrUndefined } from "../../models/ModelUtils"
+import { getEntitiesOrUndefined, getProblemOrUndefined } from "../../models/ModelUtils"
 import { Collection } from "../../pagination/CollectionPagination"
 import { BASE_URL_API } from "../../Urls"
 import { Loading } from "../Various"
@@ -23,11 +23,13 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
 
     const init = useMemo(() => initValues ,[])
     const url = href === undefined || null ? '' : BASE_URL_API + href
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(url, init)
+    const { isFetching, result, error } = useFetch<Collection>(url, init)
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <>Canceled</> //todo
-    if (error) return <DisplayError/>
+    if (error) return <ErrorView />
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     const options = getEntitiesOrUndefined(result?.body)?.map(current => {
         if(regName === 'anomaly') { //TODO: EVITAR ESTE IF 

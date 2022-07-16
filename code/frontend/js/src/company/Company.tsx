@@ -1,11 +1,11 @@
 import { FaEdit } from "react-icons/fa"
 import { useParams } from "react-router-dom"
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
+import { ErrorView } from "../errors/Error";
 import { Company } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { ActionComponent } from "../user/profile/ActionRequest";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity, getLinks } from "../models/ModelUtils"
+import { ActionComponent } from "../components/ActionComponent";
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { useMemo, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { COMPANY_URL_API } from "../Urls";
@@ -25,7 +25,7 @@ export function CompanyRep() {
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Company>(COMPANY_URL_API(companyId), init)
+    const { isFetching, result, error } = useFetch<Company>(COMPANY_URL_API(companyId), init)
     
     switch (action?.name) {
         case 'update-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />
@@ -35,10 +35,11 @@ export function CompanyRep() {
     }
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error !== undefined) return <ErrorView error={error} />
     
-
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem} />
+    
     function CompanyState({state}: {state: string}) {
 
         const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';

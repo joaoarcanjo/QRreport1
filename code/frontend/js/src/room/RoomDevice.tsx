@@ -2,14 +2,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loading } from '../components/Various';
-import { DisplayError } from '../Error';
+import { ErrorView } from '../errors/Error';
 import { useFetch } from '../hooks/useFetch';
 import { Device, DeviceQrCode, QrCode } from '../models/Models';
 import { Action, Entity } from '../models/QRJsonModel';
 import { QRCODE_URL_API, ROOM_DEVICE_URL_API, ROOM_URL_API } from '../Urls';
-import { ActionComponent } from '../user/profile/ActionRequest';
+import { ActionComponent } from '../components/ActionComponent';
 import './Popup.css';
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { useFetchImage } from '../hooks/useFetchImage';
 import Popup from 'reactjs-popup';
 import { AiFillCloseCircle } from 'react-icons/ai';
@@ -31,15 +31,17 @@ export function RoomDevice({deviceId}: {deviceId: number}) {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
 
-    const { isFetching, isCanceled, result, error } = useFetch<Device>(ROOM_DEVICE_URL_API(companyId, buildingId, roomId, deviceId), init)
+    const { isFetching, result, error } = useFetch<Device>(ROOM_DEVICE_URL_API(companyId, buildingId, roomId, deviceId), init)
 
     switch (action?.name) {
         case 'remove-room-device': return <ActionComponent redirectUrl={ROOM_DEVICE_URL_API(companyId, buildingId, roomId, deviceId)} action={action}/>
     }
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error}/>
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function PopupComp() {
         const [imgUrl, setImgUrl] = useState<string>();
@@ -62,7 +64,7 @@ export function RoomDevice({deviceId}: {deviceId: number}) {
             }
         }, [result])
 
-        if (error) return <DisplayError/>
+        if (error) return <ErrorView/>
         return (
             <Popup className='popup-overlay' open = {popup} modal>
                 <div className='bg-white p-8 space-y-3'>

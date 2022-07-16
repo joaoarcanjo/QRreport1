@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../../components/form/FormComponents";
 import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm, simpleInputForm } from "../../components/form/FormInputs";
-import { DisplayError } from "../../Error";
+import { Loading } from "../../components/Various";
+import { ErrorView } from "../../errors/Error";
 import { useFetch } from "../../hooks/useFetch";
 import * as QRreport from '../../models/QRJsonModel';
 import { BASE_URL_API } from "../../Urls";
 import { Profile } from "./Profile";
+import { getProblemOrUndefined } from "../../models/ModelUtils"
 
 export function UpdateProfile({ action }: { action: QRreport.Action }) {
 
@@ -23,20 +25,14 @@ export function UpdateProfile({ action }: { action: QRreport.Action }) {
     const [fetchUrl, setFetchUrl] = useState('')
     const [init, setInit] = useState<RequestInit>({})
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<any>(fetchUrl, init)
+    const { isFetching, result, error } = useFetch<any>(fetchUrl, init)
 
-    if (isFetching) {
-        console.log('Fetching...')
-        return <p>Fetching...</p>
-    }
+    if (isFetching) return <Loading/>
 
     if (!isFetching && fetchUrl) {
-        if (result?.body?.type === 'success') {
-            return <Profile/>
-        } else {
-            console.log(result?.body?.problem)
-            return <DisplayError message={result?.body?.problem.title}/>
-        }
+        if (error) return <ErrorView error={error}/>
+        else if (result?.body?.type === 'success') return <Profile/>
+        else return <ErrorView problemJson={getProblemOrUndefined(result?.body)}/>
     } 
     
     const onSubmitHandler = handleSubmit(({ name, email, phone, password, passwordVerify }) => {
@@ -59,7 +55,7 @@ export function UpdateProfile({ action }: { action: QRreport.Action }) {
         })
         setFetchUrl(BASE_URL_API + action.href) 
     })
-//(register: any, errors: any, isRequired: boolean | undefined, name: string, type: string): InputProps => {
+    
     function Inputs() {
 
         let componentsInputs = action.properties.map(prop => {

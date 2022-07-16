@@ -3,9 +3,8 @@ import { Form } from "../components/form/FormComponents"
 import { ListPossibleValues } from "../components/form/ListPossibleValues"
 import { Action } from "../models/QRJsonModel"
 
-export function ChangeManager({action, setAction, setAuxAction, setPayload}: {
+export function ChangeManager({action, setAction, setPayload}: {
     action: Action,
-    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {

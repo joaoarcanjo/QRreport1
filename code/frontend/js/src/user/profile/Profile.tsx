@@ -4,10 +4,10 @@ import { Person } from '../../models/Models';
 import { useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
 import { BASE_URL, PERSONS_URL, PERSON_URL_API } from '../../Urls';
-import { DisplayError } from '../../Error';
+import { ErrorView } from '../../errors/Error';
 import * as QRreport from '../../models/QRJsonModel';
-import { getEntityOrUndefined, getActionsOrUndefined } from '../../models/ModelUtils';
-import { ActionComponent } from './ActionRequest';
+import { getEntityOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from '../../models/ModelUtils';
+import { ActionComponent } from '../../components/ActionComponent';
 import { Action } from '../../models/QRJsonModel';
 import { UpdateProfile } from './UpdateProfile';
 import { Skills } from './UserSkills';
@@ -33,21 +33,15 @@ export function Profile() {
     const [action, setAction] = useState<QRreport.Action | undefined>(undefined)
     //Used when any action need to send some payload
     const [auxInfo, setAuxInfo] = useState('')
-    const [isLogout, setLogout] = useState(false)
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Person>(PERSON_URL_API(personId), init)
+    const { isFetching, result, error } = useFetch<Person>(PERSON_URL_API(personId), init)
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) {
-        console.log(error)
-        return <DisplayError error={error}/>
-    }
-    if(isLogout) {
-        userSession?.logout()
-        return <Navigate to='/'/>
-    }
+    if (error) return <ErrorView error={error}/>
 
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
+    
     switch (action?.name) {
         case 'delete-user': return <ActionComponent redirectUrl={BASE_URL + PERSONS_URL} action={action}/>
         case 'unban-person': return <ActionComponent action={action}/>
@@ -155,11 +149,6 @@ export function Profile() {
                             <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{person.name.split(' ')[0]}</span>
                             <UpdateAction action={actions?.find(action => action.name === 'update-person')}/> 
                         <div>
-                        <div className="flex justify-end">
-                            <button onClick={() => setLogout(true)} className="flex items-center text-white bg-red-700 hover:bg-red-800 rounded-lg px-2">
-                                <MdOutlineLogout/> Logout
-                            </button>
-                        </div>
                     </div>
                         </div>
                         <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
@@ -214,7 +203,7 @@ export function Profile() {
     const entity = getEntityOrUndefined(result?.body)
     return userSession?.isLoggedIn ? (
     <>
-        {result?.body?.type === 'problem' || entity === undefined ? <DisplayError/> :
+        {result?.body?.type === 'problem' || entity === undefined ? <ErrorView /> :
         <div className="mx-auto my-auto p-5">
             <div className="md:flex no-wrap md:-mx-2">
                 <MainInfo entity = {entity} actions={getActionsOrUndefined(result?.body)}/>

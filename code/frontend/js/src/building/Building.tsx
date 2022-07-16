@@ -2,16 +2,16 @@ import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa"
 import { Link, useParams } from "react-router-dom"
 import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
 import { useFetch } from "../hooks/useFetch";
 import { Building } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { BUILDING_URL_API } from "../Urls";
-import { ActionComponent } from "../user/profile/ActionRequest";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
+import { ActionComponent } from "../components/ActionComponent";
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { UpdateBuilding } from "./UpdateBuilding";
 import { Rooms, RoomsActions } from "../room/ListRooms";
 import { ChangeManager } from "./ChangeManager";
+import { ErrorView } from "../errors/Error";
 
 
 export function BuildingRep() {
@@ -27,10 +27,10 @@ export function BuildingRep() {
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Building>(BUILDING_URL_API(companyId, buildingId), init)
+    const { isFetching, result, error } = useFetch<Building>(BUILDING_URL_API(companyId, buildingId), init)
     
     switch (action?.name) {
-        case 'update-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
+        case 'update-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>}/>
         case 'change-building-manager': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
         case 'create-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
         case 'create-room': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>} />
@@ -39,9 +39,10 @@ export function BuildingRep() {
     }
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
-    
+    if (error) return <ErrorView error={error}/>
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function BuildingState({state}: {state: string}) {
 
@@ -113,7 +114,7 @@ export function BuildingRep() {
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
                 {auxAction?.name === 'change-building-manager' && 
-                <ChangeManager action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+                <ChangeManager action={auxAction} setAction={setAction} setPayload={setPayload}/>}
             </>
         ) 
     }

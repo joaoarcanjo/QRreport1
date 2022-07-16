@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react"
 import { Loading } from "../components/Various"
-import { DisplayError } from "../Error"
+import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
 import { Category } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { CATEGORIES_URL_API } from "../Urls"
-import { ActionComponent } from "../user/profile/ActionRequest"
+import { ActionComponent } from "../components/ActionComponent"
 import { InputCategory } from "./InputCategory"
-import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink, getProblemOrUndefined } from "../models/ModelUtils"
 import { MdExpandMore, MdExpandLess, MdDelete } from "react-icons/md"
 import { GrUpdate } from "react-icons/gr"
 import { Outlet } from "react-router-dom"
@@ -25,7 +25,7 @@ export function ListCategories() {
     const [payload, setPayload] = useState('')
     const [currentUrl, setCurrentUrl] = useState(CATEGORIES_URL_API(1))
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Collection>(currentUrl, init)
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
 
     switch (action?.name) {
         case 'create-category': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListCategories/>} />
@@ -35,8 +35,10 @@ export function ListCategories() {
     } 
 
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
-    if (error !== undefined) return <DisplayError error={error}/>
+    if (error) return <ErrorView error={error} />
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
     
     function CategoryItemComponent({entity}: {entity: Entity<Category>}) {
         const category = entity.properties

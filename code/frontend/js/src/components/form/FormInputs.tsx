@@ -4,7 +4,7 @@ export const simpleInputForm = (register: any, errors: any, isRequired: boolean 
 
     return {
         inputLabelName: name + (isRequired? ' *' : ''),
-        register: register(name, {required: isRequired? 'Is required' : '',  minLength: 1, maxLength: 50}),
+        register: register(name, {required: isRequired? 'Is required' : '', minLength: 1, maxLength: 50}),
         style: {borderColor: errors.name ? 'red': 'black'},
         name: name,
         type: type === 'string'? 'text': 'number',
@@ -15,7 +15,7 @@ export const simpleInputForm = (register: any, errors: any, isRequired: boolean 
 export const simpleTextAreaForm = (register: any, errors: any, isRequired: boolean | undefined, name: string, text: string):TextAreaProps => {
     return {
         textAreaLabelName: name + (isRequired? ' *' : ''),
-        register: register(name, {required: isRequired? 'Is required' : '', maxLength: 200 }),
+        register: register(name, {required: isRequired? 'Is required' : '', minLength: 1, maxLength: 200 }),
         style: {borderColor: errors.description ? 'red': 'black'},
         text: text,
         errorMessage: errors.description && `Invalid ${name}`

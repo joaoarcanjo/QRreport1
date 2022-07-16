@@ -1,15 +1,15 @@
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { AiFillCloseCircle } from "react-icons/ai";
 import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../components/form/FormComponents";
-import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm, simpleInputForm } from "../components/form/FormInputs";
-import { Loading } from "../components/Various";
-import { DisplayError } from "../Error";
-import { useFetch } from "../hooks/useFetch";
+import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
-import { BASE_URL_API } from "../Urls";
-import { TicketRep } from "./Ticket";
 
-export function UpdateTicket({ action }: { action: Action }) {
+export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: { 
+    action: Action | undefined,
+    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    setPayload: React.Dispatch<React.SetStateAction<string>>
+}) {
 
     type userData = {
         subject: string, 
@@ -17,20 +17,6 @@ export function UpdateTicket({ action }: { action: Action }) {
     }
 
     const { register, handleSubmit, formState: { errors } } = useForm<userData>()
-
-    const [fetchUrl, setFetchUrl] = useState('')
-    const [init, setInit] = useState<RequestInit>({})
-
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<any>(fetchUrl, init)
-
-    if (isFetching) return <Loading/>
-    if (!isFetching && fetchUrl) {
-        if (result?.body?.type === 'success') {
-            return <TicketRep/>
-        } else {
-            return <DisplayError message={result?.body?.problem.title}/>
-        }
-    } 
     
     const onSubmitHandler = handleSubmit(({ subject, description }) => {
         const payload: any = {}
@@ -38,20 +24,12 @@ export function UpdateTicket({ action }: { action: Action }) {
         payload['subject'] = subject !== '' ? subject : null
         payload['description'] = description !== '' ? description : null
 
-        setInit({
-            method: action.method,
-            headers: {
-                'Content-Type': action.type,
-                'Request-Origin': 'WebApp' 
-            },
-            credentials: 'include',
-            body: JSON.stringify(payload)
-        })
-
-        setFetchUrl(BASE_URL_API + action.href) 
+        setAction(action)
+        setPayload(payload)
     })
     
     function Inputs() {
+        if(!action) return null
 
         let componentsInputs = action.properties.map(prop => {
             switch (prop.name) {
@@ -63,17 +41,18 @@ export function UpdateTicket({ action }: { action: Action }) {
     }
     
     return (
-        <section className="info-section">
-            <div className="grid place-items-center">
-                <Form onSubmitHandler = { onSubmitHandler }>
-                    <Header heading='Update your ticket'>
-                        <HeaderParagraph paragraph='Insert new information below'/>
-                    </Header>
-                    <Inputs/>
-                    <SubmitButton text={'Update ticket'}/>
-                    <Paragraph value = {'(*) Required'}/>
-                </Form>
-            </div>
-        </section>
+        <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200">
+        <button onClick={() => setAuxAction(undefined)}>
+            <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
+        </button>
+        <Form onSubmitHandler = { onSubmitHandler }>
+                <Header heading='Update your ticket'>
+                    <HeaderParagraph paragraph='Insert new information below'/>
+                </Header>
+                <Inputs/>
+                <SubmitButton text={'Update ticket'}/>
+                <Paragraph value = {'(*) Required'}/>
+            </Form>
+    </div>
     )
 }
