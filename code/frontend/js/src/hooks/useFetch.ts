@@ -59,7 +59,7 @@ function reducer<T>(state: State<T>, action: Action<T>): State<T> {
     }
 }
 
-function mapToFetchResult<T>(payload: any, contentType: string | null): FetchResult<T> {
+export function mapToFetchResult<T>(payload: any, contentType: string | null): FetchResult<T> {
     switch (contentType) {
         case MediaType.DAW_JSON: return { type: 'success', entity: payload }
         case MediaType.PROBLEM_JSON: return { type: 'problem', problem: payload }

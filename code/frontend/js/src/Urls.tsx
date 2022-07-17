@@ -9,7 +9,7 @@ export const PERSON_URL_API = (personId: string | undefined): string => {
 }
 
 export const TICKETS_URL_API = (sortBy: string, direction: string): string => {
-    let url = BASE_URL_API + `/v1/tickets?sort_by=${sortBy}&direction=${direction}`
+    let url = BASE_URL_API + `/v1/tickets?sort_by=${sortBy}&direction=${direction}&page=1`
     return url
 }
 

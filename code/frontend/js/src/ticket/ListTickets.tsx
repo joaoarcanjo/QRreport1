@@ -1,21 +1,22 @@
 import { useMemo, useState } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, Outlet, useParams } from "react-router-dom"
 import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md"
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb"
 import { TicketItem } from "../models/Models"
 import { useLoggedInState } from "../user/Session"
 import { useFetch } from "../hooks/useFetch"
-import { Collection } from "../pagination/CollectionPagination"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { TICKETS_URL_API } from "../Urls"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { Entity } from "../models/QRJsonModel"
-import { getEntitiesOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getLink, getProblemOrUndefined, getPropertiesOrUndefined } from "../models/ModelUtils"
 
 export function ListTickets() {
 
     const [direction, setDirection] = useState('desc')
     const [sortBy, setSortBy] = useState('date')
+    const [currentUrl, setCurrentUrl] = useState(TICKETS_URL_API(sortBy, direction))
 
     const initValues: RequestInit = {
         credentials: 'include',
@@ -24,7 +25,7 @@ export function ListTickets() {
 
     const init = useMemo(() => initValues ,[])
 
-    const { isFetching, result, error } = useFetch<Collection>(TICKETS_URL_API(sortBy, direction), init)
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
     
@@ -80,12 +81,12 @@ export function ListTickets() {
                     </button>
                     <div className='space-y-4'>
                         {moreInfo && <p className='text-sm text-gray-800'>{desc}</p>}
-                        {moreInfo && 
+                        {/*moreInfo && 
                         <div className='flex justify-end'>
                             <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-2.5 py-1 inline-flex items-center mr-2 mb-2'> 
                                 Edit
                             </button>
-                        </div>}
+                        </div>*/}
                     </div>
                 </div>
             </div>
@@ -109,6 +110,9 @@ export function ListTickets() {
         <div className='px-3 pt-3 space-y-4'>
             <Filters/>
             <ListTickets entities={getEntitiesOrUndefined(result?.body)}/>
+            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

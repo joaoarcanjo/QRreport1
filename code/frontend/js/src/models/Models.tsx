@@ -132,3 +132,8 @@ export type Category = {
     state: string,
     timestamp: Date
 }
+
+export type LoginUser = {
+    name: string,
+    email: string
+}

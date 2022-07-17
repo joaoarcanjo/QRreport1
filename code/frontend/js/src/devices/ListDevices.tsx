@@ -19,7 +19,7 @@ export function ListDevices() {
         headers: { 'Request-Origin': 'WebApp' }
     }
     
-    const init = useMemo(() => initValues ,[])
+    const init = useMemo(() => initValues, [])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 

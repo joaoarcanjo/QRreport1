@@ -23,6 +23,9 @@ import { DeviceRep } from './devices/Device';
 import { TicketRequest } from './ticket/report/TickerRequest';
 import { ListCategories } from './category/ListCategories';
 import { ErrorView } from './errors/Error';
+import { mapToFetchResult } from './hooks/useFetch';
+import { getEntityOrUndefined } from './models/ModelUtils';
+import { LoginUser } from './models/Models';
 
 const userSessionRepo = createRepository()
 
@@ -55,13 +58,13 @@ function AppRouter() {
 }
 
 
+
+
 function App() {
 
     const [isLoggedIn, setLoggedIn] = useState(sessionStorage.getItem(SESSION_KEY) === "true")
     const [userName, setUserName] = useState(sessionStorage.getItem(NAME_KEY))
     const [userEmail, setUserEmail] = useState(sessionStorage.getItem(EMAIL_KEY))
-
-    console.log(sessionStorage.getItem(NAME_KEY))
 
     useEffect(() => {
         console.log("Use effect for save values called")
@@ -76,39 +79,45 @@ function App() {
         }
     }, [isLoggedIn])
 
+    function login(username: string, password: string) {
+        userSessionRepo.login(username, password).then(async response => {
+            const payload = await response.json()
+            const header = response.headers.get('content-type')
+            const fetchResult = mapToFetchResult<LoginUser>(payload, header)
+            const entity = getEntityOrUndefined(fetchResult)
+        
+            if (entity) {
+                setLoggedIn(true)
+                setUserName(entity.properties.name)
+                setUserEmail(entity.properties.email)
+            }
+        })
+    }
+
+    function logout() {
+        userSessionRepo.logout().then(response => {
+            if(response === 200) {
+                setLoggedIn(false)
+            }
+        })
+    }
+
     const currentSessionContext = { 
         isLoggedIn: isLoggedIn,
         userName: userName,
         userRole: userEmail,
-        login: (username: string, password: string) => {
-            userSessionRepo.login(username, password).then(async response => {
-                let areCredentialsValid = (response.status === 200)
-                if (areCredentialsValid) {
-                    console.log(response)
-                    setLoggedIn(true)
-                    //let userInfo = await response.json()
-                    setUserName('joao arcanjo')
-                    setUserEmail('joni@isel.com')
-                }
-            })
-        },
-        logout: () => {
-            userSessionRepo.logout().then(response => {
-                if(response === 200) {
-                    setLoggedIn(false)
-                }
-            })
-        }
-}
+        login: login,
+        logout: logout
+    }
 
-return (
-    <div className="space-y-4">
-        <LoggedInContext.Provider value={currentSessionContext}>
-            <AppRouter/>
-            <div></div>
-        </LoggedInContext.Provider>
-    </div>
-  )
+    return (
+        <div className="space-y-4">
+            <LoggedInContext.Provider value={currentSessionContext}>
+                <AppRouter/>
+                <div></div>
+            </LoggedInContext.Provider>
+        </div>
+    )
 }
 
 export default App;

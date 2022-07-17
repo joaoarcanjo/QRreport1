@@ -42,10 +42,10 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
     
     return (
         <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200">
-        <button onClick={() => setAuxAction(undefined)}>
-            <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
-        </button>
-        <Form onSubmitHandler = { onSubmitHandler }>
+            <button onClick={() => setAuxAction(undefined)}>
+                <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
+            </button>
+            <Form onSubmitHandler = { onSubmitHandler }>
                 <Header heading='Update your ticket'>
                     <HeaderParagraph paragraph='Insert new information below'/>
                 </Header>
@@ -53,6 +53,6 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
                 <SubmitButton text={'Update ticket'}/>
                 <Paragraph value = {'(*) Required'}/>
             </Form>
-    </div>
+        </div>
     )
 }

@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom'
 import { useMemo, useState } from 'react'
-import { CompanyRep } from '../../company/Company'
 import { useFetch } from '../../hooks/useFetch'
 import { FormInfo } from '../../models/Models'
 import { Action } from '../../models/QRJsonModel'
@@ -8,12 +7,14 @@ import { REPORT_FORM_URL_API } from '../../Urls'
 import { ActionComponent } from '../../components/ActionComponent'
 import { Loading } from '../../components/Various'
 import { ErrorView } from '../../errors/Error'
-import { getAction, getActionsOrUndefined, getEntityOrUndefined } from "../../models/ModelUtils"
-import { TicketInfo } from './TicketForm'
+import { getAction, getEntityOrUndefined } from "../../models/ModelUtils"
+import { TicketForm } from './TicketForm'
+import { useLoggedInState } from '../../user/Session'
 
 export function TicketRequest() {
 
     const { hash } = useParams()
+    const loggedState = useLoggedInState()
 
     const initValues: RequestInit = {
         credentials: 'include',
@@ -24,16 +25,17 @@ export function TicketRequest() {
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<FormInfo>(REPORT_FORM_URL_API(hash!!), init)
+    const { isFetching, result, error } = useFetch<FormInfo>(REPORT_FORM_URL_API(hash!!), init)
     
+    const isLoggedIn = loggedState?.isLoggedIn
+
     switch (action?.name) {
-        case 'report': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />
-        case 'signup': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />
-        case 'login': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />
+        case 'report': return <ActionComponent action={action} extraInfo={payload} redirectUrl={isLoggedIn ? '/tickets': '/'} />
+        case 'signup': return <ActionComponent action={action} extraInfo={payload} returnComponent={<></>} />
+        case 'login': return <ActionComponent action={action} extraInfo={payload} returnComponent={<></>} />
     }
     
     if (isFetching) return <Loading/>
-    if (isCanceled) return <p>Canceled</p>
     if (error) return <ErrorView error={error}/>
 
     const reportAction = getAction('report', result?.body)
@@ -41,5 +43,5 @@ export function TicketRequest() {
 
     if(!reportAction || !reportEntity) return null
 
-    return <TicketInfo hash={hash!!} entity={reportEntity} action={reportAction} setAction={setAction} setPayload={setPayload}/>
+    return <TicketForm hash={hash!!} entity={reportEntity} action={reportAction} setAction={setAction} setPayload={setPayload}/>
 }

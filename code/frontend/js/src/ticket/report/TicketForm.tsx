@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form, Header, HeaderParagraph, Input, SubmitButton, TextArea } from "../../components/form/FormComponents";
 import { simpleInputForm, simpleTextAreaForm, phoneInputForm, emailInputForm } from "../../components/form/FormInputs";
@@ -6,9 +6,10 @@ import { ListPossibleValues } from "../../components/form/ListPossibleValues"
 import { FormInfo } from "../../models/Models";
 import { Action, Entity } from "../../models/QRJsonModel";
 import { EMAIL_KEY, NAME_KEY, useLoggedInState } from '../../user/Session'
+import ReCAPTCHA from "react-google-recaptcha";
 
-export function TicketInfo({hash, entity, action, setAction, setPayload}: {
-    hash: string, entity: Entity<FormInfo>, action?: Action,
+export function TicketForm({hash, entity, action, setAction, setPayload}: {
+    hash: string, entity: Entity<FormInfo>, action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
@@ -23,12 +24,11 @@ export function TicketInfo({hash, entity, action, setAction, setPayload}: {
     }
     
     const loggedState = useLoggedInState()
-
-    const { register, handleSubmit, formState: { errors }} = useForm<ticketData>();
-
-    if(!action) return null
+    const { register, handleSubmit, formState: { errors }} = useForm<ticketData>()
+    const [captcha, setVerified] = useState(false)
 
     const onSubmitHandler = handleSubmit(({ subject , description, anomaly, name, phone, email }) => {
+        if(!captcha) return 
         const payload: any = {}
 
         console.log(subject, description, anomaly, name, phone, email)
@@ -37,12 +37,9 @@ export function TicketInfo({hash, entity, action, setAction, setPayload}: {
             payload['phone'] = phone
         }
 
-        //nao vamos colocar aqui, vamos caso o utilizador esteja logado, obter isto do token e publicar o ticket
-        //o email, e o name também têm que ser opcionais para que possa chegar ao handler.
-        //um utilizador nao autenticado nao está a conseguir submeter o ticket
         const sessionName = sessionStorage.getItem(NAME_KEY)
         const sessionEmail = sessionStorage.getItem(EMAIL_KEY)
-
+        
         if (loggedState?.isLoggedIn && sessionName && sessionEmail) {
             name = sessionName
             email = sessionEmail
@@ -55,8 +52,8 @@ export function TicketInfo({hash, entity, action, setAction, setPayload}: {
         payload['email'] = email
 
         console.log(payload)
-        //setAction(action)
-        //setPayload(JSON.stringify(payload))
+        setAction(action)
+        setPayload(JSON.stringify(payload))
     })
 
     //todo: adicionar o icone do room e o icone do room
@@ -71,13 +68,11 @@ export function TicketInfo({hash, entity, action, setAction, setPayload}: {
             </Header>
         )
     }
-    
-    function Inputs() {
-    
-        const[anomaly, setAnomaly] = useState('-1')
-        if(!action) return null
-    
-        let componentsInputs = action!!.properties.map(prop => {
+
+    const[anomaly, setAnomaly] = useState('-1')
+
+    const ComponentsInputs = useMemo(() => {
+        return action!!.properties.map(prop => {
             switch (prop.name) {
                 case 'subject': return (anomaly === '-1') && <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
                 case 'description': return <TextArea value={simpleTextAreaForm(register, errors, prop.required, prop.name, 'Insert a description')}/>
@@ -90,14 +85,17 @@ export function TicketInfo({hash, entity, action, setAction, setPayload}: {
                    setValue={setAnomaly}/>
             }
         })
-        return <>{componentsInputs}</>
-    }
+    }, [action, anomaly])
 
     return (
         <section className='info-section'>
             <Form onSubmitHandler = { onSubmitHandler }>
                 <Headers/>
-                <Inputs/>
+                {ComponentsInputs}
+                <ReCAPTCHA
+                    sitekey="6LcpoPggAAAAABbssHwr7EviNpJxG_LCeZBOoDWB"
+                    onChange={()=>{setVerified(true)}}
+                />
                 <SubmitButton text={'Submit'}/>
                 <p> (*) Required</p>
             </Form>

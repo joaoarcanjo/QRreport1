@@ -21,30 +21,35 @@ export default function NavBar() {
         return <span onClick={showNavbar}><NavLink to={navTo}>{text}</NavLink></span>
     }
 
+    function NavElements() {
+        return (!userSession?.isLoggedIn) ?
+             <NavElement navTo='login' text='Login'/> :
+            (<>
+                <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>
+                <NavElement navTo='managerTickets' text='Manager tickets'/>
+                <NavElement navTo='persons' text='Persons'/>
+                <NavElement navTo='employees' text='Employees'/>
+                <NavElement navTo='companies' text='Companies'/>
+                <NavElement navTo='categories' text='Categories'/>
+                <NavElement navTo='devices' text='Devices'/>
+                <NavElement navTo='logout' text='Logout'/>
+            </>)
+    }
+
     return (
         <header>
-            <>
-                <NavLink to='/'>
-                    <h3>QRreport</h3>
-                </NavLink>
-                <nav ref={navRef} className="flex items-center">
-                    {!userSession?.isLoggedIn && <NavElement navTo='login' text='Login'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='managerTickets' text='Manager tickets'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='persons' text='Persons'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='employees' text='Employees'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='companies' text='Companies'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='categories' text='Categories'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='devices' text='Devices'/>}
-                    {userSession?.isLoggedIn && <NavElement navTo='logout' text='Logout'/>}
-                    <button className='nav-btn nav-close-btn'>
-                        <FaTimes onClick={showNavbar}/>
-                    </button>
-                </nav>
-                <button className='nav-btn'>
-                    <FaBars onClick={showNavbar}/>
+            <NavLink to='/'>
+                <h3>QRreport</h3>
+            </NavLink>
+            <nav ref={navRef} className="flex items-center">
+                <NavElements/>
+                <button className='nav-btn nav-close-btn'>
+                    <FaTimes onClick={showNavbar}/>
                 </button>
-            </>
+            </nav>
+            <button className='nav-btn'>
+                <FaBars onClick={showNavbar}/>
+            </button>
         </header>
     )
 }

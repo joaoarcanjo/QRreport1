@@ -16,7 +16,7 @@ import { FireAction } from './FireAction';
 import { BanAction } from './BanAction';
 import { useLoggedInState } from '../Session';
 import { Loading } from '../../components/Various';
-import { MdOutlineLogout } from 'react-icons/md';
+import { AssignToCompany } from './AssignToCompany';
 
 export function Profile() {
     
@@ -52,6 +52,7 @@ export function Profile() {
         case 'remove-skill': return <ActionComponent action={action} extraInfo={auxInfo}/>
         case 'add-role': return <ActionComponent action={action} extraInfo={auxInfo}/>
         case 'remove-role': return <ActionComponent action={action} extraInfo={auxInfo}/>
+        case 'assign-to-company': return <ActionComponent action={action} extraInfo={auxInfo}/>
         case 'update-person': return <UpdateProfile action={action}/>
     }
         
@@ -68,13 +69,12 @@ export function Profile() {
         )
     }
 
-    function UserDate({state, time}: {state: string, time: Date}) {
+    function UserDate({state, time}: {state: string, time: string}) {
         const text = state === 'inactive' ? 'Inactive since' : 'Member since';
         
         return (
             <div className="flex items-center py-3">
-                <span>{text}</span>
-                <span className="ml-auto">{`${time}`}</span>
+                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
             </div>
         )
     }
@@ -86,38 +86,41 @@ export function Profile() {
         let componentsActions = actions?.map(action => {
             switch(action.name) {
                 case 'ban-person': return (
-                        <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
-                            Ban
-                        </button>
-                    )
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'unban-person': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded">
-                            Unban
-                        </button>
-                    )
+                    <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'delete-user': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
-                            Delete
-                        </button>
-                    )
+                    <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'fire-person': return (
-                        <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
-                            Fire
-                        </button>
-                    )
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'rehire-person': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
-                            Rehire
-                        </button>
-                    )
+                    <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
+                case 'assign-to-company': return (
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
             }
         })
 
         return (
             <>
                 <div className="flex space-x-2">{componentsActions} </div>
-                {auxAction?.name === 'fire-person' && <FireAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo}/>}
-                {auxAction?.name === 'ban-person' && <BanAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo}/>}
+                {auxAction?.name === 'fire-person' && 
+                <FireAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo} setAuxAction={setAuxAction}/>}
+                {auxAction?.name === 'ban-person' && 
+                <BanAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo} setAuxAction={setAuxAction}/>}
+                {auxAction?.name === 'assign-to-company' && 
+                <AssignToCompany action={auxAction} setAction={setAction} setPayload={setAuxInfo} setAuxAction={setAuxAction}/>}
             </>
         )
     }
@@ -153,11 +156,11 @@ export function Profile() {
                         </div>
                         <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                             <UserState state={person.state}/>
-                            <UserDate state={person.state} time={person.timestamp}/>
+                            <UserDate state={person.state} time={`${new Date(1657833748229).toLocaleDateString()}`}/>
                         </ul>
                     </div>
                     <div>
-                        <Link className="w-1/2" to={`/persons/${person.id}/tickets/`}>
+                        <Link className="w-1/2" to={`/tickets/`}>
                             <button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 {person.roles.find(role => role === 'employee') ? 'Work': 'Tickets'}
                             </button>

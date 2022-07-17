@@ -33,6 +33,7 @@ export function TicketRep() {
 
     const init = useMemo(() => initValues ,[])
 
+    console.log(TICKET_URL_API(ticketId))
     const { isFetching, result, error } = useFetch<Ticket>(TICKET_URL_API(ticketId), init)
 
     if (isFetching) return <Loading/>
@@ -122,26 +123,29 @@ export function TicketRep() {
         let componentsActions = actions?.map(action => {
             switch(action.name) {
                 case 'delete-ticket': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
-                            {action.title}
-                        </button>
-                    )
+                    <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'set-employee': return (
-                        <button onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            {action.title}
-                        </button>
-                    )
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
                 case 'remove-employee': return (
                     <button onClick={() => setAction(action)} className="w-1/2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
-                    </button>
-                )
+                    </button>)
+                case 'join-tickets': return (
+                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
             }
         })
 
         return (
             <>
-                <div className="flex space-x-2">{componentsActions} </div>
+                <div className="flex space-x-2"> {componentsActions} </div>
+                {auxAction?.name === 'join-tickets' && 
+                <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'set-employee' && 
                 <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'update-ticket' &&

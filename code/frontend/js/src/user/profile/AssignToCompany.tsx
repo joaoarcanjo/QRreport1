@@ -1,35 +1,32 @@
 import { useForm } from "react-hook-form"
 import { AiFillCloseCircle } from "react-icons/ai"
-import { Form, TextArea } from "../../components/form/FormComponents"
+import { TextArea, Form } from "../../components/form/FormComponents"
 import { simpleTextAreaForm } from "../../components/form/FormInputs"
 import { ListPossibleValues } from "../../components/form/ListPossibleValues"
 import { Action } from "../../models/QRJsonModel"
 
-export function FireAction({ action, setAction, setAuxInfo, setAuxAction }: { 
+export function AssignToCompany({ action, setAction, setPayload, setAuxAction }: { 
     action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setAuxInfo: React.Dispatch<React.SetStateAction<string>>,
-    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
+    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
 }) {
     type roleData = { 
-        company: number,
-        reason: string 
+        company: string 
     }
 
     const { register, handleSubmit, formState: { errors } } = useForm<roleData>()
 
-    const onSubmitHandler = handleSubmit(({ company, reason }) => {
-        action.href = action.href.replace('{companyId}', company.toString())
+    const onSubmitHandler = handleSubmit(({ company }) => {
         setAction(action)
-        setAuxInfo(JSON.stringify({reason: reason}))
+        setPayload(JSON.stringify({company: company}))
     })
     
     function Inputs() {
         let componentsInputs = action.properties.map(prop => {
             switch (prop.name) {
                 case 'company': return <ListPossibleValues 
-                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
-                case 'reason': return <TextArea value={simpleTextAreaForm(register, errors, prop.required,  prop.name, 'Insert the reason')}/>
+                register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
             }
         })
         return <>{componentsInputs}</>
@@ -47,5 +44,6 @@ export function FireAction({ action, setAction, setAuxInfo, setAuxAction }: {
                         {action.title}
                 </button>
             </Form>
-        </div>)
+        </div>
+    )
 }
