@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package pt.isel.ps.project.auth.jwt
 
 import io.jsonwebtoken.Claims

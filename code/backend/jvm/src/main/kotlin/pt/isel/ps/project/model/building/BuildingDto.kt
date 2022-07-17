@@ -11,7 +11,7 @@ data class BuildingItemDto (
     val name: String,
     val floors: Int,
     val state: String,
-    val timestamp: Timestamp
+    val timestamp: Timestamp?
 )
 
 data class BuildingDto (

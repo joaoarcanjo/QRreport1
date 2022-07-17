@@ -61,3 +61,7 @@ data class AddRemoveSkillToEmployeeEntity(
 data class AssignPersonToCompanyEntity(
     val company: Long,
 )
+
+data class SwitchRoleEntity(
+    val role: String,
+)

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.PersonDao
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
+import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.UPDATE_PERSON
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.Errors.PersonBan.Message.WRONG_PERSON_BAN
@@ -111,6 +112,11 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
 
     fun assignPersonToCompany(personId: UUID, info: AssignPersonToCompanyEntity): PersonDto {
         val personDto = personDao.assignPersonToCompany(personId, info).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
+        return personDto ?: throw InternalServerException(INTERNAL_ERROR)
+    }
+
+    fun switchRole(role: SwitchRoleEntity, user: AuthPerson): PersonDto {
+        val personDto = personDao.switchRole(user.id, role).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 }

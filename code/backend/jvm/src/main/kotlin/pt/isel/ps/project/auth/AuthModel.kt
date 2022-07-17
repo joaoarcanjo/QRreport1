@@ -57,7 +57,7 @@ data class AuthPerson(
     val activeRole: String,
     val skills: List<String>?,
     val companies: List<AuthCompany>?,
-    val timestamp: Timestamp,
+    val timestamp: Timestamp?,
     val state: String,
     val reason: String?,
 )

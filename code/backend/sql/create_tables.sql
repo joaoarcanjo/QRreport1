@@ -129,7 +129,8 @@ BEGIN;
         room BIGINT NOT NULL REFERENCES ROOM(id),
         device BIGINT NOT NULL REFERENCES DEVICE(id),
         reporter UUID NOT NULL REFERENCES PERSON(id),
-        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 1
+        employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 1,
+        parent_ticket BIGINT REFERENCES TICKET(id) -- TODO: Update db model
     );
 
     CREATE TABLE FIXING_BY

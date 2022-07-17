@@ -3,8 +3,10 @@ package pt.isel.ps.project.service
 import org.springframework.stereotype.Service
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.dao.TicketDao
+import pt.isel.ps.project.exception.Errors.BadRequest.Message.SAME_TICKET
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.InternalServerException
+import pt.isel.ps.project.exception.InvalidParameterException
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
@@ -38,10 +40,10 @@ class TicketService(val ticketDao: TicketDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun refuseTicket(ticketId: Long): TicketItemDto {
+    /*fun refuseTicket(ticketId: Long): TicketItemDto {
         return ticketDao.refuseTicket(ticketId).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
-    }
+    }*/
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun changeTicketState(ticketId: Long, ticketState: ChangeTicketStateEntity, user: AuthPerson): TicketItemDto {
@@ -66,6 +68,12 @@ class TicketService(val ticketDao: TicketDao) {
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun removeEmployee(ticketId: Long, user: AuthPerson): TicketEmployee {
         return ticketDao.removeEmployee(ticketId, user.id).getString(TICKET_REP)?.deserializeJsonTo()
+            ?: throw InternalServerException(INTERNAL_ERROR)
+    }
+
+    fun groupTicket(ticketId: Long, parentTicket: Long, user: AuthPerson): TicketItemDto {
+        if (ticketId == parentTicket) throw InvalidParameterException(SAME_TICKET)
+        return ticketDao.groupTicket(ticketId, parentTicket, user.id).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 }

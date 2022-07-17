@@ -31,10 +31,10 @@ class CompanyService(private val companyDao: CompanyDao) {
         return companyDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun getCompany(companyId: Long, user: AuthPerson, page: Int): CompanyDto {
+    fun getCompany(companyId: Long, user: AuthPerson): CompanyDto {
         // If he's a manager, verify if belongs to the company
         if (isManager(user) && !personBelongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
-        return companyDao.getCompany(companyId, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE)).deserializeJsonTo()
+        return companyDao.getCompany(companyId).deserializeJsonTo()
     }
 
     fun updateCompany(companyId: Long, company: UpdateCompanyEntity): CompanyItemDto {

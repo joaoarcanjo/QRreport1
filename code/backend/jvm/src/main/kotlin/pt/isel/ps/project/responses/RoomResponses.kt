@@ -116,7 +116,6 @@ object RoomResponses {
         companyId: Long,
         buildingId: Long,
         roomDto: RoomDto,
-        page: Int
     ) = buildResponse(QRreportJsonModel(
         clazz = listOf(Classes.ROOM),
         properties = roomDto.room,
@@ -124,7 +123,7 @@ object RoomResponses {
             add(
                 devicesRepresentation(
                     roomDto.devices.devices,
-                    CollectionModel(page, DEVICES_PAGE_MAX_SIZE, roomDto.devices.devicesCollectionSize),
+                    CollectionModel(DEFAULT_PAGE, DEVICES_PAGE_MAX_SIZE, roomDto.devices.devicesCollectionSize),
                     listOf(Relations.ROOM_DEVICES),
                     mutableListOf<QRreportJsonModel.Action>().apply action@{
                         if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@action
@@ -142,9 +141,7 @@ object RoomResponses {
             }
         },
         links = listOf(
-            Links.self(Rooms.makeSpecificWithPage(companyId, buildingId, roomDto.room.id, page)),
-            Links.company(companyId),
-            Links.pagination(makeSpecificPaginationTemplate(companyId, buildingId, roomDto.room.id))
+            Links.self(Rooms.makeSpecific(companyId, buildingId, roomDto.room.id)),
         )
     ))
 

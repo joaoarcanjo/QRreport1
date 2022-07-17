@@ -30,9 +30,9 @@ interface TicketDao {
     @SqlCall("CALL update_ticket(:$TICKET_REP, :ticketId, :personId, :subject, :description);")
     fun updateTicket(ticketId: Long, personId: UUID, @BindBean ticket: UpdateTicketEntity): OutParameters
 
-    @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
+    /*@OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL delete_ticket(:ticketId, :$TICKET_REP);")
-    fun refuseTicket(ticketId: Long): OutParameters
+    fun refuseTicket(ticketId: Long): OutParameters*/
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("Call change_ticket_state(:$TICKET_REP, :ticketId, :personId, :state);")
@@ -49,4 +49,8 @@ interface TicketDao {
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL remove_ticket_employee(:$TICKET_REP, :ticketId, :personId);")
     fun removeEmployee(ticketId: Long, personId: UUID): OutParameters
+
+    @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
+    @SqlCall("CALL group_ticket(:$TICKET_REP, :ticketId, :parentTicket, :personId);")
+    fun groupTicket(ticketId: Long, parentTicket: Long, personId: UUID): OutParameters
 }

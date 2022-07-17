@@ -7,6 +7,7 @@ import pt.isel.ps.project.auth.Authorizations.Ticket.addTicketRateAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.changeTicketStateAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.groupTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.refuseTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.removeEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.setEmployeeAuthorization
@@ -23,6 +24,7 @@ import pt.isel.ps.project.responses.TicketResponses.createTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.deleteTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
+import pt.isel.ps.project.responses.TicketResponses.groupTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.removeEmployeeRepresentation
 import pt.isel.ps.project.responses.TicketResponses.setEmployeeRepresentation
 import pt.isel.ps.project.responses.TicketResponses.updateTicketRepresentation
@@ -103,5 +105,15 @@ class TicketController(private val service: TicketService) {
     fun removeEmployee(@PathVariable ticketId: Long, user: AuthPerson): QRreportJsonModel {
         removeEmployeeAuthorization(user)
         return removeEmployeeRepresentation(service.removeEmployee(ticketId, user))
+    }
+
+    @PutMapping(Tickets.EMPLOYEE_PATH)
+    fun groupTicket(
+        @PathVariable ticketId: Long,
+        @RequestBody parentTicket: ParentTicketEntity,
+        user: AuthPerson,
+    ): QRreportJsonModel {
+        groupTicketAuthorization(user)
+        return groupTicketRepresentation(service.groupTicket(ticketId, parentTicket.ticket, user))
     }
 }

@@ -540,3 +540,18 @@ BEGIN
 
     person_rep = person_details_representation(person_id);
 END$$LANGUAGE plpgsql;
+
+/*
+ * Switches the active role of a certain person
+ */
+CREATE OR REPLACE PROCEDURE switch_role(person_rep OUT JSON, person_id UUID, role TEXT)
+AS
+$$
+BEGIN
+    IF (NOT role = ANY(get_person_roles(person_id))) THEN
+        RAISE 'invalid-role' USING DETAIL = 'switch-role';
+    END IF;
+    UPDATE PERSON SET active_role = get_role_id(role)
+    WHERE id = person_id AND active_role != get_role_id(role);
+    person_rep = person_details_representation(person_id);
+END$$LANGUAGE plpgsql;

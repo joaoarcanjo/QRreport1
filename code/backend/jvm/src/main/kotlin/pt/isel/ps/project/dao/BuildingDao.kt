@@ -26,8 +26,8 @@ interface BuildingDao {
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)
     fun createBuilding(companyId: Long, @BindBean building: CreateBuildingEntity): OutParameters
 
-    @SqlQuery("SELECT get_building(:companyId, :buildingId, ${BUILDING_PAGE_MAX_SIZE}, :skip);")
-    fun getBuilding(companyId: Long, buildingId: Long, skip: Int): String
+    @SqlQuery("SELECT get_building(:companyId, :buildingId, ${BUILDING_PAGE_MAX_SIZE}, 0);")
+    fun getBuilding(companyId: Long, buildingId: Long): String
 
     @SqlCall("CALL update_building(:$BUILDING_REP, :companyId, :buildingId, :name, :floors);")
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)

@@ -3,6 +3,20 @@
  */
 
 /**
+  * Auxiliary function to verify if a ticket has a parent ticket
+  */
+CREATE OR REPLACE FUNCTION is_child_ticket(ticket_id BIGINT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (EXISTS (SELECT id FROM TICKET WHERE id = ticket_id AND parent_ticket IS NOT NULL)) THEN
+        RETURN TRUE;
+    END IF;
+    RETURN FALSE;
+END$$LANGUAGE plpgsql;
+
+/**
   * Auxiliary function to verify if a ticket is archived
   */
 CREATE OR REPLACE FUNCTION is_ticket_archived(ticket_id BIGINT)
@@ -272,12 +286,12 @@ BEGIN
     --if the new state is the end of the ticket, will set the close_timestamp
     ELSEIF (t_new_employee_state IN (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Archived' OR name = 'Refused')) THEN
         UPDATE TICKET SET employee_state = t_new_employee_state, close_timestamp = CURRENT_TIMESTAMP
-        WHERE id = ticket_id RETURNING id;
+        WHERE id = ticket_id OR parent_ticket = ticket_id;
     ELSE
         IF (t_new_employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Completed')) THEN
             UPDATE FIXING_BY SET end_timestamp = CURRENT_TIMESTAMP WHERE ticket = ticket_id;
         END IF;
-        UPDATE TICKET SET employee_state = t_new_employee_state WHERE id = ticket_id;
+        UPDATE TICKET SET employee_state = t_new_employee_state WHERE id = ticket_id OR parent_ticket = ticket_id;
     END IF;
 
     ticket_rep = ticket_item_representation(ticket_id);
@@ -484,7 +498,7 @@ BEGIN
     END IF;
 
     UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'Not started')
-    WHERE id = ticket_id;
+    WHERE id = ticket_id OR parent_ticket = ticket_id;
 
     INSERT INTO FIXING_BY (ticket, person) VALUES (ticket_id, new_employee_id);
 
@@ -522,7 +536,8 @@ BEGIN
     IF (t_employee_state IN (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign')) THEN
         -- If doesn't have an employee just returns
     ELSE
-        UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign') WHERE id = ticket_id;
+        UPDATE TICKET SET employee_state = (SELECT id FROM EMPLOYEE_STATE WHERE name = 'To assign')
+        WHERE id = ticket_id OR parent_ticket = ticket_id;
 
         employee_id = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
 
@@ -574,4 +589,34 @@ BEGIN
         END CASE;
 END$$
 -- SET default_transaction_isolation = 'repeatable read'
+LANGUAGE plpgsql;
+
+/**
+  * Groups a ticket
+  * Returns the ticket
+ */
+CREATE OR REPLACE PROCEDURE group_ticket(
+    ticket_rep OUT JSON,
+    ticket_id BIGINT,
+    parent_tid BIGINT,
+    person_id UUID
+)
+AS
+$$
+DECLARE
+    role TEXT = get_person_active_role(person_id);
+BEGIN
+    PERFORM ticket_exists(ticket_id);
+    PERFORM is_ticket_archived(ticket_id);
+    PERFORM ticket_exists(parent_tid);
+    PERFORM is_ticket_archived(parent_tid);
+
+    IF (role = 'manager' AND NOT ticket_belongs_to_person_company(ticket_id, person_id)) THEN
+        RAISE 'invalid-company' USING DETAIL = 'manager-ticket';
+    END IF;
+
+    UPDATE TICKET SET parent_ticket = parent_tid WHERE id = ticket_id;
+
+    ticket_rep = json_build_object('ticket', ticket_item_representation(ticket_id));
+END$$
 LANGUAGE plpgsql;

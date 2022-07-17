@@ -63,4 +63,8 @@ interface PersonDao {
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL assign_person_to_company(:$PERSON_REP, :personId, :company);")
     fun assignPersonToCompany(personId: UUID, @BindBean info: AssignPersonToCompanyEntity): OutParameters
+
+    @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
+    @SqlCall("CALL switch_role(:$PERSON_REP, :personId, :role);")
+    fun switchRole(personId: UUID, @BindBean roleEntity: SwitchRoleEntity): OutParameters
 }

@@ -182,6 +182,18 @@ object PersonResponses {
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
             ),
         )
+
+        fun switchRole() = QRreportJsonModel.Action(
+            name = "switch-role",
+            title = "Switch role",
+            method = HttpMethod.POST,
+            href = Persons.SWITCH_ROLE,
+            type = MediaType.APPLICATION_JSON.toString(),
+            properties = listOf(
+                QRreportJsonModel.Property(name = "role", type = "string",
+                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
+            ),          // TODO: Path to get roles
+        )
     }
 
     fun getPersonItem(person: PersonItemDto, rel: List<String>?) = QRreportJsonModel(
@@ -252,10 +264,12 @@ object PersonResponses {
                 if (personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
                 // Update
-                if (isSamePerson(user, personDetails.person.id))
+                if (isSamePerson(user, personDetails.person.id)) {
                     add(Actions.updatePerson(personDetails.person.id))
+                    add(Actions.switchRole())
+                }
 
-                if (!isManager(user) || !isAdmin(user)) return@apply
+                if (!isManager(user) && !isAdmin(user)) return@apply
 
                 // Roles and skills
                 if (isAdmin(user)) {
@@ -304,6 +318,25 @@ object PersonResponses {
             clazz = listOf(Classes.PERSON),
             properties = person,
             links = listOf(Links.self(Persons.makeSpecific(person.id)))
+        )
+    )
+
+    fun switchRoleRepresentation(person: PersonDto, role: String) = buildResponse(
+        QRreportJsonModel(
+            clazz = listOf(Classes.PERSON),
+            properties = person,
+            links = mutableListOf<QRreportJsonModel.Link>().apply {
+                add(Links.self(Persons.makeSpecific(person.id)))
+                if (role == "manager" || role == "admin") {
+                    add(Links.companies())
+                    add(Links.persons())
+                }
+                if (role == "admin") {
+                    add(Links.devices())
+                    add(Links.categories())
+                }
+                add(Links.tickets())
+            }
         )
     )
 }

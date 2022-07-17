@@ -15,7 +15,7 @@ class CommentValidatorTests {
     @Test
     fun `Create with valid comment`() {
 
-        val comment = CreateCommentEntity("Comment test", UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity("Comment test")
 
         Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
@@ -28,7 +28,7 @@ class CommentValidatorTests {
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-        val comment = CreateCommentEntity(invComment, UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity(invComment)
         val expectedEx =
             InvalidParameterException(
                 Errors.BadRequest.Message.INVALID_REQ_PARAMS,
@@ -48,7 +48,7 @@ class CommentValidatorTests {
 
     @Test
     fun `Throws exception when comment is created with an blank comment`() {
-        val comment = CreateCommentEntity("    ", UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity("    ")
 
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
@@ -69,14 +69,14 @@ class CommentValidatorTests {
     @Test
     fun `Update with valid comment`() {
 
-        val comment = CreateCommentEntity("New comment test", UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity("New comment test")
 
         Assertions.assertThat(Validator.Ticket.Comment.verifyCommentInput(comment)).isTrue
     }
 
     @Test
     fun `Throws exception when comment is updated with an blank comment`() {
-        val comment = CreateCommentEntity("    ", UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity("    ")
 
         val expectedEx = InvalidParameterException(
             Errors.BadRequest.Message.BLANK_PARAMS_DETAIL,
@@ -101,7 +101,7 @@ class CommentValidatorTests {
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
                          "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-        val comment = CreateCommentEntity(invComment, UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"))
+        val comment = CreateCommentEntity(invComment)
         val expectedEx =
             InvalidParameterException(
                 Errors.BadRequest.Message.INVALID_REQ_PARAMS,

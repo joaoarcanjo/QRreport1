@@ -52,6 +52,7 @@ object TicketResponses {
                 QRreportJsonModel.Property("description", "string", required = false)
             )
         )
+
         fun changeTicketState(ticketId: Long) = QRreportJsonModel.Action(
             name = "update-state",
             title = "Update state",
@@ -89,6 +90,18 @@ object TicketResponses {
             href = Tickets.makeRate((ticketId)),
             properties = listOf(
                 QRreportJsonModel.Property("rate", "number"),
+            )
+        )
+
+        fun groupTicket(ticketId: Long) = QRreportJsonModel.Action(
+            name = "group-ticket",
+            title = "Group ticket",
+            method = HttpMethod.PUT,
+            href = Tickets.makeGroup((ticketId)),
+            type = MediaType.APPLICATION_JSON.toString(),
+            properties = listOf(
+                QRreportJsonModel.Property("ticket", "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(Tickets.BASE_PATH)),
             )
         )
     }
@@ -146,8 +159,8 @@ object TicketResponses {
             if (isManager(user) && belongsToCompany(user, ticketInfo.company.id) || isAdmin(user)) {
                 add(Actions.setEmployee(ticketInfo.ticket.id))
                 add(Actions.removeEmployee(ticketInfo.ticket.id))
+                add(Actions.groupTicket(ticketInfo.ticket.id))
             }
-
         },
         links = listOf(Links.self(Tickets.makeSpecific(ticketInfo.ticket.id)), Links.tickets())
     )
@@ -208,5 +221,11 @@ object TicketResponses {
         properties = ticket.ticket,
         entities = listOf(getPersonItem(ticket.person, listOf(Relations.TICKET_EMPLOYEE))),
         links = listOf(Links.self(Tickets.makeSpecific(ticket.ticket.id)))
+    )
+
+    fun groupTicketRepresentation(ticket: TicketItemDto) = QRreportJsonModel(
+        clazz = listOf(Classes.TICKET),
+        properties = ticket,
+        links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
     )
 }

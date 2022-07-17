@@ -94,6 +94,12 @@ object Authorizations {
             if (userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)
         }
+
+        fun switchRoleAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
     }
 
     object Company {
@@ -222,6 +228,12 @@ object Authorizations {
         }
 
         fun removeEmployeeAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun groupTicketAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)

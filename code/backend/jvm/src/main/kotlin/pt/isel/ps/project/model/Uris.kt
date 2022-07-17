@@ -156,16 +156,19 @@ object Uris {
         const val STATE_PATH = "${SPECIFIC_PATH}/state"
         const val EMPLOYEE_PATH = "${SPECIFIC_PATH}/employee"
         const val RATE_PATH = "${SPECIFIC_PATH}/rate"
+        const val GROUP_PATH = "${SPECIFIC_PATH}/group"
         const val TICKETS_PAGINATION = "$BASE_PATH{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val EMPLOYEE_TEMPLATE = UriTemplate(EMPLOYEE_PATH)
         private val RATE_TEMPLATE = UriTemplate(RATE_PATH)
         private val STATE_TEMPLATE = UriTemplate(STATE_PATH)
+        private val GROUP_TEMPLATE = UriTemplate(GROUP_PATH)
         fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeEmployee(id: Long) = EMPLOYEE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeRate(id: Long) = RATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeState(id: Long) = STATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+        fun makeGroup(id: Long) = GROUP_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
 
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
@@ -196,6 +199,8 @@ object Uris {
         const val ASSIGN_COMPANY_PATH = "$SPECIFIC_PATH/assign-company"
         const val PERSONS_PAGINATION = "$BASE_PATH{?page}"
 
+        const val SWITCH_ROLE = "$VERSION/profile/switch-role"
+
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val FIRE_TEMPLATE = UriTemplate(BASE_FIRE_PATH)
         private val REHIRE_TEMPLATE = UriTemplate(BASE_REHIRE_PATH)
@@ -206,6 +211,7 @@ object Uris {
         private val ADD_SKILL_TEMPLATE = UriTemplate(ADD_SKILL_PATH)
         private val REMOVE_SKILL_TEMPLATE = UriTemplate(REMOVE_SKILL_PATH)
         private val ASSIGN_COMPANY_TEMPLATE = UriTemplate(ASSIGN_COMPANY_PATH)
+        private val SWITCH_ROLE_TEMPLATE = UriTemplate(SWITCH_ROLE)
         fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeFire(personId: UUID) = Companies.SPECIFIC_PATH + FIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
         fun makeRehire(personId: UUID) = Companies.SPECIFIC_PATH + REHIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()

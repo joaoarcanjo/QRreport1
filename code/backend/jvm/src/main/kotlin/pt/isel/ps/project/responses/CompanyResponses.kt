@@ -10,6 +10,7 @@ import pt.isel.ps.project.model.company.CompanyDto
 import pt.isel.ps.project.model.company.CompanyItemDto
 import pt.isel.ps.project.model.company.removeBuildings
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingsRepresentation
@@ -98,7 +99,7 @@ object CompanyResponses {
         setLocationHeader(Uris.Companies.makeSpecific(company.id)),
     )
 
-    fun getCompanyRepresentation(user: AuthPerson, company: CompanyDto, page: Int) = buildResponse(
+    fun getCompanyRepresentation(user: AuthPerson, company: CompanyDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY),
             properties = company.removeBuildings(),
@@ -106,7 +107,7 @@ object CompanyResponses {
                 getBuildingsRepresentation(
                     company.buildings,
                     company.id,
-                    CollectionModel(page, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
+                    CollectionModel(DEFAULT_PAGE, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
                     listOf(Relations.COMPANY_BUILDINGS)
                 )
             ),
@@ -121,10 +122,9 @@ object CompanyResponses {
                 }
             },
             links = listOf(
-                Links.self(Uris.Companies.makeSpecificWithPage(company.id, page)),
+                Links.self(Uris.Companies.makeSpecific(company.id)),
                 Links.companies(),
-                Links.pagination(Uris.Companies.makeSpecificPaginationTemplate(company.id))
-            )
+            ),
         )
     )
 

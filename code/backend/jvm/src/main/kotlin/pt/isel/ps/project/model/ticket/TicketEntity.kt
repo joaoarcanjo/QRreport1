@@ -40,3 +40,7 @@ data class TicketRateEntity (
 data class TicketEmployeeEntity (
     val employeeId: UUID
 )
+
+data class ParentTicketEntity (
+    val ticket: Long
+)

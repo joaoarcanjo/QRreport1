@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.BUILDING_MANAGER_COMPANY
 import pt.isel.ps.project.exception.Errors.InvalidCompany.Message.MANAGER_TICKET
 import pt.isel.ps.project.exception.Errors.InvalidRole.Message.BUILDING_MANAGER_ROLE
+import pt.isel.ps.project.exception.Errors.InvalidRole.Message.SWITCH_ROLE
 import java.net.URI
 
 object Errors {
@@ -79,6 +80,8 @@ object Errors {
 
             const val ADD_EMPLOYEE_MANAGER_ROLE_WITHOUT_COMPANY = "The company for the employee or manager is missing."
             const val NULL_EMPLOYEE_MANAGER_COMPANY = "The company id for the person must be provided."
+
+            const val SAME_TICKET = "A ticket cannot be grouped by itself."
 
             object Templated {
                 const val MUST_HAVE_TYPE = "The value must be of the {} type."
@@ -238,10 +241,12 @@ object Errors {
 
         object Message {
             const val BUILDING_MANAGER_ROLE = "The building manager must have the manager role."
+            const val SWITCH_ROLE = "You don't have the required role assigned."
         }
 
         val mapDetails = HashMap<String, String>().apply {
             put("building-manager", BUILDING_MANAGER_ROLE)
+            put("switch-role", SWITCH_ROLE)
         }
     }
 

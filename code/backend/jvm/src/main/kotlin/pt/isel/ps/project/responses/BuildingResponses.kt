@@ -12,6 +12,7 @@ import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.PersonResponses.getPersonItem
 import pt.isel.ps.project.responses.Response.Classes
@@ -119,7 +120,7 @@ object BuildingResponses {
         setLocationHeader(Buildings.makeSpecific(companyId, building.id))
     )
 
-    fun getBuildingRepresentation(user: AuthPerson, companyId: Long, buildingDto: BuildingDto, page: Int): ResponseEntity<QRreportJsonModel> {
+    fun getBuildingRepresentation(user: AuthPerson, companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
         val building = buildingDto.building
         return buildResponse(QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
@@ -130,7 +131,7 @@ object BuildingResponses {
                     companyId,
                     building.id,
                     buildingDto.rooms,
-                    CollectionModel(page, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
+                    CollectionModel(DEFAULT_PAGE, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
                     listOf(Relations.BUILDING_ROOMS)))
                 add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
             },
@@ -144,9 +145,7 @@ object BuildingResponses {
                 }
             },
             links = listOf(
-                Links.self(Buildings.makeSpecificWithPage(companyId, building.id, page)),
-                Links.company(companyId),
-                Links.pagination(Buildings.makeSpecificPaginationTemplate(companyId, buildingDto.building.id))
+                Links.self(Buildings.makeSpecific(companyId, building.id)),
             )
         ))
     }

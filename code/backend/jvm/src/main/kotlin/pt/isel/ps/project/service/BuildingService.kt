@@ -44,9 +44,9 @@ class BuildingService(val buildingDao: BuildingDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun getBuilding(user: AuthPerson, companyId: Long, buildingId: Long, page: Int): BuildingDto {
+    fun getBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingDto {
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
-        return buildingDao.getBuilding(companyId, buildingId, elemsToSkip(page, BUILDING_PAGE_MAX_SIZE)).deserializeJsonTo()
+        return buildingDao.getBuilding(companyId, buildingId).deserializeJsonTo()
     }
 
     //@Transactional(isolation = Isolation.SERIALIZABLE)

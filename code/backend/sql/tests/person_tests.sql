@@ -344,3 +344,24 @@ BEGIN
     END IF;
     ROLLBACK;
 END$$;
+
+DO
+$$
+DECLARE
+    employee UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Zé Manuel
+    company BIGINT = 2; -- IST
+    person_rep JSON;
+BEGIN
+    RAISE INFO '---| Employee company addition test |---';
+
+    CALL assign_person_to_company(person_rep, employee, company);
+
+    IF (assert_json_value(person_rep, 'id', employee::TEXT) AND
+        assert_json_value(person_rep, 'companies', array_to_json(ARRAY['ISEL', 'IST'])::TEXT)
+    ) THEN
+        RAISE INFO '-> Test succeeded!';
+    ELSE
+        RAISE '-> Test failed!';
+    END IF;
+    ROLLBACK;
+END$$;

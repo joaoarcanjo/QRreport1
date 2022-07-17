@@ -20,8 +20,8 @@ interface CompanyDao {
     @OutParameter(name = COMPANY_REP, sqlType = java.sql.Types.OTHER)
     fun createCompany(@BindBean company: CreateCompanyEntity): OutParameters
 
-    @SqlQuery("SELECT get_company(:companyId, $COMPANY_PAGE_MAX_SIZE, :skip);")
-    fun getCompany(companyId: Long, skip: Int): String
+    @SqlQuery("SELECT get_company(:companyId, $COMPANY_PAGE_MAX_SIZE, 0);")
+    fun getCompany(companyId: Long): String
 
     @SqlCall("CALL update_company(:$COMPANY_REP, :companyId, :name);")
     @OutParameter(name = COMPANY_REP, sqlType = java.sql.Types.OTHER)

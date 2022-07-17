@@ -47,12 +47,11 @@ class CompanyController(private val service: CompanyService) {
 
     @GetMapping(Companies.SPECIFIC_PATH)
     fun getCompany(
-        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @PathVariable companyId: Long,
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         getCompanyAuthorization(user)
-        return getCompanyRepresentation(user, service.getCompany(companyId, user, page), page)
+        return getCompanyRepresentation(user, service.getCompany(companyId, user))
     }
 
     @PutMapping(Companies.SPECIFIC_PATH)

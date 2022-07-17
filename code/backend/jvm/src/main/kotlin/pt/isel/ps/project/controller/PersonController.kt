@@ -15,6 +15,7 @@ import pt.isel.ps.project.auth.Authorizations.Person.getPersonsAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.rehirePersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.removeRoleFromPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.removeSkillFromEmployeeAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.switchRoleAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
 import pt.isel.ps.project.model.Uris.Persons
@@ -27,6 +28,7 @@ import pt.isel.ps.project.responses.PersonResponses.fireBanRoleCompanyPersonRepr
 import pt.isel.ps.project.responses.PersonResponses.getPersonRepresentation
 import pt.isel.ps.project.responses.PersonResponses.getPersonsRepresentation
 import pt.isel.ps.project.responses.PersonResponses.skillEmployeeRepresentation
+import pt.isel.ps.project.responses.PersonResponses.switchRoleRepresentation
 import pt.isel.ps.project.responses.PersonResponses.updatePersonRepresentation
 import pt.isel.ps.project.service.PersonService
 import java.util.*
@@ -156,5 +158,14 @@ class PersonController(private val service: PersonService) {
     ): ResponseEntity<QRreportJsonModel> {
         assignPersonToCompanyAuthorization(user)
         return fireBanRoleCompanyPersonRepresentation(service.assignPersonToCompany(personId, info))
+    }
+
+    @PostMapping(Persons.SWITCH_ROLE)
+    fun switchRole(
+        @RequestBody role: SwitchRoleEntity,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        switchRoleAuthorization(user)
+        return switchRoleRepresentation(service.switchRole(role, user), role.role)
     }
 }
