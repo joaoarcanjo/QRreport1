@@ -7,6 +7,7 @@ import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms
 import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms.ROOMS_PAGINATION
+import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms.makeSpecificPaginationTemplate
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -114,7 +115,8 @@ object RoomResponses {
         user: AuthPerson,
         companyId: Long,
         buildingId: Long,
-        roomDto: RoomDto
+        roomDto: RoomDto,
+        page: Int
     ) = buildResponse(QRreportJsonModel(
         clazz = listOf(Classes.ROOM),
         properties = roomDto.room,
@@ -122,7 +124,7 @@ object RoomResponses {
             add(
                 devicesRepresentation(
                     roomDto.devices.devices,
-                    CollectionModel(DEFAULT_PAGE, DEVICES_PAGE_MAX_SIZE, roomDto.devices.devicesCollectionSize),
+                    CollectionModel(page, DEVICES_PAGE_MAX_SIZE, roomDto.devices.devicesCollectionSize),
                     listOf(Relations.ROOM_DEVICES),
                     mutableListOf<QRreportJsonModel.Action>().apply action@{
                         if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@action
@@ -132,7 +134,7 @@ object RoomResponses {
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
-            if (isInactive(roomDto.room.state)) (Actions.activateRoom(companyId, buildingId, roomDto.room.id))
+            if (isInactive(roomDto.room.state)) add((Actions.activateRoom(companyId, buildingId, roomDto.room.id)))
             else {
                 add(Actions.deactivateRoom(companyId, buildingId, roomDto.room.id))
                 add(Actions.updateRoom(companyId, buildingId, roomDto.room.id))
@@ -140,8 +142,9 @@ object RoomResponses {
             }
         },
         links = listOf(
-            Links.self(Rooms.makeSpecific(companyId, buildingId, roomDto.room.id)),
+            Links.self(Rooms.makeSpecificWithPage(companyId, buildingId, roomDto.room.id, page)),
             Links.company(companyId),
+            Links.pagination(makeSpecificPaginationTemplate(companyId, buildingId, roomDto.room.id))
         )
     ))
 

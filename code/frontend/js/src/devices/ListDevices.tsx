@@ -4,13 +4,13 @@ import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
 import { Device } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
-import { Collection } from "../pagination/CollectionPagination"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { DEVICES_URL_API } from "../Urls"
 import { InsertDevice } from "./InsertDevice"
-import { getEntitiesOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getProblemOrUndefined, getLink, getPropertiesOrUndefined } from "../models/ModelUtils"
 import { ActionComponent } from "../components/ActionComponent"
 import { MdOutlineCategory } from "react-icons/md"
-import { Link } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 
 export function ListDevices() {
 
@@ -22,8 +22,9 @@ export function ListDevices() {
     const init = useMemo(() => initValues, [])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState(DEVICES_URL_API)
 
-    const { isFetching, result, error } = useFetch<Collection>(DEVICES_URL_API, init)
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
 
     switch (action?.name) {
         case 'create-device': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListDevices/>} />
@@ -98,6 +99,9 @@ export function ListDevices() {
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Devices</h1>
             <DevicesActions actions={getActionsOrUndefined(result?.body)}/>
             <Devices entities={getEntitiesOrUndefined(result?.body)}/>
+            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

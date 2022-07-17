@@ -15,7 +15,7 @@ export function getPropertiesOrUndefined<T>(result?: FetchResult<T>): T | undefi
     }
 }
 
-export function getEntitiesOrUndefined<T>(result?: FetchResult<T>): QrJson.Entity<any>[] | undefined {
+export function getEntitiesOrUndefined<T>(result?: FetchResult<any>): QrJson.Entity<any>[] | undefined {
     switch (result?.type) {
         case 'success': return result.entity.entities
         case 'problem': return undefined

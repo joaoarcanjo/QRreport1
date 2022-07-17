@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa"
-import { Link, useParams } from "react-router-dom"
+import { Link, Outlet, useParams } from "react-router-dom"
 import { Loading } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
 import { Building } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { BUILDING_URL_API } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { UpdateBuilding } from "./UpdateBuilding";
 import { Rooms, RoomsActions } from "../room/ListRooms";
 import { ChangeManager } from "./ChangeManager";
 import { ErrorView } from "../errors/Error";
+import { CollectionPagination } from "../pagination/CollectionPagination";
 
 
 export function BuildingRep() {
@@ -26,8 +27,9 @@ export function BuildingRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState(BUILDING_URL_API(companyId, buildingId))
 
-    const { isFetching, result, error } = useFetch<Building>(BUILDING_URL_API(companyId, buildingId), init)
+    const { isFetching, result, error } = useFetch<Building>(currentUrl, init)
     
     switch (action?.name) {
         case 'update-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>}/>
@@ -119,12 +121,19 @@ export function BuildingRep() {
         ) 
     }
     
+    const entities = getEntitiesOrUndefined(result?.body)
+    if(!entities) return <ErrorView/>
+    const collection = getSpecificEntity(['room', 'collection'], 'building-rooms', entities)
+    if(!collection) return <ErrorView/>
+
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
             <BuildingInfo entity={getEntityOrUndefined(result?.body)}/>
             <BuildingActions actions={getActionsOrUndefined(result?.body)}/>
             <RoomsActions entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
-            <Rooms entities={getEntitiesOrUndefined(result?.body)}/>
+            <Rooms collection={collection}/>
+            <CollectionPagination collection={collection.properties} setUrlFunction={setCurrentUrl} templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

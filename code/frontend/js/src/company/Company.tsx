@@ -1,16 +1,17 @@
 import { FaEdit } from "react-icons/fa"
-import { useParams } from "react-router-dom"
+import { Outlet, useParams } from "react-router-dom"
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { Company } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { ActionComponent } from "../components/ActionComponent";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { useMemo, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
 import { COMPANY_URL_API } from "../Urls";
 import { InsertCompany } from "./InsertCompany";
 import { Buildings, BuildingsActions } from "../building/ListBuildings";
+import { CollectionPagination } from "../pagination/CollectionPagination";
 
 export function CompanyRep() {
 
@@ -24,8 +25,9 @@ export function CompanyRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState(COMPANY_URL_API(companyId))
 
-    const { isFetching, result, error } = useFetch<Company>(COMPANY_URL_API(companyId), init)
+    const { isFetching, result, error } = useFetch<Company>(currentUrl, init)
     
     switch (action?.name) {
         case 'update-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />
@@ -103,12 +105,22 @@ export function CompanyRep() {
         return <div className="flex space-x-2"> {componentsActions} </div>
     }
 
+    const entities = getEntitiesOrUndefined(result?.body)
+    if(!entities) return <ErrorView/>
+    const collection = getSpecificEntity(['building', 'collection'], 'company-buildings', entities)
+    if(!collection) return <ErrorView/>
+    
     return (
         <div className='w-full px-3 pt-3 space-y-3'>    
             <CompanyInfo entity={getEntityOrUndefined(result?.body)}/>
             <CompanyActions actions={getActionsOrUndefined(result?.body)}/>
             <BuildingsActions companyId={companyId} entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
             <Buildings entities={getEntitiesOrUndefined(result?.body)}/>
+            <CollectionPagination 
+                collection={collection.properties} 
+                setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

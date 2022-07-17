@@ -31,9 +31,12 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
     }
 
     const pagination: ReactElement[] = []
+    
     const totalPages = Math.ceil(collection.collectionSize / collection.pageMaxSize)
     const currentPage: number = collection.pageIndex
 
+    if(totalPages === 0) return null
+    
     function selectRounded(page: number) {
         switch (page) {
             case 1: {

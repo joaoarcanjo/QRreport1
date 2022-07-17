@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
@@ -10,8 +10,9 @@ import { ROOM_URL_API } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { AddRoomDevice } from "./AddRoomDevice";
 import { UpdateRoom } from "./UpdateRoom";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { RoomDevices } from "../devices/RoomDevices";
+import { CollectionPagination } from "../pagination/CollectionPagination";
 
 export function RoomRep() {
     
@@ -25,8 +26,9 @@ export function RoomRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState(ROOM_URL_API(companyId, buildingId, roomId))
 
-    const { isFetching, isCanceled, cancel, result, error } = useFetch<Room>(ROOM_URL_API(companyId, buildingId, roomId), init)
+    const { isFetching, result, error } = useFetch<Room>(currentUrl, init)
     
     switch (action?.name) {
         case 'update-room': return <ActionComponent action={action} extraInfo={payload} returnComponent={<RoomRep/>} />
@@ -37,8 +39,6 @@ export function RoomRep() {
     
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
-
-    
 
     function RoomState({state}: {state: string}) {
 
@@ -114,12 +114,22 @@ export function RoomRep() {
             </>
         ) 
     }
-    
+
+    const entities = getEntitiesOrUndefined(result?.body)
+    if(!entities) return <ErrorView/>
+    const collection = getSpecificEntity(['device', 'collection'], 'room-devices', entities)
+    if(!collection) return <ErrorView/>
+
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
             <RoomInfo entity={getEntityOrUndefined(result?.body)}/>
             <RoomActions actions={getActionsOrUndefined(result?.body)}/>
-            <RoomDevices entities={getEntitiesOrUndefined(result?.body)}/>
+            <RoomDevices collection={collection}/>
+            <CollectionPagination 
+                collection={collection.properties} 
+                setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

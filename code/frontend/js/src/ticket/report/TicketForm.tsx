@@ -85,7 +85,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
                    setValue={setAnomaly}/>
             }
         })
-    }, [action, anomaly])
+    }, [action, anomaly, loggedState?.isLoggedIn, errors, register])
 
     return (
         <section className='info-section'>
@@ -93,7 +93,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
                 <Headers/>
                 {ComponentsInputs}
                 <ReCAPTCHA
-                    sitekey="6LcpoPggAAAAABbssHwr7EviNpJxG_LCeZBOoDWB"
+                    sitekey="6LeeU_kgAAAAAFd1CrwpQK-qul76uXMT3SySXYYZ"
                     onChange={()=>{setVerified(true)}}
                 />
                 <SubmitButton text={'Submit'}/>

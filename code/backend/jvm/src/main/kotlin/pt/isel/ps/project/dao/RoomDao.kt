@@ -20,8 +20,8 @@ interface RoomDao {
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)
     fun createRoom(companyId: Long, buildingId: Long, @BindBean room: CreateRoomEntity): OutParameters
 
-    @SqlQuery("SELECT get_room(:companyId, :buildingId, :roomId, 10, 0);")
-    fun getRoom(companyId: Long, buildingId: Long, roomId: Long): String
+    @SqlQuery("SELECT get_room(:companyId, :buildingId, :roomId, $ROOM_PAGE_MAX_SIZE, :skip);")
+    fun getRoom(companyId: Long, buildingId: Long, roomId: Long, skip: Int): String
 
     @SqlCall("CALL update_room(:$ROOM_REP, :companyId, :buildingId, :roomId, :name);")
     @OutParameter(name = ROOM_REP, sqlType = java.sql.Types.OTHER)

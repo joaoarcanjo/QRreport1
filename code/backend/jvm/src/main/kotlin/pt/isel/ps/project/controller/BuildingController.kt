@@ -55,12 +55,13 @@ class BuildingController(private val service: BuildingService) {
 
     @GetMapping(Buildings.SPECIFIC_PATH)
     fun getBuilding(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @PathVariable companyId: Long,
         @PathVariable buildingId: Long,
         user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
         getBuildingAuthorization(user)
-        return getBuildingRepresentation(user, companyId, service.getBuilding(user, companyId, buildingId))
+        return getBuildingRepresentation(user, companyId, service.getBuilding(user, companyId, buildingId, page), page)
     }
 
     @PutMapping(Buildings.SPECIFIC_PATH)

@@ -19,6 +19,7 @@ import pt.isel.ps.project.model.building.ChangeManagerEntity
 import pt.isel.ps.project.model.building.BuildingManagerDto
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
+import pt.isel.ps.project.responses.RoomResponses
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Company.Building.verifyCreateBuildingInput
 import pt.isel.ps.project.util.Validator.Company.Building.verifyUpdateBuildingInput
@@ -43,9 +44,9 @@ class BuildingService(val buildingDao: BuildingDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun getBuilding(user: AuthPerson, companyId: Long, buildingId: Long): BuildingDto {
+    fun getBuilding(user: AuthPerson, companyId: Long, buildingId: Long, page: Int): BuildingDto {
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
-        return buildingDao.getBuilding(companyId, buildingId).deserializeJsonTo()
+        return buildingDao.getBuilding(companyId, buildingId, elemsToSkip(page, BUILDING_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
     //@Transactional(isolation = Isolation.SERIALIZABLE)

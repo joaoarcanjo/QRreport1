@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import { Device } from "../models/Models"
 import { getSpecificEntity } from "../models/ModelUtils"
 import { Entity } from "../models/QRJsonModel"
+import { Collection } from "../pagination/CollectionPagination"
 import { RoomDevice } from "../room/RoomDevice"
 
 function RoomDeviceItem({entity}: {entity: Entity<Device>}) {
@@ -28,9 +29,8 @@ function RoomDeviceItem({entity}: {entity: Entity<Device>}) {
     </div>)
 }
 
-export function RoomDevices({ entities }: { entities?: Entity<Device>[]}) {
-    if (!entities) return null
-    const collection = getSpecificEntity(['device', 'collection'], 'room-devices', entities)
+export function RoomDevices({ collection }: { collection?: Entity<Collection>}) {
+    if (!collection) return null
     const devices = collection?.entities
     if (!devices) return null
 

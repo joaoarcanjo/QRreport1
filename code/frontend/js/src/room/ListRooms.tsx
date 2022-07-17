@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 import { Room } from "../models/Models"
 import { getSpecificEntity } from "../models/ModelUtils"
 import { Action, Entity } from "../models/QRJsonModel"
+import { Collection } from "../pagination/CollectionPagination"
 import { CreateRoom } from "./CreateRoom"
 
 function RoomItem({entity}: {entity: Entity<Room>}) {
@@ -54,9 +55,8 @@ export function RoomsActions({ entities, setAction, setPayload }: {
     )
 }
 
-export function Rooms({ entities }: { entities?: Entity<Room>[]}) {
-    if (!entities) return null
-    const collection = getSpecificEntity(['room', 'collection'], 'building-rooms', entities)
+export function Rooms({ collection }: { collection?: Entity<Collection>}) {
+    if (!collection) return null
     const rooms = collection?.entities
     if (!rooms) return null
 

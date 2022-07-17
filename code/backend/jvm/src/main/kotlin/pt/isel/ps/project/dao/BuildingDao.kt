@@ -14,6 +14,7 @@ import pt.isel.ps.project.model.company.COMPANY_REP
 import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
 import pt.isel.ps.project.responses.BuildingResponses.BUILDING_PAGE_MAX_SIZE
+import pt.isel.ps.project.responses.RoomResponses
 import java.util.*
 
 interface BuildingDao {
@@ -25,8 +26,8 @@ interface BuildingDao {
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)
     fun createBuilding(companyId: Long, @BindBean building: CreateBuildingEntity): OutParameters
 
-    @SqlQuery("SELECT get_building(:companyId, :buildingId);")
-    fun getBuilding(companyId: Long, buildingId: Long): String
+    @SqlQuery("SELECT get_building(:companyId, :buildingId, ${BUILDING_PAGE_MAX_SIZE}, :skip);")
+    fun getBuilding(companyId: Long, buildingId: Long, skip: Int): String
 
     @SqlCall("CALL update_building(:$BUILDING_REP, :companyId, :buildingId, :name, :floors);")
     @OutParameter(name = BUILDING_REP, sqlType = java.sql.Types.OTHER)

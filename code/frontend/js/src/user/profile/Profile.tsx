@@ -156,11 +156,11 @@ export function Profile() {
                         </div>
                         <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                             <UserState state={person.state}/>
-                            <UserDate state={person.state} time={`${new Date(1657833748229).toLocaleDateString()}`}/>
+                            <UserDate state={person.state} time={`${new Date(person.timestamp).toLocaleDateString()}`}/>
                         </ul>
                     </div>
                     <div>
-                        <Link className="w-1/2" to={`/tickets/`}>
+                        <Link className="w-1/2" to={`tickets/`}>
                             <button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 {person.roles.find(role => role === 'employee') ? 'Work': 'Tickets'}
                             </button>

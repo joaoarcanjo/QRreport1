@@ -37,9 +37,9 @@ class RoomService(val roomDao: RoomDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    fun getRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long): RoomDto {
+    fun getRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, page: Int): RoomDto {
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
-        return roomDao.getRoom(companyId, buildingId, roomId).deserializeJsonTo()
+        return roomDao.getRoom(companyId, buildingId, roomId, elemsToSkip(page, ROOM_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
     //@Transactional(isolation = Isolation.SERIALIZABLE)

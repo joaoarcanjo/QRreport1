@@ -64,6 +64,8 @@ object Uris {
         private val ACTIVATE_TEMPLATE = UriTemplate(ACTIVATE_PATH)
         private val DEACTIVATE_TEMPLATE = UriTemplate(DEACTIVATE_PATH)
         fun makeSpecific(id: Long) = SPECIFIC_TEMPLATE.expand(mapOf("companyId" to id)).toString()
+        fun makeSpecificWithPage(companyId: Long, page: Int) = makeSpecific(companyId) + "?page=${page}"
+        fun makeSpecificPaginationTemplate(companyId: Long) = makeSpecific(companyId) + "{?page}"
         fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("companyId" to id)).toString()
         fun makeDeactivate(id: Long) = DEACTIVATE_TEMPLATE.expand(mapOf("companyId" to id)).toString()
 
@@ -85,6 +87,10 @@ object Uris {
                 BASE_TEMPLATE.expand(mapOf("companyId" to companyId)).toString()
             fun makeSpecific(companyId: Long, id: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
+            fun makeSpecificWithPage(companyId: Long, buildingId: Long, page: Int) =
+                makeSpecific(companyId, buildingId) + "?page=${page}"
+            fun makeSpecificPaginationTemplate(companyId: Long, buildingId: Long) =
+                makeSpecific(companyId, buildingId) + "{?page}"
             fun makeActivate(companyId: Long, id: Long) =
                 ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to id)).toString()
             fun makeDeactivate(companyId: Long, id: Long) =
@@ -113,6 +119,10 @@ object Uris {
                     BASE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId)).toString()
                 fun makeSpecific(companyId: Long, buildingId: Long, roomId: Long) =
                     SPECIFIC_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
+                fun makeSpecificWithPage(companyId: Long, buildingId: Long, roomId: Long, page: Int) =
+                    makeSpecific(companyId, buildingId, roomId) + "?page=${page}"
+                fun makeSpecificPaginationTemplate(companyId: Long, buildingId: Long, roomId: Long) =
+                    makeSpecific(companyId, buildingId, roomId) + "{?page}"
                 fun makeActivate(companyId: Long, buildingId: Long, roomId: Long) =
                     ACTIVATE_TEMPLATE.expand(mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId)).toString()
                 fun makeDeactivate(companyId: Long, buildingId: Long, roomId: Long) =

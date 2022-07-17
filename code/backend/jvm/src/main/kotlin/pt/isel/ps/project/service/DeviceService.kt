@@ -23,6 +23,10 @@ class DeviceService(private val deviceDao: DeviceDao) {
         return deviceDao.getDevices(elemsToSkip(page, DEVICES_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
+    fun getActiveDevices(page: Int): DevicesDto {
+        return deviceDao.getDevices(elemsToSkip(page, DEVICES_PAGE_MAX_SIZE)).deserializeJsonTo()
+    }
+
     fun getDevice(deviceId: Long): DeviceDto {
         return deviceDao.getDevice(deviceId).deserializeJsonTo()
     }

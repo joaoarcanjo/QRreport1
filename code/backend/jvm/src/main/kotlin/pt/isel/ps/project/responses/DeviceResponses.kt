@@ -25,6 +25,7 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.States.isActive
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
@@ -248,7 +249,7 @@ object DeviceResponses {
     ) = buildResponse(QRreportJsonModel(
         clazz = listOf(Classes.DEVICE),
         properties = roomDeviceDto.device,
-        entities = listOf(getQRCodeItem(user, companyId, buildingId, roomId, roomDeviceDto.device.id)),
+        entities = listOf(getQRCodeItem(user, companyId, buildingId, roomId, roomDeviceDto.device.id, roomDeviceDto.device.state)),
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
             add(Actions.removeRoomDevice(companyId, buildingId, roomId, roomDeviceDto.device.id))
@@ -259,12 +260,12 @@ object DeviceResponses {
         )
     ))
 
-    private fun getQRCodeItem(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, deviceId: Long) = QRreportJsonModel(
+    private fun getQRCodeItem(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, deviceId: Long, deviceState: String) = QRreportJsonModel(
         clazz = listOf(Classes.QRCODE),
         rel = listOf(Relations.QRCODE),
         properties = QRCodeItem(Uris.QRCode.makeSpecific(companyId, buildingId, roomId, deviceId)),
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
+            if ((isInactive(deviceState)) || (isManager(user) && !isBuildingManager(user, companyId, buildingId))) return@apply
             add(Actions.generateNewQRCode(companyId, buildingId, roomId, deviceId))
         },
         links = listOf()

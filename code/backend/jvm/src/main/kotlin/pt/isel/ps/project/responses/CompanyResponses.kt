@@ -98,7 +98,7 @@ object CompanyResponses {
         setLocationHeader(Uris.Companies.makeSpecific(company.id)),
     )
 
-    fun getCompanyRepresentation(user: AuthPerson, company: CompanyDto) = buildResponse(
+    fun getCompanyRepresentation(user: AuthPerson, company: CompanyDto, page: Int) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY),
             properties = company.removeBuildings(),
@@ -106,7 +106,7 @@ object CompanyResponses {
                 getBuildingsRepresentation(
                     company.buildings,
                     company.id,
-                    CollectionModel(1, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
+                    CollectionModel(page, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
                     listOf(Relations.COMPANY_BUILDINGS)
                 )
             ),
@@ -121,9 +121,10 @@ object CompanyResponses {
                 }
             },
             links = listOf(
-                Links.self(Uris.Companies.makeSpecific(company.id)),
+                Links.self(Uris.Companies.makeSpecificWithPage(company.id, page)),
                 Links.companies(),
-            ),
+                Links.pagination(Uris.Companies.makeSpecificPaginationTemplate(company.id))
+            )
         )
     )
 

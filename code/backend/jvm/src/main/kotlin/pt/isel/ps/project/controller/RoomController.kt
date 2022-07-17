@@ -61,13 +61,18 @@ class RoomController(private val service: RoomService) {
 
     @GetMapping(Rooms.SPECIFIC_PATH)
     fun getRoom(
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @PathVariable companyId: Long,
         @PathVariable buildingId: Long,
         @PathVariable roomId: Long,
         user: AuthPerson,
     ): ResponseEntity<QRreportJsonModel> {
         getRoomAuthorization(user)
-        return getRoomRepresentation(user, companyId, buildingId, service.getRoom(user, companyId, buildingId, roomId))
+        return getRoomRepresentation(
+            user,
+            companyId,
+            buildingId,
+            service.getRoom(user, companyId, buildingId, roomId, page), page)
     }
 
     @PutMapping(Rooms.SPECIFIC_PATH)

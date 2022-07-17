@@ -34,9 +34,9 @@ object BuildingResponses {
             href = Buildings.makeBase(companyId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("name", "string"),
-                QRreportJsonModel.Property("floors", "number"),
-                QRreportJsonModel.Property("managerId", "string",
+                QRreportJsonModel.Property("name", "string", required = true),
+                QRreportJsonModel.Property("floors", "number", required = true),
+                QRreportJsonModel.Property("managerId", "string", required = true,
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH))
                     // TODO: Make path to get only managers inside a specific company
             )
@@ -119,7 +119,7 @@ object BuildingResponses {
         setLocationHeader(Buildings.makeSpecific(companyId, building.id))
     )
 
-    fun getBuildingRepresentation(user: AuthPerson, companyId: Long, buildingDto: BuildingDto): ResponseEntity<QRreportJsonModel> {
+    fun getBuildingRepresentation(user: AuthPerson, companyId: Long, buildingDto: BuildingDto, page: Int): ResponseEntity<QRreportJsonModel> {
         val building = buildingDto.building
         return buildResponse(QRreportJsonModel(
             clazz = listOf(Classes.BUILDING),
@@ -130,7 +130,7 @@ object BuildingResponses {
                     companyId,
                     building.id,
                     buildingDto.rooms,
-                    CollectionModel(1, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
+                    CollectionModel(page, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
                     listOf(Relations.BUILDING_ROOMS)))
                 add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
             },
@@ -144,8 +144,9 @@ object BuildingResponses {
                 }
             },
             links = listOf(
-                Links.self(Buildings.makeSpecific(companyId, building.id)),
-                Links.company(companyId)
+                Links.self(Buildings.makeSpecificWithPage(companyId, building.id, page)),
+                Links.company(companyId),
+                Links.pagination(Buildings.makeSpecificPaginationTemplate(companyId, buildingDto.building.id))
             )
         ))
     }
