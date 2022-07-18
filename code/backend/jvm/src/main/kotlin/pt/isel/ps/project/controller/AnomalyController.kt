@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.Authorizations.Anomaly.createAnomalyAuthorization
 import pt.isel.ps.project.auth.Authorizations.Anomaly.deleteAnomalyAuthorization
-import pt.isel.ps.project.auth.Authorizations.Anomaly.getAnomaliesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Anomaly.updateAnomalyAuthorization
 import pt.isel.ps.project.model.Uris.Devices.Anomalies
 import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
@@ -26,9 +25,8 @@ class AnomalyController(private val service: AnomalyService) {
     fun getAnomalies(
         @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @PathVariable deviceId: Long,
-        user: AuthPerson,
+        user: AuthPerson?,
     ): QRreportJsonModel {
-        getAnomaliesAuthorization(user)
         val anomalies = service.getAnomalies(deviceId, page)
         return getAnomaliesRepresentation(
             user,

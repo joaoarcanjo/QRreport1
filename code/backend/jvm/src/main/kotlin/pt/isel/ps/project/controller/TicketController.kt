@@ -107,7 +107,7 @@ class TicketController(private val service: TicketService) {
         return removeEmployeeRepresentation(service.removeEmployee(ticketId, user))
     }
 
-    @PutMapping(Tickets.EMPLOYEE_PATH)
+    @PutMapping(Tickets.GROUP_PATH)
     fun groupTicket(
         @PathVariable ticketId: Long,
         @RequestBody parentTicket: ParentTicketEntity,

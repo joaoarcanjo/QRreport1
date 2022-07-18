@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse
 class CorsFilter : OncePerRequestFilter() {
     override fun doFilterInternal(request: HttpServletRequest, response: HttpServletResponse, filterChain: FilterChain) {
         // In case there isn't a preflight request, continue...
-        if (request.method != "OPTIONS") filterChain.doFilter(request, response)
+        if (request.method != "OPTIONS" && request.method != "PUT" && request.method != "DELETE") filterChain.doFilter(request, response)
         else {
             response.addHeader("Access-Control-Allow-Origin", "http://localhost:3000")
             response.addHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, PATCH, HEAD")
@@ -26,7 +26,8 @@ class CorsFilter : OncePerRequestFilter() {
             )
             response.addHeader("Access-Control-Allow-Credentials", "true")
             response.addIntHeader("Access-Control-Max-Age", 60)
-            response.status = 200
+            if (request.method == "PUT" || request.method == "DELETE") filterChain.doFilter(request, response)
+            else response.status = 200
         }
     }
 }

@@ -35,6 +35,7 @@ import pt.isel.ps.project.exception.Errors.Forbidden.Message.MANAGER_CREATE_PERS
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InvalidParameter
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Auth.LOGIN_PATH
 import pt.isel.ps.project.model.Uris.Auth.SIGNUP_PATH
 import pt.isel.ps.project.model.Uris.QRCode.REPORT_PATH
@@ -478,6 +479,10 @@ object Validator {
         fun isReportURI(requestURI: String): Boolean {
             val req = requestURI.substringBeforeLast("/").plus("/{hash}")
             return req.compareTo(REPORT_PATH) == 0
+        }
+
+        fun isCreateTicketURI(requestURI: String, method: String): Boolean {
+            return  requestURI.compareTo(Uris.Tickets.BASE_PATH) == 0 && method == "POST"
         }
     }
 

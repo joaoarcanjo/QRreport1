@@ -8,6 +8,7 @@ import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
 import pt.isel.ps.project.model.person.Roles.MANAGER
 import pt.isel.ps.project.model.person.Roles.ADMIN
+import pt.isel.ps.project.model.person.Roles.GUEST
 
 object Authorizations {
     object Person {
@@ -361,12 +362,6 @@ object Authorizations {
     }
 
     object Anomaly {
-        fun getAnomaliesAuthorization(user: AuthPerson): Boolean {
-            val userRole = user.activeRole
-            if (userRole == MANAGER || userRole == ADMIN) return true
-            throw ForbiddenException(ACCESS_DENIED)
-        }
-
         fun createAnomalyAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == ADMIN) return true

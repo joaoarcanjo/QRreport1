@@ -52,12 +52,12 @@ object AnomalyResponses {
         )
     }
 
-    private fun getAnomalyItem(user: AuthPerson, anomaly: AnomalyItemDto, deviceId: Long, rel: List<String>?) = QRreportJsonModel(
+    private fun getAnomalyItem(user: AuthPerson?, anomaly: AnomalyItemDto, deviceId: Long, rel: List<String>?) = QRreportJsonModel(
         clazz = listOf(Classes.ANOMALY),
         rel = rel,
         properties = anomaly,
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (!isAdmin(user)) return@apply
+            if (user == null || !isAdmin(user)) return@apply
             add(Actions.updateAnomaly(deviceId, anomaly.id))
             add(Actions.deleteAnomaly(deviceId, anomaly.id))
         },
@@ -65,7 +65,7 @@ object AnomalyResponses {
     )
 
     fun getAnomaliesRepresentation(
-        user: AuthPerson,
+        user: AuthPerson?,
         anomaliesDto: AnomaliesDto,
         deviceId: Long,
         collection: CollectionModel,
@@ -80,7 +80,7 @@ object AnomalyResponses {
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isAdmin(user)) add(Actions.createAnomaly(deviceId))
+            if (user != null && isAdmin(user)) add(Actions.createAnomaly(deviceId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Anomalies.makeBase(deviceId))),

@@ -13,6 +13,7 @@ import pt.isel.ps.project.exception.Errors.Unauthorized.Message.MISSING_SESSION_
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
 import pt.isel.ps.project.exception.UnauthorizedException
 import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isAuthURI
+import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isCreateTicketURI
 import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isReportURI
 import javax.crypto.SecretKey
 import javax.servlet.http.HttpServletRequest
@@ -25,7 +26,7 @@ class AuthenticationInterceptor(private val jwtConfig: JwtConfig, private val se
         // Verify if the origin header exists
         val originReqHeader = request.getHeader(ORIGIN_HEADER)
         if (originReqHeader == null || (originReqHeader.compareTo(ORIGIN_MOBILE) != 0 && originReqHeader.compareTo(ORIGIN_WEBAPP) != 0)) {
-            if (isReportURI(request.requestURI)) return true
+            if (isReportURI(request.requestURI) || isCreateTicketURI(request.requestURI, request.method)) return true
             else throw UnauthorizedException(REQUIRES_AUTH, INVALID_ORIGIN)
         }
 
