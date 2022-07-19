@@ -95,6 +95,8 @@ import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 
 object Validator {
 
@@ -200,7 +202,7 @@ object Validator {
         }
 
         fun personBelongsToCompany(user: AuthPerson, currentCompany: Long): Boolean {
-            return user.companies?.first { it.id == currentCompany } != null
+            return user.companies?.first { (it["id"].toString()).toLong() == currentCompany } != null
         }
 
         object Building {
@@ -395,7 +397,7 @@ object Validator {
 
         fun verifyManagerCreationPermissions(user: AuthPerson, person: CreatePersonEntity) {
             // Verify same company
-            if (user.companies?.firstOrNull { it.id.compareTo(person.company) == 0 } == null)
+            if (user.companies?.firstOrNull { it["id"].toString().toLong() == person.company } == null)
                 throw ForbiddenException(ACCESS_DENIED, MANAGER_CREATE_PERSON_COMPANY)
             // Verify if it's being created a manager or an employee
             if (person.role != EMPLOYEE && person.role != MANAGER)
@@ -449,10 +451,16 @@ object Validator {
 
         fun isSamePerson(user: AuthPerson, reqPersonId: UUID) = user.id == reqPersonId
 
-        fun belongsToCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull { it.id == companyId } != null
+        fun belongsToCompany(user: AuthPerson, companyId: Long) = user.companies?.firstOrNull {
+            it["id"].toString().toLong() == companyId
+        } != null
 
         fun isBuildingManager(user: AuthPerson, companyId: Long, buildingId: Long) =
-            user.companies?.firstOrNull { it.id == companyId && it.manages?.contains(buildingId) ?: false } != null
+            user.companies?.firstOrNull {
+                val list = it["manages"]?.serializeToJson()?.deserializeJsonTo<ArrayList<Int>>()
+                it["id"].toString().toLong() == companyId
+                        && list?.firstOrNull { e -> e.compareTo(buildingId) == 0 } != null
+            } != null
 
         fun isEmployeeTicket(user: AuthPerson, ticketEmployeeId: UUID) = user.id == ticketEmployeeId
 

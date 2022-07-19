@@ -11,7 +11,8 @@ class QRreportJsonModel(
     val properties: Any? = null,
     val entities: List<QRreportJsonModel>? = null,
     val actions: List<Action>? = null,
-    val links: List<Link>,
+    val links: List<Link>? = null,
+    val href: String? = null,
 ) {
 
     data class PropertyValue(

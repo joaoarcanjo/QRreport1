@@ -21,7 +21,6 @@ import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.TicketResponses.addTicketRateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.changeTicketStateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.createTicketRepresentation
-import pt.isel.ps.project.responses.TicketResponses.deleteTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
 import pt.isel.ps.project.responses.TicketResponses.groupTicketRepresentation
@@ -64,12 +63,6 @@ class TicketController(private val service: TicketService) {
         updateTicketAuthorization(user)
         return updateTicketRepresentation(service.updateTicket(ticketId, ticket, user))
     }
-
-    /*@DeleteMapping(Tickets.SPECIFIC_PATH) // TODO: Delete?
-    fun refuseTicket(@PathVariable ticketId: Long, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
-        refuseTicketAuthorization(user)
-        return deleteTicketRepresentation(service.refuseTicket(ticketId))
-    }*/
 
     @PutMapping(Tickets.STATE_PATH)
     fun changeTicketState(

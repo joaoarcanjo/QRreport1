@@ -29,8 +29,8 @@ data class CreatePersonEntity(
     val email: String,
     val password: String,
     val role: String,
-    val company: Int,
-    val skill: Int? = null,
+    val company: Long,
+    val skill: Long? = null,
 )
 
 data class UpdatePersonEntity(

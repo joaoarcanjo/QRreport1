@@ -40,6 +40,7 @@ object Response {
         const val TICKET_AUTHOR = "ticket-author"
         const val TICKET_COMMENTS = "ticket-comments"
         const val TICKET_EMPLOYEE = "ticket-employee"
+        const val PARENT_TICKET = "parent-ticket"
         const val TICKETS = "tickets"
         const val COMMENTS = "comments"
         const val DEVICE = "device"

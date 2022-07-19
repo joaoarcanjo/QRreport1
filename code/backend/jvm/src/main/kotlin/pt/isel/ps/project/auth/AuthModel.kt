@@ -2,6 +2,8 @@ package pt.isel.ps.project.auth
 
 import java.sql.Timestamp
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 
 /**
  * Name of the auth representation output parameter
@@ -37,6 +39,9 @@ data class SignupDto(
     val confirmPassword: String,
 )
 
+data class AuthCompanies(
+    val companies: ArrayList<AuthCompany>
+)
 data class AuthCompany(
     val id: Long,
     val name: String,
@@ -56,7 +61,7 @@ data class AuthPerson(
     val email: String,
     val activeRole: String,
     val skills: List<String>?,
-    val companies: List<AuthCompany>?,
+    val companies: List<LinkedHashMap<*,*>>?,
     val timestamp: Timestamp?,
     val state: String,
     val reason: String?,

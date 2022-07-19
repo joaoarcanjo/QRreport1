@@ -40,12 +40,6 @@ class TicketService(val ticketDao: TicketDao) {
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)
-    /*fun refuseTicket(ticketId: Long): TicketItemDto {
-        return ticketDao.refuseTicket(ticketId).getString(TICKET_REP)?.deserializeJsonTo()
-            ?: throw InternalServerException(INTERNAL_ERROR)
-    }*/
-
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun changeTicketState(ticketId: Long, ticketState: ChangeTicketStateEntity, user: AuthPerson): TicketItemDto {
         return ticketDao.changeTicketState(ticketId, user.id, ticketState).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)

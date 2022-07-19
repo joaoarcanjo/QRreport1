@@ -38,7 +38,7 @@ function AppRouter() {
                 <Route path="/login" element= {<LoginForm/>}/>
                 <Route path="/logout" element= {<Logout/>}/>
                 <Route path="/signup" element= {<SignupForm/>}/>
-                <Route path="/qrcode/:hash" element= {<TicketRequest/>}/>
+                <Route path="/report/:hash" element= {<TicketRequest/>}/>
                 <Route path="/profile" element= {<Profile/>}/>
                 <Route path="/profile/:personId" element= {<Profile/>}/>
                 <Route path="/profile/:personId/tickets" element= {<ListTickets/>}/>

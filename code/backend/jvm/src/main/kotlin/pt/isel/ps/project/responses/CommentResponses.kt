@@ -54,7 +54,13 @@ object CommentResponses {
         )
     }
 
-    private fun getCommentItem(user: AuthPerson, ticketId: Long, ticketState: String, commentDto: CommentDto, rel: List<String>?): QRreportJsonModel {
+    private fun getCommentItem(
+        user: AuthPerson,
+        ticketId: Long,
+        ticketState: String,
+        commentDto: CommentDto,
+        isChild: Boolean,
+        rel: List<String>?): QRreportJsonModel {
         val comment = commentDto.comment
         return QRreportJsonModel(
             clazz = listOf(Classes.COMMENT),
@@ -62,7 +68,7 @@ object CommentResponses {
             properties = comment,
             entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (ticketState.compareTo("Archived") == 0) return@apply
+                if (ticketState.compareTo("Archived") == 0 || isChild) return@apply
                 if (user.id == commentDto.person.id)
                     add(Actions.updateComment(ticketId, comment.id))
                 if (isAdmin(user))
@@ -78,6 +84,7 @@ object CommentResponses {
         ticketId: Long,
         ticketState: String,
         collection: CollectionModel,
+        isChild: Boolean,
         rel: List<String>?
     ) = QRreportJsonModel(
         clazz = listOf(Classes.COMMENT, Classes.COLLECTION),
@@ -85,37 +92,18 @@ object CommentResponses {
         properties = collection,
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (commentsDto.comments != null) addAll(commentsDto.comments.map {
-                getCommentItem(user, ticketId, ticketState, it, listOf(Relations.ITEM))
+                getCommentItem(user, ticketId, ticketState, it, isChild, listOf(Relations.ITEM))
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (ticketState.compareTo("Archived") == 0) return@apply
-            add(Actions.createComment(ticketId))
+            if (!isChild) add(Actions.createComment(ticketId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Comments.makeBase(ticketId))),
             Links.pagination(COMMENTS_PAGINATION),
         )
     )
-
-    fun getCommentRepresentation(user: AuthPerson, ticketId: Long, commentDto: CommentDto): QRreportJsonModel {
-        val comment = commentDto.comment
-        return QRreportJsonModel(
-            clazz = listOf(Classes.COMMENT),
-            properties = comment,
-            entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
-            actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (isAdmin(user))
-                    add(Actions.deleteComment(ticketId, comment.id))
-                add(Actions.updateComment(ticketId, comment.id))
-            },
-            links = listOf(
-                Links.self(Comments.makeSpecific(ticketId, comment.id)),
-                Links.comments(ticketId),
-                Links.ticket(ticketId)
-            )
-        )
-    }
 
     fun updateCommentRepresentation(ticketId: Long, comment: CommentItemDto) = buildResponse(
         QRreportJsonModel(

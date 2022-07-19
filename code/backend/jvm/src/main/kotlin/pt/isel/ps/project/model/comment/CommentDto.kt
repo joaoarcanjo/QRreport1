@@ -16,5 +16,7 @@ data class CommentItemDto (
 
 data class CommentsDto (
     val comments: List<CommentDto>?,
-    val collectionSize: Int
+    val collectionSize: Int,
+    val ticketState: String,
+    val isTicketChild: Boolean,
 )

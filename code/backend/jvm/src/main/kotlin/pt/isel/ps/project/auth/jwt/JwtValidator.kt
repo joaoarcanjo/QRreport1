@@ -6,15 +6,19 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
+import pt.isel.ps.project.auth.AuthCompanies
 import pt.isel.ps.project.auth.AuthCompany
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_TOKEN
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
 import pt.isel.ps.project.exception.UnauthorizedException
+import pt.isel.ps.project.util.deserializeJsonTo
+import pt.isel.ps.project.util.serializeToJson
 import java.sql.Timestamp
 import java.util.*
 import javax.crypto.SecretKey
 import kotlin.collections.ArrayList
+import kotlin.collections.LinkedHashMap
 
 
 object JwtValidator {
@@ -40,7 +44,7 @@ object JwtValidator {
                 body.get("email", String::class.java),
                 body.get("activeRole", String::class.java),
                 body["skills"] as ArrayList<String>?,
-                body["companies"] as ArrayList<AuthCompany>?,
+                body["companies"] as ArrayList<LinkedHashMap<*,*>>?,
                 Timestamp(body["timestamp"] as Long),
                 body.get("state", String::class.java),
                 body.get("reason", String::class.java),

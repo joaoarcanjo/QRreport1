@@ -3,6 +3,18 @@
  */
 
 /**
+  * Auxiliary function to obtain the ticket state name
+  */
+CREATE OR REPLACE FUNCTION get_ticket_state_name(ticket_id BIGINT)
+RETURNS TEXT
+AS
+$$
+BEGIN
+    RETURN (SELECT name FROM EMPLOYEE_STATE WHERE id = (SELECT employee_state FROM TICKET WHERE id = ticket_id));
+END$$LANGUAGE plpgsql;
+
+
+/**
   * Auxiliary function to verify if a ticket has a parent ticket
   */
 CREATE OR REPLACE FUNCTION is_child_ticket(ticket_id BIGINT)
@@ -320,7 +332,7 @@ DECLARE
     b_floors INT; b_timestamp TIMESTAMP; r_id BIGINT; r_name TEXT; r_state TEXT; r_floor INT; r_timestamp TIMESTAMP;
     d_id BIGINT; d_name TEXT; d_state TEXT; d_timestamp TIMESTAMP; ct_name TEXT;
     role TEXT = get_person_active_role(person_id);
-    employeeId UUID = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
+    employeeId UUID = (SELECT person FROM FIXING_BY WHERE ticket = (SELECT parent_ticket FROM TICKET WHERE id = ticket_id) OR ticket = ticket_id);
     employee JSON = NULL;
 BEGIN
     IF(employeeId IS NOT NULL) THEN employee = person_item_representation(employeeId); END IF;
@@ -374,7 +386,8 @@ BEGIN
         'building', building_item_representation(b_id, b_name, b_floors, b_state, b_timestamp),
         'room', room_item_representation(r_id, r_name, r_floor, r_state, r_timestamp),
         'device', device_item_representation(d_id, d_name, ct_name, d_state, d_timestamp),
-        'employee', employee
+        'employee', employee,
+        'parentTicket', (SELECT parent_ticket FROM TICKET WHERE id = ticket_id)
     );
 END$$ LANGUAGE plpgsql;
 

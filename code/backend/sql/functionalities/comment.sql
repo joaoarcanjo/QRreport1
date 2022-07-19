@@ -117,7 +117,7 @@ BEGIN
     FOR rec IN
         SELECT c.id as comment_id, comment, c.timestamp as comment_timestamp, p.id as person_id, name, phone, email
         FROM COMMENT c INNER JOIN PERSON p ON c.person = p.id
-        WHERE ticket = t_id
+        WHERE ticket = (SELECT parent_ticket FROM TICKET WHERE id = t_id) OR ticket = t_id
         ORDER BY
             CASE WHEN direction = 'DESC' THEN c.timestamp END DESC,
             CASE WHEN direction = 'ASC' THEN c.timestamp END ASC
@@ -130,7 +130,10 @@ BEGIN
         ));
     END LOOP;
     SELECT COUNT(id) INTO collection_size FROM COMMENT WHERE ticket = t_id;
-    RETURN json_build_object('comments', comments, 'collectionSize', collection_size);
+    RETURN json_build_object('comments', comments, 'collectionSize', collection_size,
+        'ticketState', get_ticket_state_name(t_id),
+        'isTicketChild', is_child_ticket(t_id)
+    );
 END$$ LANGUAGE plpgsql;
 
 /*

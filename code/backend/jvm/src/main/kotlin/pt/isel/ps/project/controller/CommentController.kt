@@ -34,8 +34,9 @@ class CommentController(private val service: CommentService) {
             user,
             comments,
             ticketId,
-            "Not started", // TODO: Get ticket state from db
+            comments.ticketState,
             CollectionModel(page, COMMENT_PAGE_MAX_SIZE, comments.collectionSize),
+            comments.isTicketChild,
             null)
     }
 
@@ -48,11 +49,6 @@ class CommentController(private val service: CommentService) {
         createCommentAuthorization(user)
         return createCommentRepresentation(ticketId, service.createComment(ticketId, comment, user))
     }
-
-/*    @GetMapping(Comments.SPECIFIC_PATH) // TODO: Delete?
-    fun getComment(@PathVariable ticketId: Long, @PathVariable commentId: Long): QRreportJsonModel {
-        return getCommentRepresentation(ticketId, service.getComment(ticketId, commentId))
-    }*/
 
     @PutMapping(Comments.SPECIFIC_PATH)
     fun updateComment(

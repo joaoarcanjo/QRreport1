@@ -42,6 +42,7 @@ data class TicketExtraInfo (
     val room: RoomItemDto,
     val device: DeviceItemDto,
     val employee: PersonItemDto?,
+    val parentTicket: Long?,
 )
 
 data class TicketEmployee (

@@ -7,6 +7,7 @@ import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.Uris.Tickets.TICKETS_PAGINATION
+import pt.isel.ps.project.model.person.PersonItemDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -133,9 +134,10 @@ object TicketResponses {
             add(getCommentsRepresentation(
                 user,
                 ticketInfo.ticketComments,
-                ticketInfo.ticket.id,
+                ticketInfo.parentTicket ?: ticketInfo.ticket.id,
                 ticketInfo.ticket.employeeState,
                 CollectionModel(DEFAULT_PAGE, COMMENT_PAGE_MAX_SIZE, ticketInfo.ticketComments.collectionSize),
+                ticketInfo.ticketComments.isTicketChild,
                 listOf(Relations.TICKET_COMMENTS))
             )
             add(getCompanyItem(ticketInfo.company, listOf(Relations.TICKET_COMPANY)))
@@ -143,15 +145,16 @@ object TicketResponses {
             add(getRoomItem(ticketInfo.room.id, ticketInfo.building.id, ticketInfo.room, listOf(Relations.TICKET_ROOM)))
             add(getDeviceItem(ticketInfo.device, listOf(Relations.TICKET_DEVICE)))
             add(getPersonItem(ticketInfo.person, listOf(Relations.TICKET_AUTHOR)))
+            add(getParentTicket(ticketInfo.parentTicket ?: ticketInfo.ticket.id))
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (isUser(user) && ticketInfo.ticket.employeeState.compareTo("Archived") == 0)
                 add(Actions.addRate(ticketInfo.ticket.id))
+            if (ticketInfo.parentTicket != null) return@apply
             if (ticketInfo.ticket.employeeState.compareTo("Refused") == 0 ||
                 ticketInfo.ticket.employeeState.compareTo("Archived") == 0) return@apply
             if (ticketInfo.ticket.employeeState.compareTo("To assign") == 0)
                 add(Actions.updateTicket(ticketInfo.ticket.id))
-//            add(Actions.deleteTicket(ticketInfo.ticket.id)) TODO: Delete?
             if (ticketInfo.employee != null && (isEmployee(user) && isEmployeeTicket(user, ticketInfo.employee.id)) ||
                 (isManager(user) && belongsToCompany(user, ticketInfo.company.id)) ||
                 isAdmin(user)
@@ -181,14 +184,6 @@ object TicketResponses {
             clazz = listOf(Classes.TICKET),
             properties = ticket,
             links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
-        )
-    )
-
-    fun deleteTicketRepresentation(ticket: TicketItemDto) = buildResponse(
-        QRreportJsonModel(
-            clazz = listOf(Classes.TICKET),
-            properties = ticket,
-            links = listOf(Links.self(Tickets.makeSpecific(ticket.id)), Links.tickets())
         )
     )
 
@@ -228,5 +223,11 @@ object TicketResponses {
         clazz = listOf(Classes.TICKET),
         properties = ticket,
         links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
+    )
+
+    private fun getParentTicket(ticketId: Long) = QRreportJsonModel(
+        clazz = listOf(Classes.PERSON),
+        rel = listOf(Relations.PARENT_TICKET),
+        href = Tickets.makeSpecific(ticketId),
     )
 }
