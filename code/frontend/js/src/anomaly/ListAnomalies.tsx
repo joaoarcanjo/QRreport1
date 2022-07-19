@@ -1,14 +1,19 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { GrUpdate } from "react-icons/gr"
 import { MdDelete } from "react-icons/md"
+import { Outlet } from "react-router-dom"
+import { Loading } from "../components/Various"
+import { ErrorView } from "../errors/Error"
+import { useFetch } from "../hooks/useFetch"
 import { Anomaly, } from "../models/Models"
-import { getSpecificEntity } from "../models/ModelUtils"
+import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { Action, Entity } from "../models/QRJsonModel"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { InputAnomaly } from "./InputAnomaly"
 
 function AnomalyItem({entity, setAction, setPayload }: {  
     entity: Entity<Anomaly>,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
     const anomaly = entity.properties
@@ -25,26 +30,24 @@ function AnomalyItem({entity, setAction, setPayload }: {
 
 export function AnomalyActions({entity, setAction, setPayload }: { 
     entity: Entity<Anomaly>,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
 
     const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-    if(!entity || !setAction || !setAuxAction || !setPayload) return null 
-
     const actions = entity?.actions
     if (!actions) return null
     
-    let componentsActions = actions?.map(action => {
+    let componentsActions = actions?.map((action, idx) => {
         switch(action.name) {
             case 'update-anomaly': return !auxAction && (
-                    <button onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg px-2">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg px-2">
                         <GrUpdate/>
                     </button>
                 )
             case 'delete-anomaly': return !auxAction && (
-                <button onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
+                <button key={idx} onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
                     <MdDelete/>
                 </button>
             )
@@ -62,21 +65,19 @@ export function AnomalyActions({entity, setAction, setPayload }: {
 
 export function AnomaliesActions({entity, setAction, setPayload }: { 
     entity: Entity<Anomaly>,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
 
     const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-    if(!entity || !setAction || !setAuxAction || !setPayload) return null 
-
     const actions = entity?.actions
     if (!actions) return null
     
-    let componentsActions = actions?.map(action => {
+    let componentsActions = actions?.map((action, idx) => {
         switch(action.name) {
             case 'create-anomaly': return !auxAction && (
-                    <button onClick={() => setAuxAction(action)} className="text-white bg-blue-600 hover:bg-blue-800 rounded-lg px-2">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-blue-600 hover:bg-blue-800 rounded-lg px-2">
                         {action.title}
                     </button>
                 )
@@ -92,23 +93,45 @@ export function AnomaliesActions({entity, setAction, setPayload }: {
     )
 }
 
-export function Anomalies({ entities, setAction, setPayload }: { 
-    entities: Entity<any>[] | undefined,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+export function Anomalies({ collection, setAction, setPayload }: { 
+    collection?: Entity<Collection>,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
-    if (!entities) return null
-    const collection = getSpecificEntity(['anomaly', 'collection'], 'device-anomalies', entities)
+    
+    const initValues: RequestInit = {
+        credentials: 'include',
+        headers: { 'Request-Origin': 'WebApp' }
+    }
+    
+    const init = useMemo(() => initValues ,[])
+
+    const [currentUrl, setCurrentUrl] = useState('')
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+    
+    if (isFetching) return <Loading/>
+    if (error) return <ErrorView error={error}/>
+
+    const problem = getProblemOrUndefined(result?.body)
+    if (problem) return <ErrorView problemJson={problem}/>
+
+    if (result?.body) collection = getEntityOrUndefined(result.body)
     const anomalies = collection?.entities
-    if (!anomalies) return null
+    if (!anomalies || !collection) return null
 
     return (
-        <div className="space-y-3">
-            <AnomaliesActions entity={collection} setAction={setAction} setPayload={setPayload}/>
-            {anomalies.map((entity, idx) => {
-                if (entity.class.includes('anomaly') && entity.rel?.includes('item')) 
-                    return <AnomalyItem key={idx} entity={entity} setAction={setAction} setPayload={setPayload}/>
-            })}
-        </div>
+        <>
+            <div className="space-y-3">
+                {anomalies.map((entity, idx) => {
+                    if (entity.class.includes('anomaly') && entity.rel?.includes('item')) 
+                        return <AnomalyItem key={idx} entity={entity} setAction={setAction} setPayload={setPayload}/>
+                })}
+            </div>
+            <CollectionPagination 
+                collection={collection.properties} 
+                setUrlFunction={setCurrentUrl} 
+                templateUrl={getEntityLink('pagination', collection)}/>
+            <Outlet/>
+        </>
     )
 }

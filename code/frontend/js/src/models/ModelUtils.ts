@@ -57,3 +57,7 @@ export function getLink<T>(linkRel: string, result?: FetchResult<T>): QrJson.Lin
     const entity = getEntityOrUndefined(result)
     return entity?.links?.find(link => link.rel.find(rel => rel === linkRel))
 }
+
+export function getEntityLink<T>(linkRel: string, entity?: QrJson.Entity<T>): QrJson.Link | undefined {
+    return entity?.links?.find(link => link.rel.includes(linkRel));
+}

@@ -178,7 +178,7 @@ object Uris {
             private val BASE_TEMPLATE = UriTemplate(BASE_PATH)
             private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
             fun makeBase(ticketId: Long) = BASE_TEMPLATE.expand(mapOf("ticketId" to ticketId)).toString()
-            fun makeSpecific(commentId: Long, ticketId: Long) =
+            fun makeSpecific(ticketId: Long, commentId: Long) =
                 SPECIFIC_TEMPLATE.expand(mapOf("ticketId" to ticketId, "commentId" to commentId)).toString()
         }
     }

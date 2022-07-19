@@ -1,3 +1,6 @@
+import { MouseEventHandler } from "react"
+import { AiFillCloseCircle } from "react-icons/ai"
+
 export function Loading() {
     return (
         <div className="font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 inline-flex items-center">
@@ -7,5 +10,14 @@ export function Loading() {
             </svg>
             Loading...
         </div>
+    )
+}
+
+export function CloseButton({onClickHandler}: {onClickHandler: MouseEventHandler<HTMLButtonElement>}) {
+    
+    return (
+    <button onClick={ onClickHandler }>
+        <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
+    </button>
     )
 }

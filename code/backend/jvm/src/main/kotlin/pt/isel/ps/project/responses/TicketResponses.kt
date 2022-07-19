@@ -88,6 +88,7 @@ object TicketResponses {
             title = "Add rate",
             method = HttpMethod.PUT,
             href = Tickets.makeRate((ticketId)),
+            type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("rate", "number"),
             )
@@ -157,8 +158,8 @@ object TicketResponses {
             )
                 add(Actions.changeTicketState(ticketInfo.ticket.id))
             if (isManager(user) && belongsToCompany(user, ticketInfo.company.id) || isAdmin(user)) {
-                add(Actions.setEmployee(ticketInfo.ticket.id))
-                add(Actions.removeEmployee(ticketInfo.ticket.id))
+                if (ticketInfo.employee == null) add(Actions.setEmployee(ticketInfo.ticket.id))
+                else add(Actions.removeEmployee(ticketInfo.ticket.id))
                 add(Actions.groupTicket(ticketInfo.ticket.id))
             }
         },

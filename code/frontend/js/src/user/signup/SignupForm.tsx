@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../../components/form/FormComponents";
+import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
 
 export default function SignupForm() {
 
@@ -66,7 +66,7 @@ export default function SignupForm() {
     
     return (
         <section className="info-section">
-            <div className="space-y-3 grid h-screen place-items-center">
+            <div className="space-y-3 grid place-items-center">
                 <Form onSubmitHandler = { onSubmitHandler }>
                     <Header heading='Welcome to QRreport'>
                         <HeaderParagraph paragraph='Insert your credentials below'/>
@@ -76,7 +76,7 @@ export default function SignupForm() {
                     <Input value = {phoneNumberInput}/>
                     <Input value = {passwordInput}/>
                     <Input value = {passwordVerifyInput}/>
-                    <SubmitButton text={'Create account'}/>
+                    <BigSubmitButton text={'Create account'}/>
                     <Paragraph value = {'(*) Required'}/>
                 </Form>
             </div>

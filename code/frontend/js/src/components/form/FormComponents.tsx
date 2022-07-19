@@ -33,7 +33,6 @@ export type TextAreaProps = {
     textAreaLabelName: string,
     register: UseFormRegisterReturn,
     style: CSSProperties,
-    text: string,
     errorMessage?: string | undefined 
 }
 
@@ -68,13 +67,21 @@ export function Header({heading, children}: HeaderProps){
     )
 }
 
-export function SubmitButton({text}: {text:string}) {
+export function BigSubmitButton({text}: {text:string}) {
     return (
         <div>
             <button className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 rounded-md text-white text-sm">
                 {text}
             </button>
-        </div>
+        </div> 
+    )
+}
+
+export function LittleSubmitButton({text}: {text:string}) {
+    return (
+        <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2">
+            {text}
+        </button>
     )
 }
 
@@ -147,7 +154,6 @@ export function TextArea({value}: {value: TextAreaProps}) { //está a dar um war
                 {...value.register} 
                 className="w-full p-2 border rounded-lg" 
                 style= {value.style}>
-                {value.text}
             </textarea>
             <InputError error= {value.errorMessage}/>
         </div>

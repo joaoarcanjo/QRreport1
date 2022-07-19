@@ -15,6 +15,7 @@ import { UpdateTicket } from "./UpdateTicket";
 import { TicketRate } from "./TicketRate";
 import { UpdateState } from "./TicketState";
 import { ListComments } from "../comment/ListComments";
+import { GroupTicket } from "./GroupTicket";
 
 export function TicketRep() {
 
@@ -33,7 +34,6 @@ export function TicketRep() {
 
     const init = useMemo(() => initValues ,[])
 
-    console.log(TICKET_URL_API(ticketId))
     const { isFetching, result, error } = useFetch<Ticket>(TICKET_URL_API(ticketId), init)
 
     if (isFetching) return <Loading/>
@@ -44,10 +44,12 @@ export function TicketRep() {
 
     switch (action?.name) {
         case 'delete-ticket': return <ActionComponent action={action} redirectUrl={TICKETS_URL} />
+        case 'add-rate': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'set-employee': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'remove-employee': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
-        case 'update-ticket-state': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
+        case 'update-state': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'update-ticket': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
+        case 'group-ticket': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'create-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'delete-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
         case 'update-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
@@ -93,10 +95,10 @@ export function TicketRep() {
                     <span>Author: {personEntity?.properties.name}</span>
                     <p className="text-sm text-slate-600"> {ticket.description} </p>
                 </div>
-                {actions?.map(action => {
-                    if(action.name === 'update-ticket-state') {
+                {actions?.map((action, idx) => {
+                    if(action.name === 'update-state') {
                         return(
-                            <div>
+                            <div key={idx}>
                                 <button className='text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2 inline-flex items-center' 
                                         onClick={() => setUpdateFlag(!updateFLag)}> 
                                     {!updateFLag && <MdExpandMore style= {{ color: 'white', fontSize: '2em' }} />}
@@ -120,22 +122,22 @@ export function TicketRep() {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'delete-ticket': return (
-                    <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'set-employee': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'remove-employee': return (
-                    <button onClick={() => setAction(action)} className="w-1/2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
-                case 'join-tickets': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                case 'group-ticket': return (
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
             }
@@ -144,8 +146,8 @@ export function TicketRep() {
         return (
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
-                {auxAction?.name === 'join-tickets' && 
-                <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+                {auxAction?.name === 'group-ticket' && 
+                <GroupTicket action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'set-employee' && 
                 <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'update-ticket' &&
@@ -157,6 +159,7 @@ export function TicketRep() {
     const entity = getEntityOrUndefined(result?.body)
     if(!entity) return null
     const comments = getSpecificEntity(["comment", "collection"], "ticket-comments", entity.entities)
+    
     return (
         <div className="mx-auto my-auto">
             <div className='md:flex w-full px-3 pt-3 space-y-3 no-wrap md:-mx-2'>
@@ -164,7 +167,7 @@ export function TicketRep() {
                     <TicketInfo entity={entity} actions={getActionsOrUndefined(result?.body)}/>
                 </div>
                 <div className="md:w-7/12 md:mx-2 space-x-4 w-full">
-                    <ListComments entity={comments} setAction={setAction} setPayload={setPayload}/>
+                    <ListComments collection={comments} setAction={setAction} setPayload={setPayload}/>
                 </div>
             </div>
         </div>

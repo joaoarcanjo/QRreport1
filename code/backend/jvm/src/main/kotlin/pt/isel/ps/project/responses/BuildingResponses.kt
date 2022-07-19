@@ -22,6 +22,7 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.getRoomsRepresentation
+import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 
 object BuildingResponses {
@@ -35,9 +36,9 @@ object BuildingResponses {
             href = Buildings.makeBase(companyId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property("name", "string", required = true),
-                QRreportJsonModel.Property("floors", "number", required = true),
-                QRreportJsonModel.Property("managerId", "string", required = true,
+                QRreportJsonModel.Property("name", "string"),
+                QRreportJsonModel.Property("floors", "number"),
+                QRreportJsonModel.Property("managerId", "string",
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH))
                     // TODO: Make path to get only managers inside a specific company
             )
@@ -88,6 +89,7 @@ object BuildingResponses {
     )
 
     fun getBuildingsRepresentation(
+        user: AuthPerson,
         buildings: List<BuildingItemDto>?,
         companyId: Long,
         collection: CollectionModel,
@@ -102,7 +104,7 @@ object BuildingResponses {
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            add(Actions.createBuilding(companyId))
+            if(isAdmin(user)) add(Actions.createBuilding(companyId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Buildings.makeBase(companyId))),
@@ -139,9 +141,11 @@ object BuildingResponses {
                 if (isInactive(buildingDto.building.state))
                     add(Actions.activateBuilding(companyId, building.id))
                 else {
-                    add(Actions.deactivateBuilding(companyId, building.id))
-                    add(Actions.updateBuilding(companyId, building.id))
-                    add(Actions.changeBuildingManager(companyId, building.id))
+                    if (isAdmin(user)) {
+                        add(Actions.deactivateBuilding(companyId, building.id))
+                        add(Actions.updateBuilding(companyId, building.id))
+                        add(Actions.changeBuildingManager(companyId, building.id))
+                    }
                 }
             },
             links = listOf(

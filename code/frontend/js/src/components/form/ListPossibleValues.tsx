@@ -39,12 +39,12 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
         }
     })
 
-    console.log(options)
+    
     return <Options setValue={setValue} value={{
         optionsText: listText, 
         otherValueText: otherValueText, 
         register: register(regName), 
         options: options, 
-        defaultOtherValue: -1,
+        defaultOtherValue: otherValueText ? -1 : undefined,
     }}/>
 }

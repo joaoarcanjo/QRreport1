@@ -3,19 +3,20 @@ import { Person } from "../../models/Models"
 import { Action } from "../../models/QRJsonModel"
 import * as QRreport from '../../models/QRJsonModel';
 import { MdAddCircleOutline, MdWork, MdRemoveCircleOutline } from "react-icons/md";
-import { Form } from "../../components/form/FormComponents";
+import { Form, LittleSubmitButton } from "../../components/form/FormComponents";
 import { useForm } from "react-hook-form";
 import { ListPossibleValues } from "../../components/form/ListPossibleValues";
+import { CloseButton } from "../../components/Various";
 
-export function Skills({ entity, actions, setAction, setAuxInfo }: {  
-    entity: QRreport.Entity<Person> | undefined, 
+export function Skills({ entity, actions, setAction, setPayload }: {  
+    entity: QRreport.Entity<Person>, 
     actions?: QRreport.Action[],
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
-    setAuxInfo: React.Dispatch<React.SetStateAction<string>> | undefined,
+    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
 }) {
     const [currentAction, setCurrentAction] = useState<Action | undefined>(undefined)
 
-    if (!entity || !setAction || !setAuxInfo) return null
+    if (!entity) return null
     const person = entity.properties
 
     return (
@@ -43,25 +44,26 @@ export function Skills({ entity, actions, setAction, setAuxInfo }: {
                 </div>
 
                 {currentAction?.name === 'add-skill' && 
-                <SkillAction action={currentAction} setAction={setAction} setAuxInfo={setAuxInfo}/>}
+                <SkillAction action={currentAction} setAction={setAction} setPayload={setPayload} setCurrentAction={setCurrentAction}/>}
                 {currentAction?.name === 'remove-skill' && 
-                <SkillAction action={currentAction} setAction={setAction} setAuxInfo={setAuxInfo}/>}
+                <SkillAction action={currentAction} setAction={setAction} setPayload={setPayload} setCurrentAction={setCurrentAction}/>}
             </div>
         </div>
     )
 }
 
-function SkillAction({ action, setAction, setAuxInfo }: { 
+function SkillAction({ action, setAction, setPayload, setCurrentAction }: { 
     action: QRreport.Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setAuxInfo: React.Dispatch<React.SetStateAction<string>>,
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
+    setCurrentAction: React.Dispatch<React.SetStateAction<Action | undefined>>
 }) {
     type roleData = { skill: string }
 
     const { register, handleSubmit } = useForm<roleData>()
 
     const onSubmitHandler = handleSubmit(({ skill }) => {
-        setAuxInfo(JSON.stringify({skill: skill}))
+        setPayload(JSON.stringify({skill: skill}))
         setAction(action)
     })
 
@@ -75,13 +77,11 @@ function SkillAction({ action, setAction, setAuxInfo }: {
         return <>{componentsInputs}</>
     }
 
-    return <div>
+    return <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
+        <CloseButton onClickHandler={ () => setCurrentAction(undefined) }/>
         <Form onSubmitHandler = { onSubmitHandler }>
             <Inputs/>
-            <button
-                className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
-                    {action.title}
-            </button>
+            <LittleSubmitButton text={`${action.title}`}/>
         </Form>
     </div>
 }

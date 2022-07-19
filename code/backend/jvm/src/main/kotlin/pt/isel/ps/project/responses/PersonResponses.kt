@@ -174,7 +174,7 @@ object PersonResponses {
         fun assignPersonToCompany(personId: UUID) = QRreportJsonModel.Action(
             name = "assign-to-company",
             title = "Assign to company",
-            method = HttpMethod.PUT,
+            method = HttpMethod.POST,
             href = Persons.makeAssignCompany(personId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
@@ -257,8 +257,6 @@ object PersonResponses {
                         } else add(Actions.banPerson(personDetails.person.id))
                     }
                 }
-
-                if (personIsInactive(personDetails.person) || personIsBanned(personDetails.person)) return@apply
 
                 // Delete
                 if (personDetails.person.roles.containsAll(listOf("user")))

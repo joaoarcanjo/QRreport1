@@ -61,10 +61,10 @@ export function ListDevices() {
 
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'create-device': return (
-                        <button onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             {action.title}
                         </button>
                     )

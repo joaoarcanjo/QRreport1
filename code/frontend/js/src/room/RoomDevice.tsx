@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Loading } from '../components/Various';
 import { ErrorView } from '../errors/Error';
 import { useFetch } from '../hooks/useFetch';
-import { Device, DeviceQrCode, QrCode } from '../models/Models';
+import { Device, QrCode } from '../models/Models';
 import { Action, Entity } from '../models/QRJsonModel';
 import { QRCODE_URL_API, ROOM_DEVICE_URL_API, ROOM_URL_API } from '../Urls';
 import { ActionComponent } from '../components/ActionComponent';
@@ -15,9 +15,10 @@ import Popup from 'reactjs-popup';
 import { AiFillCloseCircle } from 'react-icons/ai';
 import { MdDelete, MdOutlineCategory } from 'react-icons/md';
 
-
-export function RoomDevice({deviceId}: {deviceId: number}) {
-
+export function RoomDevice({deviceId, setDeleted}: {
+    deviceId: number, 
+    setDeleted: React.Dispatch<React.SetStateAction<boolean>>
+}) {
     const [popup, setPopup] = useState(false)
     const [url, setUrl] = useState<string>('')
 
@@ -33,8 +34,10 @@ export function RoomDevice({deviceId}: {deviceId: number}) {
 
     const { isFetching, result, error } = useFetch<Device>(ROOM_DEVICE_URL_API(companyId, buildingId, roomId, deviceId), init)
 
+    useEffect(() => {if(action?.name === 'remove-room-device') setDeleted(true)})
+
     switch (action?.name) {
-        case 'remove-room-device': return <ActionComponent redirectUrl={ROOM_DEVICE_URL_API(companyId, buildingId, roomId, deviceId)} action={action}/>
+        case 'remove-room-device': return <ActionComponent action={action} returnComponent={null}/>
     }
 
     if (isFetching) return <Loading/>
@@ -98,10 +101,10 @@ export function RoomDevice({deviceId}: {deviceId: number}) {
 
         if(!actions) return null
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'remove-room-device': return (
-                        <button onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
+                        <button key={idx} onClick={() => {setAction(action);}} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
                             <MdDelete/>
                         </button>
                     )
@@ -122,10 +125,10 @@ export function RoomDevice({deviceId}: {deviceId: number}) {
         function QrCodeActions({ actions }: {actions: Action[] | undefined}) {
             if(!actions) return null
     
-            let componentsActions = actions?.map(action => {
+            let componentsActions = actions?.map((action, idx) => {
                 switch(action.name) {
                 case 'generate-new-qrcode': return (
-                        <button onClick={() => {setAction(action); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                        <button key={idx} onClick={() => {setAction(action); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             {action.title}
                         </button>
                     )

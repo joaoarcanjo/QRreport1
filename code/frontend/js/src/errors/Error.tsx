@@ -8,7 +8,11 @@ export function ErrorView({error, message, problemJson} : {
     problemJson?: ProblemJson
 }) {
     const navigate = useNavigate(); 
-
+    
+    if (!error && !message && !problemJson) {
+        return null
+    }
+    
     function ProblemComponent() {
         if(!problemJson) return <></>
         
@@ -36,12 +40,12 @@ export function ErrorView({error, message, problemJson} : {
     function InvalidParameters({invalidParameters}: {invalidParameters: InvalidParameters[] | undefined}) {
         if(!invalidParameters) return <></>
 
-        const parametersComps = invalidParameters.map(parameter => {
+        const parametersComps = invalidParameters.map((parameter, idx) => {
             return (
-                <div className="p-2 bg-white rounded-lg border border-gray-200 divide-y space-y-2">
-                <p>{`Parameter: ${parameter.name}`}</p>
-                <p className="p-1 text-sm text-gray-600">{`Local: ${parameter.local}`}</p>
-                <p className="p-1 text-sm text-gray-600">{`Reason: ${parameter.reason}`}</p>
+                <div key={idx} className="p-2 bg-white rounded-lg border border-gray-200 divide-y space-y-2">
+                    <p>{`Parameter: ${parameter.name}`}</p>
+                    <p className="p-1 text-sm text-gray-600">{`Local: ${parameter.local}`}</p>
+                    <p className="p-1 text-sm text-gray-600">{`Reason: ${parameter.reason}`}</p>
                 </div>
             )
         })

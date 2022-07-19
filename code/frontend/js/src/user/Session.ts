@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 
 export const SESSION_KEY = 'IsLogin'
+export const ID_KEY = 'UserId'
 export const NAME_KEY = 'UserName'
 export const EMAIL_KEY = 'UserEmail'
 

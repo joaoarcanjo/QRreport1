@@ -70,9 +70,9 @@ export function ListTickets() {
                     <Link to={`/tickets/${ticket.id}`}>
                         <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{ticket.subject}</h5>
                     </Link>
-                    <div className=' p-1 bg-amber-100 rounded-lg shadow-md'>
+                    <span className='p-1 bg-blue-400 text-white rounded-lg shadow-md px-1'>
                         {useLoggedInState()?.userRole === 'user' ? ticket.userState : ticket.employeeState} 
-                    </div>
+                    </span>
                 </div>
                 <div>
                     <button className='my-1' onClick={() => showMoreInfo(!moreInfo)}>
@@ -110,7 +110,9 @@ export function ListTickets() {
         <div className='px-3 pt-3 space-y-4'>
             <Filters/>
             <ListTickets entities={getEntitiesOrUndefined(result?.body)}/>
-            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+            <CollectionPagination 
+                collection={getPropertiesOrUndefined(result?.body)} 
+                setUrlFunction={setCurrentUrl} 
                 templateUrl={getLink('pagination', result?.body)}/>
             <Outlet/>
         </div>

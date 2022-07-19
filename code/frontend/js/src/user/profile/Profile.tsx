@@ -9,19 +9,26 @@ import * as QRreport from '../../models/QRJsonModel';
 import { getEntityOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from '../../models/ModelUtils';
 import { ActionComponent } from '../../components/ActionComponent';
 import { Action } from '../../models/QRJsonModel';
-import { UpdateProfile } from './UpdateProfile';
 import { Skills } from './UserSkills';
 import { Roles } from './UserRoles';
 import { FireAction } from './FireAction';
 import { BanAction } from './BanAction';
-import { useLoggedInState } from '../Session';
+import { ID_KEY, useLoggedInState } from '../Session';
 import { Loading } from '../../components/Various';
 import { AssignToCompany } from './AssignToCompany';
+import { SwitchRole } from './SwitchRole';
+import { UpdateProfile } from './UpdateProfile';
 
 export function Profile() {
     
-    const { personId } = useParams()
+    let { personId } = useParams()
     const userSession = useLoggedInState()
+
+    console.log(personId)
+    if(!personId) {
+        const id = sessionStorage.getItem(ID_KEY)
+        if (id) personId = id
+    }
     
     //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
@@ -31,8 +38,7 @@ export function Profile() {
 
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<QRreport.Action | undefined>(undefined)
-    //Used when any action need to send some payload
-    const [auxInfo, setAuxInfo] = useState('')
+    const [payload, setPayload] = useState('')
 
     const { isFetching, result, error } = useFetch<Person>(PERSON_URL_API(personId), init)
 
@@ -43,17 +49,18 @@ export function Profile() {
     if (problem) return <ErrorView problemJson={problem}/>
     
     switch (action?.name) {
-        case 'delete-user': return <ActionComponent redirectUrl={BASE_URL + PERSONS_URL} action={action}/>
-        case 'unban-person': return <ActionComponent action={action}/>
-        case 'ban-person': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'rehire-person': return <ActionComponent action={action}/>
-        case 'fire-person': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'add-skill': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'remove-skill': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'add-role': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'remove-role': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'assign-to-company': return <ActionComponent action={action} extraInfo={auxInfo}/>
-        case 'update-person': return <UpdateProfile action={action}/>
+        case 'delete-user': return <ActionComponent redirectUrl={PERSONS_URL} action={action}/>
+        case 'unban-person': return <ActionComponent action={action} returnComponent ={<Profile/>}/>
+        case 'ban-person': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'rehire-person': return <ActionComponent action={action} returnComponent ={<Profile/>}/>
+        case 'fire-person': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'add-skill': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'remove-skill': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'add-role': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'remove-role': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'switch-role': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'assign-to-company': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
+        case 'update-person': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
     }
         
     function UserState({state}: { state: string}) {
@@ -62,10 +69,7 @@ export function Profile() {
         const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
         
         return (
-            <li className="flex items-center py-3">
-                <span>Status</span>
-                {stateElement}
-            </li>
+            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
         )
     }
 
@@ -83,30 +87,34 @@ export function Profile() {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'ban-person': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'unban-person': return (
-                    <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'delete-user': return (
-                    <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'fire-person': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'rehire-person': return (
-                    <button onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
                 case 'assign-to-company': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white font-bold py-2 px-4 rounded">
+                        {action.title}
+                    </button>)
+                case 'switch-role': return (
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>)
             }
@@ -116,18 +124,23 @@ export function Profile() {
             <>
                 <div className="flex space-x-2">{componentsActions} </div>
                 {auxAction?.name === 'fire-person' && 
-                <FireAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo} setAuxAction={setAuxAction}/>}
+                <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'ban-person' && 
-                <BanAction action={auxAction} setAction={setAction} setAuxInfo={setAuxInfo} setAuxAction={setAuxAction}/>}
+                <BanAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'assign-to-company' && 
-                <AssignToCompany action={auxAction} setAction={setAction} setPayload={setAuxInfo} setAuxAction={setAuxAction}/>}
+                <AssignToCompany action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                {auxAction?.name === 'switch-role' && 
+                <SwitchRole action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
             </>
         )
     }
 
-    function UpdateAction({action}: {action: QRreport.Action | undefined}) {
+    function UpdateAction({action, setUpdateAction}: {
+        action: QRreport.Action | undefined,
+        setUpdateAction: React.Dispatch<React.SetStateAction<QRreport.Action | undefined>>
+    }) {
         return action !== undefined ? (
-            <button onClick={() => setAction(action)} className="my-1">
+            <button onClick={() => setUpdateAction(action)} className="my-1">
                 <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
             </button>
         ): null
@@ -135,37 +148,27 @@ export function Profile() {
 
     function MainInfo({ entity, actions }: { entity: QRreport.Entity<Person> | undefined, actions?: QRreport.Action[] }){
         
+        const [updateAction, setUpdateAction] = useState<Action>()
+
         if (!entity) return null
         const person = entity.properties
 
         return (
             <div className="md:w-5/12 md:mx-2 space-x-4">
                 <div className="bg-white p-3 border-t-4 border-blue-900 space-y-3">
-
-                    <div className="image overflow-hidden">
-                        <img className="h-auto w-full mx-auto"
-                            src="https://media.istockphoto.com/photos/hot-air-balloons-flying-over-the-botan-canyon-in-turkey-picture-id1297349747?b=1&k=20&m=1297349747&s=170667a&w=0&h=oH31fJty_4xWl_JQ4OIQWZKP8C6ji9Mz7L4XmEnbqRU="
-                            alt=""/>
-                    </div>
-                    <div>
+                    <div className="space-y-3">
                         <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                             <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{person.name.split(' ')[0]}</span>
-                            <UpdateAction action={actions?.find(action => action.name === 'update-person')}/> 
-                        <div>
-                    </div>
+                            <UpdateAction action={actions?.find(action => action.name === 'update-person')} setUpdateAction={setUpdateAction}/> 
                         </div>
                         <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
                             <UserState state={person.state}/>
                             <UserDate state={person.state} time={`${new Date(person.timestamp).toLocaleDateString()}`}/>
                         </ul>
-                    </div>
-                    <div>
-                        <Link className="w-1/2" to={`tickets/`}>
-                            <button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                {person.roles.find(role => role === 'employee') ? 'Work': 'Tickets'}
-                            </button>
-                        </Link>
-                    </div>
+                        <div>
+                            {updateAction && <UpdateProfile action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
+                        </div>
+                    </div>  
                     <StateActions actions={actions}/>
                 </div>
             </div>
@@ -194,9 +197,9 @@ export function Profile() {
                 <div className="text-gray-700 grid md:grid-cols-2 text-sm">
                     <DetailInfo name={'Name:'} value={person.name}/>
                     <DetailInfo name={'Email:'} value={person.email}/>
-                    <DetailInfo name={'Contact No:'} value={person.phone}/>
-                    {!isEmployee && <DetailInfo name={'Number of reports:'} value={person.numberOfReports}/>}
-                    {!isEmployee && <DetailInfo name={'Reports rejected:'} value={person.reportsRejected}/>}
+                    {person.phone && <DetailInfo name={'Contact No:'} value={person.phone}/>}
+                    {/*!isEmployee && <DetailInfo name={'Number of reports:'} value={person.numberOfReports}/>*/}
+                    {/*!isEmployee && <DetailInfo name={'Reports rejected:'} value={person.reportsRejected}/>*/}
                     {isEmployee && <DetailInfo name={'Skills:'} value={person.skills?.map(skill => `${skill} ${' '}`)}/>}
                 </div>
             </div>
@@ -213,8 +216,8 @@ export function Profile() {
                 <div className="w-full space-y-2">
                     <About entity = {entity}/>
                     {entity.properties.roles.find(role => role === 'employee') &&
-                    <Skills entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setAuxInfo={setAuxInfo}/>}
-                    <Roles entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setAuxInfo={setAuxInfo}/>
+                    <Skills entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>}
+                    <Roles entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
                 </div>
             </div>
         </div>}

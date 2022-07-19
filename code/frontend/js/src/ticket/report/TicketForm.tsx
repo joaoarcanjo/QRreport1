@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, SubmitButton, TextArea } from "../../components/form/FormComponents";
+import { Form, Header, HeaderParagraph, Input, BigSubmitButton, TextArea } from "../../components/form/FormComponents";
 import { simpleInputForm, simpleTextAreaForm, phoneInputForm, emailInputForm } from "../../components/form/FormInputs";
 import { ListPossibleValues } from "../../components/form/ListPossibleValues"
 import { FormInfo } from "../../models/Models";
@@ -30,8 +30,6 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
     const onSubmitHandler = handleSubmit(({ subject , description, anomaly, name, phone, email }) => {
         if(!captcha) return 
         const payload: any = {}
-
-        console.log(subject, description, anomaly, name, phone, email)
         
         if (phone !== undefined && phone.length !== 0) {
             payload['phone'] = phone
@@ -44,14 +42,13 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
             name = sessionName
             email = sessionEmail
         }
-
+        
         payload['subject'] = anomaly === '-1' ? subject : anomaly
-        payload['description'] = description
+        payload['description'] = description === undefined ? anomaly : description
         payload['hash'] = hash
         payload['name'] = name
         payload['email'] = email
 
-        console.log(payload)
         setAction(action)
         setPayload(JSON.stringify(payload))
     })
@@ -74,11 +71,11 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
     const ComponentsInputs = useMemo(() => {
         return action!!.properties.map(prop => {
             switch (prop.name) {
-                case 'subject': return (anomaly === '-1') && <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
-                case 'description': return <TextArea value={simpleTextAreaForm(register, errors, prop.required, prop.name, 'Insert a description')}/>
-                case 'name': return !loggedState?.isLoggedIn ? <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/> : <></>
-                case 'phone': return !loggedState?.isLoggedIn ? <Input value={phoneInputForm(register, errors, prop.required, prop.name)}/> : <></>
-                case 'email': return !loggedState?.isLoggedIn ? <Input value={emailInputForm(register, errors, prop.required, prop.name)}/> : <></>
+                case 'subject': return (anomaly === '-1') && <Input value={simpleInputForm(register, 'Subject', errors, anomaly === '-1' ? undefined: false, prop.name, prop.type)}/>
+                case 'description': return <TextArea value={simpleTextAreaForm('Description', register, errors, prop.required, prop.name, '')}/>
+                case 'name': return !loggedState?.isLoggedIn && <Input value={simpleInputForm(register, 'Name', errors, !loggedState?.isLoggedIn && prop.required, prop.name, prop.type)}/>
+                case 'phone': return !loggedState?.isLoggedIn && <Input value={phoneInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Phone number')}/> 
+                case 'email': return !loggedState?.isLoggedIn && <Input value={emailInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Email')}/> 
                 case 'anomaly': return <ListPossibleValues 
                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select anomaly'} 
                    otherValueText={'Other problem...'}
@@ -96,7 +93,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
                     sitekey="6LeeU_kgAAAAAFd1CrwpQK-qul76uXMT3SySXYYZ"
                     onChange={()=>{setVerified(true)}}
                 />
-                <SubmitButton text={'Submit'}/>
+                <BigSubmitButton text={'Submit'}/>
                 <p> (*) Required</p>
             </Form>
         </section>

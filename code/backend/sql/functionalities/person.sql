@@ -205,6 +205,7 @@ END$$LANGUAGE plpgsql;
  * Throws exception when the person id does not exist, when person has the state set to inactive/banned,
  * when all updatable parameters are null, when the unique constraint is violated(email) or when there is no row updated
  */
+
 CREATE OR REPLACE PROCEDURE update_person(
     person_rep OUT JSON,
     person_id UUID,
@@ -232,7 +233,7 @@ BEGIN
         UPDATE PERSON SET name = new_name WHERE id = person_id;
     END IF;
 
-    IF (new_phone IS NOT NULL AND new_phone != pphone) THEN
+    IF (new_phone IS NOT NULL AND (pphone IS NULL OR new_phone != pphone)) THEN
         UPDATE PERSON SET phone = new_phone WHERE id = person_id;
     END IF;
 

@@ -78,8 +78,8 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
                     <h5 className='font-md text-gray-900'>{employee.name}</h5>
                 </div>
                 <div className='w-full flex justify-end' >
-                    <span className='flex items-center'>{employee.currentWorks}<AiFillTool style= {{ fontSize: '1.5em' }}/></span>
-                    <span className='flex items-center'>{employee.avaliation}<AiFillStar style= {{ color: 'yellow', fontSize: '1.5em' }}/></span>
+                    {/*<span className='flex items-center'>{employee.currentWorks}<AiFillTool style= {{ fontSize: '1.5em' }}/></span>
+                    <span className='flex items-center'>{employee.avaliation}<AiFillStar style= {{ color: 'yellow', fontSize: '1.5em' }}/></span>*/}
                     <button 
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
                         onClick= {() => setEmployee(employee)}>

@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../components/form/FormComponents";
+import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton, LittleSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
+import { CloseButton } from "../components/Various";
 import { Action } from "../models/QRJsonModel";
 
 
@@ -30,8 +31,8 @@ export function UpdateBuilding({action, setAction, setAuxAction, setPayload }: {
         let componentsInputs = action!!.properties.map(prop => {
             console.log(prop);
             switch (prop.name) {
-                case 'name': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
-                case 'floors': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
+                case 'name': return <Input value={simpleInputForm(register, 'Building name', errors, prop.required, prop.name, prop.type)}/>
+                case 'floors': return <Input value={simpleInputForm(register, 'Number of floors', errors, prop.required, prop.name, prop.type)}/>
             }
         })
         return <>{componentsInputs}</>
@@ -39,15 +40,11 @@ export function UpdateBuilding({action, setAction, setAuxAction, setPayload }: {
     
     return (
         <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200">
-            <button onClick={() => setAuxAction(undefined)}>
-                <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
-            </button>
+            <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             <Form onSubmitHandler = { onSubmitHandler }>
                 <Inputs/>
-                <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2">
-                    {action.title}
-                </button>
+                <LittleSubmitButton text={`${action.title}`}/>
             </Form>
-        </div> 
+        </div>         
     )
 }

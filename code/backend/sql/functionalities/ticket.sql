@@ -568,7 +568,7 @@ DECLARE
     role TEXT = get_person_active_role(person_id);
 BEGIN
     PERFORM ticket_exists(ticket_id);
-    PERFORM is_ticket_archived(ticket_id);
+    --PERFORM is_ticket_archived(ticket_id);
     IF (role = 'user') THEN
         PERFORM ticket_belongs_to_user(ticket_id, person_id);
     END IF;

@@ -1,13 +1,14 @@
 import { useForm } from "react-hook-form"
 import { AiFillCloseCircle } from "react-icons/ai"
-import { Form, TextArea } from "../../components/form/FormComponents"
+import { Form, LittleSubmitButton, TextArea } from "../../components/form/FormComponents"
 import { simpleTextAreaForm } from "../../components/form/FormInputs"
+import { CloseButton } from "../../components/Various"
 import { Action } from "../../models/QRJsonModel"
 
-export function BanAction({ action, setAction, setAuxInfo, setAuxAction }: { 
+export function BanAction({ action, setAction, setPayload, setAuxAction }: { 
     action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setAuxInfo: React.Dispatch<React.SetStateAction<string>>,
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
 }) {
 
@@ -19,13 +20,13 @@ export function BanAction({ action, setAction, setAuxInfo, setAuxAction }: {
 
     const onSubmitHandler = handleSubmit(({ reason }) => {
         setAction(action)
-        setAuxInfo(JSON.stringify({reason: reason}))
+        setPayload(JSON.stringify({reason: reason}))
     })
     
     function Inputs() {
         let componentsInputs = action.properties.map(prop => {
             switch (prop.name) {
-                case 'reason': return <TextArea value={simpleTextAreaForm(register, errors, prop.required,  prop.name, 'Insert the reason')}/>
+                case 'reason': return <TextArea value={simpleTextAreaForm('Reason', register, errors, prop.required,  prop.name, 'Insert the reason')}/>
             }
         })
         return <>{componentsInputs}</>
@@ -33,15 +34,10 @@ export function BanAction({ action, setAction, setAuxInfo, setAuxAction }: {
 
     return (
         <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
-            <button onClick={() => setAuxAction(undefined)}>
-                <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
-            </button>
+            <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             <Form onSubmitHandler = { onSubmitHandler }>
                 <Inputs/>
-                <button
-                    className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
-                        {action.title}
-                </button>
+                <LittleSubmitButton text={`${action.title}`}/>
             </Form>
         </div>)
 }

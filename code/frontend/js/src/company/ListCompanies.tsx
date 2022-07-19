@@ -45,7 +45,7 @@ export function ListCompanies() {
                     <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}>  
                         <div>
                             <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{company.name}</h5>
-                            <p>Number of spaces: {company.numberOfBuildings}</p>
+                            {/*<p>Number of spaces: {company.numberOfBuildings}</p>*/}
                         </div>
                     </div>
                 </Link>
@@ -57,10 +57,10 @@ export function ListCompanies() {
 
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'create-company': return (
-                        <button onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             {action.title}
                         </button>
                     )
@@ -95,7 +95,9 @@ export function ListCompanies() {
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Companies</h1>
             <CompaniesActions actions={getActionsOrUndefined(result?.body)}/>
             <Companies entities={getEntitiesOrUndefined(result?.body)}/>
-            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+            <CollectionPagination 
+                collection={getPropertiesOrUndefined(result?.body)} 
+                setUrlFunction={setCurrentUrl} 
                 templateUrl={getLink('pagination', result?.body)}/>
             <Outlet/>
         </div>

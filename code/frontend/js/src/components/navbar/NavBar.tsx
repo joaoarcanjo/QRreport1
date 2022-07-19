@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 //import { useLoggedInState } from "../authentication/Session
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
@@ -25,10 +25,9 @@ export default function NavBar() {
         return (!userSession?.isLoggedIn) ?
              <NavElement navTo='login' text='Login'/> :
             (<>
-                <NavElement navTo={`persons/${'4b341de0-65c0-4526-8898-24de463fc315'}`} text='My profile'/>
-                <NavElement navTo='managerTickets' text='Manager tickets'/>
+                <NavElement navTo='profile' text='My profile'/>
                 <NavElement navTo='persons' text='Persons'/>
-                <NavElement navTo='employees' text='Employees'/>
+                <NavElement navTo='tickets' text='Tickets'/>
                 <NavElement navTo='companies' text='Companies'/>
                 <NavElement navTo='categories' text='Categories'/>
                 <NavElement navTo='devices' text='Devices'/>

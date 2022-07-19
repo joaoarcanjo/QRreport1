@@ -28,13 +28,14 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
     if (extraInfo) credentials.body = extraInfo
     const init = useMemo(() => credentials ,[])
     const { isFetching, result, error } = useFetch<any>(BASE_URL_API + action.href, init)
-    
     if (isFetching) {
         return <Loading/>
     } else {
 
         const problem = getProblemOrUndefined(result?.body)
-        if (problem) return <ErrorView problemJson={problem}/>
+        if (problem) {
+            return <ErrorView problemJson={problem}/>
+        }
 
         const status = result?.headers.status
         if (status === 200 || status === 201) {
@@ -43,7 +44,9 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
             }
             return <>{returnComponent}</>
         } 
-        if (error) return <ErrorView error={error}/>
+        if (error) {
+            return <ErrorView error={error}/>
+        }
         return <></>
     }
 }

@@ -3,7 +3,7 @@ export type Building = {
     name: string,
     floors: number,
     state: string,
-    timestamp?: Date
+    timestamp: Date
     numberOfRooms?: number //TODO
 }
 
@@ -11,7 +11,7 @@ export type Company = {
     id: number,
     name: string,
     state: string,
-    timestamp?: Date
+    timestamp: Date
     numberOfBuildings?: number //TODO
 }
 
@@ -20,6 +20,7 @@ export type Room = {
     name: string,
     floor: number,
     state: string,
+    timestamp: Date,
     numberOfReports?: number //TODO
 }
 
@@ -134,6 +135,8 @@ export type Category = {
 }
 
 export type LoginUser = {
+    id: string,
     name: string,
-    email: string
+    email: string,
+    phone?: string,
 }

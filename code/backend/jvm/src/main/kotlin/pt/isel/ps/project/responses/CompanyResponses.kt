@@ -105,6 +105,7 @@ object CompanyResponses {
             properties = company.removeBuildings(),
             entities = listOf(
                 getBuildingsRepresentation(
+                    user,
                     company.buildings,
                     company.id,
                     CollectionModel(DEFAULT_PAGE, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),

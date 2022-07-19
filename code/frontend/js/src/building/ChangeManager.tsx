@@ -1,12 +1,15 @@
 import { useForm } from "react-hook-form"
-import { Form } from "../components/form/FormComponents"
+import { AiFillCloseCircle } from "react-icons/ai"
+import { Form, LittleSubmitButton } from "../components/form/FormComponents"
 import { ListPossibleValues } from "../components/form/ListPossibleValues"
+import { CloseButton } from "../components/Various"
 import { Action } from "../models/QRJsonModel"
 
-export function ChangeManager({action, setAction, setPayload}: {
+export function ChangeManager({action, setAction, setPayload, setAuxAction}: {
     action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
-    setPayload: React.Dispatch<React.SetStateAction<string>>
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
+    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
 }) {
 
     type managerData = { 
@@ -24,22 +27,19 @@ export function ChangeManager({action, setAction, setPayload}: {
     })
 
     function Inputs() {
-        let componentsInputs = action.properties.map(prop => {
-            console.log(prop.possibleValues?.href)
+        let componentsInputs = action.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'managerId': return <ListPossibleValues register={register} regName={prop.name} href={prop.possibleValues?.href}  listText={'Select new manager'}/> 
+                case 'managerId': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href}  listText={'Select new manager'}/> 
             }
         })
         return <>{componentsInputs}</>
     }
 
-    return <div>
+    return  <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
+        <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
         <Form onSubmitHandler = { onSubmitHandler }>
             <Inputs/>
-            <button
-                className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
-                    {action.title}
-            </button>
+            <LittleSubmitButton text={`${action.title}`}/>
         </Form>
     </div>
 }

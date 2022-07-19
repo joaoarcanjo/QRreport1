@@ -1,4 +1,5 @@
 import { ReactElement } from "react"
+import { useParams } from "react-router-dom"
 import { Link } from "../models/QRJsonModel"
 import { BASE_URL_API } from "../Urls"
 
@@ -21,11 +22,16 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
         templateUrl: Link | undefined
     }
 ) {
+    const { deviceId, ticketId, companyId, buildingId } = useParams()
     if (!collection) return null
 
     function handleOnClick(id: number) {
         if(templateUrl?.templated) {
-            const newUrl = templateUrl.href.replace('{?page}', `?page=${id}`)
+            let newUrl = templateUrl.href.replace('{?page}', `?page=${id}`)
+            if(deviceId) newUrl = newUrl?.replace('{deviceId}', deviceId)
+            if(ticketId) newUrl = newUrl?.replace('{ticketId}', ticketId)
+            if(companyId) newUrl = newUrl?.replace('{companyId}', companyId)
+            if (buildingId) newUrl = newUrl?.replace('{buildingId}', buildingId)
             setUrlFunction(BASE_URL_API + newUrl)
         }
     }

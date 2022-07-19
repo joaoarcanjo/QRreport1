@@ -139,7 +139,9 @@ export function ListCategories() {
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Categories</h1>
             <CategoriesActions actions={getActionsOrUndefined(result?.body)}/>
             <Categories entities={getEntitiesOrUndefined(result?.body)}/>
-            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+            <CollectionPagination 
+                collection={getPropertiesOrUndefined(result?.body)} 
+                setUrlFunction={setCurrentUrl} 
                 templateUrl={getLink('pagination', result?.body)}/>
             <Outlet/>
         </div>

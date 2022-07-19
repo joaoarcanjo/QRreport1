@@ -63,11 +63,10 @@ object CommentResponses {
             entities = listOf(getPersonItem(commentDto.person, listOf(Relations.COMMENT_AUTHOR))),
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (ticketState.compareTo("Archived") == 0) return@apply
-                if (user.id == commentDto.person.id) {
-                    if (isAdmin(user))
-                        add(Actions.deleteComment(ticketId, comment.id))
+                if (user.id == commentDto.person.id)
                     add(Actions.updateComment(ticketId, comment.id))
-                }
+                if (isAdmin(user))
+                    add(Actions.deleteComment(ticketId, comment.id))
             },
             links = listOf(Links.self(Comments.makeSpecific(ticketId, comment.id)))
         )

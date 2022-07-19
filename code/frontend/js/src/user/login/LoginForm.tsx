@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
-import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, SubmitButton } from "../../components/form/FormComponents";
+import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
 import { useLoggedInState } from "../Session";
 
 export default function LoginForm() {
@@ -49,7 +49,7 @@ export default function LoginForm() {
                     </Header>
                     <Input value = {emailInput}/>
                     <Input value = {passwordInput}/>
-                    <SubmitButton text={'Login'}/>
+                    <BigSubmitButton text={'Login'}/>
                     <CreateButton text={'Signup'} redirectUrl={'/signup'}/>
                     <Paragraph value = {'(*) Required'}/>
                 </Form>

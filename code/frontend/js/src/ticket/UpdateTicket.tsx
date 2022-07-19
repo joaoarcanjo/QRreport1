@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, Header, HeaderParagraph, Input, Paragraph, SubmitButton } from "../components/form/FormComponents";
+import { Form, Header, HeaderParagraph, Input, Paragraph, BigSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 
@@ -31,10 +31,10 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
     function Inputs() {
         if(!action) return null
 
-        let componentsInputs = action.properties.map(prop => {
+        let componentsInputs = action.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'subject': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/>
-                case 'description': return <Input value={simpleInputForm(register, errors, prop.required, prop.name, prop.type)}/> 
+                case 'subject': return <Input key={idx} value={simpleInputForm(register, 'Subject', errors, prop.required, prop.name, prop.type)}/>
+                case 'description': return <Input key={idx} value={simpleInputForm(register, 'Description', errors, prop.required, prop.name, prop.type)}/> 
             }
         })
         return <>{componentsInputs}</>
@@ -50,7 +50,7 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
                     <HeaderParagraph paragraph='Insert new information below'/>
                 </Header>
                 <Inputs/>
-                <SubmitButton text={'Update ticket'}/>
+                <BigSubmitButton text={'Update ticket'}/>
                 <Paragraph value = {'(*) Required'}/>
             </Form>
         </div>

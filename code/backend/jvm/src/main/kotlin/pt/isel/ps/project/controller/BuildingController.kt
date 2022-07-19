@@ -36,6 +36,7 @@ class BuildingController(private val service: BuildingService) {
         getBuildingsAuthorization(user)
         val buildingsDto = service.getBuildings(user, companyId, page)
         return getBuildingsRepresentation(
+            user,
             buildingsDto.buildings,
             companyId,
             CollectionModel(page, BUILDING_PAGE_MAX_SIZE, buildingsDto.buildingsCollectionSize),

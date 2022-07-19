@@ -10,8 +10,8 @@ import { DEVICE_URL_API } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { ChangeCategory } from "./ChangeCategory";
 import { UpdateDevice } from "./UpdateDevice";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
-import { Anomalies } from "../anomaly/ListAnomalies";
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
+import { Anomalies, AnomaliesActions } from "../anomaly/ListAnomalies";
 
 
 export function DeviceRep() {
@@ -31,6 +31,8 @@ export function DeviceRep() {
 
     switch (action?.name) {
         case 'create-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<DeviceRep/>} />
+        case 'update-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<DeviceRep/>} />
+        case 'delete-anomaly': return <ActionComponent action={action} returnComponent={<DeviceRep/>} />
         case 'deactivate-device': return <ActionComponent action={action} returnComponent={<DeviceRep/>} />
         case 'activate-device': return <ActionComponent action={action} returnComponent={<DeviceRep/>} />
         case 'update-device': return <ActionComponent action={action} extraInfo={payload} returnComponent={<DeviceRep/>} />
@@ -63,11 +65,11 @@ export function DeviceRep() {
                 <div className='items-center space-y-4'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{device.name}</span>
-                        {entity.actions?.map(action => {
+                        {entity.actions?.map((action, idx) => {
                             if(action.name === 'update-device') {
                                 return (
                                     !updateAction && (
-                                    <button className="my-1" onClick={()=> setUpdateAction(action)}>
+                                    <button key={idx} className="my-1" onClick={()=> setUpdateAction(action)}>
                                         <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
                                     </button>)
                                 )
@@ -89,20 +91,20 @@ export function DeviceRep() {
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
         if(!actions) return null
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'deactivate-device': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                             {action.title}
                         </button>
                     )
                 case 'activate-device': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             {action.title}
                         </button>
                     )
                 case 'change-device-category': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>
                 )
@@ -118,11 +120,18 @@ export function DeviceRep() {
         ) 
     }
 
+    
+    const entities = getEntitiesOrUndefined(result?.body)
+    if(!entities) return <ErrorView/>
+    const collection = getSpecificEntity(['anomaly', 'collection'], 'device-anomalies', entities)
+    if(!collection) return <ErrorView/>
+
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
             <DeviceInfo entity={getEntityOrUndefined(result?.body)}/>
             <DeviceActions actions={getActionsOrUndefined(result?.body)}/>
-            <Anomalies entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
+            <AnomaliesActions entity={collection} setAction={setAction} setPayload={setPayload}/>
+            <Anomalies collection={collection} setAction={setAction} setPayload={setPayload}/>
         </div>
     )
 

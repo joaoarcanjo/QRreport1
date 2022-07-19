@@ -13,11 +13,11 @@ export function UpdateState({states, action, setPayload, setAction}: {
     if(!action || !setAction || !setPayload) return null
 
     return (
-        <div className="space-x-2 space-y-2">
+        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
             <p>Select new state:</p>
             <div className="space-x-2">
-                {Array.from(states).map(state => 
-                    <button className='bg-blue-400 hover:bg-blue-800 text-white rounded px-1'
+                {Array.from(states).map((state, idx) => 
+                    <button key={idx} className='bg-blue-400 hover:bg-blue-800 text-white rounded px-1'
                             onClick= {() => setState(state)}>
                         {state.name}
                     </button>

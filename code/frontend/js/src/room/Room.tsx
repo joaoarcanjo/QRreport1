@@ -40,13 +40,25 @@ export function RoomRep() {
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
 
-    function RoomState({state}: {state: string}) {
+    function RoomState({state}: { state: string}) {
 
         const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state}</span>
+        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
         
-        return <span className="ml-auto">{stateElement}</span>
+        return (
+            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
+        )
     }
+
+    function RoomDate({state, time}: {state: string, time: string}) {
+        const text = state === 'inactive' ? 'Inactive since' : 'Active since';
+        
+        return (
+            <div className="flex items-center py-3">
+                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
+            </div>
+        )
+    }    
 
     function RoomInfo({entity}: {entity: Entity<Room> | undefined}) {
 
@@ -60,11 +72,11 @@ export function RoomRep() {
                 <div className='items-center space-y-4'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{room.name}</span>
-                        {entity.actions?.map(action => {
+                        {entity.actions?.map((action, idx) => {
                             if(action.name === 'update-room') {
                                 return (
                                     !updateAction && (
-                                    <button className="my-1" onClick={()=> setUpdateAction(action)}>
+                                    <button key={idx} className="my-1" onClick={()=> setUpdateAction(action)}>
                                         <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
                                     </button>)
                                 )
@@ -72,9 +84,12 @@ export function RoomRep() {
                         })}
                     </div>
                     <div className='flex flex-col space-y-4'>
-                        <p> Number of reports: {room.numberOfReports} </p>
+                         {/*<p> Number of reports: {room.numberOfReports} </p>*/}
                     </div>
-                    <div> <RoomState state={room.state}/> </div>
+                    <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
+                        <RoomState state={room.state}/>
+                        <RoomDate state={room.state} time={`${new Date(room.timestamp).toLocaleDateString()}`}/>
+                    </ul>
                     {updateAction && <UpdateRoom action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>
@@ -86,20 +101,20 @@ export function RoomRep() {
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
         if(!actions) return null
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'deactivate-room': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                        <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
                             {action.title}
                         </button>
                     )
                 case 'activate-room': return (
-                        <button onClick={() => setAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                        <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                             {action.title}
                         </button>
                     )
                 case 'add-room-device': return (
-                    <button onClick={() => setAuxAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                         {action.title}
                     </button>
                 )
@@ -125,11 +140,6 @@ export function RoomRep() {
             <RoomInfo entity={getEntityOrUndefined(result?.body)}/>
             <RoomActions actions={getActionsOrUndefined(result?.body)}/>
             <RoomDevices collection={collection}/>
-            <CollectionPagination 
-                collection={collection.properties} 
-                setUrlFunction={setCurrentUrl} 
-                templateUrl={getLink('pagination', result?.body)}/>
-            <Outlet/>
         </div>
     )
 }
