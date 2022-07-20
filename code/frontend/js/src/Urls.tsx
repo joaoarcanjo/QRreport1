@@ -1,41 +1,44 @@
 export const BASE_URL_API = "http://localhost:8080"
+export const API_VERSION = "/v1"
+
+export const PERSON_PROFILE = () => {
+    return BASE_URL_API + API_VERSION + "/profile"
+}
 
 export const PERSONS_URL_API = (sortBy: string, direction: string) => {
-    return BASE_URL_API + `/v1/persons?sort_by=${sortBy}&direction=${direction}`
+    return BASE_URL_API + API_VERSION + `/persons?sort_by=${sortBy}&direction=${direction}`
 }
 
 export const PERSON_URL_API = (personId: string | undefined): string => {
-    return BASE_URL_API + `/v1/persons/${personId}`
+    return BASE_URL_API + API_VERSION + `/persons/${personId}`
 }
 
 export const TICKETS_URL_API = (sortBy: string, direction: string): string => {
-    let url = BASE_URL_API + `/v1/tickets?sort_by=${sortBy}&direction=${direction}&page=1`
-    return url
+    return BASE_URL_API + API_VERSION + `/tickets?sort_by=${sortBy}&direction=${direction}&page=1`
 }
 
 export const TICKET_URL_API = (ticketId: string | undefined): string => {
-    let url = BASE_URL_API + `/v1/tickets/${ticketId}`
-    return url
+    return BASE_URL_API + API_VERSION + `/tickets/${ticketId}`
 }
 
 export const COMPANIES_URL_API = (page: number): string => {
-    return BASE_URL_API + `/v1/companies?page=${page}`
+    return BASE_URL_API + API_VERSION + `/companies?page=${page}`
 } 
 
 export const COMPANY_URL_API = (companyId: string | undefined): string => {
-    return BASE_URL_API + `/v1/companies/${companyId}`
+    return BASE_URL_API + API_VERSION + `/companies/${companyId}`
 } 
 
 export const BUILDING_URL_API = (companyId: string | undefined, buildingId: string | undefined): string => {
-    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}`
+    return BASE_URL_API + API_VERSION + `/companies/${companyId}/buildings/${buildingId}`
 } 
 
 export const ROOM_URL_API = (companyId: string | undefined, buildingId: string | undefined, roomId: string | undefined): string => {
-    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}`
+    return BASE_URL_API + API_VERSION + `/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}`
 } 
 
 export const ROOM_DEVICE_URL_API = (companyId: string | undefined, buildingId: string | undefined, roomId: string | undefined, deviceId: number | undefined): string => {
-    return BASE_URL_API + `/v1/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}/devices/${deviceId}`
+    return BASE_URL_API + API_VERSION + `/companies/${companyId}/buildings/${buildingId}/rooms/${roomId}/devices/${deviceId}`
 } 
 
 export const QRCODE_URL_API = (url: string | undefined): string => {
@@ -43,14 +46,14 @@ export const QRCODE_URL_API = (url: string | undefined): string => {
     return BASE_URL_API + url
 }
 
-export const DEVICES_URL_API = BASE_URL_API + `/v1/devices`
+export const DEVICES_URL_API = BASE_URL_API + API_VERSION + `/devices`
 
 export const DEVICE_URL_API = (deviceId: string | undefined): string => {
-    return BASE_URL_API + `/v1/devices/${deviceId}`
+    return BASE_URL_API + API_VERSION + `/devices/${deviceId}`
 }
 
 export const REPORT_FORM_URL_API = (hash: string): string => {
-    return BASE_URL_API + `/v1/report/${hash}`
+    return BASE_URL_API + API_VERSION + `/report/${hash}`
 }
 
 export const BASE_URL = "http://localhost:3000"

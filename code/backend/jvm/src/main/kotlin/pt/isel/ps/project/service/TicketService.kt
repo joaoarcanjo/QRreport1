@@ -7,8 +7,10 @@ import pt.isel.ps.project.exception.Errors.BadRequest.Message.SAME_TICKET
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.exception.InvalidParameterException
+import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.model.ticket.*
+import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
 import pt.isel.ps.project.util.Validator.Ticket.verifyCreateTicketInput
 import pt.isel.ps.project.util.Validator.Ticket.verifyTicketRateInput
@@ -50,6 +52,10 @@ class TicketService(val ticketDao: TicketDao) {
         verifyTicketRateInput(ticketRate)
         return ticketDao.addTicketRate(ticketId, user.id, ticketRate).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
+    }
+
+    fun getSpecificEmployees(ticketId: Long, user: AuthPerson, page: Int): PersonsDto {
+        return ticketDao.getSpecificEmployees(ticketId, elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
     //@Transactional(isolation = Isolation.REPEATABLE_READ)

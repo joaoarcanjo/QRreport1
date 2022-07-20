@@ -3,7 +3,7 @@ import { FaEdit, FaUserAlt } from 'react-icons/fa';
 import { Person } from '../../models/Models';
 import { useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
-import { BASE_URL, PERSONS_URL, PERSON_URL_API } from '../../Urls';
+import { BASE_URL, PERSONS_URL, PERSON_PROFILE, PERSON_URL_API } from '../../Urls';
 import { ErrorView } from '../../errors/Error';
 import * as QRreport from '../../models/QRJsonModel';
 import { getEntityOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from '../../models/ModelUtils';
@@ -13,8 +13,8 @@ import { Skills } from './UserSkills';
 import { Roles } from './UserRoles';
 import { FireAction } from './FireAction';
 import { BanAction } from './BanAction';
-import { ID_KEY, useLoggedInState } from '../Session';
-import { Loading } from '../../components/Various';
+import { useLoggedInState } from '../Session';
+import { Loading, StateComponent } from '../../components/Various';
 import { AssignToCompany } from './AssignToCompany';
 import { SwitchRole } from './SwitchRole';
 import { UpdateProfile } from './UpdateProfile';
@@ -23,12 +23,6 @@ export function Profile() {
     
     let { personId } = useParams()
     const userSession = useLoggedInState()
-
-    console.log(personId)
-    if(!personId) {
-        const id = sessionStorage.getItem(ID_KEY)
-        if (id) personId = id
-    }
     
     //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
@@ -40,7 +34,9 @@ export function Profile() {
     const [action, setAction] = useState<QRreport.Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
 
-    const { isFetching, result, error } = useFetch<Person>(PERSON_URL_API(personId), init)
+    const url = personId === undefined ? PERSON_PROFILE() : PERSON_URL_API(personId)
+
+    const { isFetching, result, error } = useFetch<Person>(url, init)
 
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
@@ -62,59 +58,45 @@ export function Profile() {
         case 'assign-to-company': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
         case 'update-person': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
     }
-        
-    function UserState({state}: { state: string}) {
-
-        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
-        
-        return (
-            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
-        )
-    }
-
-    function UserDate({state, time}: {state: string, time: string}) {
-        const text = state === 'inactive' ? 'Inactive since' : 'Member since';
-        
-        return (
-            <div className="flex items-center py-3">
-                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
-            </div>
-        )
-    }
 
     function StateActions({ actions }: {actions?: QRreport.Action[]}) {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map((action, idx) => {
+        let userActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'ban-person': return (
-                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
                 case 'unban-person': return (
-                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-700 hover:bg-yellow-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
                 case 'delete-user': return (
-                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
+
+                case 'switch-role': return (
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-900 text-white py-2 px-2 rounded">
+                        {action.title}
+                    </button>)
+            }
+        })
+
+        let employeeActions = actions?.map((action, idx) => {
+            switch(action.name) {
                 case 'fire-person': return (
-                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-red-700 hover:bg-red-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
                 case 'rehire-person': return (
-                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
                 case 'assign-to-company': return (
-                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white font-bold py-2 px-4 rounded">
-                        {action.title}
-                    </button>)
-                case 'switch-role': return (
-                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white font-bold py-2 px-4 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
             }
@@ -122,7 +104,8 @@ export function Profile() {
 
         return (
             <>
-                <div className="flex space-x-2">{componentsActions} </div>
+                <div className="flex space-x-2"> {userActions} </div>
+                <div className="flex space-x-2"> {employeeActions} </div>
                 {auxAction?.name === 'fire-person' && 
                 <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'ban-person' && 
@@ -161,10 +144,7 @@ export function Profile() {
                             <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{person.name.split(' ')[0]}</span>
                             <UpdateAction action={actions?.find(action => action.name === 'update-person')} setUpdateAction={setUpdateAction}/> 
                         </div>
-                        <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                            <UserState state={person.state}/>
-                            <UserDate state={person.state} time={`${new Date(person.timestamp).toLocaleDateString()}`}/>
-                        </ul>
+                        <StateComponent state={person.state} timestamp={person.timestamp}/>
                         <div>
                             {updateAction && <UpdateProfile action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                         </div>

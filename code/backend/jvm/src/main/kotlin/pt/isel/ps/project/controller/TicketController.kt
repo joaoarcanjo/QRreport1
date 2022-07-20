@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.Authorizations.Ticket.addTicketRateAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.changeTicketStateAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.getSpecificEmployeesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.groupTicketAuthorization
@@ -21,6 +22,7 @@ import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.TicketResponses.addTicketRateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.changeTicketStateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.createTicketRepresentation
+import pt.isel.ps.project.responses.TicketResponses.getSpecificEmployeesRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
 import pt.isel.ps.project.responses.TicketResponses.groupTicketRepresentation
@@ -82,6 +84,16 @@ class TicketController(private val service: TicketService) {
     ): ResponseEntity<QRreportJsonModel> {
         addTicketRateAuthorization(user)
         return addTicketRateRepresentation(service.addTicketRate(ticketId, ticketRate, user))
+    }
+
+    @GetMapping(Tickets.EMPLOYEE_PATH)
+    fun getSpecificEmployees(
+        @PathVariable ticketId: Long,
+        @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        user: AuthPerson
+    ): ResponseEntity<QRreportJsonModel> {
+        getSpecificEmployeesAuthorization(user)
+        return getSpecificEmployeesRepresentation(service.getSpecificEmployees(ticketId, user, page), page)
     }
 
     @PutMapping(Tickets.EMPLOYEE_PATH)

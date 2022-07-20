@@ -14,6 +14,7 @@ import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.exception.PersonBanException
 import pt.isel.ps.project.exception.PersonDismissalException
+import pt.isel.ps.project.model.Uris.UNDEFINED_ID
 import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE

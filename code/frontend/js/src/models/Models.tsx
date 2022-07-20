@@ -135,7 +135,6 @@ export type Category = {
 }
 
 export type LoginUser = {
-    id: string,
     name: string,
     email: string,
     phone?: string,

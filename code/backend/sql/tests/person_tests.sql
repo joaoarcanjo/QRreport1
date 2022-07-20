@@ -40,17 +40,19 @@ DO
 $$
 DECLARE
     id UUID;
-    role INT = 2; -- user
+    role TEXT = 'user'; -- user
     name TEXT = 'Diogo';
     email TEXT = 'diogo@qrreport.com';
     password TEXT = 'password';
+    pcompany INT = 1;
+    skill INT = 1;
     phone TEXT = NULL;
     person_rep JSON;
     type TEXT;
 BEGIN
     RAISE INFO '---| Person creation test with non unique email |---';
 
-    CALL create_person(person_rep, role, name, email, password, phone);
+    CALL create_person(person_rep, role, name, email, password, phone, pcompany, skill);
     id = person_rep->>'id';
     RAISE INFO '-> Test failed!';
     ROLLBACK;
@@ -309,12 +311,11 @@ BEGIN
     RAISE INFO '---| Employee with only one skill, removal test |---';
 
     CALL remove_skill_from_employee(person_rep, employee, skill);
-
     RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
-        IF (type = 'minimum-of-skills') THEN
+        IF (type = 'minimum-skills') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE '-> Test failed!';

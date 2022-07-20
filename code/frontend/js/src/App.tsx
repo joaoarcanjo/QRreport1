@@ -16,7 +16,7 @@ import { ListCompanies } from './company/ListCompanies';
 import { CompanyRep } from './company/Company';
 import { BuildingRep } from './building/Building';
 import { RoomRep } from './room/Room';
-import { createRepository, EMAIL_KEY, ID_KEY, LoggedInContext, NAME_KEY, SESSION_KEY } from './user/Session';
+import { createRepository, EMAIL_KEY, LoggedInContext, NAME_KEY, SESSION_KEY } from './user/Session';
 import { Logout } from './user/logout';
 import { ListDevices } from './devices/ListDevices';
 import { DeviceRep } from './devices/Device';
@@ -65,19 +65,16 @@ function AppRouter() {
 function App() {
 
     const [isLoggedIn, setLoggedIn] = useState(sessionStorage.getItem(SESSION_KEY) === "true")
-    const [userId, setUserId] = useState(sessionStorage.getItem(ID_KEY))
     const [userEmail, setUserEmail] = useState(sessionStorage.getItem(EMAIL_KEY))
     const [userName, setUserName] = useState(sessionStorage.getItem(NAME_KEY))
 
     useEffect(() => {
 
-        if (isLoggedIn && userName && userEmail && userId) { 
+        if (isLoggedIn && userName && userEmail) { 
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(isLoggedIn))
-            sessionStorage.setItem(ID_KEY, userId)
             sessionStorage.setItem(NAME_KEY, userName)
             sessionStorage.setItem(EMAIL_KEY, userEmail)
         } else {
-            sessionStorage.removeItem(ID_KEY)
             sessionStorage.removeItem(SESSION_KEY)
             sessionStorage.removeItem(NAME_KEY)
             sessionStorage.removeItem(EMAIL_KEY)
@@ -93,7 +90,6 @@ function App() {
         
             if (entity) {
                 setLoggedIn(true)
-                setUserId(entity.properties.id)
                 setUserName(entity.properties.name)
                 setUserEmail(entity.properties.email)
             }

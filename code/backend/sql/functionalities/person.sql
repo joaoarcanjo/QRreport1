@@ -117,6 +117,37 @@ EXCEPTION
 END$$LANGUAGE plpgsql;
 
 /**
+* Returns employees with the skill necessary to resolve the ticket
+*/
+CREATE OR REPLACE FUNCTION get_specific_employees(ticket_id BIGINT, limit_rows INT, skip_rows INT)
+RETURNS JSON
+AS
+$$
+DECLARE
+    rec RECORD;
+    persons JSON[];
+    collection_size INT = 0;
+BEGIN
+    FOR rec IN
+        SELECT id FROM PERSON WHERE id IN (SELECT person FROM person_company
+            WHERE company IN (SELECT company FROM building b
+            WHERE b.id IN (SELECT building FROM room r
+            WHERE r.id IN (SELECT room FROM ticket WHERE id = ticket_id)))) AND id IN (SELECT PERSON FROM PERSON_SKILL
+            WHERE category = (SELECT category FROM DEVICE WHERE id = (SELECT device FROM ticket WHERE id = ticket_id)))
+        LIMIT limit_rows OFFSET skip_rows
+    LOOP
+        persons = array_append(persons, person_item_representation(rec.id));
+    END LOOP;
+    SELECT COUNT(id) INTO collection_size FROM PERSON WHERE id IN (SELECT person FROM person_company
+            WHERE company IN (SELECT company FROM building b
+            WHERE b.id IN (SELECT building FROM room r
+            WHERE r.id IN (SELECT room FROM ticket WHERE id = ticket_id)))) AND id IN (SELECT PERSON FROM PERSON_SKILL
+            WHERE category = (SELECT category FROM DEVICE WHERE id = (SELECT device FROM ticket WHERE id = ticket_id)));
+
+RETURN json_build_object('persons', persons, 'personsCollectionSize', collection_size);
+END$$LANGUAGE plpgsql;
+
+/**
   * Returns a representation with all the persons
   */
 CREATE OR REPLACE FUNCTION get_persons(person_id UUID, is_manager BOOL, limit_rows INT, skip_rows INT)

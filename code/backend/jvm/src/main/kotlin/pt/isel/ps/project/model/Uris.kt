@@ -6,6 +6,8 @@ import java.util.*
 object Uris {
     const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
+    const val UNDEFINED_ID = "-1"
+    const val UNDEFINED = "null"
 
     object Categories {
         const val BASE_PATH = "$VERSION/categories"
@@ -185,6 +187,7 @@ object Uris {
 
     object Persons {
         const val BASE_PATH = "$VERSION/persons"
+        const val PROFILE_PATH = "$VERSION/profile"
         const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
         private const val BASE_FIRE_PATH = "/persons/{personId}/fire"
         private const val BASE_REHIRE_PATH = "/persons/{personId}/rehire"

@@ -8,6 +8,7 @@ import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.Uris.Tickets.TICKETS_PAGINATION
 import pt.isel.ps.project.model.person.PersonItemDto
+import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -161,9 +162,12 @@ object TicketResponses {
             )
                 add(Actions.changeTicketState(ticketInfo.ticket.id))
             if (isManager(user) && belongsToCompany(user, ticketInfo.company.id) || isAdmin(user)) {
-                if (ticketInfo.employee == null) add(Actions.setEmployee(ticketInfo.ticket.id))
+                if (ticketInfo.employee == null && ticketInfo.ticket.employeeState.compareTo("Refused") != 0
+                    && ticketInfo.ticket.employeeState.compareTo("Completed") != 0) {
+                    add(Actions.groupTicket(ticketInfo.ticket.id))
+                    add(Actions.setEmployee(ticketInfo.ticket.id))
+                }
                 else add(Actions.removeEmployee(ticketInfo.ticket.id))
-                add(Actions.groupTicket(ticketInfo.ticket.id))
             }
         },
         links = listOf(Links.self(Tickets.makeSpecific(ticketInfo.ticket.id)), Links.tickets())
@@ -200,6 +204,23 @@ object TicketResponses {
             clazz = listOf(Classes.TICKET),
             properties = ticket,
             links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
+        )
+    )
+
+    fun getSpecificEmployeesRepresentation(personsDto: PersonsDto, pageIdx: Int) = buildResponse(
+        QRreportJsonModel(
+            clazz = listOf(Classes.PERSON, Classes.COLLECTION),
+            properties = CollectionModel(pageIdx, PersonResponses.PERSON_PAGE_MAX_SIZE, personsDto.personsCollectionSize),
+            entities = mutableListOf<QRreportJsonModel>().apply {
+                if (personsDto.persons != null)
+                    addAll(personsDto.persons.map {
+                        getPersonItem(it, listOf(Relations.ITEM))
+                    })
+            },
+            links = listOf(
+                Links.self(Uris.makePagination(pageIdx, Uris.Persons.BASE_PATH)),
+                Links.pagination(Uris.Persons.PERSONS_PAGINATION),
+            ),
         )
     )
 

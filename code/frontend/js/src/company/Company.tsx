@@ -1,6 +1,6 @@
 import { FaEdit } from "react-icons/fa"
 import { Outlet, useParams } from "react-router-dom"
-import { Loading } from "../components/Various";
+import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { Company } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
@@ -40,26 +40,6 @@ export function CompanyRep() {
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem} />
 
-    function CompanyState({state}: { state: string}) {
-
-        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
-        
-        return (
-            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
-        )
-    }
-
-    function CompanyDate({state, time}: {state: string, time: string}) {
-        const text = state === 'inactive' ? 'Inactive since' : 'Active since';
-        
-        return (
-            <div className="flex items-center py-3">
-                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
-            </div>
-        )
-    }    
-
     function CompanyInfo({entity}: {entity: Entity<Company> | undefined}) {
 
         const [updateAction, setUpdateAction] = useState<Action>()
@@ -86,10 +66,7 @@ export function CompanyRep() {
                     <div className='flex flex-col space-y-4'>
                         {/*<p> Number of buildings: {company.numberOfBuildings} </p>*/}
                     </div>
-                    <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                        <CompanyState state={company.state}/>
-                        <CompanyDate state={company.state} time={`${new Date(company.timestamp).toLocaleDateString()}`}/>
-                    </ul>
+                    <StateComponent state={company.state} timestamp={company.timestamp}/>
                     {updateAction && <InsertCompany action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>

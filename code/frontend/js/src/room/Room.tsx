@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import { Outlet, useParams } from "react-router-dom";
-import { Loading } from "../components/Various";
+import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Room } from "../models/Models";
@@ -12,7 +12,6 @@ import { AddRoomDevice } from "./AddRoomDevice";
 import { UpdateRoom } from "./UpdateRoom";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { RoomDevices } from "../devices/RoomDevices";
-import { CollectionPagination } from "../pagination/CollectionPagination";
 
 export function RoomRep() {
     
@@ -40,26 +39,6 @@ export function RoomRep() {
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
 
-    function RoomState({state}: { state: string}) {
-
-        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
-        
-        return (
-            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
-        )
-    }
-
-    function RoomDate({state, time}: {state: string, time: string}) {
-        const text = state === 'inactive' ? 'Inactive since' : 'Active since';
-        
-        return (
-            <div className="flex items-center py-3">
-                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
-            </div>
-        )
-    }    
-
     function RoomInfo({entity}: {entity: Entity<Room> | undefined}) {
 
         const [updateAction, setUpdateAction] = useState<Action>()
@@ -86,10 +65,7 @@ export function RoomRep() {
                     <div className='flex flex-col space-y-4'>
                          {/*<p> Number of reports: {room.numberOfReports} </p>*/}
                     </div>
-                    <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
-                        <RoomState state={room.state}/>
-                        <RoomDate state={room.state} time={`${new Date(room.timestamp).toLocaleDateString()}`}/>
-                    </ul>
+                    <StateComponent state={room.state} timestamp={room.timestamp}/>
                     {updateAction && <UpdateRoom action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>

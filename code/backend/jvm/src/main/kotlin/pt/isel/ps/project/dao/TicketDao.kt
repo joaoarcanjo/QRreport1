@@ -11,6 +11,8 @@ import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 import pt.isel.ps.project.model.ticket.ChangeTicketStateEntity
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.TicketEmployeeEntity
+import pt.isel.ps.project.responses.PersonResponses
+import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
 import java.util.*
 
@@ -41,6 +43,9 @@ interface TicketDao {
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL add_ticket_rate(:$TICKET_REP, :ticketId, :personId, :rate);")
     fun addTicketRate(ticketId: Long, personId: UUID, @BindBean rate: TicketRateEntity): OutParameters
+
+    @SqlQuery("SELECT get_specific_employees(:ticketId, $PERSON_PAGE_MAX_SIZE, :skip);")
+    fun getSpecificEmployees(ticketId: Long, skip: Int): String
 
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL set_ticket_employee(:$TICKET_REP, :personId, :employeeId, :ticketId);")

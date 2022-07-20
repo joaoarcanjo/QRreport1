@@ -222,6 +222,12 @@ object Authorizations {
             throw ForbiddenException(CHANGE_DENIED)
         }
 
+        fun getSpecificEmployeesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
         fun setEmployeeAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true

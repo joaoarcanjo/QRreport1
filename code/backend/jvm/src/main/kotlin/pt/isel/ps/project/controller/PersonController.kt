@@ -19,6 +19,8 @@ import pt.isel.ps.project.auth.Authorizations.Person.switchRoleAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
 import pt.isel.ps.project.model.Uris.Persons
+import pt.isel.ps.project.model.Uris.UNDEFINED
+import pt.isel.ps.project.model.Uris.UNDEFINED_ID
 import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -55,6 +57,11 @@ class PersonController(private val service: PersonService) {
     fun getPerson(@PathVariable personId: UUID, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
         getPersonAuthorization(user)
         return getPersonRepresentation(user, service.getPerson(user, personId))
+    }
+
+    @GetMapping(Persons.PROFILE_PATH)
+    fun getProfile(user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        return getPersonRepresentation(user, service.getPerson(user, user.id))
     }
 
     @PutMapping(Persons.SPECIFIC_PATH)

@@ -21,3 +21,33 @@ export function CloseButton({onClickHandler}: {onClickHandler: MouseEventHandler
     </button>
     )
 }
+
+export function StateComponent({state, timestamp}: { state: string, timestamp: Date}) {
+
+    function StateComp({state}: { state: string}) {
+
+        const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
+        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
+        
+        return (
+            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
+        )
+    }
+    
+    function DateComp({state, time}: {state: string, time: string}) {
+        const text = state === 'inactive' ? 'Inactive since' : 'Active since';
+        
+        return (
+            <div className="flex items-center py-3">
+                <span>{text}</span> <span className="ml-auto">{`${time}`}</span>
+            </div>
+        )
+    }
+
+    return (
+        <ul className="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
+            <StateComp state={state}/>
+            <DateComp state={state} time={`${new Date(timestamp).toLocaleDateString()}`}/>
+        </ul>
+    )
+}
