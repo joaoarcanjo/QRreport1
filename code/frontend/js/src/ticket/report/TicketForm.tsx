@@ -7,6 +7,9 @@ import { FormInfo } from "../../models/Models";
 import { Action, Entity } from "../../models/QRJsonModel";
 import { EMAIL_KEY, NAME_KEY, useLoggedInState } from '../../user/Session'
 import ReCAPTCHA from "react-google-recaptcha";
+import { BsBuilding, BsDoorClosed } from "react-icons/bs";
+import { FaRegBuilding, FaToilet } from "react-icons/fa";
+import { TbPencil } from "react-icons/tb";
 
 export function TicketForm({hash, entity, action, setAction, setPayload}: {
     hash: string, entity: Entity<FormInfo>, action: Action,
@@ -60,15 +63,33 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
         return(
             <Header heading='Welcome to QRreport'>
                 <HeaderParagraph paragraph='Tell us more about the problem found'/>
-                <HeaderParagraph paragraph={`Building: ${headerInfo.building} | Room: ${headerInfo.room}`}/>
-                <HeaderParagraph paragraph={`Company: ${headerInfo.company}`}/>
+                <div className='mt-6 space-y-4'>
+                    <div className='flex'>
+                        <BsBuilding style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {headerInfo.company}</span>
+                    </div>
+                    <div className='flex'>
+                        <FaRegBuilding style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {headerInfo.building}</span>
+                    </div>
+                    <div className='flex '>
+                        <BsDoorClosed style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {headerInfo.room} </span>
+                    </div> 
+                    <div className='flex'>
+                        <FaToilet style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {headerInfo.device} </span>
+                    </div>
+                </div>
             </Header>
         )
     }
 
+   
+
     const[anomaly, setAnomaly] = useState('-1')
 
-    const ComponentsInputs = useMemo(() => {
+    const componentsInputs = useMemo(() => {
         return action!!.properties.map(prop => {
             switch (prop.name) {
                 case 'subject': return (anomaly === '-1') && <Input value={simpleInputForm(register, 'Subject', errors, anomaly === '-1' ? undefined: false, prop.name, prop.type)}/>
@@ -88,7 +109,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
         <section className='info-section'>
             <Form onSubmitHandler = { onSubmitHandler }>
                 <Headers/>
-                {ComponentsInputs}
+                {componentsInputs}
                 <ReCAPTCHA
                     sitekey="6LeeU_kgAAAAAFd1CrwpQK-qul76uXMT3SySXYYZ"
                     onChange={()=>{setVerified(true)}}

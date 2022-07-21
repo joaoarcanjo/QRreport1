@@ -25,18 +25,18 @@ export function Skills({ entity, actions, setAction, setPayload }: {
                 <MdWork style= {{color: "green"}} /> <span className="tracking-wide">Skills</span>
             </div>
             <div className="text-gray-700 space-y-2 space-x-2">
-                {Array.from(person.skills!).map(skill => 
-                    <span className='bg-blue-400 text-white rounded px-1'>{skill}</span>
+                {Array.from(person.skills!).map((skill, idx) => 
+                    <span key={idx} className='bg-blue-400 text-white rounded px-1'>{skill}</span>
                 )}
                 <div className="flex space-x-4">
-                    {actions?.map(action => {
+                    {actions?.map((action, idx) => {
                         if (action.name === 'add-skill') {
-                            return <button onClick={() => setCurrentAction(action)} className="px-2">
+                            return <button key={idx} onClick={() => setCurrentAction(action)} className="px-2">
                                 <MdAddCircleOutline style= {{color: "green", fontSize: "1.5em"}}/>
                             </button>
                         }
                         if (action.name === 'remove-skill') {
-                            return <button onClick={() => setCurrentAction(action)}>
+                            return <button key={idx} onClick={() => setCurrentAction(action)}>
                                 <MdRemoveCircleOutline style= {{color: "red", fontSize: "1.5em"}}/>
                             </button>
                         }}
@@ -68,9 +68,9 @@ function SkillAction({ action, setAction, setPayload, setCurrentAction }: {
     })
 
     function Inputs() {
-        let componentsInputs = action.properties.map(prop => {
+        let componentsInputs = action.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'skill': return <ListPossibleValues 
+                case 'skill': return <ListPossibleValues key={idx}
                     register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>
             }
         })

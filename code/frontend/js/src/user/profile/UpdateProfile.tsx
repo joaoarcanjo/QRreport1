@@ -34,7 +34,6 @@ export function UpdateProfile({action, setAction, setAuxAction, setPayload }: {
         payload['password'] = password !== '' ? password : null
         payload['passwordVerify'] = passwordVerify !== '' ? passwordVerify : null
         
-        console.log("HELOO")
         setAction(action)
         setPayload(JSON.stringify(payload))
 
@@ -62,8 +61,7 @@ export function UpdateProfile({action, setAction, setAuxAction, setPayload }: {
             <Form onSubmitHandler = { onSubmitHandler }>
                 <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
                 <Inputs/>
-                <Paragraph value = {'(*) Required'}/>
-                <LittleSubmitButton text={action.title}/>
+                <LittleSubmitButton text={'Update profile'}/>
             </Form>
         </div>
             

@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa"
-import { Link, Outlet, useParams } from "react-router-dom"
+import { Link, Navigate, Outlet, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
 import { Building } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { BUILDING_URL_API } from "../Urls";
+import { BUILDING_URL_API, COMPANY_URL_API, LOGIN_URL } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { UpdateBuilding } from "./UpdateBuilding";
 import { Rooms, RoomsActions } from "../room/ListRooms";
-import { ChangeManager } from "./ChangeManager";
 import { ErrorView } from "../errors/Error";
+import { SelectManager } from "./SelectManager";
+import { useLoggedInState } from "../user/Session";
 
 
 export function BuildingRep() {
@@ -26,8 +27,15 @@ export function BuildingRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
-    const { isFetching, result, error } = useFetch<Building>(BUILDING_URL_API(companyId, buildingId), init)
+    const { isFetching, result, error } = useFetch<Building>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(BUILDING_URL_API(companyId, buildingId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
     
     switch (action?.name) {
         case 'update-building': return <ActionComponent action={action} extraInfo={payload} returnComponent={<BuildingRep/>}/>
@@ -106,7 +114,7 @@ export function BuildingRep() {
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
                 {auxAction?.name === 'change-building-manager' && 
-                <ChangeManager action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                <SelectManager action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
             </>
         ) 
     }

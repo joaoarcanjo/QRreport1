@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Device } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { DEVICE_URL_API } from "../Urls";
+import { DEVICE_URL_API, LOGIN_URL } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { ChangeCategory } from "./ChangeCategory";
 import { UpdateDevice } from "./UpdateDevice";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { Anomalies, AnomaliesActions } from "../anomaly/ListAnomalies";
+import { useLoggedInState } from "../user/Session";
 
 
 export function DeviceRep() {
@@ -26,8 +27,15 @@ export function DeviceRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
-    const { isFetching, result, error } = useFetch<Device>(DEVICE_URL_API(deviceId), init)
+    const { isFetching, result, error } = useFetch<Device>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(DEVICE_URL_API(deviceId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     switch (action?.name) {
         case 'create-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<DeviceRep/>} />

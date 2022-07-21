@@ -9,8 +9,10 @@ import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { BASE_URL_API } from "../Urls";
 import { useFetch } from "../hooks/useFetch";
-import { Collection } from "../pagination/CollectionPagination";
-import { getEntityOrUndefined, getProblemOrUndefined } from '../models/ModelUtils';
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination";
+import { getEntityOrUndefined, getLink, getProblemOrUndefined, getPropertiesOrUndefined } from '../models/ModelUtils';
+import { EMPLOYEE_ROLE } from "../user/Session";
+import { Outlet } from "react-router-dom";
 
 export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}: {
     action: Action,
@@ -29,12 +31,13 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
     const [employee, setEmployee] = useState<Employee>()
     const init = useMemo(() => initValues ,[])
 
-    const property = action.properties.find(prop => {if(prop.name === 'employee'){ return prop}})
+    const property = action.properties.find(prop => {if(prop.name === EMPLOYEE_ROLE){ return prop}})
     const href = property?.possibleValues?.href
 
     const url = href === undefined || null ? '' : BASE_URL_API + href 
-    
-    const { isFetching, result, error } = useFetch<Collection>(url, init)
+
+    const [currentUrl, setCurrentUrl] = useState(url)
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
 
     if (!action || !setPayload || !setAction) return null
 
@@ -43,31 +46,6 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
 
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
-    
-    function Filters() {
-
-        const [directionAux, setDirectionAux] = useState(direction)
-        const [sortByAux, setSortByAux] = useState(sortBy)
-
-        return (
-            <div className='flex w-full gap-4'>
-                <select className='border rounded-lg' onChange={value => setSortByAux(value.target.value)}>
-                    <option value='date'>Date</option>
-                    <option value='name'>Name</option>
-                </select>       
-                <button 
-                    className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
-                    onClick= {() => { setDirectionAux(directionAux === 'desc' ? 'asc' : 'desc') }}>
-                    {directionAux === 'asc' && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
-                    {directionAux === 'desc' && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
-                </button>     
-                <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
-                        onClick= {() => {setDirection(directionAux); setSortBy(sortByAux) }}>
-                    <MdFilterList style= {{ color: 'white', fontSize: '2em' }} /> 
-                </button>
-            </div>    
-        )
-    }
 
     function EmployeeItem({entity}: {entity: Entity<any>}) {
         if (!entity) return null;
@@ -107,9 +85,11 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
             <button onClick={() => setAuxAction(undefined)}>
                 <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
             </button>
-            <Filters/>
             <p>Employee selected: {employee === undefined ? '-----' : employee?.name}</p>
             <Employees entity={getEntityOrUndefined(result?.body)}/>
+            <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
             <div className='flex space-x-4'>
                 <button className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
                     onClick= {() => {setAction(action); setPayload(JSON.stringify({employeeId: employee?.id}))}}>

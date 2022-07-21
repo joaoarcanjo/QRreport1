@@ -1,5 +1,6 @@
 package pt.isel.ps.project.util
 
+import org.springframework.http.HttpMethod
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.SignupDto
 import pt.isel.ps.project.auth.SignupEntity.SIGNUP_CONFIRM_PASSWORD
@@ -490,7 +491,11 @@ object Validator {
         }
 
         fun isCreateTicketURI(requestURI: String, method: String): Boolean {
-            return  requestURI.compareTo(Uris.Tickets.BASE_PATH) == 0 && method == "POST"
+            return requestURI.compareTo(Uris.Tickets.BASE_PATH) == 0 && method == HttpMethod.POST.name
+        }
+
+        fun isCreatePersonURI(requestURI: String, method: String): Boolean {
+            return requestURI.compareTo(Uris.Persons.BASE_PATH) == 0 && method == HttpMethod.POST.name
         }
     }
 

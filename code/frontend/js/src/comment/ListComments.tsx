@@ -76,7 +76,7 @@ function CommentsActions({actions, setAction, setPayload}: {
 }
 
 export function ListComments({collection, setAction, setPayload}: { 
-    collection?: Entity<Collection> ,
+    collection?: Entity<Collection>,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
@@ -124,18 +124,8 @@ export function ListComments({collection, setAction, setPayload}: {
         <div className="flex flex-col space-y-2">
             <h1 className='text-2xl mt-0 mb-2 text-blue-800'>Comments:</h1>
             <CommentsActions actions={collection.actions} setAction={setAction} setPayload={setPayload}/>
-            <div>
-                {
-                    comments.length === 0 ? (
-                        <div className='flex items-center space-x-2'>
-                            <span> Don't found any comment </span> <FaRegSadTear/>
-                        </div>
-                    ): (
-                        <div className='space-y-3'>
-                            {comments.map((comment, idx) => <CommentItem key={idx} entity={comment}/>)}
-                        </div>
-                    )
-                }
+            <div className='space-y-3'>
+                {comments.map((comment, idx) => <CommentItem key={idx} entity={comment}/>)}
             </div>
             <CollectionPagination 
                 collection={collection.properties} 

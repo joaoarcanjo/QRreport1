@@ -70,7 +70,7 @@ object CompanyResponses {
         links = listOf(Links.self(Uris.Companies.makeSpecific(company.id))),
     )
 
-
+    //TODO: filtros para obter as companies
     fun getCompaniesRepresentation(user: AuthPerson, companiesDto: CompaniesDto, collection: CollectionModel) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY, Classes.COLLECTION),

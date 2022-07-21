@@ -69,6 +69,7 @@ export function mapToFetchResult<T>(payload: any, contentType: string | null): F
 
 async function doFetch<T>(url: string, dispatcher: (action: Action<T>) => void, init?: RequestInit) {
     if (url === '') {
+        console.log('reset')
         dispatcher({ type: States.RESET })
         return
     }
@@ -85,6 +86,7 @@ async function doFetch<T>(url: string, dispatcher: (action: Action<T>) => void, 
 
 export function useFetch<T>(url: string, init?: RequestInit): State<T> {
     const [state, dispatcher] = useReducer(reducer, { isFetching: false, isCanceled: false })
+    
     useEffect(
         () => { 
             doFetch(url, dispatcher, init)

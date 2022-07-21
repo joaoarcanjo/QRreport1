@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react"
-import { Link, Outlet, useParams } from "react-router-dom"
+import { Link, Navigate, Outlet, useParams } from "react-router-dom"
 import { MdExpandMore, MdExpandLess, MdFilterList } from "react-icons/md"
 import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb"
 import { TicketItem } from "../models/Models"
-import { useLoggedInState } from "../user/Session"
+import { useLoggedInState, USER_ROLE } from "../user/Session"
 import { useFetch } from "../hooks/useFetch"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { TICKETS_URL_API } from "../Urls"
+import { LOGIN_URL, TICKETS_URL_API } from "../Urls"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { Entity } from "../models/QRJsonModel"
@@ -14,18 +14,25 @@ import { getEntitiesOrUndefined, getLink, getProblemOrUndefined, getPropertiesOr
 
 export function ListTickets() {
 
-    const [direction, setDirection] = useState('desc')
-    const [sortBy, setSortBy] = useState('date')
-    const [currentUrl, setCurrentUrl] = useState(TICKETS_URL_API(sortBy, direction))
-
     const initValues: RequestInit = {
         credentials: 'include',
         headers: { 'Request-Origin': 'WebApp' }
     }
 
+    const [direction, setDirection] = useState('desc')
+    const [sortBy, setSortBy] = useState('date')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
+
     const init = useMemo(() => initValues ,[])
 
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(TICKETS_URL_API(sortBy, direction))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
+
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
     
@@ -71,7 +78,7 @@ export function ListTickets() {
                         <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{ticket.subject}</h5>
                     </Link>
                     <span className='p-1 bg-blue-400 text-white rounded-lg shadow-md px-1'>
-                        {useLoggedInState()?.userRole === 'user' ? ticket.userState : ticket.employeeState} 
+                        {useLoggedInState()?.userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
                     </span>
                 </div>
                 <div>

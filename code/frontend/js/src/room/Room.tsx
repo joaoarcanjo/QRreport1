@@ -1,17 +1,18 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { Outlet, useParams } from "react-router-dom";
+import { Navigate, Outlet, useParams } from "react-router-dom";
 import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Room } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { ROOM_URL_API } from "../Urls";
+import { LOGIN_URL, ROOM_URL_API } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { AddRoomDevice } from "./AddRoomDevice";
 import { UpdateRoom } from "./UpdateRoom";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { RoomDevices } from "../devices/RoomDevices";
+import { useLoggedInState } from "../user/Session";
 
 export function RoomRep() {
     
@@ -25,9 +26,15 @@ export function RoomRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
-    const [currentUrl, setCurrentUrl] = useState(ROOM_URL_API(companyId, buildingId, roomId))
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
     const { isFetching, result, error } = useFetch<Room>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(ROOM_URL_API(companyId, buildingId, roomId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
     
     switch (action?.name) {
         case 'update-room': return <ActionComponent action={action} extraInfo={payload} returnComponent={<RoomRep/>} />

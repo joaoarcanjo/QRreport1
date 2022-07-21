@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react"
-import { Link, Outlet } from "react-router-dom"
+import { Link, Navigate, Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
 import { Company } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { COMPANIES_URL_API } from "../Urls"
+import { COMPANIES_URL_API, LOGIN_URL } from "../Urls"
 import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink, getProblemOrUndefined } from "../models/ModelUtils"
 import { InsertCompany } from "./InsertCompany"
 import { ActionComponent } from "../components/ActionComponent"
+import { useLoggedInState } from "../user/Session"
 
 export function ListCompanies() {
 
@@ -21,18 +22,25 @@ export function ListCompanies() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
-    const [currentUrl, setCurrentUrl] = useState(COMPANIES_URL_API(1))
-    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
     
-    switch (action?.name) {
-        case 'create-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListCompanies/>}/>
-    }
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(COMPANIES_URL_API)
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
 
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
+
+    switch (action?.name) {
+        case 'create-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListCompanies/>}/>
+    }
     
     function CompanyItemComponent({entity}: {entity: Entity<Company>}) {
         const company = entity.properties
@@ -90,6 +98,7 @@ export function ListCompanies() {
         )
     }
 
+    console.log(getEntitiesOrUndefined(result?.body))
     return (
         <div className='px-3 pt-3 space-y-4'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Companies</h1>

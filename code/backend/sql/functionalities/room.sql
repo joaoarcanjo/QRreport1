@@ -90,7 +90,6 @@ $$
 DECLARE
     room_id BIGINT; room_state TEXT; tmstamp TIMESTAMP;
 BEGIN
-    PERFORM room_exists(company_id, building_id, room_id);
     PERFORM verify_unique_room_name(building_id, room_name);
 
     INSERT INTO ROOM (name, floor, building) VALUES (room_name, room_floor, building_id)

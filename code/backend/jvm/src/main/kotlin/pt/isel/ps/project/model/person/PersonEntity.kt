@@ -29,7 +29,7 @@ data class CreatePersonEntity(
     val email: String,
     val password: String,
     val role: String,
-    val company: Long,
+    val company: Long? = null,
     val skill: Long? = null,
 )
 

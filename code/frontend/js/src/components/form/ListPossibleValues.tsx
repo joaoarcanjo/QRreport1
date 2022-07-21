@@ -7,6 +7,8 @@ import { BASE_URL_API } from "../../Urls"
 import { Loading } from "../Various"
 import { Options } from "./FormComponents"
 
+export const LIST_DEFAULT_VALUE = '-1'
+
 export function ListPossibleValues({ register, regName, href, listText, otherValueText, setValue }: {
     register: any, 
     regName: string,
@@ -23,6 +25,7 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
 
     const init = useMemo(() => initValues ,[])
     const url = href === undefined || null ? '' : BASE_URL_API + href
+    console.log(url)
     const { isFetching, result, error } = useFetch<Collection>(url, init)
 
     if (isFetching) return <Loading/>
@@ -45,6 +48,6 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
         otherValueText: otherValueText, 
         register: register(regName), 
         options: options, 
-        defaultOtherValue: otherValueText ? -1 : undefined,
+        defaultOtherValue: otherValueText ? LIST_DEFAULT_VALUE : undefined,
     }}/>
 }

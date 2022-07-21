@@ -27,10 +27,10 @@ export function StateComponent({state, timestamp}: { state: string, timestamp: D
     function StateComp({state}: { state: string}) {
 
         const stateColor = state === 'inactive' ? 'bg-red-600' : 'bg-green-600';
-        const stateElement = <span className={`${stateColor} ml-auto py-1 px-2 rounded text-white text-sm`}>{state}</span>
+        const stateElement = <span className={`${stateColor} py-1 px-2 rounded text-white text-sm`}>{state}</span>
         
         return (
-            <li className="flex items-center py-3"><span>Status</span>{stateElement}</li>
+            <li className="flex items-center py-3">{stateElement}</li>
         )
     }
     

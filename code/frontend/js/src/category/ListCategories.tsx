@@ -5,13 +5,14 @@ import { useFetch } from "../hooks/useFetch"
 import { Category } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { CATEGORIES_URL_API } from "../Urls"
+import { CATEGORIES_URL_API, COMPANIES_URL_API, LOGIN_URL } from "../Urls"
 import { ActionComponent } from "../components/ActionComponent"
 import { InputCategory } from "./InputCategory"
 import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink, getProblemOrUndefined } from "../models/ModelUtils"
 import { MdExpandMore, MdExpandLess, MdDelete } from "react-icons/md"
 import { GrUpdate } from "react-icons/gr"
-import { Outlet } from "react-router-dom"
+import { Navigate, Outlet } from "react-router-dom"
+import { useLoggedInState } from "../user/Session"
 
 export function ListCategories() {
 
@@ -23,9 +24,15 @@ export function ListCategories() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
-    const [currentUrl, setCurrentUrl] = useState(CATEGORIES_URL_API(1))
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(CATEGORIES_URL_API)
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     switch (action?.name) {
         case 'create-category': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListCategories/>} />
@@ -39,7 +46,7 @@ export function ListCategories() {
 
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
-    
+
     function CategoryItemComponent({entity}: {entity: Entity<Category>}) {
         const category = entity.properties
 
@@ -68,20 +75,20 @@ export function ListCategories() {
     
         if(!actions) return null 
         
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'update-category': return !auxAction && (
-                        <button onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg px-2">
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg px-2">
                             <GrUpdate/>
                         </button>
                     )
                 case 'activate-category': return !auxAction && (
-                    <button onClick={() => setAction(action)} className="bg-green-700 hover:bg-green-900 text-white font-bold py-2 px-2 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="bg-green-700 hover:bg-green-900 text-white font-bold py-2 px-2 rounded">
                         {action.title}
                     </button>
                 )
                 case 'deactivate-category': return !auxAction && (
-                    <button onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
+                    <button key={idx} onClick={() => setAction(action)} className="bg-red-700 hover:bg-red-900 text-white font-bold py-2 px-2 rounded">
                         {action.title}
                     </button>
                 )
@@ -101,10 +108,10 @@ export function ListCategories() {
 
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
-        let componentsActions = actions?.map(action => {
+        let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'create-category': return (
-                        <button onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             {action.title}
                         </button>
                     )

@@ -332,7 +332,7 @@ DECLARE
     b_floors INT; b_timestamp TIMESTAMP; r_id BIGINT; r_name TEXT; r_state TEXT; r_floor INT; r_timestamp TIMESTAMP;
     d_id BIGINT; d_name TEXT; d_state TEXT; d_timestamp TIMESTAMP; ct_name TEXT;
     role TEXT = get_person_active_role(person_id);
-    employeeId UUID = (SELECT person FROM FIXING_BY WHERE ticket = (SELECT parent_ticket FROM TICKET WHERE id = ticket_id) OR ticket = ticket_id);
+    employeeId UUID = (SELECT person FROM FIXING_BY WHERE (ticket = (SELECT parent_ticket FROM TICKET WHERE id = ticket_id) OR ticket = ticket_id) AND end_timestamp IS NULL);
     employee JSON = NULL;
 BEGIN
     IF(employeeId IS NOT NULL) THEN employee = person_item_representation(employeeId); END IF;

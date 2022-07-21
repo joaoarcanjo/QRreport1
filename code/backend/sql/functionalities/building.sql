@@ -19,6 +19,7 @@ END$$ LANGUAGE plpgsql;
  * Throws exception in case there is no row added, when manager is invalid or when already exist a building
  * with the same name in the same company.
  */
+
 CREATE OR REPLACE PROCEDURE create_building(
     building_rep OUT JSON,
     company_id BIGINT,
@@ -32,7 +33,7 @@ DECLARE
     building_id BIGINT; tmstamp TIMESTAMP; building_state TEXT;
 BEGIN
     -- Verify if the person has the manager role and if belongs to the company
-    IF ('manager' != ANY(get_person_roles(manager_id))) THEN
+    IF (NOT 'manager' = ANY(get_person_roles(manager_id))) THEN
         RAISE 'invalid-role' USING DETAIL = 'building-manager';
     ELSEIF NOT EXISTS(SELECT person FROM PERSON_COMPANY WHERE person = manager_id AND company = company_id) THEN
         RAISE 'invalid-company' USING DETAIL = 'building-manager';
@@ -239,6 +240,7 @@ LANGUAGE plpgsql;
  * Throws exception when the building id does not exist or when the new manager is invalid
  * because doesn't have the necessary role
  */
+ SELECT get_person_roles('4b341de0-65c0-4526-8898-24de463fc315');
 CREATE OR REPLACE PROCEDURE change_building_manager(
     building_rep OUT JSON,
     company_id BIGINT,

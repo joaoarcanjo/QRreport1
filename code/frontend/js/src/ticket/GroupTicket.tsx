@@ -43,31 +43,6 @@ export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
 
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
-    
-    function Filters() {
-
-        const [directionAux, setDirectionAux] = useState(direction)
-        const [sortByAux, setSortByAux] = useState(sortBy)
-
-        return (
-            <div className='flex w-full gap-4'>
-                <select className='border rounded-lg' onChange={value => setSortByAux(value.target.value)}>
-                    <option value='date'>Date</option>
-                    <option value='name'>Name</option>
-                </select>       
-                <button 
-                    className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
-                    onClick= {() => { setDirectionAux(directionAux === 'desc' ? 'asc' : 'desc') }}>
-                    {directionAux === 'asc' && <TbArrowBigTop style= {{ color: 'white', fontSize: '2em' }} />}
-                    {directionAux === 'desc' && <TbArrowBigDown style= {{ color: 'white', fontSize: '2em' }} />}
-                </button>     
-                <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-5 h-12 inline-flex items-center'
-                        onClick= {() => {setDirection(directionAux); setSortBy(sortByAux) }}>
-                    <MdFilterList style= {{ color: 'white', fontSize: '2em' }} /> 
-                </button>
-            </div>    
-        )
-    }
 
     function TicketItem({entity}: {entity: Entity<any>}) {
         if (!entity) return null;
@@ -105,7 +80,6 @@ export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
             <button onClick={() => setAuxAction(undefined)}>
                 <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
             </button>
-            <Filters/>
             <p>Ticket selected: {ticket === undefined ? '-----' : ticket.subject}</p>
             <Tickets entity={getEntityOrUndefined(result?.body)}/>
             <div className='flex space-x-4'>

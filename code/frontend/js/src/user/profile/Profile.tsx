@@ -1,9 +1,9 @@
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { FaEdit, FaUserAlt } from 'react-icons/fa';
 import { Person } from '../../models/Models';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFetch } from '../../hooks/useFetch';
-import { BASE_URL, PERSONS_URL, PERSON_PROFILE, PERSON_URL_API } from '../../Urls';
+import { LOGIN_URL, PERSONS_URL, PERSON_PROFILE, PERSON_URL_API } from '../../Urls';
 import { ErrorView } from '../../errors/Error';
 import * as QRreport from '../../models/QRJsonModel';
 import { getEntityOrUndefined, getActionsOrUndefined, getProblemOrUndefined } from '../../models/ModelUtils';
@@ -13,7 +13,7 @@ import { Skills } from './UserSkills';
 import { Roles } from './UserRoles';
 import { FireAction } from './FireAction';
 import { BanAction } from './BanAction';
-import { useLoggedInState } from '../Session';
+import { EMPLOYEE_ROLE, useLoggedInState } from '../Session';
 import { Loading, StateComponent } from '../../components/Various';
 import { AssignToCompany } from './AssignToCompany';
 import { SwitchRole } from './SwitchRole';
@@ -33,10 +33,21 @@ export function Profile() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<QRreport.Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState('')
 
-    const url = personId === undefined ? PERSON_PROFILE() : PERSON_URL_API(personId)
+    useEffect(() => {
+        if(action?.name === 'switch-role') {
+            const a = JSON.parse(payload)
+            userSession?.changeRole(a.role)
+        }
+    }, [action])
 
-    const { isFetching, result, error } = useFetch<Person>(url, init)
+    const { isFetching, result, error } = useFetch<Person>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(personId === undefined ? PERSON_PROFILE() : PERSON_URL_API(personId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
@@ -59,10 +70,11 @@ export function Profile() {
         case 'update-person': return <ActionComponent action={action} extraInfo={payload} returnComponent ={<Profile/>}/>
     }
 
-    function StateActions({ actions }: {actions?: QRreport.Action[]}) {
+    function UserActions({ entity, actions }: {entity: QRreport.Entity<Person>, actions?: QRreport.Action[]}) {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
-
+        const person = entity.properties
+        
         let userActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'ban-person': return (
@@ -79,7 +91,7 @@ export function Profile() {
                     </button>)
 
                 case 'switch-role': return (
-                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-900 text-white py-2 px-2 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-green-400 hover:bg-green-900 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
             }
@@ -113,7 +125,7 @@ export function Profile() {
                 {auxAction?.name === 'assign-to-company' && 
                 <AssignToCompany action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'switch-role' && 
-                <SwitchRole action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                <SwitchRole person={person} action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
             </>
         )
     }
@@ -129,11 +141,9 @@ export function Profile() {
         ): null
     }   
 
-    function MainInfo({ entity, actions }: { entity: QRreport.Entity<Person> | undefined, actions?: QRreport.Action[] }){
+    function MainInfo({ entity, actions }: { entity: QRreport.Entity<Person>, actions?: QRreport.Action[] }){
         
         const [updateAction, setUpdateAction] = useState<Action>()
-
-        if (!entity) return null
         const person = entity.properties
 
         return (
@@ -149,7 +159,7 @@ export function Profile() {
                             {updateAction && <UpdateProfile action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                         </div>
                     </div>  
-                    <StateActions actions={actions}/>
+                    <UserActions entity={entity} actions={actions}/>
                 </div>
             </div>
         )
@@ -164,8 +174,7 @@ export function Profile() {
         )
     }
 
-    function About({ entity }: { entity: QRreport.Entity<Person> | undefined }) {
-        if (!entity) return null
+    function About({ entity }: { entity: QRreport.Entity<Person> }) {
         const person = entity.properties
         const isEmployee = person.roles.find(role => role === 'employee') === null
 
@@ -187,6 +196,8 @@ export function Profile() {
     }
 
     const entity = getEntityOrUndefined(result?.body)
+    if(!entity) return null
+
     return userSession?.isLoggedIn ? (
     <>
         {result?.body?.type === 'problem' || entity === undefined ? <ErrorView /> :
@@ -195,7 +206,7 @@ export function Profile() {
                 <MainInfo entity = {entity} actions={getActionsOrUndefined(result?.body)}/>
                 <div className="w-full space-y-2">
                     <About entity = {entity}/>
-                    {entity.properties.roles.find(role => role === 'employee') &&
+                    {entity.properties.roles.find(role => role === EMPLOYEE_ROLE) &&
                     <Skills entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>}
                     <Roles entity = {entity} actions={getActionsOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
                 </div>

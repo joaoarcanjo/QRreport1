@@ -91,6 +91,14 @@ object Errors {
                 const val PAGE_TYPE_MISMATCH = "The value must be an integer > 0."
             }
 
+            object Direction {
+                const val DIRECTION_TYPE_MISMATCH = "The value must be equal to asc or desc."
+            }
+
+            object Sort {
+                const val SORT_TYPE_MISMATCH = "The value must be equal to name or date."
+            }
+
             object Device {
                 const val INVALID_DEVICE_NAME_LENGTH = "The name can have a maximum of 50 characters."
 
@@ -103,8 +111,13 @@ object Errors {
                 const val INVALID_CATEGORY_NAME_LENGTH = "The name can have a maximum of 50 characters."
             }
 
+            object Role {
+                const val ROLE_QUERY_TYPE_MISMATCH = "The value must be equal to name or date."
+            }
+
             object Company {
                 const val INVALID_NAME_LENGTH = "The name can have a maximum of 50 characters."
+                const val COMPANY_QUERY_ID_TYPE_MISMATCH = "The value must be an integer > 0."
 
                 object Building {
                     const val INVALID_BUILDING_NAME_LENGTH = "The name can have a maximum of 50 characters."

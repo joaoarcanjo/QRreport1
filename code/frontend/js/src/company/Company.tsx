@@ -1,5 +1,5 @@
 import { FaEdit } from "react-icons/fa"
-import { Outlet, useParams } from "react-router-dom"
+import { Navigate, Outlet, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { Company } from "../models/Models";
@@ -8,9 +8,10 @@ import { ActionComponent } from "../components/ActionComponent";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { useMemo, useState } from "react";
 import { useFetch } from "../hooks/useFetch";
-import { COMPANY_URL_API } from "../Urls";
+import { COMPANY_URL_API, LOGIN_URL } from "../Urls";
 import { InsertCompany } from "./InsertCompany";
 import { ListBuildings, BuildingsActions } from "../building/ListBuildings";
+import { useLoggedInState } from "../user/Session";
 
 export function CompanyRep() {
 
@@ -24,8 +25,15 @@ export function CompanyRep() {
     const init = useMemo(() => initValues ,[])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
-    const { isFetching, result, error } = useFetch<Company>(COMPANY_URL_API(companyId), init)
+    const { isFetching, result, error } = useFetch<Company>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(COMPANY_URL_API(companyId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
     
     switch (action?.name) {
         case 'update-company': return <ActionComponent action={action} extraInfo={payload} returnComponent={<CompanyRep/>} />

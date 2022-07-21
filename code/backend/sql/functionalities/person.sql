@@ -148,6 +148,34 @@ RETURN json_build_object('persons', persons, 'personsCollectionSize', collection
 END$$LANGUAGE plpgsql;
 
 /**
+ *  Returns users with a specific role from a specific company
+ */
+
+CREATE OR REPLACE FUNCTION get_company_persons(person_id UUID, company_id BIGINT, role_name TEXT, limit_rows INT, skip_rows INT)
+RETURNS JSON
+AS
+$$
+DECLARE
+    rec RECORD;
+    persons JSON[];
+    collection_size INT = 0;
+BEGIN
+    FOR rec IN
+        SELECT id FROM PERSON WHERE id != person_id
+            AND id IN (SELECT person FROM person_company WHERE company = company_id)
+            AND id IN (SELECT person FROM person_role WHERE role = (SELECT id FROM role WHERE name = role_name))
+        LIMIT limit_rows OFFSET skip_rows
+    LOOP
+        persons = array_append(persons, person_item_representation(rec.id));
+    END LOOP;
+    SELECT COUNT(id) INTO collection_size FROM PERSON WHERE id != person_id
+            AND id IN (SELECT person FROM person_company WHERE company = company_id)
+            AND id IN (SELECT person FROM person_role WHERE role = (SELECT id FROM role WHERE name = role_name));
+
+RETURN json_build_object('persons', persons, 'personsCollectionSize', collection_size);
+END$$LANGUAGE plpgsql;
+
+/**
   * Returns a representation with all the persons
   */
 CREATE OR REPLACE FUNCTION get_persons(person_id UUID, is_manager BOOL, limit_rows INT, skip_rows INT)
@@ -443,6 +471,7 @@ END$$LANGUAGE plpgsql;
   * Returns the representation of the changes made
   * Throws exception if the person or role doesn't exist and if there was an error while updating to the new values.
   */
+
 CREATE OR REPLACE PROCEDURE add_role_to_person(
     person_rep OUT JSON, person_id UUID, new_role TEXT, pcompany BIGINT DEFAULT NULL, skill BIGINT DEFAULT NULL
 )
@@ -463,7 +492,8 @@ BEGIN
         -- In case there is an employee or a manager, they need to be associated to a company
         IF ((new_role = 'employee' OR new_role = 'manager')) THEN
             CALL assign_person_to_company(rep, person_id, pcompany);
-        ELSEIF (new_role = 'employee') THEN
+        END IF;
+        IF (new_role = 'employee') THEN
             CALL add_skill_to_employee(rep, person_id, skill);
         END IF;
     END IF;
@@ -517,6 +547,7 @@ BEGIN
     ELSEIF (NOT EXISTS(SELECT state FROM PERSON WHERE id = person_id AND state = 'active')) THEN
          RAISE 'inactive-resource' USING DETAIL = 'person';
     ELSEIF (NOT EXISTS(SELECT person FROM PERSON_SKILL WHERE person = person_id AND category = skill)) THEN
+        RAISE INFO 'OLAAA';
         INSERT INTO PERSON_SKILL(person, category) VALUES (person_id, skill);
     END IF;
     person_rep = person_item_representation(person_id);

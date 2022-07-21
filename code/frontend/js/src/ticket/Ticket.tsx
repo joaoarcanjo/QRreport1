@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 import { MdExpandLess, MdExpandMore, MdOutlineMeetingRoom } from "react-icons/md";
-import { useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { Ticket } from "../models/Models";
-import { TICKETS_URL,  TICKET_URL_API } from "../Urls";
+import { LOGIN_URL, TICKETS_URL,  TICKET_URL,  TICKET_URL_API } from "../Urls";
 import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity, getProblemOrUndefined } from '../models/ModelUtils';
 import { Action, Entity } from "../models/QRJsonModel";
-import { FaEdit, FaRegBuilding } from "react-icons/fa";
+import { FaEdit, FaRegBuilding, FaToilet } from "react-icons/fa";
 import { ActionComponent } from "../components/ActionComponent";
 import { SetEmployeeAction } from "./SetEmployeeAction";
 import { UpdateTicket } from "./UpdateTicket";
@@ -16,15 +16,11 @@ import { TicketRate } from "./TicketRate";
 import { UpdateState } from "./TicketState";
 import { ListComments } from "../comment/ListComments";
 import { GroupTicket } from "./GroupTicket";
+import { useLoggedInState, USER_ROLE } from "../user/Session"
+import { TbPencil } from "react-icons/tb";
+import { BsBuilding, BsDoorClosed } from "react-icons/bs";
 
 export function TicketRep() {
-
-    const { ticketId } = useParams()
-    const [action, setAction] = useState<Action | undefined>(undefined)
-    const [payload, setPayload] = useState('')
-
-    console.log(`Action:, ${action}`)
-    console.log(`payload:, ${payload}`)
 
     //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
@@ -32,9 +28,20 @@ export function TicketRep() {
         headers: { 'Request-Origin': 'WebApp' }
     }
 
+    const { ticketId } = useParams()
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
+
     const init = useMemo(() => initValues ,[])
 
-    const { isFetching, result, error } = useFetch<Ticket>(TICKET_URL_API(ticketId), init)
+    const { isFetching, result, error } = useFetch<Ticket>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(TICKET_URL_API(ticketId))
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
@@ -63,10 +70,9 @@ export function TicketRep() {
         ): null
     }   
 
-    function TicketInfo({entity, actions}: {entity: Entity<Ticket> | undefined, actions?: Action[] }) {
+    function TicketInfo({entity, actions, parent}: { entity: Entity<Ticket>, actions?: Action[], parent: Entity<number> | undefined}) {
         const [updateFLag, setUpdateFlag] = useState(false)
         
-        if (!entity) return null
         const ticket = entity.properties
 
         const roomEntity = getSpecificEntity(["room"], "ticket-room", entity.entities)
@@ -75,45 +81,56 @@ export function TicketRep() {
         const personEntity = getSpecificEntity(["person"], "ticket-author", entity.entities)
 
         return (
-            <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3'>
+            <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3 divide-y-2'>
                 <div className='flex flex-col space-y-4 device-y'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{ticket.subject}</span>
                         <UpdateAction action={actions?.find(action => action.name === 'update-ticket')}/> 
                     </div>
-                    <div className='flex items-center space-x-4'>
-                        <div className='flex items-center'>
-                            <FaRegBuilding/> 
-                            <span>: {buildingEntity?.properties.name}</span>
-                        </div>
-                        <div className='flex items-center'>
-                            <MdOutlineMeetingRoom/> 
-                            <span>: {roomEntity?.properties.name} </span>
-                        </div>
-                        <span>Device: {deviceEntity?.properties.name} </span>
+                    <div className='flex items-center'>
+                        <FaRegBuilding style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {buildingEntity?.properties.name}</span>
                     </div>
-                    <span>Author: {personEntity?.properties.name}</span>
+                    <div className='flex items-center'>
+                        <BsDoorClosed style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {roomEntity?.properties.name} </span>
+                    </div> 
+                    <div className='flex items-center'>
+                        <FaToilet style= {{ color: 'green', fontSize: "1.4em" }} /> 
+                        <span>: {deviceEntity?.properties.name} </span>
+                    </div>
+                    <div className='flex items-center'>
+                        <TbPencil style= {{ color: 'green', fontSize: "1.4em" }} />
+                        <span>: {personEntity?.properties.name}</span>
+                    </div>
                     <p className="text-sm text-slate-600"> {ticket.description} </p>
+                    <div className='bg-blue-400 mr-auto py-1 px-2 rounded text-white text-sm'>
+                        {useLoggedInState()?.userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
+                    </div>
                 </div>
-                {actions?.map((action, idx) => {
-                    if(action.name === 'update-state') {
-                        return(
-                            <div key={idx}>
-                                <button className='text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2 inline-flex items-center' 
-                                        onClick={() => setUpdateFlag(!updateFLag)}> 
-                                    {!updateFLag && <MdExpandMore style= {{ color: 'white', fontSize: '2em' }} />}
-                                    { updateFLag && <MdExpandLess style= {{ color: 'white', fontSize: '2em' }} />}
-                                    Update state
-                                </button>
-                                {updateFLag && <UpdateState states={ticket.possibleTransitions} action={action} setAction={setAction} setPayload={setPayload}/>}
-                            </div>  
-                        ) 
-                    }    
-                    if(action.name === 'add-rate') {
-                        return <TicketRate action={action} setAction={setAction} setPayload={setPayload}/>
-                    }
-                })}
-                <TicketActions actions={getActionsOrUndefined(result?.body)}/>
+                <div className="space-y-4">
+                    <div></div>
+                    {actions?.map((action, idx) => {
+                        if(action.name === 'update-state') {
+                            return(
+                                <div key={idx}>
+                                    <button className='text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2 inline-flex items-center' 
+                                            onClick={() => setUpdateFlag(!updateFLag)}> 
+                                        {!updateFLag && <MdExpandMore style= {{ color: 'white', fontSize: '2em' }} />}
+                                        { updateFLag && <MdExpandLess style= {{ color: 'white', fontSize: '2em' }} />}
+                                        Update state
+                                    </button>
+                                    {updateFLag && <UpdateState states={ticket.possibleTransitions} action={action} setAction={setAction} setPayload={setPayload}/>}
+                                </div>  
+                            ) 
+                        }    
+                        if(action.name === 'add-rate') {
+                            return <TicketRate action={action} setAction={setAction} setPayload={setPayload}/>
+                        }
+                    })}
+                    <TicketActions actions={getActionsOrUndefined(result?.body)}/>
+                    <ParentButton entity={parent}/>
+                </div>
             </div>
         )
     }
@@ -155,16 +172,25 @@ export function TicketRep() {
             </>
         )
     }
+
+    function ParentButton({entity}: {entity: Entity<number> | undefined}) {
+        if(!entity) return null
+        return (
+            <Link to={TICKET_URL(entity.properties)}>
+                <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2"> Parent </button>
+            </Link>)
+    }
     
     const entity = getEntityOrUndefined(result?.body)
     if(!entity) return null
     const comments = getSpecificEntity(["comment", "collection"], "ticket-comments", entity.entities)
+    const parent = getSpecificEntity(["ticket"], "parent-ticket", entity.entities)
     
     return (
         <div className="mx-auto my-auto">
             <div className='md:flex w-full px-3 pt-3 space-y-3 no-wrap md:-mx-2'>
                 <div className="md:w-5/12 md:mx-2 space-x-4">
-                    <TicketInfo entity={entity} actions={getActionsOrUndefined(result?.body)}/>
+                    <TicketInfo entity={entity} actions={getActionsOrUndefined(result?.body)} parent={parent}/>
                 </div>
                 <div className="md:w-7/12 md:mx-2 space-x-4 w-full">
                     <ListComments collection={comments} setAction={setAction} setPayload={setPayload}/>

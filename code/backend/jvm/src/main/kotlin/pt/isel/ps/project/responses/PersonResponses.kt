@@ -7,6 +7,8 @@ import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.Uris.Persons.PERSONS_PAGINATION
+import pt.isel.ps.project.model.Uris.Persons.personsPagination
+import pt.isel.ps.project.model.Uris.Persons.personsSelf
 import pt.isel.ps.project.model.person.PersonDetailsDto
 import pt.isel.ps.project.model.person.PersonDto
 import pt.isel.ps.project.model.person.PersonItemDto
@@ -203,7 +205,7 @@ object PersonResponses {
         links = listOf(Links.self(Persons.makeSpecific(person.id))),
     )
 
-    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int) = buildResponse(
+    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int, company: Long, role: String) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON, Classes.COLLECTION),
             properties = CollectionModel(pageIdx, PERSON_PAGE_MAX_SIZE, personsDto.personsCollectionSize),
@@ -215,8 +217,8 @@ object PersonResponses {
             },
             actions = listOf(Actions.createPerson()),
             links = listOf(
-                Links.self(Uris.makePagination(pageIdx, Persons.BASE_PATH)),
-                Links.pagination(PERSONS_PAGINATION),
+                Links.self(personsSelf(pageIdx, company, role)),
+                Links.pagination(personsPagination(company, role)),
             ),
         )
     )
@@ -246,11 +248,14 @@ object PersonResponses {
                             add(Actions.rehirePerson(personDetails.person.id))
                             return@apply
                         } else {
-                            add(Actions.firePerson(personDetails.person.id))
+                            if(!isSamePerson(user, personDetails.person.id))
+                                add(Actions.firePerson(personDetails.person.id))
                             add(Actions.assignPersonToCompany(personDetails.person.id))
                         }
                     // Ban/Unban
-                    } else if (personIsGuest(personDetails.person.roles) || personIsUser(personDetails.person.roles)) {
+                    } else if (!isSamePerson(user, personDetails.person.id)
+                        && (personIsGuest(personDetails.person.roles) || personIsUser(personDetails.person.roles))) {
+
                         if (personIsBanned(personDetails.person)) {
                             add(Actions.unbanPerson(personDetails.person.id))
                             return@apply
@@ -259,13 +264,13 @@ object PersonResponses {
                 }
 
                 // Delete
-                if (personDetails.person.roles.containsAll(listOf("user")))
+                if (!isSamePerson(user, personDetails.person.id) && personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
                 // Update
-                if (isSamePerson(user, personDetails.person.id)) {
+                if (isSamePerson(user, personDetails.person.id))
                     add(Actions.updatePerson(personDetails.person.id))
+                if (personDetails.person.roles.size > 1)
                     add(Actions.switchRole())
-                }
 
                 if (!isManager(user) && !isAdmin(user)) return@apply
 

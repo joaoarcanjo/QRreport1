@@ -5,12 +5,13 @@ import { useFetch } from "../hooks/useFetch"
 import { Device } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { DEVICES_URL_API } from "../Urls"
+import { DEVICES_URL_API, LOGIN_URL } from "../Urls"
 import { InsertDevice } from "./InsertDevice"
 import { getEntitiesOrUndefined, getActionsOrUndefined, getProblemOrUndefined, getLink, getPropertiesOrUndefined } from "../models/ModelUtils"
 import { ActionComponent } from "../components/ActionComponent"
 import { MdOutlineCategory } from "react-icons/md"
-import { Link, Outlet } from "react-router-dom"
+import { Link, Navigate, Outlet } from "react-router-dom"
+import { useLoggedInState } from "../user/Session"
 
 export function ListDevices() {
 
@@ -22,14 +23,20 @@ export function ListDevices() {
     const init = useMemo(() => initValues, [])
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')
-    const [currentUrl, setCurrentUrl] = useState(DEVICES_URL_API)
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
 
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
 
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(DEVICES_URL_API)
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
+    
     switch (action?.name) {
         case 'create-device': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListDevices/>} />
     }
-   
+
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
     

@@ -129,7 +129,7 @@ BEGIN
                 'person', person_item_representation(rec.person_id)
         ));
     END LOOP;
-    SELECT COUNT(id) INTO collection_size FROM COMMENT WHERE ticket = t_id;
+    SELECT COUNT(id) INTO collection_size FROM COMMENT WHERE ticket = (SELECT parent_ticket FROM TICKET WHERE id = t_id) OR ticket = t_id;
     RETURN json_build_object('comments', comments, 'collectionSize', collection_size,
         'ticketState', get_ticket_state_name(t_id),
         'isTicketChild', is_child_ticket(t_id)

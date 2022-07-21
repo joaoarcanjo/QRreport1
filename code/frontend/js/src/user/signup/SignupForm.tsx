@@ -1,5 +1,8 @@
 import { useForm } from "react-hook-form";
+import { Navigate } from "react-router-dom";
 import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
+import { PROFILE_URL } from "../../Urls";
+import { useLoggedInState } from "../Session";
 
 export default function SignupForm() {
 
@@ -11,12 +14,14 @@ export default function SignupForm() {
         passwordVerify: string
     }
 
-    const { register, handleSubmit, formState: { errors }, getValues } = useForm<signupData>();
+    const userSession = useLoggedInState()
+    
+    const { register, handleSubmit, formState: { errors }, getValues } = useForm<signupData>()
+    
 
-    const onSubmitHandler = handleSubmit(({ email, password }) => {
-        console.log(email, password);
+    const onSubmitHandler = handleSubmit(({ name, phone, email, password }) => {
+        userSession?.signup(name, phone, email, password)
     })
-
     
     const nameInput: InputProps = {
         inputLabelName: 'Your name *',
@@ -54,7 +59,6 @@ export default function SignupForm() {
         errorMessage: errors.passwordVerify && 'Verify if both passwords are equal.'
     }
 
-
     const phoneNumberInput: InputProps = {
         inputLabelName: 'Phone number',
         register: register("phone", { minLength: 1, maxLength: 50}),
@@ -64,7 +68,7 @@ export default function SignupForm() {
         errorMessage: errors.phone && 'Invalid phone number'
     }
     
-    return (
+    return useLoggedInState()?.isLoggedIn ? <Navigate to={PROFILE_URL}/> : (
         <section className="info-section">
             <div className="space-y-3 grid place-items-center">
                 <Form onSubmitHandler = { onSubmitHandler }>

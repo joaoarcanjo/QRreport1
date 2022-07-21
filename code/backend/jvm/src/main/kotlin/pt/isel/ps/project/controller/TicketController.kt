@@ -9,7 +9,6 @@ import pt.isel.ps.project.auth.Authorizations.Ticket.getSpecificEmployeesAuthori
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.groupTicketAuthorization
-import pt.isel.ps.project.auth.Authorizations.Ticket.refuseTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.removeEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.setEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.updateTicketAuthorization
@@ -93,7 +92,7 @@ class TicketController(private val service: TicketService) {
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         getSpecificEmployeesAuthorization(user)
-        return getSpecificEmployeesRepresentation(service.getSpecificEmployees(ticketId, user, page), page)
+        return getSpecificEmployeesRepresentation(service.getSpecificEmployees(ticketId, user, page), ticketId, page)
     }
 
     @PutMapping(Tickets.EMPLOYEE_PATH)

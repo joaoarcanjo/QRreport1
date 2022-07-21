@@ -11,6 +11,7 @@ import pt.isel.ps.project.model.Uris.Companies.Buildings.BUILDINGS_PAGINATION
 import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
+import pt.isel.ps.project.model.person.Roles
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -39,10 +40,9 @@ object BuildingResponses {
                 QRreportJsonModel.Property("name", "string"),
                 QRreportJsonModel.Property("floors", "number"),
                 QRreportJsonModel.Property("managerId", "string",
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH))
-                    // TODO: Make path to get only managers inside a specific company
+                    possibleValues = QRreportJsonModel.PropertyValue(
+                        Uris.Persons.personsSelf(1, companyId, Roles.MANAGER))))
             )
-        )
 
         fun updateBuilding(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "update-building",
@@ -77,7 +77,8 @@ object BuildingResponses {
             href = Buildings.makeManager(companyId, buildingId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(QRreportJsonModel.Property("managerId", "string",
-                possibleValues = QRreportJsonModel.PropertyValue(Uris.Persons.BASE_PATH)))
+                possibleValues = QRreportJsonModel.PropertyValue(
+                    Uris.Persons.personsSelf(1, companyId, Roles.MANAGER))))
         )
     }
 

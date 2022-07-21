@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Style.css"
-import { useLoggedInState } from "../../user/Session";
+import { ADMIN_ROLE, MANAGER_ROLE, useLoggedInState } from "../../user/Session";
 
 export default function NavBar() {
 
@@ -22,17 +22,28 @@ export default function NavBar() {
     }
 
     function NavElements() {
-        return (!userSession?.isLoggedIn) ?
-             <NavElement navTo='login' text='Login'/> :
-            (<>
-                <NavElement navTo='profile' text='My profile'/>
-                <NavElement navTo='persons' text='Persons'/>
-                <NavElement navTo='tickets' text='Tickets'/>
-                <NavElement navTo='companies' text='Companies'/>
-                <NavElement navTo='categories' text='Categories'/>
-                <NavElement navTo='devices' text='Devices'/>
-                <NavElement navTo='logout' text='Logout'/>
-            </>)
+
+        let components = []
+
+        if(!userSession?.isLoggedIn) {
+            components.push(<NavElement key={'login'} navTo='login' text='Login'/>)
+            components.push(<NavElement key={'signup'} navTo='signup' text='Signup'/>)
+        } else {
+            if(userSession.userRole === MANAGER_ROLE || userSession.userRole === ADMIN_ROLE) {
+                components.push(<NavElement key={'companies'} navTo='companies' text='Companies'/>)
+            }
+            
+            if(userSession.userRole === ADMIN_ROLE) {
+                components.push(<NavElement key={'persons'} navTo='persons' text='Persons'/>)
+                components.push(<NavElement key={'categories'} navTo='categories' text='Categories'/>)
+                components.push(<NavElement key={'devices'} navTo='devices' text='Devices'/>)
+            }     
+
+            components.push(<NavElement key={'tickets'} navTo='tickets' text='Tickets'/>)
+            components.push(<NavElement key={'profile'} navTo='profile' text='My profile'/>)
+            components.push(<NavElement key={'logout'} navTo='logout' text='Logout'/>)
+        }
+        return <>{components}</>
     }
 
     return (

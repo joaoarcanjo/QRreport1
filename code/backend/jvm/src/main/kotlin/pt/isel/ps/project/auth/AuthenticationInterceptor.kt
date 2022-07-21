@@ -13,6 +13,7 @@ import pt.isel.ps.project.exception.Errors.Unauthorized.Message.MISSING_SESSION_
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
 import pt.isel.ps.project.exception.UnauthorizedException
 import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isAuthURI
+import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isCreatePersonURI
 import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isCreateTicketURI
 import pt.isel.ps.project.util.Validator.AccessWithoutAuth.isReportURI
 import javax.crypto.SecretKey

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Person } from "../../models/Models"
 import { Action } from "../../models/QRJsonModel"
 import * as QRreport from '../../models/QRJsonModel';
@@ -6,9 +6,9 @@ import { MdAddCircleOutline, MdRemoveCircleOutline, MdOutlineAssignmentInd } fro
 import { useForm } from "react-hook-form";
 import { Form, Input, LittleSubmitButton } from "../../components/form/FormComponents";
 import { simpleInputForm } from "../../components/form/FormInputs";
-import { ListPossibleValues } from "../../components/form/ListPossibleValues";
-import { AiFillCloseCircle } from "react-icons/ai";
+import { ListPossibleValues, LIST_DEFAULT_VALUE } from "../../components/form/ListPossibleValues";
 import { CloseButton } from "../../components/Various";
+import { EMPLOYEE_ROLE } from "../Session";
 
 export function Roles({ entity, actions, setAction, setPayload }: {  
     entity: QRreport.Entity<Person>, 
@@ -17,8 +17,6 @@ export function Roles({ entity, actions, setAction, setPayload }: {
     setPayload: React.Dispatch<React.SetStateAction<string>>,
 }) {
     const [currentAction, setCurrentAction] = useState<Action | undefined>(undefined)
-
-    if (!entity) return null
     const person = entity.properties
 
     return (
@@ -64,33 +62,36 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
 
     type roleData = {
         role: string, 
-        company: number,
-        skill: number,
+        company: string,
+        skill: string,
     }
 
     const { register, handleSubmit, formState: { errors } } = useForm<roleData>()
 
     const onSubmitHandler = handleSubmit(({ role, company, skill }) => {
+
+        if(company === LIST_DEFAULT_VALUE || (role === EMPLOYEE_ROLE && skill === LIST_DEFAULT_VALUE)) return
+
         const payload: any = {}
 
         payload['role'] = role === '' ? null : role
-        payload['company'] = company === -1 ? null : company
-        payload['skill'] = skill === -1 ? null : skill
-
+        payload['company'] = company === LIST_DEFAULT_VALUE ? null : company
+        payload['skill'] = skill === LIST_DEFAULT_VALUE ? null : skill
+        
         setAction(action)
         setAuxInfo(JSON.stringify(payload))
     })
 
-    function Inputs() {
-        let componentsInputs = action.properties.map((prop, idx) => {
+    const componentsInputs = useMemo(() => {
+        return action.properties.map((prop, idx) => {
             switch (prop.name) {
                 case 'role': return <Input key={idx} value={simpleInputForm(register, "Role", errors, prop.required, prop.name, prop.type)}/>
-                case 'company': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href}  listText={'Select company'} otherValueText={'None'}/>
+                case 'company': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company *'}/>
                 case 'skill': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>
             }
         })
-        return <>{componentsInputs}</>
-    }
+    }, [action])
+    
 
     const cancelForm = (event: any) => {
         event.preventDefault()
@@ -100,7 +101,7 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
     return <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
         <CloseButton onClickHandler={ cancelForm }/>
         <Form onSubmitHandler = { onSubmitHandler }>
-            <Inputs/>
+            {componentsInputs}
             <LittleSubmitButton text={`${action.title}`}/>
         </Form>
     </div>

@@ -13,6 +13,9 @@ interface PersonDao {
     @SqlQuery("SELECT get_persons(:managerId, :isManager, $PERSON_PAGE_MAX_SIZE, :skip);")
     fun getPersons(managerId: UUID?, isManager: Boolean, skip: Int): String
 
+    @SqlQuery("SELECT get_company_persons(:userId, :companyId, :role, $PERSON_PAGE_MAX_SIZE, :skip);")
+    fun getCompanyPersons(userId: UUID?, companyId: Long, role: String, skip: Int): String
+
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL create_person(:$PERSON_REP, :role, :name, :email, :password, :phone, :company, :skill);")
     fun createPerson(@BindBean person: CreatePersonEntity): OutParameters

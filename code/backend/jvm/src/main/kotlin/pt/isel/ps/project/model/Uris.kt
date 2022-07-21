@@ -6,7 +6,7 @@ import java.util.*
 object Uris {
     const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
-    const val UNDEFINED_ID = "-1"
+    const val UNDEFINED_ID = 0
     const val UNDEFINED = "null"
 
     object Categories {
@@ -160,6 +160,7 @@ object Uris {
         const val RATE_PATH = "${SPECIFIC_PATH}/rate"
         const val GROUP_PATH = "${SPECIFIC_PATH}/group"
         const val TICKETS_PAGINATION = "$BASE_PATH{?page}"
+        const val TICKET_EMPLOYEES_PAGINATION = "${EMPLOYEE_PATH}{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
         private val EMPLOYEE_TEMPLATE = UriTemplate(EMPLOYEE_PATH)
@@ -171,6 +172,11 @@ object Uris {
         fun makeRate(id: Long) = RATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeState(id: Long) = STATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeGroup(id: Long) = GROUP_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
+
+        fun employeesPagination(ticketId: Long): String {
+            val uri = makeEmployee(ticketId)
+            return "$uri{?page}"
+        }
 
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
@@ -186,6 +192,9 @@ object Uris {
     }
 
     object Persons {
+        const val QUERY_ROLE_KEY = "role"
+        const val QUERY_COMPANY_KEY = "company"
+
         const val BASE_PATH = "$VERSION/persons"
         const val PROFILE_PATH = "$VERSION/profile"
         const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
@@ -225,6 +234,32 @@ object Uris {
         fun makeAddSkill(id: UUID) = ADD_SKILL_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeRemoveSkill(id: UUID) = REMOVE_SKILL_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeAssignCompany(id: UUID) = ASSIGN_COMPANY_TEMPLATE.expand(mapOf("personId" to id)).toString()
+
+        fun personsSelf(page: Int, companyId: Long, role: String): String {
+            var uri = makePagination(page, BASE_PATH)
+            uri = makeCompanyId(companyId, uri)
+            return makeRole(role, uri)
+        }
+
+        fun personsPagination(companyId: Long, role: String): String {
+            var uri = makeCompanyId(companyId, "")
+            uri = makeRole(role, uri)
+            return "$PERSONS_PAGINATION$uri"
+        }
+
+        const val COMPANY_PATH = "&company={companyId}"
+
+        fun makeCompanyId(companyId: Long, uri: String): String {
+            if (companyId == UNDEFINED_ID.toLong()) return uri
+            return UriTemplate("$uri$COMPANY_PATH").expand(mapOf("companyId" to companyId)).toString()
+        }
+
+        const val ROLE_PATH = "&role={roleName}"
+
+        fun makeRole(role: String, uri: String): String {
+            if (role == UNDEFINED) return uri
+            return UriTemplate("$uri$ROLE_PATH").expand(mapOf("roleName" to role)).toString()
+        }
     }
 
     object Auth {

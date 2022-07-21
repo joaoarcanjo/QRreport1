@@ -82,8 +82,9 @@ fun AuthPerson.toMap() = HashMap<String, Any?>()
 }
 data class SessionDto(
     val id: UUID,
+    val activeRole: String,
     val name: String,
     val phone: String?,
     val email: String,
 )
-fun AuthPerson.toSessionDto() = SessionDto(id, name, phone, email)
+fun AuthPerson.toSessionDto() = SessionDto(id, activeRole, name, phone, email)

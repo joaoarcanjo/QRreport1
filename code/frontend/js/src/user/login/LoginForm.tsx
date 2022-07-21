@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
 import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
+import { PROFILE_URL } from "../../Urls";
 import { useLoggedInState } from "../Session";
 
 export default function LoginForm() {
@@ -39,8 +40,7 @@ export default function LoginForm() {
         errorMessage: errors.email && 'Invalid password'
     }
 
-    //email and password
-    return useLoggedInState()?.isLoggedIn ? <Navigate to={'/'}/> : (
+    return useLoggedInState()?.isLoggedIn ? <Navigate to={PROFILE_URL}/> : (
         <section className="info-section">
             <div className="space-y-3 grid place-items-center"> 
                 <Form onSubmitHandler = { onSubmitHandler }>

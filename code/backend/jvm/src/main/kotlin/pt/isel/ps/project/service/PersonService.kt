@@ -14,6 +14,7 @@ import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.exception.PersonBanException
 import pt.isel.ps.project.exception.PersonDismissalException
+import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.Uris.UNDEFINED_ID
 import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.elemsToSkip
@@ -32,16 +33,18 @@ import java.util.*
 @Service
 class PersonService(private val personDao: PersonDao, private val passwordEncoder: PasswordEncoder) {
 
-    fun getPersons(user: AuthPerson, page: Int): PersonsDto {
+    fun getPersons(user: AuthPerson, companyId: Long, role: String, page: Int): PersonsDto {
         // Managers can only get his employees (i.e. same company)
         // Admins can get everyone
+        if (companyId != UNDEFINED_ID.toLong() && role != UNDEFINED)
+            return personDao.getCompanyPersons(user.id, companyId, role, elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
         return personDao.getPersons(user.id, isManager(user), elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    fun createPerson(user: AuthPerson, person: CreatePersonEntity): PersonDto {
+    fun createPerson(/*user: AuthPerson,*/ person: CreatePersonEntity): PersonDto {
         verifyCreatePersonInput(person)
         // Managers can only create other managers or employees
-        if (isManager(user)) verifyManagerCreationPermissions(user, person)
+        //if (isManager(user)) verifyManagerCreationPermissions(user, person)
         val personDto = personDao.createPerson(person).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
