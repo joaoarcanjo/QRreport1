@@ -50,14 +50,17 @@ export type TicketItem = {
     id: number,
     subject: string,
     description?: string,
+    company: string,
+    building: string,
+    room: string,
     employeeState: string, 
     userState: string,
 }
 
-export type Comment = {
-    id: number;
-    authorName: string;
-    comment: string;
+export type CommentInfo = {
+    id: number,
+    comment: string,
+    timestamp: Date
 }
 
 export type Person = {

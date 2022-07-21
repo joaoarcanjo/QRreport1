@@ -158,6 +158,30 @@ BEGIN
 END$$ LANGUAGE plpgsql;
 
 /*
+ * Auxiliary function to return the ticket item representation, with company, building and room names
+ */
+CREATE OR REPLACE FUNCTION ticket_item_representation(
+    ticket_id BIGINT,
+    subject TEXT,
+    description TEXT,
+    employee_state_id INT,
+    company TEXT,
+    building TEXT,
+    room TEXT
+)
+RETURNS JSON
+AS
+$$
+BEGIN
+    RETURN json_build_object('id', ticket_id, 'subject', subject, 'description', description, 'company', company,
+        'building', building, 'room', room,
+        'userState',
+        (SELECT name FROM USER_STATE WHERE id = (SELECT user_state FROM EMPLOYEE_STATE WHERE id = employee_state_id)),
+        'employeeState',
+        (SELECT name FROM EMPLOYEE_STATE WHERE id = employee_state_id));
+END$$ LANGUAGE plpgsql;
+
+/*
  * Creates a new ticket
  * Returns the ticket item representation
  * Throws exception in case there is no row added or when the hash does not exist
@@ -415,7 +439,7 @@ DECLARE
     rec RECORD; tickets JSON[]; collection_size INT = 0;
 BEGIN
     FOR rec IN
-        SELECT t.id, t.subject, t.description, t.employee_state
+        SELECT t.id, t.subject, t.description, t.employee_state, c.name as company, b.name as building, r.name as room
         FROM TICKET t
             INNER JOIN DEVICE d ON t.device = d.id
             INNER JOIN CATEGORY ct ON d.category = ct.id
@@ -424,11 +448,12 @@ BEGIN
             INNER JOIN COMPANY c ON c.id = b.company
             FULL JOIN FIXING_BY fb ON t.id = fb.ticket
        WHERE
+             /*
              ct.name LIKE CONCAT('%',category_name,'%') AND
              LOWER(t.subject) LIKE LOWER(CONCAT('%',search,'%')) AND
              LOWER(r.name) LIKE LOWER(CONCAT('%',room_name,'%')) AND
              LOWER(b.name) LIKE LOWER(CONCAT('%',building_name,'%')) AND
-             LOWER(c.name) LIKE LOWER(CONCAT('%',company_name,'%')) AND
+             LOWER(c.name) LIKE LOWER(CONCAT('%',company_name,'%')) AND*/
             CASE
                 WHEN ((SELECT pr.person FROM PERSON_ROLE pr
                 WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'manager')) = person_id) THEN
@@ -449,7 +474,8 @@ BEGIN
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         tickets = array_append(
-            tickets, ticket_item_representation(rec.id, rec.subject, rec.description, rec.employee_state)
+            tickets, ticket_item_representation(rec.id, rec.subject, rec.description,
+                rec.employee_state, rec.company, rec.building, rec.room)
         );
         collection_size = collection_size + 1;
     END LOOP;

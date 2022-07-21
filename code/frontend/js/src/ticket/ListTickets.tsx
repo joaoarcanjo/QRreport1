@@ -77,9 +77,16 @@ export function ListTickets() {
                     <Link to={`/tickets/${ticket.id}`}>
                         <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{ticket.subject}</h5>
                     </Link>
-                    <span className='p-1 bg-blue-400 text-white rounded-lg shadow-md px-1'>
-                        {useLoggedInState()?.userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
-                    </span>
+                    <div>
+                        <span className='p-1 bg-blue-400 text-white rounded-lg shadow-md px-1'>
+                            {useLoggedInState()?.userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
+                        </span>
+                        <div className='flex justify-end space-x-1 text-blue-700 text-sm'>
+                            <p>{`${ticket.company} | `}</p>
+                            <p>{`${ticket.building} | `}</p>
+                            <p>{ticket.room}</p>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <button className='my-1' onClick={() => showMoreInfo(!moreInfo)}>
@@ -88,12 +95,6 @@ export function ListTickets() {
                     </button>
                     <div className='space-y-4'>
                         {moreInfo && <p className='text-sm text-gray-800'>{desc}</p>}
-                        {/*moreInfo && 
-                        <div className='flex justify-end'>
-                            <button className='bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-lg text-sm px-2.5 py-1 inline-flex items-center mr-2 mb-2'> 
-                                Edit
-                            </button>
-                        </div>*/}
                     </div>
                 </div>
             </div>

@@ -14,6 +14,9 @@ data class TicketItemDto (
     val id: Long,
     val subject: String,
     val description: String?,
+    val company: String,
+    val building: String,
+    val room: String,
     val userState: String?,
     val employeeState: String?,
 )

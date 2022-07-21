@@ -111,6 +111,9 @@ export function ListComments({collection, setAction, setPayload}: {
                     <p className="text-sm text-slate-600">{comment.comment}</p>
                     <CommentAction actions={actions} setAction={setAction} setPayload={setPayload}/>
                 </div>
+                <p className='flex justify-end space-x-1 text-gray-500 text-sm'>
+                    {`${new Date(comment.timestamp).toLocaleDateString()}`}
+                </p>
             </div>
         )
     }
