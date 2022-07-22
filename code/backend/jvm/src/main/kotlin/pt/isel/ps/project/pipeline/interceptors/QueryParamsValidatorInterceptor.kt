@@ -42,10 +42,10 @@ import javax.servlet.http.HttpServletResponse
 @Component
 class QueryParamsValidatorInterceptor: HandlerInterceptor {
 
-    private fun throwInvalidParameterException(message: String) {
+    private fun throwInvalidParameterException(key: String, message: String) {
         throw InvalidParameterException(
             TYPE_MISMATCH_REQ_QUERY,
-            listOf(InvalidParameter(QUERY_PAGE_KEY, QUERY_STRING, message))
+            listOf(InvalidParameter(key, QUERY_STRING, message))
         )
     }
 
@@ -53,54 +53,54 @@ class QueryParamsValidatorInterceptor: HandlerInterceptor {
        try {
             val page = request.getParameter(QUERY_PAGE_KEY)?.toInt() ?: DEFAULT_PAGE
 
-            if (page <= 0) throwInvalidParameterException(PAGE_TYPE_MISMATCH)
+            if (page <= 0) throwInvalidParameterException(QUERY_PAGE_KEY, PAGE_TYPE_MISMATCH)
         } catch (e: NumberFormatException) {
-            throwInvalidParameterException(PAGE_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_PAGE_KEY, PAGE_TYPE_MISMATCH)
         }
 
         val direction = request.getParameter(QUERY_DIRECTION_KEY) ?: DEFAULT_DIRECTION
-        if (direction != "asc" && direction != "desc") throwInvalidParameterException(DIRECTION_TYPE_MISMATCH)
+        if (direction != "asc" && direction != "desc") throwInvalidParameterException(QUERY_DIRECTION_KEY, DIRECTION_TYPE_MISMATCH)
 
         val sortBy = request.getParameter(QUERY_SORT_KEY) ?: DEFAULT_SORT
-        if (sortBy != "name" && sortBy != "date") throwInvalidParameterException(SORT_TYPE_MISMATCH)
+        if (sortBy != "name" && sortBy != "date") throwInvalidParameterException(QUERY_SORT_KEY, SORT_TYPE_MISMATCH)
 
         try {
             val company = request.getParameter(QUERY_COMPANY_KEY)?.toLong() ?: UNDEFINED_ID_LONG
-            if (company <= 0) throwInvalidParameterException(COMPANY_QUERY_ID_TYPE_MISMATCH)
+            if (company < 0) throwInvalidParameterException(QUERY_COMPANY_KEY, COMPANY_QUERY_ID_TYPE_MISMATCH)
         } catch (e: NumberFormatException) {
-            throwInvalidParameterException(COMPANY_QUERY_ID_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_COMPANY_KEY,  COMPANY_QUERY_ID_TYPE_MISMATCH)
         }
 
         try {
             val building = request.getParameter(QUERY_BUILDING_KEY)?.toLong() ?: UNDEFINED_ID_LONG
-            if (building <= 0) throwInvalidParameterException(BUILDING_QUERY_ID_TYPE_MISMATCH)
+            if (building < 0) throwInvalidParameterException(QUERY_BUILDING_KEY, BUILDING_QUERY_ID_TYPE_MISMATCH)
         } catch (e: NumberFormatException) {
-            throwInvalidParameterException(BUILDING_QUERY_ID_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_BUILDING_KEY, BUILDING_QUERY_ID_TYPE_MISMATCH)
         }
 
         try {
             val employeeState = request.getParameter(QUERY_EMPLOYEE_STATE_KEY)?.toInt() ?: UNDEFINED_ID
-            if (employeeState <= 0) throwInvalidParameterException(EMPLOYEE_STATE_TYPE_MISMATCH)
+            if (employeeState < 0) throwInvalidParameterException(QUERY_EMPLOYEE_STATE_KEY, EMPLOYEE_STATE_TYPE_MISMATCH)
         } catch (e: NumberFormatException) {
-            throwInvalidParameterException(EMPLOYEE_STATE_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_EMPLOYEE_STATE_KEY, EMPLOYEE_STATE_TYPE_MISMATCH)
         }
 
         val role = request.getParameter(QUERY_ROLE_KEY) ?: UNDEFINED
         if (role != MANAGER && role != ADMIN && role != EMPLOYEE && role != USER && role != UNDEFINED)
-            throwInvalidParameterException(ROLE_QUERY_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_ROLE_KEY, ROLE_QUERY_TYPE_MISMATCH)
 
         val user = request.getParameter(QUERY_USER_KEY) ?: UNDEFINED
         if (user != UNDEFINED) {
             try {
                 UUID.fromString(user)
             }catch (e: IllegalArgumentException) {
-                throwInvalidParameterException(INVALID_UUID_FORMAT)
+                throwInvalidParameterException(QUERY_USER_KEY, INVALID_UUID_FORMAT)
             }
         }
 
         val state = request.getParameter(QUERY_STATE_KEY) ?: UNDEFINED
         if (state != ACTIVE && state != INACTIVE && state != UNDEFINED)
-            throwInvalidParameterException(STATE_TYPE_MISMATCH)
+            throwInvalidParameterException(QUERY_STATE_KEY, STATE_TYPE_MISMATCH)
 
         //assign parameter validation
         request.getParameter(QUERY_ASSIGN_KEY).toBoolean()

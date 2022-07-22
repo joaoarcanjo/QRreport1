@@ -157,6 +157,7 @@ object TicketResponses {
             add(getRoomItem(ticketInfo.room.id, ticketInfo.building.id, ticketInfo.room, listOf(Relations.TICKET_ROOM)))
             add(getDeviceItem(ticketInfo.device, listOf(Relations.TICKET_DEVICE)))
             add(getPersonItem(ticketInfo.person, listOf(Relations.TICKET_AUTHOR)))
+            if (ticketInfo.employee != null) add(getPersonItem(ticketInfo.employee, listOf(Relations.TICKET_EMPLOYEE)))
             if (ticketInfo.parentTicket == null) return@apply
             add(getParentTicket(ticketInfo.parentTicket))
         },

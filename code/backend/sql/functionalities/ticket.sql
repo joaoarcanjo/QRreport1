@@ -132,10 +132,17 @@ CREATE OR REPLACE FUNCTION ticket_item_representation(ticket_id BIGINT)
 RETURNS JSON
 AS
 $$
-DECLARE tsubject TEXT; tdescription TEXT; empstate_id INT;
+DECLARE tsubject TEXT; tdescription TEXT; tcompany TEXT; tbuilding TEXT; troom TEXT; empstate_id INT;
 BEGIN
-    SELECT subject, description, employee_state INTO tsubject, tdescription, empstate_id FROM TICKET WHERE id = ticket_id;
-    RETURN json_build_object('id', ticket_id, 'subject', tsubject, 'description', tdescription,
+    SELECT subject, description, c.name, b.name, r.name, employee_state
+    INTO tsubject, tdescription, tcompany, tbuilding, troom, empstate_id
+    FROM TICKET t
+        INNER JOIN ROOM r ON (t.room = r.id)
+        INNER JOIN BUILDING b ON (r.building = b.id)
+        INNER JOIN COMPANY c ON (b.company = c.id)
+    WHERE t.id = ticket_id;
+    RETURN json_build_object('id', ticket_id, 'subject', tsubject, 'description', tdescription, 'company', tcompany,
+        'building', tbuilding, 'room', troom,
         'userState',
         (SELECT name FROM USER_STATE WHERE id = (SELECT user_state FROM EMPLOYEE_STATE WHERE id = empstate_id)),
         'employeeState',

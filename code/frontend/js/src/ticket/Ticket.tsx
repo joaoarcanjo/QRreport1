@@ -8,7 +8,7 @@ import { Ticket } from "../models/Models";
 import { LOGIN_URL, TICKETS_URL,  TICKET_URL,  TICKET_URL_API } from "../Urls";
 import { getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity, getProblemOrUndefined } from '../models/ModelUtils';
 import { Action, Entity } from "../models/QRJsonModel";
-import { FaEdit, FaRegBuilding, FaToilet } from "react-icons/fa";
+import { FaEdit, FaRegBuilding, FaToilet, FaToolbox } from "react-icons/fa";
 import { ActionComponent } from "../components/ActionComponent";
 import { SetEmployeeAction } from "./SetEmployeeAction";
 import { UpdateTicket } from "./UpdateTicket";
@@ -16,7 +16,7 @@ import { TicketRate } from "./TicketRate";
 import { UpdateState } from "./TicketState";
 import { ListComments } from "../comment/ListComments";
 import { GroupTicket } from "./GroupTicket";
-import { useLoggedInState, USER_ROLE } from "../user/Session"
+import { ADMIN_ROLE, MANAGER_ROLE, useLoggedInState, USER_ROLE } from "../user/Session"
 import { TbPencil } from "react-icons/tb";
 import { BsBuilding, BsDoorClosed } from "react-icons/bs";
 
@@ -78,8 +78,9 @@ export function TicketRep() {
         const roomEntity = getSpecificEntity(["room"], "ticket-room", entity.entities)
         const buildingEntity = getSpecificEntity(["building"], "ticket-building", entity.entities)
         const deviceEntity = getSpecificEntity(["device"], "ticket-device", entity.entities)
-        const personEntity = getSpecificEntity(["person"], "ticket-author", entity.entities)
-
+        const authorEntity = getSpecificEntity(["person"], "ticket-author", entity.entities)
+        const employeeEntity = getSpecificEntity(["person"], "ticket-employee", entity.entities)
+        const userRole = useLoggedInState()?.userRole
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3 divide-y-2'>
                 <div className='flex flex-col space-y-4 device-y'>
@@ -99,13 +100,25 @@ export function TicketRep() {
                         <FaToilet style= {{ color: 'green', fontSize: "1.4em" }} /> 
                         <span>: {deviceEntity?.properties.name} </span>
                     </div>
-                    <div className='flex items-center'>
-                        <TbPencil style= {{ color: 'green', fontSize: "1.4em" }} />
-                        <span>: {personEntity?.properties.name}</span>
+                    <div className='flex'>
+                        <Link to={`/persons/${authorEntity?.properties.id}`}>
+                            <div className='flex items-center'>
+                                <TbPencil style= {{ color: 'green', fontSize: "1.4em" }} />
+                                <span>: {authorEntity?.properties.name}</span>
+                            </div>
+                        </Link>
                     </div>
+                    {(userRole === MANAGER_ROLE || userRole === ADMIN_ROLE) && <div className='flex'>
+                        <Link to={`/persons/${employeeEntity?.properties.id}`}>
+                            <div className='flex items-center'>
+                                <FaToolbox style= {{ color: 'green', fontSize: "1.4em" }} />
+                                <span>: {employeeEntity?.properties.name}</span>
+                            </div>
+                        </Link>
+                    </div>}
                     <p className="text-sm text-slate-600"> {ticket.description} </p>
                     <div className='bg-blue-400 mr-auto py-1 px-2 rounded text-white text-sm'>
-                        {useLoggedInState()?.userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
+                        {userRole === USER_ROLE ? ticket.userState : ticket.employeeState} 
                     </div>
                 </div>
                 <div className="space-y-4">
