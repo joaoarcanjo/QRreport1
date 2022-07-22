@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { Navigate } from "react-router-dom";
-import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
+import { ErrorPopup } from "../../components/ErrorPopup";
+import { Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton, CreateButton } from "../../components/form/FormComponents";
 import { PROFILE_URL } from "../../Urls";
 import { useLoggedInState } from "../Session";
 
@@ -19,8 +20,8 @@ export default function SignupForm() {
     const { register, handleSubmit, formState: { errors }, getValues } = useForm<signupData>()
     
 
-    const onSubmitHandler = handleSubmit(({ name, phone, email, password }) => {
-        userSession?.signup(name, phone, email, password)
+    const onSubmitHandler = handleSubmit(({ name, phone, email, password, passwordVerify }) => {
+        userSession?.signup(name, phone, email, password, passwordVerify)
     })
     
     const nameInput: InputProps = {
@@ -81,9 +82,11 @@ export default function SignupForm() {
                     <Input value = {passwordInput}/>
                     <Input value = {passwordVerifyInput}/>
                     <BigSubmitButton text={'Create account'}/>
+                    <CreateButton text={'Login'} redirectUrl={'/login'}/>
                     <Paragraph value = {'(*) Required'}/>
                 </Form>
             </div>
+            <ErrorPopup problem={userSession?.problem}/>
         </section>
     )
 }

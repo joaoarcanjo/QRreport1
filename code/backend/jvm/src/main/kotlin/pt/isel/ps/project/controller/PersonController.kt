@@ -1,8 +1,9 @@
 package pt.isel.ps.project.controller
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.auth.*
 import pt.isel.ps.project.auth.Authorizations.Person.addRoleToPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.addSkillToEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.assignPersonToCompanyAuthorization
@@ -18,6 +19,8 @@ import pt.isel.ps.project.auth.Authorizations.Person.removeSkillFromEmployeeAuth
 import pt.isel.ps.project.auth.Authorizations.Person.switchRoleAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
+import pt.isel.ps.project.auth.jwt.JwtBuilder
+import pt.isel.ps.project.auth.jwt.JwtConfig
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.Uris.UNDEFINED_ID
@@ -34,9 +37,12 @@ import pt.isel.ps.project.responses.PersonResponses.switchRoleRepresentation
 import pt.isel.ps.project.responses.PersonResponses.updatePersonRepresentation
 import pt.isel.ps.project.service.PersonService
 import java.util.*
+import javax.crypto.SecretKey
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @RestController
-class PersonController(private val service: PersonService) {
+class PersonController(private val jwtConfig: JwtConfig, private val secretKey: SecretKey, private val service: PersonService) {
 
     @GetMapping(Persons.BASE_PATH)
     fun getPersons(
@@ -172,9 +178,29 @@ class PersonController(private val service: PersonService) {
     @PostMapping(Persons.SWITCH_ROLE)
     fun switchRole(
         @RequestBody role: SwitchRoleEntity,
-        user: AuthPerson
+        user: AuthPerson,
+        request: HttpServletRequest,
+        response: HttpServletResponse,
     ): ResponseEntity<QRreportJsonModel> {
         switchRoleAuthorization(user)
-        return switchRoleRepresentation(service.switchRole(role, user), role.role)
+        val person = service.switchRole(role, user)
+
+        val token = JwtBuilder.buildJwt(
+            user.name,
+            user.toMap(role.role),
+            false,
+            jwtConfig.tokenExpirationInDays,
+            secretKey
+        )
+
+        when (request.getHeader(ORIGIN_HEADER)) {
+            ORIGIN_MOBILE -> response.addHeader(jwtConfig.getAuthorizationHeader(), "${jwtConfig.tokenPrefix}$token")
+            ORIGIN_WEBAPP -> response.addHeader(
+                HttpHeaders.SET_COOKIE,
+                AuthController.buildSessionCookie(token, jwtConfig.tokenExpirationInDays)
+            )
+
+        }
+        return switchRoleRepresentation(person, role.role)
     }
 }

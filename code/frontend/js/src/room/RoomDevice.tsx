@@ -69,8 +69,8 @@ export function RoomDevice({deviceId, setDeleted}: {
 
         if (error) return <ErrorView/>
         return (
-            <Popup className='popup-overlay' open = {popup} modal>
-                <div className='bg-white p-8 space-y-3'>
+            <Popup className='popup-overlay' open={popup} onClose={() => setPopup(false)} modal>
+                <div className='bg-white p-8 space-y-3 rounded-lg'>
                     {isFetching ? <Loading/> : (
                     <>
                         <button onClick={() => setPopup(false)}>
@@ -137,7 +137,7 @@ export function RoomDevice({deviceId, setDeleted}: {
             return (<div className="flex space-x-2"> 
                         {componentsActions} 
                         {state === 'active' && <button onClick={() => {setAction(undefined); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
-                            Get QrCode
+                            Get QR Code
                         </button>}
                     </div>)
         }    

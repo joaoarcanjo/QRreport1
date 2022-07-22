@@ -419,7 +419,6 @@ END$$ LANGUAGE plpgsql;
  * Gets all the tickets
  * Returns a list with all the tickets item representation
  */
-
 CREATE OR REPLACE FUNCTION get_tickets(
     person_id UUID,
     limit_rows INT DEFAULT NULL,
@@ -455,16 +454,13 @@ BEGIN
              LOWER(b.name) LIKE LOWER(CONCAT('%',building_name,'%')) AND
              LOWER(c.name) LIKE LOWER(CONCAT('%',company_name,'%')) AND*/
             CASE
-                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
-                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'manager')) = person_id) THEN
+                WHEN (get_person_active_role(person_id) = 'manager') THEN
                     b.manager = person_id
-                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
-                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'user')) = person_id) THEN
+                WHEN (get_person_active_role(person_id) = 'user') THEN
                     t.reporter = person_id
-                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
-                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'employee')) = person_id) THEN
+                WHEN (get_person_active_role(person_id) = 'employee') THEN
                     fb.person = person_id
-                ELSE t.id > 0
+                ELSE TRUE
             END
         ORDER BY
             CASE WHEN direction='desc' AND sort_by='date' THEN creation_timestamp END DESC,
@@ -477,9 +473,35 @@ BEGIN
             tickets, ticket_item_representation(rec.id, rec.subject, rec.description,
                 rec.employee_state, rec.company, rec.building, rec.room)
         );
-        collection_size = collection_size + 1;
-    END LOOP;
 
+    END LOOP;
+    SELECT COUNT(t.id) INTO collection_size
+        FROM TICKET t
+            INNER JOIN DEVICE d ON t.device = d.id
+            INNER JOIN CATEGORY ct ON d.category = ct.id
+            INNER JOIN ROOM r ON t.room = r.id
+            INNER JOIN BUILDING b ON b.id = r.building
+            INNER JOIN COMPANY c ON c.id = b.company
+            FULL JOIN FIXING_BY fb ON t.id = fb.ticket
+       WHERE
+             /*
+             ct.name LIKE CONCAT('%',category_name,'%') AND
+             LOWER(t.subject) LIKE LOWER(CONCAT('%',search,'%')) AND
+             LOWER(r.name) LIKE LOWER(CONCAT('%',room_name,'%')) AND
+             LOWER(b.name) LIKE LOWER(CONCAT('%',building_name,'%')) AND
+             LOWER(c.name) LIKE LOWER(CONCAT('%',company_name,'%')) AND*/
+            CASE
+                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
+                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'manager')) = person_id) THEN
+                    b.manager = person_id
+                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
+                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'user')) = person_id) THEN
+                    t.reporter = person_id
+                WHEN ((SELECT pr.person FROM PERSON_ROLE pr
+                WHERE person = person_id AND role = (SELECT id FROM ROLE WHERE name = 'employee')) = person_id) THEN
+                    fb.person = person_id
+                ELSE t.id > 0
+            END;
     RETURN json_build_object('tickets', tickets, 'ticketsCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 

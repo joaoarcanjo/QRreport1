@@ -43,7 +43,7 @@ class AuthenticationInterceptor(private val jwtConfig: JwtConfig, private val se
                     ?: throw UnauthorizedException(REQUIRES_AUTH, INVALID_TYPE)
             }
             ORIGIN_WEBAPP -> {
-                val sessionCookie = request.cookies.firstOrNull { it.name.compareTo("session") == 0 }
+                val sessionCookie = request.cookies?.firstOrNull { it.name.compareTo("session") == 0 }
                     ?: throw UnauthorizedException(REQUIRES_AUTH, MISSING_SESSION_COOKIE)
                 sessionCookie.value
             }

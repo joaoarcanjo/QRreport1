@@ -2,12 +2,16 @@ package pt.isel.ps.project.model.category
 
 import java.sql.Timestamp
 
-
-data class CategoryDtoItem (
+data class CategoryDto (
     val id: Long,
     val name: String,
     val state: String,
-    val timestamp: Timestamp
+    val timestamp: Timestamp,
+)
+
+data class CategoryDtoItem (
+    val category: CategoryDto,
+    val inUse: Boolean?,
 )
 
 data class CategoriesDto (

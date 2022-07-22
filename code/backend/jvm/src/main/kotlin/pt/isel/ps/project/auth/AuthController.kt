@@ -21,14 +21,17 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AuthController(private val jwtConfig: JwtConfig, private val secretKey: SecretKey, private val authService: AuthService) {
-    fun buildSessionCookie(token: String, maxAgeDays: Long) = ResponseCookie
-        .from(SESSION_COOKIE_KEY, token)
-        .sameSite("Strict")
-        .maxAge(maxAgeDays * 24 * 60 * 60)
-        .httpOnly(true)
-        .secure(false)
-        .build()
-        .toString()
+    companion object {
+        fun buildSessionCookie(token: String, maxAgeDays: Long) = ResponseCookie
+            .from("session", token)
+            .sameSite("Strict")
+            .path("/")
+            .maxAge(maxAgeDays * 24 * 60 * 60)
+            .httpOnly(true)
+            .secure(false)
+            .build()
+            .toString()
+    }
 
     fun getOriginRequestHeader(request: HttpServletRequest): String = request.getHeader(ORIGIN_HEADER)
 

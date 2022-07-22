@@ -248,9 +248,10 @@ object PersonResponses {
                             add(Actions.rehirePerson(personDetails.person.id))
                             return@apply
                         } else {
-                            if(!isSamePerson(user, personDetails.person.id))
+                            if(!isSamePerson(user, personDetails.person.id)) {
                                 add(Actions.firePerson(personDetails.person.id))
-                            add(Actions.assignPersonToCompany(personDetails.person.id))
+                                add(Actions.assignPersonToCompany(personDetails.person.id))
+                            }
                         }
                     // Ban/Unban
                     } else if (!isSamePerson(user, personDetails.person.id)

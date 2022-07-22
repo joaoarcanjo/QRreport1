@@ -67,13 +67,13 @@ data class AuthPerson(
     val reason: String?,
 )
 
-fun AuthPerson.toMap() = HashMap<String, Any?>()
+fun AuthPerson.toMap(aRole: String? = null) = HashMap<String, Any?>()
     .apply {
         put("id", id)
         put("name", name)
         put("phone", phone)
         put("email", email)
-        put("activeRole", activeRole)
+        put("activeRole", aRole ?: activeRole)
         put("skills", skills)
         put("companies", companies)
         put("timestamp", timestamp)

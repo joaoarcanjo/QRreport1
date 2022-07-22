@@ -15,10 +15,9 @@ function PersonItemComponent({ entity }: { entity: QRreport.Entity<PersonItem> }
     const person = entity.properties
     return (
         <div>
-            <Link to={`/profile/${person.id}`}>
+            <Link to={`/persons/${person.id}`}>
                 <div className='p-5 bg-white rounded-lg border border-gray-200 shadow-md hover:bg-gray-100'>  
-                    
-                        <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>{person.name}</h5>
+                    <h5 className='mb-2 text-xl font-bold tracking-tight text-gray-900'>{person.name}</h5>
                     <p>{person.email}</p>
                 </div>
             </Link>

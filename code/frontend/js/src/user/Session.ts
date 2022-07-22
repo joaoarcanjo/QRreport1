@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import { ProblemJson } from '../models/ProblemJson'
 import { SIGNUP_URL_API } from '../Urls'
 
 export const SESSION_KEY = 'IsLogin'
@@ -10,20 +11,21 @@ export const EMPLOYEE_ROLE = "employee"
 export const MANAGER_ROLE = "manager"
 export const ADMIN_ROLE = "admin"
 
-export async function signupUser(name: string, phone: string, email: string, password: string): Promise<Response> {
+export async function signupUser(name: string, phone: string, email: string, password: string, passwordVerify: string): Promise<Response> {
   const payload: any = {}
 
   payload['name'] = name
   payload['phone'] = phone
   payload['email'] = email
   payload['password'] = password
-  payload['role'] = USER_ROLE
+  payload['confirmPassword'] = passwordVerify
 
   const response = await fetch(SIGNUP_URL_API,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Request-Origin': 'WebApp'
       },
       body: JSON.stringify(payload),
       credentials: "include"
@@ -66,12 +68,13 @@ export function createRepository() {
 }
 
 export type ContextType = {
+  problem: ProblemJson | undefined,
   isLoggedIn: boolean,
   userName: string | null,
   userRole: string | null,
   login: (email: string, password: string) => void,
   logout: () => void,
-  signup: (name: string, phone: string, email: string, password: string) => void,
+  signup: (name: string, phone: string, email: string, password: string, passwordVerify: string) => void,
   changeRole: (role: string) => void
 }
 

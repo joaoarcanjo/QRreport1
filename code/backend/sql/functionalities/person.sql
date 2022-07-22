@@ -150,7 +150,6 @@ END$$LANGUAGE plpgsql;
 /**
  *  Returns users with a specific role from a specific company
  */
-
 CREATE OR REPLACE FUNCTION get_company_persons(person_id UUID, company_id BIGINT, role_name TEXT, limit_rows INT, skip_rows INT)
 RETURNS JSON
 AS
@@ -615,6 +614,6 @@ BEGIN
         RAISE 'invalid-role' USING DETAIL = 'switch-role';
     END IF;
     UPDATE PERSON SET active_role = get_role_id(role)
-    WHERE id = person_id AND active_role != get_role_id(role);
+    WHERE id = person_id;
     person_rep = person_details_representation(person_id);
 END$$LANGUAGE plpgsql;

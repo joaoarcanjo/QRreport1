@@ -61,13 +61,14 @@ object CategoryResponses {
     private fun getCategoryItem(category: CategoryDtoItem, rel: List<String>?) = QRreportJsonModel(
         clazz = listOf(Classes.CATEGORY),
         rel = rel,
-        properties = category,
+        properties = category.category,
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isInactive(category.state))
-                add(Actions.activateCategory(category.id))
+            if (isInactive(category.category.state))
+                add(Actions.activateCategory(category.category.id))
             else {
-                add(Actions.updateCategory(category.id))
-                add(Actions.deactivateCategory(category.id))
+                add(Actions.updateCategory(category.category.id))
+                if (!category.inUse!!)
+                    add(Actions.deactivateCategory(category.category.id))
             }
         },
         links = listOf()
@@ -114,7 +115,7 @@ object CategoryResponses {
             clazz = listOf(Classes.CATEGORY),
             properties = category,
             links = listOf(
-                Links.self(Uris.Categories.makeSpecific(category.id)),
+                Links.self(Uris.Categories.makeSpecific(category.category.id)),
                 Links.categories(),
             )
         )

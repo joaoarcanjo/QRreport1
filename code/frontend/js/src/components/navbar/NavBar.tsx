@@ -31,10 +31,10 @@ export default function NavBar() {
         } else {
             if(userSession.userRole === MANAGER_ROLE || userSession.userRole === ADMIN_ROLE) {
                 components.push(<NavElement key={'companies'} navTo='companies' text='Companies'/>)
+                components.push(<NavElement key={'persons'} navTo='persons' text='Persons'/>)
             }
             
             if(userSession.userRole === ADMIN_ROLE) {
-                components.push(<NavElement key={'persons'} navTo='persons' text='Persons'/>)
                 components.push(<NavElement key={'categories'} navTo='categories' text='Categories'/>)
                 components.push(<NavElement key={'devices'} navTo='devices' text='Devices'/>)
             }     

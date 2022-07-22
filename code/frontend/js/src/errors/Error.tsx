@@ -1,11 +1,11 @@
 import { AiOutlineWarning } from "react-icons/ai";
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { ProblemJson, InvalidParameters } from "../models/ProblemJson"
 
 export function ErrorView({error, message, problemJson} : {
     error?: Error, 
     message?: string,
-    problemJson?: ProblemJson
+    problemJson?: ProblemJson,
 }) {
     const navigate = useNavigate(); 
     
@@ -17,9 +17,9 @@ export function ErrorView({error, message, problemJson} : {
         if(!problemJson) return <></>
         
         return(
-            <div>
+            <div className='bg-white p-8 space-y-3 rounded-lg'>
                 <TitleProblemSection title={problemJson.title}/>
-                <p>{problemJson.detail}</p>
+                <p className="break-words text-center">{problemJson.detail}</p>
                 <InvalidParameters invalidParameters={problemJson.invalidParams}/>
             </div>
         )
@@ -30,11 +30,11 @@ export function ErrorView({error, message, problemJson} : {
         if (error !== undefined) errorMessage = error.message
         else if (message !== undefined) errorMessage = message
         else errorMessage = 'Unexpected error occurred, try again later.'
-        return <p>{errorMessage}</p>
+        return <p className="break-words text-center">{errorMessage}</p>
     }
 
     function TitleProblemSection({title}: {title: string}) {
-        return <p className="text-base font-light leading-relaxed mt-0 mb-4 text-grey-600">{title}</p>
+        return <p className="text-base font-light leading-relaxed mt-0 mb-4 text-grey-600 text-center">{title}</p>
     }
 
     function InvalidParameters({invalidParameters}: {invalidParameters: InvalidParameters[] | undefined}) {
@@ -68,15 +68,15 @@ export function ErrorView({error, message, problemJson} : {
     }
 
     return (
-        <div className="px-3 pt-3 space-y-4">
-            <div className="flex text-xl bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-900 font-bold ">
+        <div className="bg-white p-8 rounded-lg space-y-4 justify-center align-middle">
+            <div className="flex justify-center text-xl bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-900 font-bold ">
                 <AiOutlineWarning style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
                 <span>Error</span>
                 <AiOutlineWarning style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
             </div>
             {!problemJson && <MessageInfo/>}
             <ProblemComponent/>
-            <ReturnHomeButton/>
+            {/* { <ReturnHomeButton/> } */}
         </div>
     )
 }

@@ -116,6 +116,7 @@ export function ListTickets() {
 
     return (
         <div className='px-3 pt-3 space-y-4'>
+            <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Tickets</h1>
             <Filters/>
             <ListTickets entities={getEntitiesOrUndefined(result?.body)}/>
             <CollectionPagination 

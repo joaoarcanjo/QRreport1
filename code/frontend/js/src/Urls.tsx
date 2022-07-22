@@ -1,7 +1,7 @@
 export const BASE_URL_API = "http://localhost:8080"
 export const API_VERSION = "/v1"
 
-export const SIGNUP_URL_API = BASE_URL_API + API_VERSION + "/persons"
+export const SIGNUP_URL_API = BASE_URL_API + API_VERSION + "/signup"
 
 export const PERSON_PROFILE = () => {
     return BASE_URL_API + API_VERSION + "/profile"

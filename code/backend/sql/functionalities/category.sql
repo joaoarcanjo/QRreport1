@@ -19,26 +19,33 @@ END$$ LANGUAGE plpgsql;
  /*
   * Auxiliary function to return the category item representation by id
   */
-CREATE OR REPLACE FUNCTION category_item_representation(company_id BIGINT)
+CREATE OR REPLACE FUNCTION category_item_representation(category_id BIGINT)
 RETURNS JSON
 AS
 $$
-DECLARE category_name TEXT; category_state TEXT; tmstamp TIMESTAMP;
+DECLARE category_name TEXT; category_state TEXT; tmstamp TIMESTAMP; item JSON;
 BEGIN
     SELECT name, state, timestamp INTO category_name, category_state, tmstamp
-    FROM CATEGORY WHERE id = company_id;
-    RETURN json_build_object('id', company_id, 'name', category_name, 'state', category_state, 'timestamp', tmstamp);
+    FROM CATEGORY WHERE id = category_id;
+    item = json_build_object('id', category_id, 'name', category_name, 'state', category_state, 'timestamp', tmstamp);
+    RETURN json_build_object('category', item,
+        'inUse', (EXISTS(SELECT person FROM PERSON_SKILL WHERE category = category_id) OR (EXISTS(SELECT id FROM DEVICE WHERE category = category_id)))
+    );
 END$$ LANGUAGE plpgsql;
 
  /*
   * Auxiliary function to return the category item representation
   */
-CREATE OR REPLACE FUNCTION category_item_representation(id BIGINT, name TEXT, state TEXT, tmstamp TIMESTAMP)
+CREATE OR REPLACE FUNCTION category_item_representation(cid BIGINT, name TEXT, state TEXT, tmstamp TIMESTAMP)
 RETURNS JSON
 AS
 $$
+DECLARE item JSON;
 BEGIN
-    RETURN json_build_object('id', id, 'name', name, 'state', state, 'timestamp', tmstamp);
+    item = json_build_object('id', cid, 'name', name, 'state', state, 'timestamp', tmstamp);
+    RETURN json_build_object('category', item,
+        'inUse', (EXISTS(SELECT person FROM PERSON_SKILL WHERE category = cid) OR (EXISTS(SELECT category FROM DEVICE WHERE category = cid)))
+    );
 END$$ LANGUAGE plpgsql;
 
 /**
