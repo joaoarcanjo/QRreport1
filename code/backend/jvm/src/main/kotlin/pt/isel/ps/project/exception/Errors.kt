@@ -99,6 +99,10 @@ object Errors {
                 const val SORT_TYPE_MISMATCH = "The value must be equal to name or date."
             }
 
+            object State {
+                const val STATE_TYPE_MISMATCH = "The state value must be active or inactive."
+            }
+
             object Device {
                 const val INVALID_DEVICE_NAME_LENGTH = "The name can have a maximum of 50 characters."
 
@@ -111,17 +115,23 @@ object Errors {
                 const val INVALID_CATEGORY_NAME_LENGTH = "The name can have a maximum of 50 characters."
             }
 
+            object Person {
+                const val INVALID_UUID_FORMAT = "Invalid user id format."
+            }
+
             object Role {
                 const val ROLE_QUERY_TYPE_MISMATCH = "The value must be equal to name or date."
             }
 
             object Company {
+                const val ASSIGN_TYPE_MISMATCH = "Assign value must be a boolean value, true of false."
                 const val INVALID_NAME_LENGTH = "The name can have a maximum of 50 characters."
-                const val COMPANY_QUERY_ID_TYPE_MISMATCH = "The value must be an integer > 0."
+                const val COMPANY_QUERY_ID_TYPE_MISMATCH = "The value must be an long value > 0."
 
                 object Building {
                     const val INVALID_BUILDING_NAME_LENGTH = "The name can have a maximum of 50 characters."
-                    const val INVALID_BUILDING_FLOOR_NUMBER = "The max number of floors is 600"
+                    const val INVALID_BUILDING_FLOOR_NUMBER = "The max number of floors is 600."
+                    const val BUILDING_QUERY_ID_TYPE_MISMATCH = "The value must be an long value > 0."
 
                     object Room {
                         const val INVALID_ROOM_NAME_LENGTH = "The name can have a maximum of 50 characters."
@@ -131,6 +141,8 @@ object Errors {
             }
 
             object Ticket {
+                const val EMPLOYEE_STATE_TYPE_MISMATCH = "The value must be an integer > 0."
+
                 const val INVALID_HASH_LENGTH = "The hash size must be equal to 64 characters."
                 const val INVALID_SUBJECT_LENGTH = "The subject can have a maximum of 50 characters."
                 const val INVALID_DESCRIPTION_LENGTH = "The description can have a maximum of 200 characters."

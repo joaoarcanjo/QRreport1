@@ -19,21 +19,24 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
     : { 
         collection?: any, 
         setUrlFunction: React.Dispatch<React.SetStateAction<string>>,
-        templateUrl: Link | undefined
+        templateUrl: Link | string | undefined,
     }
 ) {
     const { deviceId, ticketId, companyId, buildingId } = useParams()
     if (!collection) return null
 
     function handleOnClick(id: number) {
-        if(templateUrl?.templated) {
-            let newUrl = templateUrl.href.replace('{?page}', `?page=${id}`)
+        let newUrl
+        if(typeof templateUrl === 'string') {
+            newUrl = templateUrl.replace('{?page}', `?page=${id}`)
+        }else if(templateUrl?.templated) {
+            newUrl = templateUrl.href.replace('{?page}', `?page=${id}`)
             if(deviceId) newUrl = newUrl?.replace('{deviceId}', deviceId)
             if(ticketId) newUrl = newUrl?.replace('{ticketId}', ticketId)
             if(companyId) newUrl = newUrl?.replace('{companyId}', companyId)
             if (buildingId) newUrl = newUrl?.replace('{buildingId}', buildingId)
-            setUrlFunction(BASE_URL_API + newUrl)
         }
+        setUrlFunction(BASE_URL_API + newUrl)
     }
 
     const pagination: ReactElement[] = []

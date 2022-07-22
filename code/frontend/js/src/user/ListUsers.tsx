@@ -1,15 +1,14 @@
-import { Link, Navigate } from "react-router-dom"
+import { Link, Navigate, Outlet } from "react-router-dom"
 import { PersonItem } from "../models/Models"
 import * as QRreport from '../models/QRJsonModel'
-import { ProblemJson } from "../models/ProblemJson"
 import { useMemo, useState } from "react"
-import { Collection } from "../pagination/CollectionPagination"
-import { PERSONS_URL_API } from "../Urls"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
+import { LOGIN_URL, PERSONS_URL_API } from "../Urls"
 import { ErrorView } from "../errors/Error"
-import SignupForm from "./signup/SignupForm"
-import { getActionsOrUndefined, getEntitiesOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getLink, getProblemOrUndefined, getPropertiesOrUndefined } from "../models/ModelUtils"
 import { useFetch } from "../hooks/useFetch"
 import { Loading } from "../components/Various"
+import { useLoggedInState } from "./Session"
 
 function PersonItemComponent({ entity }: { entity: QRreport.Entity<PersonItem> }) {
     const person = entity.properties
@@ -47,9 +46,16 @@ export function ListPersons() {
     const init = useMemo(() => credentials ,[])
     const [direction, setDirection] = useState('desc')
     const [sortBy, setSortBy] = useState('date')
+    const [currentUrl, setCurrentUrl] = useState('')
+    const userSession = useLoggedInState()
     
     //const [currentPage, setPage] = useState(0)
-    const { isFetching, result, error } = useFetch<Collection>(PERSONS_URL_API(sortBy, direction), init)
+    const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if(userSession?.isLoggedIn && currentUrl === '') 
+        setCurrentUrl(PERSONS_URL_API)
+    else if(!userSession?.isLoggedIn) 
+        return <Navigate to={LOGIN_URL}/>
 
     if (isFetching) return <Loading/>
     if (error) return <ErrorView message="Unexpected error"/>
@@ -61,6 +67,11 @@ export function ListPersons() {
         <div className='px-3 pt-3 space-y-2'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Persons</h1>
             <PersonsList entities={getEntitiesOrUndefined(result?.body)}/>
+            <CollectionPagination 
+                collection={getPropertiesOrUndefined(result?.body)} 
+                setUrlFunction={setCurrentUrl} 
+                templateUrl={getLink('pagination', result?.body)}/>
+            <Outlet/>
         </div>
     )
 }

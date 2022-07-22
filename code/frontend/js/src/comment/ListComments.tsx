@@ -1,6 +1,5 @@
 import { Action, Entity } from "../models/QRJsonModel"
 import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from '../models/ModelUtils';
-import { FaRegSadTear } from "react-icons/fa";
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination";
 import { useMemo, useState } from "react";
 import { GrUpdate }from "react-icons/gr";

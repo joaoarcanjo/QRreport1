@@ -21,6 +21,7 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
+import java.util.*
 
 object CompanyResponses {
     const val COMPANY_PAGE_MAX_SIZE = 10
@@ -70,8 +71,14 @@ object CompanyResponses {
         links = listOf(Links.self(Uris.Companies.makeSpecific(company.id))),
     )
 
-    //TODO: filtros para obter as companies
-    fun getCompaniesRepresentation(user: AuthPerson, companiesDto: CompaniesDto, collection: CollectionModel) = buildResponse(
+    fun getCompaniesRepresentation(
+        user: AuthPerson,
+        companiesDto: CompaniesDto,
+        userId: UUID?,
+        state: String,
+        assign: Boolean,
+        collection: CollectionModel) = buildResponse(
+
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY, Classes.COLLECTION),
             properties = collection,
@@ -83,8 +90,8 @@ object CompanyResponses {
                 if (isAdmin(user)) add(Actions.createCompany())
             },
             links = listOf(
-                QRreportJsonModel.Link(listOf(Relations.SELF), Uris.makePagination(collection.pageIndex, Uris.Companies.BASE_PATH)),
-                QRreportJsonModel.Link(listOf(Relations.PAGINATION), Uris.Companies.COMPANIES_PAGINATION, templated = true)
+                QRreportJsonModel.Link(listOf(Relations.SELF), Uris.Companies.companiesSelf(collection.pageIndex, userId, state, assign)),
+                QRreportJsonModel.Link(listOf(Relations.PAGINATION), Uris.Companies.companiesPagination(userId, state, assign), templated = true)
             )
         )
     )

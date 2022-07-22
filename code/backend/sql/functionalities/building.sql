@@ -240,7 +240,6 @@ LANGUAGE plpgsql;
  * Throws exception when the building id does not exist or when the new manager is invalid
  * because doesn't have the necessary role
  */
- SELECT get_person_roles('4b341de0-65c0-4526-8898-24de463fc315');
 CREATE OR REPLACE PROCEDURE change_building_manager(
     building_rep OUT JSON,
     company_id BIGINT,

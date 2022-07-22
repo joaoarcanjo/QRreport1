@@ -6,7 +6,9 @@ import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Tickets
+import pt.isel.ps.project.model.Uris.Tickets.EMPLOYEE_STATES_PAGINATION
 import pt.isel.ps.project.model.Uris.Tickets.TICKETS_PAGINATION
+import pt.isel.ps.project.model.person.PersonItemDto
 import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
@@ -33,6 +35,7 @@ import pt.isel.ps.project.util.Validator.Person.isEmployeeTicket
 
 object TicketResponses {
     const val TICKET_PAGE_MAX_SIZE = 10
+    const val STATES_PAGE_MAX_SIZE = 5
 
     object Actions {
         fun deleteTicket(ticketId: Long) = QRreportJsonModel.Action(
@@ -115,15 +118,24 @@ object TicketResponses {
         links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
     )
 
-    fun getTicketsRepresentation(ticketsDto: TicketsDto, pageIdx: Int) = QRreportJsonModel(
+    fun getTicketsRepresentation(
+        ticketsDto: TicketsDto,
+        company: Long?,
+        building: Long?,
+        direction: String,
+        sortBy: String,
+        employeeState: Int?,
+        pageIdx: Int
+    ) = QRreportJsonModel(
+
         clazz = listOf(Classes.TICKET, Classes.COLLECTION),
         properties = CollectionModel(pageIdx, TICKET_PAGE_MAX_SIZE, ticketsDto.ticketsCollectionSize),
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (ticketsDto.tickets != null) addAll(ticketsDto.tickets.map { getTicketItem(it, listOf(Relations.ITEM)) })
         },
         links = listOf(
-            Links.self(Uris.makePagination(pageIdx, Tickets.BASE_PATH)),
-            Links.pagination(TICKETS_PAGINATION),
+            Links.self(Tickets.ticketsSelf(pageIdx, direction, sortBy, company, building, employeeState)),
+            Links.pagination(Tickets.ticketsPagination(direction, sortBy, company, building, employeeState)),
         ),
     )
 
@@ -244,6 +256,28 @@ object TicketResponses {
         clazz = listOf(Classes.TICKET),
         properties = ticket,
         links = listOf(Links.self(Tickets.makeSpecific(ticket.id)))
+    )
+
+    fun getEmployeeStates(employeeStatesDto: EmployeeStatesDto, pageIdx: Int) = QRreportJsonModel(
+        clazz = listOf(Classes.STATE, Classes.COLLECTION),
+        properties = CollectionModel(pageIdx, STATES_PAGE_MAX_SIZE, employeeStatesDto.statesCollectionSize),
+        rel = listOf(Relations.TICKETS_STATES),
+        entities = mutableListOf<QRreportJsonModel>().apply {
+            if (employeeStatesDto.employeeStates != null)
+                addAll(employeeStatesDto.employeeStates.map {
+                    getEmployeeStateItem(it, listOf(Relations.ITEM))
+                })
+        },
+        links = listOf(
+            Links.self(Uris.makePagination(pageIdx, Tickets.EMPLOYEE_STATES_PATH)),
+            Links.pagination(EMPLOYEE_STATES_PAGINATION),
+        )
+    )
+
+    private fun getEmployeeStateItem(state: EmployeeState, rel: List<String>?) = QRreportJsonModel(
+        clazz = listOf(Classes.STATE),
+        rel = rel,
+        properties = state
     )
 
     private fun getParentTicket(ticketId: Long) = QRreportJsonModel(

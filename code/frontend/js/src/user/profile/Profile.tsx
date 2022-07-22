@@ -104,7 +104,7 @@ export function Profile() {
                         {action.title}
                     </button>)
                 case 'rehire-person': return (
-                    <button key={idx} onClick={() => setAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white py-2 px-2 rounded">
+                    <button key={idx} onClick={() => setAuxAction(action)} className="w-1/2 bg-yellow-400 hover:bg-yellow-600 text-white py-2 px-2 rounded">
                         {action.title}
                     </button>)
                 case 'assign-to-company': return (
@@ -119,6 +119,8 @@ export function Profile() {
                 <div className="flex space-x-2"> {userActions} </div>
                 <div className="flex space-x-2"> {employeeActions} </div>
                 {auxAction?.name === 'fire-person' && 
+                <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                {auxAction?.name === 'rehire-person' && 
                 <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'ban-person' && 
                 <BanAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}

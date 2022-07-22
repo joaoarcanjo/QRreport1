@@ -21,9 +21,11 @@ import pt.isel.ps.project.auth.Authorizations.Person.unbanPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.updatePersonAuthorization
 import pt.isel.ps.project.auth.jwt.JwtBuilder
 import pt.isel.ps.project.auth.jwt.JwtConfig
+import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.Uris.UNDEFINED_ID
+import pt.isel.ps.project.model.Uris.UNDEFINED_ID_LONG
 import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.model.representations.QRreportJsonModel
@@ -47,12 +49,13 @@ class PersonController(private val jwtConfig: JwtConfig, private val secretKey: 
     @GetMapping(Persons.BASE_PATH)
     fun getPersons(
         @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
-        @RequestParam(defaultValue = "$UNDEFINED_ID") company: Long,
+        @RequestParam(defaultValue = "$UNDEFINED_ID_LONG") company: Long,
         @RequestParam(defaultValue = UNDEFINED) role: String,
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         getPersonsAuthorization(user)
-        return getPersonsRepresentation(service.getPersons(user, company, role, page), page, company, role)
+        val companyId = if(company != UNDEFINED_ID_LONG) company else null
+        return getPersonsRepresentation(service.getPersons(user, companyId, role, page), page, companyId, role)
     }
 
     @PostMapping(Persons.BASE_PATH)

@@ -10,6 +10,8 @@ import pt.isel.ps.project.auth.Authorizations.Company.getCompaniesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Company.getCompanyAuthorization
 import pt.isel.ps.project.auth.Authorizations.Company.updateCompanyAuthorization
 import pt.isel.ps.project.model.Uris.Companies
+import pt.isel.ps.project.model.Uris.DEFAULT_BOOL
+import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.company.*
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
@@ -21,6 +23,7 @@ import pt.isel.ps.project.responses.CompanyResponses.getCompaniesRepresentation
 import pt.isel.ps.project.responses.CompanyResponses.getCompanyRepresentation
 import pt.isel.ps.project.responses.CompanyResponses.updateCompanyRepresentation
 import pt.isel.ps.project.service.CompanyService
+import java.util.*
 
 @RestController
 class CompanyController(private val service: CompanyService) {
@@ -28,13 +31,17 @@ class CompanyController(private val service: CompanyService) {
     @GetMapping(Companies.BASE_PATH)
     fun getCompanies(
         @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
+        @RequestParam(defaultValue = UNDEFINED) userId: String,        //used by rehire, fire and assign company actions
+        @RequestParam(defaultValue = UNDEFINED) state: String,         //used by rehire and fire actions
+        @RequestParam(defaultValue = "$DEFAULT_BOOL") assign: Boolean, //used by assign company action
         user: AuthPerson
     ): ResponseEntity<QRreportJsonModel> {
         getCompaniesAuthorization(user)
-        val companies = service.getCompanies(user, page)
-        return getCompaniesRepresentation(
-            user,
-            companies,
+
+        val userQueryUUID = if(userId != UNDEFINED) UUID.fromString(userId) else null
+        val companies = service.getCompanies(user, userQueryUUID, state, assign, page)
+
+        return getCompaniesRepresentation(user, companies, userQueryUUID, state, assign,
             CollectionModel(page, COMPANY_PAGE_MAX_SIZE, companies.companiesCollectionSize)
         )
     }

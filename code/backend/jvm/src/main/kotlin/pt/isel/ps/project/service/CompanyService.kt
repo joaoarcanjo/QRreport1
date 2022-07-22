@@ -7,6 +7,7 @@ import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_ERROR
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.exception.InternalServerException
+import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.company.*
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.responses.CompanyResponses.COMPANY_PAGE_MAX_SIZE
@@ -15,11 +16,20 @@ import pt.isel.ps.project.util.Validator.Company.verifyCreateCompanyInput
 import pt.isel.ps.project.util.Validator.Company.verifyUpdateCompanyInput
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.deserializeJsonTo
+import java.util.*
 
 @Service
 class CompanyService(private val companyDao: CompanyDao) {
 
-    fun getCompanies(user: AuthPerson, page: Int): CompaniesDto {
+    fun getCompanies(user: AuthPerson, userQuery: UUID?, state: String, assign: Boolean, page: Int): CompaniesDto {
+        //Rehire and fire person actions
+        if (userQuery != null && state != UNDEFINED)
+            return companyDao.getUserCompanies(user.id, isManager(user), userQuery, state, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE) ).deserializeJsonTo()
+
+        //Assign to company action
+        if (userQuery != null && assign)
+            return companyDao.getNewCompanies(userQuery, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE)).deserializeJsonTo()
+
         // If he's a manager, get only the companies that he belongs
         val userId = if (isManager(user)) user.id else null
         return companyDao.getCompanies(userId, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE)).deserializeJsonTo()

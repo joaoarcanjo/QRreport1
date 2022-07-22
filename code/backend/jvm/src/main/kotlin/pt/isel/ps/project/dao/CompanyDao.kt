@@ -9,12 +9,19 @@ import pt.isel.ps.project.model.company.COMPANY_REP
 import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
 import pt.isel.ps.project.responses.CompanyResponses.COMPANY_PAGE_MAX_SIZE
+import pt.isel.ps.project.responses.PersonResponses
 import java.util.*
 
 interface CompanyDao {
 
     @SqlQuery("SELECT get_companies(:userId, $COMPANY_PAGE_MAX_SIZE, :skip);")
     fun getCompanies(userId: UUID?, skip: Int): String
+
+    @SqlQuery("SELECT get_user_companies(:userId, :isManager, :filteredUser, :state, $COMPANY_PAGE_MAX_SIZE, :skip);")
+    fun getUserCompanies(userId: UUID?, isManager: Boolean, filteredUser: UUID, state: String, skip: Int): String
+
+    @SqlQuery("SELECT get_new_companies(:userId, $COMPANY_PAGE_MAX_SIZE, :skip);")
+    fun getNewCompanies(userId: UUID, skip: Int): String
 
     @SqlCall("CALL create_company(:$COMPANY_REP, :name);")
     @OutParameter(name = COMPANY_REP, sqlType = java.sql.Types.OTHER)

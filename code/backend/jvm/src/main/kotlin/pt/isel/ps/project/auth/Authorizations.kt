@@ -4,11 +4,14 @@ import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CHANGE_DENIED
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.CREATION_DENIED
 import pt.isel.ps.project.exception.ForbiddenException
+import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
 import pt.isel.ps.project.model.person.Roles.MANAGER
 import pt.isel.ps.project.model.person.Roles.ADMIN
 import pt.isel.ps.project.model.person.Roles.GUEST
+import java.util.*
 
 object Authorizations {
     object Person {
@@ -243,6 +246,12 @@ object Authorizations {
         fun groupTicketAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
             if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(CHANGE_DENIED)
+        }
+
+        fun getEmployeeStatesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)
         }
     }

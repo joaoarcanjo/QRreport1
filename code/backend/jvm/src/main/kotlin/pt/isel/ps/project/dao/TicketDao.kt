@@ -13,13 +13,14 @@ import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.TicketEmployeeEntity
 import pt.isel.ps.project.responses.PersonResponses
 import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
+import pt.isel.ps.project.responses.TicketResponses.STATES_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
 import java.util.*
 
 interface TicketDao {
 
-    @SqlQuery("SELECT get_tickets(:personId, $TICKET_PAGE_MAX_SIZE, :skip, :sort_by, :direction, null, null, null, null);")
-    fun getTickets(personId: UUID, direction: String, sort_by: String, skip: Int): String
+    @SqlQuery("SELECT get_tickets(:personId, :company, :building, $TICKET_PAGE_MAX_SIZE, :skip, :sort_by, :direction, :state);")
+    fun getTickets(personId: UUID, company: Long?, building: Long?, direction: String, sort_by: String, skip: Int, state: Int?): String
 
     @SqlQuery("SELECT get_ticket(:ticketId, :personId, 10, 0);")
     fun getTicket(ticketId: Long, personId: UUID): String
@@ -58,4 +59,8 @@ interface TicketDao {
     @OutParameter(name = TICKET_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL group_ticket(:$TICKET_REP, :ticketId, :parentTicket, :personId);")
     fun groupTicket(ticketId: Long, parentTicket: Long, personId: UUID): OutParameters
+
+    @SqlQuery("SELECT get_employee_states($STATES_PAGE_MAX_SIZE, :skip);")
+    fun getEmployeeStates(skip: Int): String
+
 }

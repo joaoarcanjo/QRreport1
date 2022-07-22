@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { CloseButton } from "../../components/Various"
 import { Person } from "../../models/Models"
-import { Action, Entity } from "../../models/QRJsonModel"
+import { Action } from "../../models/QRJsonModel"
 import { useLoggedInState } from "../Session"
 
 export function SwitchRole({person, action, setPayload, setAction, setAuxAction}: {

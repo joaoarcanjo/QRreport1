@@ -62,3 +62,13 @@ data class TicketRate (
     val employeeState: String,
     val rate: Int
 )
+
+data class EmployeeState (
+    val id: Int,
+    val name: String
+)
+
+data class EmployeeStatesDto (
+    val employeeStates: List<EmployeeState>?,
+    val statesCollectionSize: Int,
+)

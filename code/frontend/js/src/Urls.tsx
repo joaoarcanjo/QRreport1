@@ -7,16 +7,18 @@ export const PERSON_PROFILE = () => {
     return BASE_URL_API + API_VERSION + "/profile"
 }
 
-export const PERSONS_URL_API = (sortBy: string, direction: string) => {
-    return BASE_URL_API + API_VERSION + `/persons?sort_by=${sortBy}&direction=${direction}`
+export const PERSONS_URL_API = () => {
+    return BASE_URL_API + API_VERSION + `/persons`
 }
 
 export const PERSON_URL_API = (personId: string | undefined): string => {
     return BASE_URL_API + API_VERSION + `/persons/${personId}`
 }
 
-export const TICKETS_URL_API = (sortBy: string, direction: string): string => {
-    return BASE_URL_API + API_VERSION + `/tickets?sort_by=${sortBy}&direction=${direction}&page=1`
+export const TICKETS_URL_API = BASE_URL_API + API_VERSION + `/tickets?sort_by=name&direction=desc`
+
+export const TICKETS_EMPLOYEE_STATES_URL_API = () => {
+    return BASE_URL_API + API_VERSION + `/tickets/states`
 }
 
 export const TICKET_URL_API = (ticketId: string | undefined): string => {
@@ -27,6 +29,10 @@ export const COMPANIES_URL_API = BASE_URL_API + API_VERSION + `/companies`
 
 export const COMPANY_URL_API = (companyId: string | undefined): string => {
     return BASE_URL_API + API_VERSION + `/companies/${companyId}`
+} 
+
+export const BUILDINGS_URL_API = (companyId: string | undefined): string => {
+    return BASE_URL_API + API_VERSION + `/companies/${companyId}/buildings`
 } 
 
 export const BUILDING_URL_API = (companyId: string | undefined, buildingId: string | undefined): string => {

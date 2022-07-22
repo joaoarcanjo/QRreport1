@@ -1,9 +1,8 @@
-import { useForm } from "react-hook-form"
-import { AiFillCloseCircle } from "react-icons/ai"
-import { Form, LittleSubmitButton } from "../../components/form/FormComponents"
-import { ListPossibleValues } from "../../components/form/ListPossibleValues"
+import { useMemo, useState } from "react"
 import { CloseButton } from "../../components/Various"
+import { Company } from "../../models/Models"
 import { Action } from "../../models/QRJsonModel"
+import { SelectUserCompany } from "./SelectUserCompany"
 
 export function AssignToCompany({ action, setAction, setPayload, setAuxAction }: { 
     action: Action,
@@ -11,39 +10,26 @@ export function AssignToCompany({ action, setAction, setPayload, setAuxAction }:
     setPayload: React.Dispatch<React.SetStateAction<string>>,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
 }) {
-    type roleData = { 
-        company: string 
-    }
+    console.log(action)
+    const [ company, setCompany ] = useState<Company | undefined>(undefined)
 
-    const { register, handleSubmit } = useForm<roleData>()
-
-    const onSubmitHandler = handleSubmit(({ company }) => {
+    const onSubmitHandler = () => {
+        if(!company) return
         setAction(action)
-        setPayload(JSON.stringify({company: company}))
-    })
-    
-    function Inputs() {
-        let componentsInputs = action.properties.map((prop, idx) => {
-            switch (prop.name) {
-                case 'company': return <ListPossibleValues key={idx} 
-                register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
-            }
-        })
-        return <>{componentsInputs}</>
+        setPayload(JSON.stringify({company: company?.id}))
     }
-
-    const cancelForm = (event: any) => {
-        event.preventDefault()
-        setAuxAction(undefined)
-    };
+    
+    const selectCompany = useMemo(() => {
+        return <SelectUserCompany action={action} setPayload={setCompany} setAction={undefined} setAuxAction={undefined} />
+    },[])
 
     return (
-        <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
-            <CloseButton onClickHandler={ cancelForm }/>
-            <Form onSubmitHandler = { onSubmitHandler }>
-                <Inputs/>
-                <LittleSubmitButton text={`${action.title}`}/>
-            </Form>
-        </div>
-    )
+        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
+        <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
+        <p>Company selected: {company === undefined ? '-----' : `${company.name}`}</p>
+        {selectCompany}
+        <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onSubmitHandler}>
+            {action.title}
+        </button>
+        </div>)
 }

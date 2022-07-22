@@ -1,13 +1,23 @@
 package pt.isel.ps.project.model
 
 import org.springframework.web.util.UriTemplate
+import pt.isel.ps.project.model.Uris.Filters.makeBuildingId
+import pt.isel.ps.project.model.Uris.Filters.makeCompanyId
+import pt.isel.ps.project.model.Uris.Filters.makeDirection
+import pt.isel.ps.project.model.Uris.Filters.makeEmployeeState
+import pt.isel.ps.project.model.Uris.Filters.makeRole
+import pt.isel.ps.project.model.Uris.Filters.makeSortBy
 import java.util.*
 
 object Uris {
     const val REPORT_FORM_URL = "http://localhost:3000/report/"
     const val VERSION = "/v1"
     const val UNDEFINED_ID = 0
+    const val UNDEFINED_ID_LONG: Long = 0
     const val UNDEFINED = "null"
+    const val DEFAULT_BOOL = false
+
+    const val QUERY_STATE_KEY = "state"
 
     object Categories {
         const val BASE_PATH = "$VERSION/categories"
@@ -56,6 +66,10 @@ object Uris {
     }
 
     object Companies {
+        const val QUERY_USER_KEY = "userId"
+        const val QUERY_ASSIGN_KEY = "assign"
+        const val QUERY_COMPANY_KEY = "company"
+
         const val BASE_PATH = "$VERSION/companies"
         const val SPECIFIC_PATH = "$BASE_PATH/{companyId}"
         const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
@@ -71,7 +85,44 @@ object Uris {
         fun makeActivate(id: Long) = ACTIVATE_TEMPLATE.expand(mapOf("companyId" to id)).toString()
         fun makeDeactivate(id: Long) = DEACTIVATE_TEMPLATE.expand(mapOf("companyId" to id)).toString()
 
+        fun companiesSelf(page: Int, userId: UUID?, state: String, assign: Boolean): String {
+            var uri = makePagination(page, BASE_PATH)
+            uri = makeCompanyUserId(userId, uri)
+            uri = makeAssignCompany(assign, uri)
+            return makeCompaniesState(state, uri)
+        }
+
+        fun companiesPagination(userId: UUID?, state: String, assign: Boolean): String {
+            var uri = makeCompanyUserId(userId, "")
+            uri = makeCompaniesState(state, uri)
+            uri = makeAssignCompany(assign, uri)
+            return "${COMPANIES_PAGINATION}$uri"
+        }
+
+        private const val ASSIGN_PATH = "&assign={assign}"
+
+        private fun makeAssignCompany(assign: Boolean, uri: String): String {
+            if (!assign) return uri
+            return UriTemplate("$uri${ASSIGN_PATH}").expand(mapOf("assign" to assign)).toString()
+        }
+
+        private const val COMPANY_USER_PATH = "&userId={userId}"
+
+        private fun makeCompanyUserId(userId: UUID?, uri: String): String {
+            if (userId == null) return uri
+            return UriTemplate("$uri${COMPANY_USER_PATH}").expand(mapOf("userId" to userId)).toString()
+        }
+
+        private const val COMPANY_STATE_PATH = "&state={state}"
+
+        private fun makeCompaniesState(state: String, uri: String): String {
+            if (state == UNDEFINED) return uri
+            return UriTemplate("$uri${COMPANY_STATE_PATH}").expand(mapOf("state" to state)).toString()
+        }
+
         object Buildings {
+            const val QUERY_BUILDING_KEY = "building"
+
             const val BASE_PATH = "${Companies.SPECIFIC_PATH}/buildings"
             const val SPECIFIC_PATH = "$BASE_PATH/{buildingId}"
             const val ACTIVATE_PATH = "$SPECIFIC_PATH/activate"
@@ -153,13 +204,17 @@ object Uris {
     }
 
     object Tickets {
+        const val QUERY_EMPLOYEE_STATE_KEY = "employeeState"
+
         const val BASE_PATH = "$VERSION/tickets"
+        const val EMPLOYEE_STATES_PATH = "$BASE_PATH/states"
         const val SPECIFIC_PATH = "${BASE_PATH}/{ticketId}"
         const val STATE_PATH = "${SPECIFIC_PATH}/state"
         const val EMPLOYEE_PATH = "${SPECIFIC_PATH}/employee"
         const val RATE_PATH = "${SPECIFIC_PATH}/rate"
         const val GROUP_PATH = "${SPECIFIC_PATH}/group"
         const val TICKETS_PAGINATION = "$BASE_PATH{?page}"
+        const val EMPLOYEE_STATES_PAGINATION = "$EMPLOYEE_STATES_PATH{?page}"
         const val TICKET_EMPLOYEES_PAGINATION = "${EMPLOYEE_PATH}{?page}"
 
         private val SPECIFIC_TEMPLATE = UriTemplate(SPECIFIC_PATH)
@@ -178,6 +233,24 @@ object Uris {
             return "$uri{?page}"
         }
 
+        fun ticketsSelf(page: Int, direction: String, sortBy: String, companyId: Long?, buildingId: Long?, employeeState: Int?): String {
+            var uri = makePagination(page, BASE_PATH)
+            uri = makeDirection(direction, uri)
+            uri = makeSortBy(sortBy, uri)
+            uri = makeCompanyId(companyId, uri)
+            uri = makeBuildingId(buildingId, uri)
+            return makeEmployeeState(employeeState, uri)
+        }
+
+        fun ticketsPagination(direction: String, sortBy: String, companyId: Long?, buildingId: Long?, employeeState: Int?): String {
+            var uri = makeDirection(direction, "")
+            uri = makeSortBy(sortBy, uri)
+            uri = makeCompanyId(companyId, uri)
+            uri = makeBuildingId(buildingId, uri)
+            uri = makeEmployeeState(employeeState, uri)
+            return "${Persons.PERSONS_PAGINATION}$uri"
+        }
+
         object Comments {
             const val BASE_PATH = "${Tickets.SPECIFIC_PATH}/comments"
             const val SPECIFIC_PATH = "${BASE_PATH}/{commentId}"
@@ -193,7 +266,6 @@ object Uris {
 
     object Persons {
         const val QUERY_ROLE_KEY = "role"
-        const val QUERY_COMPANY_KEY = "company"
 
         const val BASE_PATH = "$VERSION/persons"
         const val PROFILE_PATH = "$VERSION/profile"
@@ -235,30 +307,16 @@ object Uris {
         fun makeRemoveSkill(id: UUID) = REMOVE_SKILL_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeAssignCompany(id: UUID) = ASSIGN_COMPANY_TEMPLATE.expand(mapOf("personId" to id)).toString()
 
-        fun personsSelf(page: Int, companyId: Long, role: String): String {
+        fun personsSelf(page: Int, companyId: Long?, role: String): String {
             var uri = makePagination(page, BASE_PATH)
             uri = makeCompanyId(companyId, uri)
             return makeRole(role, uri)
         }
 
-        fun personsPagination(companyId: Long, role: String): String {
+        fun personsPagination(companyId: Long?, role: String): String {
             var uri = makeCompanyId(companyId, "")
             uri = makeRole(role, uri)
             return "$PERSONS_PAGINATION$uri"
-        }
-
-        const val COMPANY_PATH = "&company={companyId}"
-
-        fun makeCompanyId(companyId: Long, uri: String): String {
-            if (companyId == UNDEFINED_ID.toLong()) return uri
-            return UriTemplate("$uri$COMPANY_PATH").expand(mapOf("companyId" to companyId)).toString()
-        }
-
-        const val ROLE_PATH = "&role={roleName}"
-
-        fun makeRole(role: String, uri: String): String {
-            if (role == UNDEFINED) return uri
-            return UriTemplate("$uri$ROLE_PATH").expand(mapOf("roleName" to role)).toString()
         }
     }
 
@@ -266,6 +324,49 @@ object Uris {
         const val SIGNUP_PATH = "$VERSION/signup"
         const val LOGIN_PATH = "$VERSION/login"
         const val LOGOUT_PATH = "$VERSION/logout"
+    }
+
+    object Filters {
+
+        private const val ROLE_PATH = "&role={roleName}"
+
+        fun makeRole(role: String, uri: String): String {
+            if (role == UNDEFINED) return uri
+            return UriTemplate("$uri$ROLE_PATH").expand(mapOf("roleName" to role)).toString()
+        }
+
+        private const val COMPANY_PATH = "&company={companyId}"
+
+        fun makeCompanyId(companyId: Long?, uri: String): String {
+            if (companyId == null) return uri
+            return UriTemplate("$uri$COMPANY_PATH").expand(mapOf("companyId" to companyId)).toString()
+        }
+
+        private const val BUILDING_PATH = "&building={buildingId}"
+
+        fun makeBuildingId(buildingId: Long?, uri: String): String {
+            if (buildingId == null) return uri
+            return UriTemplate("$uri$BUILDING_PATH").expand(mapOf("buildingId" to buildingId)).toString()
+        }
+
+        private const val DIRECTION_PATH = "&direction={direction}"
+
+        fun makeDirection(direction: String, uri: String): String {
+            return UriTemplate("$uri$DIRECTION_PATH").expand(mapOf("direction" to direction)).toString()
+        }
+
+        private const val SORT_BY_PATH = "&sortBy={sort}"
+
+        fun makeSortBy(sortBy: String, uri: String): String {
+            return UriTemplate("$uri$SORT_BY_PATH").expand(mapOf("sort" to sortBy)).toString()
+        }
+
+        private const val EMPLOYEE_STATE = "&employeeState={state}"
+
+        fun makeEmployeeState(state: Int?, uri: String): String {
+            if (state == null) return uri
+            return UriTemplate("$uri$EMPLOYEE_STATE").expand(mapOf("state" to state)).toString()
+        }
     }
 
     private const val PAGINATION_PATH = "?page={pageIdx}"

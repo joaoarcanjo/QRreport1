@@ -1,16 +1,15 @@
-import { useMemo, useState } from "react"
-import { AiFillCloseCircle } from "react-icons/ai"
+import { useState, useMemo } from "react"
 import { Outlet } from "react-router-dom"
-import { Loading } from "../components/Various"
-import { ErrorView } from "../errors/Error"
-import { useFetch } from "../hooks/useFetch"
-import { Person } from "../models/Models"
-import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../models/ModelUtils"
-import { Action, Entity } from "../models/QRJsonModel"
-import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { BASE_URL_API } from "../Urls"
+import { CloseButton, Loading } from "../../components/Various"
+import { ErrorView } from "../../errors/Error"
+import { useFetch } from "../../hooks/useFetch"
+import { Company, Person } from "../../models/Models"
+import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../../models/ModelUtils"
+import { Action, Entity } from "../../models/QRJsonModel"
+import { Collection, CollectionPagination } from "../../pagination/CollectionPagination"
+import { BASE_URL_API } from "../../Urls"
 
-export function SelectManager({action, setAction, setPayload, setAuxAction}: {
+export function SelectUserCompany({action, setAction, setPayload, setAuxAction}: {
     action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setPayload: React.Dispatch<React.SetStateAction<any>>,
@@ -22,7 +21,7 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
         headers: { 'Request-Origin': 'WebApp' }
     }
 
-    const property = action.properties.find(prop => {if(prop.name === 'managerId'){ return prop}})
+    const property = action.properties.find(prop => {if(prop.name === 'company'){ return prop}})
     const href = property?.possibleValues?.href
     const url = href === undefined || null ? '' : BASE_URL_API + href
 
@@ -38,19 +37,19 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
     if (problem) return <ErrorView problemJson={problem}/>
 
 
-    function ManagerItem({entity}: {entity: Entity<Person>}) {
+    function CompanyItem({entity}: {entity: Entity<Company>}) {
         if (!entity) return null;
-        const person = entity.properties
+        const company = entity.properties
         
         return (
             <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
                 <div className='w-full flex space-x-4'>
-                    <h5 className='font-md text-gray-900'>{person.name}</h5>
+                    <h5 className='font-md text-gray-900'>{company.name}</h5>
                 </div>
                 <div className='w-full flex justify-end' >
                     <button 
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
-                        onClick= {() => { setAction && setAction(action); setPayload(person)}}>
+                        onClick= {() => setPayload(company)}>
                         Select
                     </button>
                 </div>
@@ -59,24 +58,21 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
         )
     }
 
-    function Managers({entity}: { entity: Entity<Collection> | undefined }) {
+    function Companies({entity}: { entity: Entity<Collection> | undefined }) {
 
         if(!entity) return null;
 
         return (
             <div className='flex flex-col space-y-3'>
-                {entity.entities!!.map((manager, idx) => <ManagerItem key={idx} entity={manager}/>)}
+                {entity.entities!!.map((company, idx) => <CompanyItem key={idx} entity={company}/>)}
             </div>
         )
     }
 
     return (
         <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
-            {setAuxAction && 
-            <button onClick={() => setAuxAction(undefined)}>
-                <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
-            </button>}
-            <Managers entity={getEntityOrUndefined(result?.body)}/>
+            {setAuxAction && <CloseButton onClickHandler={() => setAuxAction(undefined) }/>}
+            <Companies entity={getEntityOrUndefined(result?.body)}/>
             <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 
                 templateUrl={getLink('pagination', result?.body)}/>
             <Outlet/>

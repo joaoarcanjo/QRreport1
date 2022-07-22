@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.auth.Authorizations.Ticket.addTicketRateAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.changeTicketStateAuthorization
+import pt.isel.ps.project.auth.Authorizations.Ticket.getEmployeeStatesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getSpecificEmployeesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.getTicketsAuthorization
@@ -13,6 +14,9 @@ import pt.isel.ps.project.auth.Authorizations.Ticket.removeEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.setEmployeeAuthorization
 import pt.isel.ps.project.auth.Authorizations.Ticket.updateTicketAuthorization
 import pt.isel.ps.project.model.Uris.Tickets
+import pt.isel.ps.project.model.Uris.UNDEFINED
+import pt.isel.ps.project.model.Uris.UNDEFINED_ID
+import pt.isel.ps.project.model.Uris.UNDEFINED_ID_LONG
 import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
 import pt.isel.ps.project.model.representations.DEFAULT_SORT
 import pt.isel.ps.project.model.representations.PaginationDto.Companion.DEFAULT_PAGE
@@ -21,6 +25,7 @@ import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.TicketResponses.addTicketRateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.changeTicketStateRepresentation
 import pt.isel.ps.project.responses.TicketResponses.createTicketRepresentation
+import pt.isel.ps.project.responses.TicketResponses.getEmployeeStates
 import pt.isel.ps.project.responses.TicketResponses.getSpecificEmployeesRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketRepresentation
 import pt.isel.ps.project.responses.TicketResponses.getTicketsRepresentation
@@ -38,10 +43,19 @@ class TicketController(private val service: TicketService) {
         @RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int,
         @RequestParam(defaultValue = DEFAULT_DIRECTION) direction: String,
         @RequestParam(defaultValue = DEFAULT_SORT) sortBy: String,
+        @RequestParam(defaultValue = "$UNDEFINED_ID_LONG") company: Long,
+        @RequestParam(defaultValue = "$UNDEFINED_ID_LONG") building: Long,
+        @RequestParam(defaultValue = "$UNDEFINED_ID") employeeState: Int,
         user: AuthPerson
     ): QRreportJsonModel {
         getTicketsAuthorization(user)
-        return getTicketsRepresentation(service.getTickets(user, direction, sortBy, page), page)
+        val state = if(employeeState != UNDEFINED_ID) employeeState else null
+        val companyId = if(company != UNDEFINED_ID_LONG) company else null
+        val buildingId = if(building != UNDEFINED_ID_LONG) building else null
+
+        return getTicketsRepresentation(
+            service.getTickets(user, companyId, buildingId, direction, sortBy, page, state),
+            companyId, buildingId, direction, sortBy, state, page)
     }
 
     @GetMapping(Tickets.SPECIFIC_PATH)
@@ -119,5 +133,11 @@ class TicketController(private val service: TicketService) {
     ): QRreportJsonModel {
         groupTicketAuthorization(user)
         return groupTicketRepresentation(service.groupTicket(ticketId, parentTicket.ticket, user))
+    }
+
+    @GetMapping(Tickets.EMPLOYEE_STATES_PATH)
+    fun employeeStates(@RequestParam(defaultValue = "$DEFAULT_PAGE") page: Int, user: AuthPerson): QRreportJsonModel {
+        getEmployeeStatesAuthorization(user)
+        return getEmployeeStates(service.getEmployeeStates(page, user), page)
     }
 }

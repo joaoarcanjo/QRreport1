@@ -127,7 +127,87 @@ EXCEPTION
 END$$ LANGUAGE plpgsql;
 
 /*
- * Gets all the companies or in case of manager, gets only the companies that he belongs
+ * Gets all new possible companies to assign an employee or a manager
+ */
+CREATE OR REPLACE FUNCTION get_new_companies(user_id UUID, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
+RETURNS JSON
+AS
+$$
+DECLARE
+    rec RECORD;
+    companies JSON[];
+    collection_size INT = 0;
+BEGIN
+    FOR rec IN
+        SELECT id, name, state, timestamp FROM COMPANY
+        WHERE id NOT IN (SELECT company FROM PERSON_COMPANY WHERE person = user_id)
+        LIMIT limit_rows OFFSET skip_rows
+    LOOP
+        companies = array_append(
+            companies,
+            company_item_representation(rec.id, rec.name, rec.state, rec.timestamp)
+        );
+    END LOOP;
+
+    SELECT COUNT(id) INTO collection_size FROM COMPANY
+        WHERE id NOT IN (SELECT company FROM PERSON_COMPANY WHERE person = user_id);
+
+    RETURN json_build_object('companies', companies, 'companiesCollectionSize', collection_size);
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Gets all the companies where an employee or manager is active or inactive
+ * Se for um manager a realizar o pedido, apenas vai retornar as companies que ambos os utilizadores têm em comum
+ */
+CREATE OR REPLACE FUNCTION get_user_companies(
+    admin_manager_id UUID,
+    is_manager BOOL,
+    user_id UUID,
+    rel_state TEXT DEFAULT 'active',
+    limit_rows INT DEFAULT NULL,
+    skip_rows INT DEFAULT NULL
+)
+RETURNS JSON
+AS
+$$
+DECLARE
+    rec RECORD;
+    companies JSON[];
+    collection_size INT = 0;
+BEGIN
+    FOR rec IN
+        SELECT id, name, state, timestamp
+            FROM COMPANY WHERE
+                CASE WHEN (is_manager) THEN
+                    id IN (SELECT company FROM PERSON_COMPANY pc WHERE person = user_id AND
+                    state = rel_state AND
+                    company IN (SELECT company FROM PERSON_COMPANY WHERE person = admin_manager_id))
+                ELSE
+                    id IN (SELECT company FROM PERSON_COMPANY pc WHERE person = user_id AND
+                    state = rel_state)
+                END
+            LIMIT limit_rows OFFSET skip_rows
+    LOOP
+        companies = array_append(
+            companies,
+            company_item_representation(rec.id, rec.name, rec.state, rec.timestamp)
+        );
+    END LOOP;
+
+    SELECT COUNT(id) INTO collection_size FROM COMPANY WHERE
+                CASE WHEN (is_manager) THEN
+                    id IN (SELECT company FROM PERSON_COMPANY pc WHERE person = user_id AND
+                    state = rel_state AND
+                    company IN (SELECT company FROM PERSON_COMPANY WHERE person = admin_manager_id))
+                ELSE
+                    id IN (SELECT company FROM PERSON_COMPANY pc WHERE person = user_id AND
+                    state = rel_state)
+                END;
+    RETURN json_build_object('companies', companies, 'companiesCollectionSize', collection_size);
+END$$ LANGUAGE plpgsql;
+
+/*
+ * Gets all the companies or in case of manager or employee, gets only the companies that he belongs
  * Returns a list with all the company item representation
  */
 CREATE OR REPLACE FUNCTION get_companies(person_id UUID, limit_rows INT DEFAULT NULL, skip_rows INT DEFAULT NULL)
@@ -143,7 +223,7 @@ BEGIN
         SELECT id, name, state, timestamp
             FROM COMPANY WHERE
                 CASE WHEN (person_id IS NOT NULL) THEN
-                    id IN (SELECT company FROM PERSON_COMPANY WHERE person = person_id)
+                    id IN (SELECT company FROM PERSON_COMPANY WHERE person = person_id AND state = 'active')
                 ELSE TRUE END
             LIMIT limit_rows OFFSET skip_rows
     LOOP

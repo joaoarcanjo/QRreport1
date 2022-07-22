@@ -143,3 +143,7 @@ export type LoginUser = {
     phone?: string,
     activeRole: string,
 }
+
+export type EmployeeState = {
+    name: string
+}

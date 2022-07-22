@@ -11,6 +11,7 @@ import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.PersonResponses.PERSON_PAGE_MAX_SIZE
+import pt.isel.ps.project.responses.TicketResponses.STATES_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.TicketResponses.TICKET_PAGE_MAX_SIZE
 import pt.isel.ps.project.util.Validator.Ticket.verifyCreateTicketInput
 import pt.isel.ps.project.util.Validator.Ticket.verifyTicketRateInput
@@ -20,8 +21,8 @@ import pt.isel.ps.project.util.deserializeJsonTo
 @Service
 class TicketService(val ticketDao: TicketDao) {
 
-    fun getTickets(user: AuthPerson, direction: String, sortBy: String, page: Int): TicketsDto {
-        return ticketDao.getTickets(user.id, direction, sortBy, elemsToSkip(page, TICKET_PAGE_MAX_SIZE)).deserializeJsonTo()
+    fun getTickets(user: AuthPerson, company: Long?, building: Long?, direction: String, sortBy: String, page: Int, state: Int?): TicketsDto {
+        return ticketDao.getTickets(user.id, company, building, direction, sortBy, elemsToSkip(page, TICKET_PAGE_MAX_SIZE), state).deserializeJsonTo()
     }
 
     fun getTicket(ticketId: Long, user: AuthPerson): TicketExtraInfo {
@@ -75,5 +76,9 @@ class TicketService(val ticketDao: TicketDao) {
         if (ticketId == parentTicket) throw InvalidParameterException(SAME_TICKET)
         return ticketDao.groupTicket(ticketId, parentTicket, user.id).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
+    }
+
+    fun getEmployeeStates(page: Int, user: AuthPerson): EmployeeStatesDto {
+        return ticketDao.getEmployeeStates(elemsToSkip(page, STATES_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 }

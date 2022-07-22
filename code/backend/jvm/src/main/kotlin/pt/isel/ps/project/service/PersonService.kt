@@ -33,10 +33,10 @@ import java.util.*
 @Service
 class PersonService(private val personDao: PersonDao, private val passwordEncoder: PasswordEncoder) {
 
-    fun getPersons(user: AuthPerson, companyId: Long, role: String, page: Int): PersonsDto {
+    fun getPersons(user: AuthPerson, companyId: Long?, role: String, page: Int): PersonsDto {
         // Managers can only get his employees (i.e. same company)
         // Admins can get everyone
-        if (companyId != UNDEFINED_ID.toLong() && role != UNDEFINED)
+        if (companyId != null && role != UNDEFINED)
             return personDao.getCompanyPersons(user.id, companyId, role, elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
         return personDao.getPersons(user.id, isManager(user), elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }

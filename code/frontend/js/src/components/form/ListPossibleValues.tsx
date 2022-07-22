@@ -41,7 +41,6 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
             return {label: current.properties.id, value: current.properties.name}
         }
     })
-
     
     return <Options setValue={setValue} value={{
         optionsText: listText, 

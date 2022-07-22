@@ -3,7 +3,7 @@ import { FaEdit } from "react-icons/fa"
 import { Link, Navigate, Outlet, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
-import { Building } from "../models/Models";
+import { Building, Person } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { BUILDING_URL_API, COMPANY_URL_API, LOGIN_URL } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
@@ -85,6 +85,29 @@ export function BuildingRep() {
         )
     }
 
+    function SetManager({action, setAuxAction}: {
+        action: Action,
+        setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    }) {
+        
+        const [manager, setManager] = useState<Person | undefined>()
+
+        const onClick = () => {
+            setAction(action)
+            setPayload(JSON.stringify({manager: manager?.id}))
+        }
+
+        return (
+            <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
+                <p>Manager selected: {manager === undefined ? '-----' : `${manager.name}`}</p>
+                <SelectManager action={action} setPayload={setManager} setAction={undefined} setAuxAction={setAuxAction}/>
+                <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onClick}>
+                    {action.title}
+                </button>
+            </div>
+        )
+    }
+
     function BuildingActions({ actions }: {actions: Action[] | undefined}) {
 
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
@@ -114,7 +137,7 @@ export function BuildingRep() {
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
                 {auxAction?.name === 'change-building-manager' && 
-                <SelectManager action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                <SetManager action={auxAction} setAuxAction={setAuxAction}/>}
             </>
         ) 
     }

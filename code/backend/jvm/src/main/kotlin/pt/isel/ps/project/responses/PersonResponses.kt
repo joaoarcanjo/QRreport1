@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.Uris.Companies.companiesSelf
 import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.Uris.Persons.PERSONS_PAGINATION
 import pt.isel.ps.project.model.Uris.Persons.personsPagination
@@ -14,7 +15,11 @@ import pt.isel.ps.project.model.person.PersonDto
 import pt.isel.ps.project.model.person.PersonItemDto
 import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.CollectionModel
+import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
+import pt.isel.ps.project.model.representations.DEFAULT_SORT
 import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.model.state.States.ACTIVE
+import pt.isel.ps.project.model.state.States.INACTIVE
 import pt.isel.ps.project.responses.Response.Classes
 import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.Links
@@ -97,8 +102,8 @@ object PersonResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
-            ),      // TODO: Path to get only the auth person companies
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, INACTIVE, false))),
+                ),
         )
 
         fun firePerson(personId: UUID) = QRreportJsonModel.Action(
@@ -110,8 +115,7 @@ object PersonResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
-                    // TODO: Path to get only the auth person companies
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, false))),
                 QRreportJsonModel.Property(name = "reason", type = "string"),
             ),
         )
@@ -181,7 +185,7 @@ object PersonResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, false))),
             ),
         )
 
@@ -191,10 +195,7 @@ object PersonResponses {
             method = HttpMethod.POST,
             href = Persons.SWITCH_ROLE,
             type = MediaType.APPLICATION_JSON.toString(),
-            properties = listOf(
-                QRreportJsonModel.Property(name = "role", type = "string",
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
-            ),          // TODO: Path to get roles
+            properties = listOf(QRreportJsonModel.Property(name = "role", type = "string")),
         )
     }
 
@@ -205,7 +206,7 @@ object PersonResponses {
         links = listOf(Links.self(Persons.makeSpecific(person.id))),
     )
 
-    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int, company: Long, role: String) = buildResponse(
+    fun getPersonsRepresentation(personsDto: PersonsDto, pageIdx: Int, company: Long?, role: String) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.PERSON, Classes.COLLECTION),
             properties = CollectionModel(pageIdx, PERSON_PAGE_MAX_SIZE, personsDto.personsCollectionSize),
@@ -238,20 +239,18 @@ object PersonResponses {
             clazz = listOf(Classes.PERSON),
             properties = personDetails.person,
             entities = if (personDetails.personTickets != null)
-                    listOf(getTicketsRepresentation(personDetails.personTickets, 1))
+                    listOf(getTicketsRepresentation(personDetails.personTickets, null, null, DEFAULT_DIRECTION, DEFAULT_SORT, null, 1))
                 else null,
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (isAdmin(user) || isManager(user)) {
                     // Fire/Rehire
                     if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
-                        if (personIsInactive(personDetails.person)) {
-                            add(Actions.rehirePerson(personDetails.person.id))
-                            return@apply
-                        } else {
-                            if(!isSamePerson(user, personDetails.person.id)) {
-                                add(Actions.firePerson(personDetails.person.id))
-                                add(Actions.assignPersonToCompany(personDetails.person.id))
-                            }
+                        add(Actions.rehirePerson(personDetails.person.id))
+                        add(Actions.firePerson(personDetails.person.id))
+
+                        //Assign Person
+                        if (!personIsInactive(personDetails.person) && isAdmin(user)) {
+                            add(Actions.assignPersonToCompany(personDetails.person.id))
                         }
                     // Ban/Unban
                     } else if (!isSamePerson(user, personDetails.person.id)
