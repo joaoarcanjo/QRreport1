@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { MdExpandLess, MdExpandMore, MdOutlineMeetingRoom } from "react-icons/md";
+import { MdExpandLess, MdExpandMore } from "react-icons/md";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
@@ -16,7 +16,7 @@ import { TicketRate } from "./TicketRate";
 import { UpdateState } from "./TicketState";
 import { ListComments } from "../comment/ListComments";
 import { GroupTicket } from "./GroupTicket";
-import { ADMIN_ROLE, MANAGER_ROLE, useLoggedInState, USER_ROLE } from "../user/Session"
+import { ADMIN_ROLE, EMPLOYEE_ROLE, MANAGER_ROLE, useLoggedInState, USER_ROLE } from "../user/Session"
 import { TbPencil } from "react-icons/tb";
 import { BsBuilding, BsDoorClosed } from "react-icons/bs";
 
@@ -62,9 +62,12 @@ export function TicketRep() {
         case 'update-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<TicketRep/>}/>
     }
 
-    function UpdateAction({action}: {action: Action | undefined}) {
+    function UpdateAction({action, setUpdateFlag}: {
+        action: Action | undefined, 
+        setUpdateFlag: React.Dispatch<React.SetStateAction<boolean>>
+    }) {
         return action !== undefined ? (
-            <button onClick={() => setAction(action)} className="my-1">
+            <button onClick={() => setUpdateFlag(true)} className="my-1">
                 <FaEdit style= {{ color: 'blue', fontSize: "1.4em" }} /> 
             </button>
         ): null
@@ -72,6 +75,7 @@ export function TicketRep() {
 
     function TicketInfo({entity, actions, parent}: { entity: Entity<Ticket>, actions?: Action[], parent: Entity<number> | undefined}) {
         const [updateFLag, setUpdateFlag] = useState(false)
+        const [updaTicketFlag, setUpdateTicketFlag] = useState(false)
         
         const ticket = entity.properties
 
@@ -81,13 +85,17 @@ export function TicketRep() {
         const authorEntity = getSpecificEntity(["person"], "ticket-author", entity.entities)
         const employeeEntity = getSpecificEntity(["person"], "ticket-employee", entity.entities)
         const userRole = useLoggedInState()?.userRole
+        
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3 divide-y-2'>
                 <div className='flex flex-col space-y-4 device-y'>
                     <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                         <span className='text-gray-900 font-bold text-xl leading-8 my-1'>{ticket.subject}</span>
-                        <UpdateAction action={actions?.find(action => action.name === 'update-ticket')}/> 
+                        <UpdateAction action={actions?.find(action => action.name === 'update-ticket')} setUpdateFlag={setUpdateTicketFlag}/> 
                     </div>
+                    {updaTicketFlag &&
+                        <UpdateTicket action={actions?.find(action => action.name === 'update-ticket')} setAction={setAction} setAuxAction={setUpdateTicketFlag} setPayload={setPayload}/>
+                    }
                     <div className='flex items-center'>
                         <FaRegBuilding style= {{ color: 'green', fontSize: "1.4em" }} /> 
                         <span>: {buildingEntity?.properties.name}</span>
@@ -108,7 +116,7 @@ export function TicketRep() {
                             </div>
                         </Link>
                     </div>
-                    {(userRole === MANAGER_ROLE || userRole === ADMIN_ROLE) && <div className='flex'>
+                    {(((userRole === MANAGER_ROLE || userRole === ADMIN_ROLE || userRole === EMPLOYEE_ROLE) && (employeeEntity))) && <div className='flex'>
                         <Link to={`/persons/${employeeEntity?.properties.id}`}>
                             <div className='flex items-center'>
                                 <FaToolbox style= {{ color: 'green', fontSize: "1.4em" }} />
@@ -138,7 +146,7 @@ export function TicketRep() {
                             ) 
                         }    
                         if(action.name === 'add-rate') {
-                            return <TicketRate action={action} setAction={setAction} setPayload={setPayload}/>
+                            return <TicketRate key={idx} action={action} setAction={setAction} setPayload={setPayload}/>
                         }
                     })}
                     <TicketActions actions={getActionsOrUndefined(result?.body)}/>
@@ -180,8 +188,6 @@ export function TicketRep() {
                 <GroupTicket action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'set-employee' && 
                 <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
-                {auxAction?.name === 'update-ticket' &&
-                <UpdateTicket action={action} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
             </>
         )
     }

@@ -431,19 +431,19 @@ object Authorizations {
     object Comment {
         fun getCommentsAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if (userRole == MANAGER || userRole == ADMIN) return true
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(ACCESS_DENIED)
         }
 
         fun createCommentAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if (userRole == MANAGER || userRole == ADMIN) return true
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CREATION_DENIED)
         }
 
         fun updateCommentAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if (userRole == MANAGER || userRole == ADMIN) return true
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)
         }
 

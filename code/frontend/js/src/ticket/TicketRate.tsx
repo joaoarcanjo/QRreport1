@@ -12,7 +12,7 @@ export function TicketRate({action, setPayload, setAction}: {
     if(!action || !setAction || !setPayload) return null
 
     const stars = Array(5).fill('').map((x, idx) => {return (
-            <button onClick={() => setStarCount(idx + 1)}>
+            <button key={idx} onClick={() => setStarCount(idx + 1)}>
                 <AiFillStar style= {{ color: starsCounter <= idx ? '#686762' : '#e5b215', fontSize: "1.4em" }}/>
             </button>
         )

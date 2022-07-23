@@ -228,9 +228,9 @@ BEGIN
 
     INSERT INTO TICKET (subject, description, reporter, room, device)
     VALUES (subject, description, person_id, room_id, device_id)
-    RETURNING id, employee_state INTO t_id, t_employee_state;
+    RETURNING id INTO t_id;
 
-    ticket_rep = ticket_item_representation(t_id, subject, description, t_employee_state);
+    ticket_rep = ticket_item_representation(t_id);
 END$$LANGUAGE plpgsql;
 
 /*

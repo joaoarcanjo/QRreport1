@@ -47,6 +47,7 @@ export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
     function TicketItem({entity}: {entity: Entity<any>}) {
         if (!entity) return null;
         const ticket = entity.properties
+        //TODO, aparece o o próprio ticket para agrupar
         return (
             <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
                 <div className='w-full flex space-x-4'>

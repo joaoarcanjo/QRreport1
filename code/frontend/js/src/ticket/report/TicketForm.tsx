@@ -47,11 +47,11 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
         }
         
         payload['subject'] = anomaly === '-1' ? subject : anomaly
-        payload['description'] = description === undefined ? anomaly : description
+        payload['description'] = description === undefined || description === '' ? anomaly : description
         payload['hash'] = hash
         payload['name'] = name
         payload['email'] = email
-
+        
         setAction(action)
         setPayload(JSON.stringify(payload))
     })
@@ -90,14 +90,14 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
     const[anomaly, setAnomaly] = useState('-1')
 
     const componentsInputs = useMemo(() => {
-        return action!!.properties.map(prop => {
+        return action!!.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'subject': return (anomaly === '-1') && <Input value={simpleInputForm(register, 'Subject', errors, anomaly === '-1' ? undefined: false, prop.name, prop.type)}/>
-                case 'description': return <TextArea value={simpleTextAreaForm('Description', register, errors, prop.required, prop.name, '')}/>
-                case 'name': return !loggedState?.isLoggedIn && <Input value={simpleInputForm(register, 'Name', errors, !loggedState?.isLoggedIn && prop.required, prop.name, prop.type)}/>
-                case 'phone': return !loggedState?.isLoggedIn && <Input value={phoneInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Phone number')}/> 
-                case 'email': return !loggedState?.isLoggedIn && <Input value={emailInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Email')}/> 
-                case 'anomaly': return <ListPossibleValues 
+                case 'subject': return (anomaly === '-1') && <Input key={idx} value={simpleInputForm(register, 'Subject', errors, anomaly === '-1' ? undefined: false, prop.name, prop.type)}/>
+                case 'description': return <TextArea key={idx}  value={simpleTextAreaForm('Description', register, errors, prop.required, prop.name, '')}/>
+                case 'name': return !loggedState?.isLoggedIn && <Input key={idx} value={simpleInputForm(register, 'Name', errors, !loggedState?.isLoggedIn && prop.required, prop.name, prop.type)}/>
+                case 'phone': return !loggedState?.isLoggedIn && <Input key={idx} value={phoneInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Phone number')}/> 
+                case 'email': return !loggedState?.isLoggedIn && <Input key={idx} value={emailInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Email')}/> 
+                case 'anomaly': return <ListPossibleValues key={idx} 
                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select anomaly'} 
                    otherValueText={'Other problem...'}
                    setValue={setAnomaly}/>

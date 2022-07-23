@@ -1,12 +1,12 @@
 import { useForm } from "react-hook-form";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, Header, HeaderParagraph, Input, Paragraph, BigSubmitButton } from "../components/form/FormComponents";
+import { Form, HeaderParagraph, Input, BigSubmitButton, LittleSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 
 export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: { 
     action: Action | undefined,
-    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+    setAuxAction: React.Dispatch<React.SetStateAction<boolean>>,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
@@ -23,9 +23,8 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
         
         payload['subject'] = subject !== '' ? subject : null
         payload['description'] = description !== '' ? description : null
-
         setAction(action)
-        setPayload(payload)
+        setPayload(JSON.stringify(payload))
     })
     
     function Inputs() {
@@ -42,16 +41,12 @@ export function UpdateTicket({ action, setAction, setAuxAction, setPayload}: {
     
     return (
         <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200">
-            <button onClick={() => setAuxAction(undefined)}>
+            <button onClick={() => setAuxAction(false)}>
                 <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
             </button>
             <Form onSubmitHandler = { onSubmitHandler }>
-                <Header heading='Update your ticket'>
-                    <HeaderParagraph paragraph='Insert new information below'/>
-                </Header>
                 <Inputs/>
-                <BigSubmitButton text={'Update ticket'}/>
-                <Paragraph value = {'(*) Required'}/>
+                <LittleSubmitButton text={'Update ticket'}/>
             </Form>
         </div>
     )
