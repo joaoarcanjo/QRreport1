@@ -26,9 +26,9 @@ export function InputCategory({action, setAction, setAuxAction, setPayload }: {
     })
 
     function Inputs() {
-        let componentsInputs = action!!.properties.map(prop => {
+        let componentsInputs = action!!.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'name': return <Input value={simpleInputForm(register, 'Name', errors, prop.required, prop.name, prop.type)}/>
+                case 'name': return <Input key={idx} value={simpleInputForm(register, 'Name', errors, prop.required, prop.name, prop.type)}/>
             }
         })
         return <>{componentsInputs}</>

@@ -40,7 +40,7 @@ export function FireAction({ action, setAction, setPayload, setAuxAction }: {
     })
 
     return (
-        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
+        <div className="space-y-1 p-3 bg-white rounded-lg border border-gray-200 shadow-md">
             <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             <p>Company selected: {company === undefined ? '-----' : `${company.name}`}</p>
             {selectCompany}

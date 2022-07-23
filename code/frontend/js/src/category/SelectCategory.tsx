@@ -1,17 +1,16 @@
-import { useState, useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Outlet } from "react-router-dom"
-import { CloseButton, Loading } from "../../components/Various"
-import { ErrorView } from "../../errors/Error"
-import { useFetch } from "../../hooks/useFetch"
-import { Company, Person } from "../../models/Models"
-import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../../models/ModelUtils"
-import { Action, Entity } from "../../models/QRJsonModel"
-import { Collection, CollectionPagination } from "../../pagination/CollectionPagination"
-import { BASE_URL_API } from "../../Urls"
+import { Loading, CloseButton } from "../components/Various"
+import { ErrorView } from "../errors/Error"
+import { useFetch } from "../hooks/useFetch"
+import { Category } from "../models/Models"
+import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../models/ModelUtils"
+import { Action, Entity } from "../models/QRJsonModel"
+import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
+import { BASE_URL_API } from "../Urls"
 
-export function SelectUserCompany({action, setAction, setPayload, setAuxAction}: {
-    action: Action,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+export function SelectCategory({action, propName, setPayload, setAuxAction}: {
+    action: Action, propName: string,
     setPayload: React.Dispatch<React.SetStateAction<any>>,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined
 }) {
@@ -21,7 +20,7 @@ export function SelectUserCompany({action, setAction, setPayload, setAuxAction}:
         headers: { 'Request-Origin': 'WebApp' }
     }
 
-    const property = action.properties.find(prop => {if(prop.name === 'company'){ return prop}})
+    const property = action.properties.find(prop => {if(prop.name === propName){ return prop}})
     const href = property?.possibleValues?.href
     const url = href === undefined || null ? '' : BASE_URL_API + href
 
@@ -37,23 +36,24 @@ export function SelectUserCompany({action, setAction, setPayload, setAuxAction}:
     if (problem) return <ErrorView problemJson={problem}/>
 
 
-    function CompanyItem({entity}: {entity: Entity<Company>}) {
+    function CategoryItem({entity}: {entity: Entity<Category>}) {
         if (!entity) return null;
-        const company = entity.properties
-        const state = company.state
+        const category = entity.properties
+        const state = category.state
         const stateColor = state === 'active' ? 'bg-white' : 'bg-red-200'
         return (
             <div className={`flex p-1 ${stateColor} rounded-lg border border-gray-400`}>  
                 <div className='w-full flex space-x-4'>
-                    <h5 className='font-md text-gray-900'>{company.name}</h5>
+                    <h5 className='font-md text-gray-900'>{category.name}</h5>
                 </div>
+                {state === 'active' &&
                 <div className='w-full flex justify-end' >
                     <button 
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
-                        onClick= {() => setPayload(company)}>
+                        onClick= {() => setPayload(category)}>
                         Select
                     </button>
-                </div>
+                </div>}
             </div>
         )
     }
@@ -61,17 +61,16 @@ export function SelectUserCompany({action, setAction, setPayload, setAuxAction}:
     function Companies({entity}: { entity: Entity<Collection> | undefined }) {
 
         if(!entity) return null;
-        if(entity.entities!!.length === 0) return <p>No companies available.</p>
 
         return (
             <div className='flex flex-col space-y-3'>
-                {entity.entities!!.map((company, idx) => <CompanyItem key={idx} entity={company}/>)}
+                {entity.entities!!.map((category, idx) => <CategoryItem key={idx} entity={category}/>)}
             </div>
         )
     }
 
     return (
-        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
+        <div className="space-y-1 p-3 bg-white rounded-lg border border-gray-200 shadow-md">
             {setAuxAction && <CloseButton onClickHandler={() => setAuxAction(undefined) }/>}
             <Companies entity={getEntityOrUndefined(result?.body)}/>
             <CollectionPagination collection={getPropertiesOrUndefined(result?.body)} setUrlFunction={setCurrentUrl} 

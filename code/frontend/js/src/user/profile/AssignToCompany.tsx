@@ -10,7 +10,7 @@ export function AssignToCompany({ action, setAction, setPayload, setAuxAction }:
     setPayload: React.Dispatch<React.SetStateAction<string>>,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>
 }) {
-    console.log(action)
+
     const [ company, setCompany ] = useState<Company | undefined>(undefined)
 
     const onSubmitHandler = () => {
@@ -24,7 +24,7 @@ export function AssignToCompany({ action, setAction, setPayload, setAuxAction }:
     },[])
 
     return (
-        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
+        <div className="space-y-1 p-3 bg-white rounded-lg border border-gray-200 shadow-md">
         <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
         <p>Company selected: {company === undefined ? '-----' : `${company.name}`}</p>
         {selectCompany}

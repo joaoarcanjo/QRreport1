@@ -135,8 +135,8 @@ object PersonResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "role", type = "string"),
-                QRreportJsonModel.Property(name = "company", type = "number", required = false,
-                    possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
+                QRreportJsonModel.Property(name = "company", type = "number",
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, false))),
                 QRreportJsonModel.Property(name = "skill", type = "number", required = false,
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Categories.BASE_PATH)),
             ),
@@ -185,7 +185,7 @@ object PersonResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property(name = "company", type = "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, false))),
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, true))),
             ),
         )
 
@@ -244,7 +244,8 @@ object PersonResponses {
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (isAdmin(user) || isManager(user)) {
                     // Fire/Rehire
-                    if (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles)) {
+                    if (!isSamePerson(user, personDetails.person.id) &&
+                        (personIsEmployee(personDetails.person.roles) || personIsManager(personDetails.person.roles))) {
                         add(Actions.rehirePerson(personDetails.person.id))
                         add(Actions.firePerson(personDetails.person.id))
 

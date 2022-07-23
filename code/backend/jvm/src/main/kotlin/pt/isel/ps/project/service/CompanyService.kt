@@ -23,7 +23,7 @@ class CompanyService(private val companyDao: CompanyDao) {
 
     fun getCompanies(user: AuthPerson, userQuery: UUID?, state: String, assign: Boolean, page: Int): CompaniesDto {
         //Rehire and fire person actions
-        if (userQuery != null && state != UNDEFINED)
+        if (userQuery != null && state != UNDEFINED && !assign)
             return companyDao.getUserCompanies(user.id, isManager(user), userQuery, state, elemsToSkip(page, COMPANY_PAGE_MAX_SIZE) ).deserializeJsonTo()
 
         //Assign to company action

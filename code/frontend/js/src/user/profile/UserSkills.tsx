@@ -1,12 +1,9 @@
 import { useState } from "react"
-import { Person } from "../../models/Models"
+import { Category, Person } from "../../models/Models"
 import { Action } from "../../models/QRJsonModel"
 import * as QRreport from '../../models/QRJsonModel';
 import { MdAddCircleOutline, MdWork, MdRemoveCircleOutline } from "react-icons/md";
-import { Form, LittleSubmitButton } from "../../components/form/FormComponents";
-import { useForm } from "react-hook-form";
-import { ListPossibleValues } from "../../components/form/ListPossibleValues";
-import { CloseButton } from "../../components/Various";
+import { SelectCategory } from "../../category/SelectCategory";
 
 export function Skills({ entity, actions, setAction, setPayload }: {  
     entity: QRreport.Entity<Person>, 
@@ -16,11 +13,19 @@ export function Skills({ entity, actions, setAction, setPayload }: {
 }) {
     const [currentAction, setCurrentAction] = useState<Action | undefined>(undefined)
 
+    const [ skill, setSkill ] = useState<Category | undefined>(undefined)
+
     if (!entity) return null
     const person = entity.properties
 
+    const onSubmitHandler = () => {
+        if(!skill) return
+        setPayload(JSON.stringify({skill: skill.id}))
+        setAction(currentAction)
+    }
+
     return (
-        <div className="bg-white p-3 shadow-sm rounded-sm">
+        <div className="bg-white p-3 shadow-sm rounded-sm space-y-2">
             <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8">
                 <MdWork style= {{color: "green"}} /> <span className="tracking-wide">Skills</span>
             </div>
@@ -42,46 +47,19 @@ export function Skills({ entity, actions, setAction, setPayload }: {
                         }}
                     )}
                 </div>
-
+                {currentAction &&
+                 <p>Skill selected: {skill === undefined ? '-----' : `${skill.name}`}</p>}
                 {currentAction?.name === 'add-skill' && 
-                <SkillAction action={currentAction} setAction={setAction} setPayload={setPayload} setCurrentAction={setCurrentAction}/>}
+                <SelectCategory action={currentAction} setPayload={setSkill} setAuxAction={setCurrentAction} propName={"skill"}/>}
                 {currentAction?.name === 'remove-skill' && 
-                <SkillAction action={currentAction} setAction={setAction} setPayload={setPayload} setCurrentAction={setCurrentAction}/>}
+                <SelectCategory action={currentAction} setPayload={setSkill} setAuxAction={setCurrentAction} propName={"skill"}/>}
+            </div>
+            <div>
+                {currentAction &&
+                    <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onSubmitHandler}>
+                    {currentAction?.title}
+                    </button>}
             </div>
         </div>
     )
-}
-
-function SkillAction({ action, setAction, setPayload, setCurrentAction }: { 
-    action: QRreport.Action,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setPayload: React.Dispatch<React.SetStateAction<string>>,
-    setCurrentAction: React.Dispatch<React.SetStateAction<Action | undefined>>
-}) {
-    type roleData = { skill: string }
-
-    const { register, handleSubmit } = useForm<roleData>()
-
-    const onSubmitHandler = handleSubmit(({ skill }) => {
-        setPayload(JSON.stringify({skill: skill}))
-        setAction(action)
-    })
-
-    function Inputs() {
-        let componentsInputs = action.properties.map((prop, idx) => {
-            switch (prop.name) {
-                case 'skill': return <ListPossibleValues key={idx}
-                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>
-            }
-        })
-        return <>{componentsInputs}</>
-    }
-
-    return <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
-        <CloseButton onClickHandler={ () => setCurrentAction(undefined) }/>
-        <Form onSubmitHandler = { onSubmitHandler }>
-            <Inputs/>
-            <LittleSubmitButton text={`${action.title}`}/>
-        </Form>
-    </div>
 }

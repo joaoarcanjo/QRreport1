@@ -1,8 +1,7 @@
-import { useForm } from "react-hook-form";
-import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, LittleSubmitButton } from "../components/form/FormComponents";
-import { ListPossibleValues } from "../components/form/ListPossibleValues";
+import { useMemo, useState } from "react";
+import { SelectCategory } from "../category/SelectCategory";
 import { CloseButton } from "../components/Various";
+import { Category } from "../models/Models";
 import { Action } from "../models/QRJsonModel";
 
 export function ChangeCategory({action, setAction, setAuxAction, setPayload }: {  
@@ -12,35 +11,26 @@ export function ChangeCategory({action, setAction, setAuxAction, setPayload }: {
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
 
-    type deviceCategoryData = {
-        category: number
-    }
+    const [ category, setCategory ] = useState<Category | undefined>(undefined)
 
-    const { register, handleSubmit } = useForm<deviceCategoryData>();
-
-    const onSubmitHandler = handleSubmit(({ category }) => {
+    const onSubmitHandler = () => {
+        if(!category) return
         setAction(action)
-        setPayload(JSON.stringify({newCategoryId: category}))
-    })
-
-    function Inputs() {
-        let componentsInputs = action!!.properties.map((prop, idx) => {
-            console.log(prop);
-            switch (prop.name) {
-                case 'category': return <ListPossibleValues key={idx}
-                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select new category'}/>
-            }
-        })
-        return <>{componentsInputs}</>
+        setPayload(JSON.stringify({newCategoryId: category.id}))
     }
+
+    const categoryInput = useMemo(() => {
+        return <SelectCategory action={action} setPayload={setCategory} setAuxAction={undefined} propName={"category"}/>
+    }, [action])
     
     return (
         <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
             <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
-            <Form onSubmitHandler = { onSubmitHandler }>
-                <Inputs/>
-                <LittleSubmitButton text={`${action.title}`}/>
-            </Form>
+            <p>Category selected: {category === undefined ? '-----' : `${category.name}`}</p>
+            {categoryInput}
+            <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onSubmitHandler}>
+                {action.title}
+            </button>
         </div> 
     )
 }

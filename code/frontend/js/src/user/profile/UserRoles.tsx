@@ -86,13 +86,12 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
         return action.properties.map((prop, idx) => {
             switch (prop.name) {
                 case 'role': return <Input key={idx} value={simpleInputForm(register, "Role", errors, prop.required, prop.name, prop.type)}/>
-                case 'company': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company *'}/>
+                case 'company': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
                 case 'skill': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>
             }
         })
     }, [action])
     
-
     const cancelForm = (event: any) => {
         event.preventDefault()
         setCurrentAction(undefined)

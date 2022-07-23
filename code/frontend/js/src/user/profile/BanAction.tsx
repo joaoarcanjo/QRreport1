@@ -33,7 +33,7 @@ export function BanAction({ action, setAction, setPayload, setAuxAction }: {
     }
 
     return (
-        <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
+        <div className="space-y-1 p-3 bg-white rounded-lg border border-gray-200 shadow-md">
             <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             <Form onSubmitHandler = { onSubmitHandler }>
                 <Inputs/>
