@@ -93,6 +93,7 @@ import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_HASH
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_RATE
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT
 import pt.isel.ps.project.model.ticket.TicketEntity.TICKET_SUBJECT_MAX_CHARS
+import pt.isel.ps.project.model.ticket.TicketExtraInfo
 import pt.isel.ps.project.model.ticket.TicketRateEntity
 import pt.isel.ps.project.model.ticket.UpdateTicketEntity
 import java.util.*
@@ -362,6 +363,10 @@ object Validator {
         fun verifyTicketRateInput(ticketRate: TicketRateEntity): Boolean {
             checkRate(ticketRate.rate)
             return true
+        }
+
+        fun isTicketRated(ticketInfo: TicketExtraInfo): Boolean {
+            return ticketInfo.ticket.rate != null
         }
 
         object Comment {

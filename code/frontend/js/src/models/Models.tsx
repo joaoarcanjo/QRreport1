@@ -43,6 +43,7 @@ export type Ticket = {
     creationTimestamp: Date;
     employeeState: string;
     userState: string;
+    rate?: number;
     possibleTransitions: State[];
 }
 

@@ -449,7 +449,7 @@ object Authorizations {
 
         fun deleteCommentAuthorization(user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if (userRole == ADMIN) return true
+            if (userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)
         }
     }

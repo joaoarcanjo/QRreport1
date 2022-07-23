@@ -29,7 +29,7 @@ BEGIN;
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Zé Manuel / employee
         ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 3), -- Idalvina Lopes / employee
-        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1); -- Esmeralda Diamante / user
+        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 2); -- Esmeralda Diamante / user
 
     INSERT INTO PERSON_SKILL (person, category) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Zé Manuel / water

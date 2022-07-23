@@ -18,7 +18,7 @@ import { ListComments } from "../comment/ListComments";
 import { GroupTicket } from "./GroupTicket";
 import { ADMIN_ROLE, EMPLOYEE_ROLE, MANAGER_ROLE, useLoggedInState, USER_ROLE } from "../user/Session"
 import { TbPencil } from "react-icons/tb";
-import { BsBuilding, BsDoorClosed } from "react-icons/bs";
+import { BsBuilding, BsDoorClosed, BsStarFill } from "react-icons/bs";
 
 export function TicketRep() {
 
@@ -85,7 +85,6 @@ export function TicketRep() {
         const authorEntity = getSpecificEntity(["person"], "ticket-author", entity.entities)
         const employeeEntity = getSpecificEntity(["person"], "ticket-employee", entity.entities)
         const userRole = useLoggedInState()?.userRole
-        
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3 divide-y-2'>
                 <div className='flex flex-col space-y-4 device-y'>
@@ -123,6 +122,11 @@ export function TicketRep() {
                                 <span>: {employeeEntity?.properties.name}</span>
                             </div>
                         </Link>
+                    </div>}
+                    {ticket?.rate &&
+                    <div className='flex items-center'>
+                        <BsStarFill style= {{ color: '#e5b215', fontSize: "1.4em" }} /> 
+                        <span>: {ticket?.rate} </span>
                     </div>}
                     <p className="text-sm text-slate-600"> {ticket.description} </p>
                     <div className='bg-blue-400 mr-auto py-1 px-2 rounded text-white text-sm'>

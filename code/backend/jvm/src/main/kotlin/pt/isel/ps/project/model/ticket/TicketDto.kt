@@ -28,6 +28,7 @@ data class TicketDto (
     val creationTimestamp: Timestamp,
     val employeeState: String,
     val userState: String,
+    val rate: Int?,
     val possibleTransitions: List<EmployeeStateDto>?,
 )
 

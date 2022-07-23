@@ -32,6 +32,8 @@ import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Auth.Roles.isUser
 import pt.isel.ps.project.util.Validator.Person.belongsToCompany
 import pt.isel.ps.project.util.Validator.Person.isEmployeeTicket
+import pt.isel.ps.project.util.Validator.Person.isSamePerson
+import pt.isel.ps.project.util.Validator.Ticket.isTicketRated
 
 object TicketResponses {
     const val TICKET_PAGE_MAX_SIZE = 10
@@ -162,7 +164,8 @@ object TicketResponses {
             add(getParentTicket(ticketInfo.parentTicket))
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (isUser(user) && ticketInfo.ticket.employeeState.compareTo("Archived") == 0)
+            if (isUser(user) && ticketInfo.ticket.employeeState.compareTo("Archived") == 0 &&
+                !isTicketRated(ticketInfo))
                 add(Actions.addRate(ticketInfo.ticket.id))
             if (ticketInfo.parentTicket != null) return@apply
             if (ticketInfo.ticket.employeeState.compareTo("Refused") == 0 ||

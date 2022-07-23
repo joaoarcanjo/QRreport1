@@ -365,6 +365,7 @@ DECLARE
     role TEXT = get_person_active_role(person_id);
     employeeId UUID = (SELECT person FROM FIXING_BY WHERE (ticket = (SELECT parent_ticket FROM TICKET WHERE id = ticket_id) OR ticket = ticket_id) AND end_timestamp IS NULL);
     employee JSON = NULL;
+    users_rate INT;
 BEGIN
     IF(employeeId IS NOT NULL) THEN employee = person_item_representation(employeeId); END IF;
 
@@ -398,6 +399,10 @@ BEGIN
         RAISE 'resource-not-found' USING DETAIL = 'ticket', HINT = ticket_id;
     END IF;
 
+    IF (t_employee_state = 'Archived') THEN
+        users_rate = (SELECT AVG(rate) FROM RATE WHERE ticket = ticket_id);
+    END IF;
+
     --Obtain all possible employee_state_transitions
     FOR rec IN
         SELECT id, name FROM EMPLOYEE_STATE
@@ -410,7 +415,7 @@ BEGIN
     return json_build_object(
         'ticket', json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_desc,
             'creationTimestamp', t_creation_time, 'employeeState', t_employee_state, 'userState', t_user_state,
-            'possibleTransitions', t_possibleTransitions),
+            'rate', users_rate, 'possibleTransitions', t_possibleTransitions),
         'ticketComments', get_comments(ticket_id, comments_direction, limit_rows, skip_rows),
         'person', person_item_representation(p_id),
         'company', company_item_representation(c_id, c_name, c_state, c_timestamp),
@@ -623,25 +628,24 @@ DECLARE
     role TEXT = get_person_active_role(person_id);
 BEGIN
     PERFORM ticket_exists(ticket_id);
-    --PERFORM is_ticket_archived(ticket_id);
     IF (role = 'user') THEN
         PERFORM ticket_belongs_to_user(ticket_id, person_id);
+        SELECT employee_state INTO t_employeeSate FROM TICKET WHERE id = ticket_id;
+        CASE
+            WHEN (t_employeeSate = 'Archived') THEN
+                RAISE 'ticket-rate';
+            ELSE
+                INSERT INTO RATE (person, ticket, rate) VALUES (person_id, ticket_id, rate_value);
+
+                SELECT subject, description, es.name, us.name FROM TICKET t
+                    INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
+                    INNER JOIN USER_STATE us ON es.user_state = us.id
+                    WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
+
+                ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
+                    'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
+            END CASE;
     END IF;
-    SELECT employee_state INTO t_employeeSate FROM TICKET WHERE id = ticket_id;
-    CASE
-        WHEN (t_employeeSate = 'Archived') THEN
-            RAISE 'ticket-rate';
-        ELSE
-            INSERT INTO RATE (person, ticket, rate) VALUES (person_id, ticket_id, rate_value);
-
-            SELECT subject, description, es.name, us.name FROM TICKET t
-                INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
-                INNER JOIN USER_STATE us ON es.user_state = us.id
-                WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
-
-            ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
-                'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
-        END CASE;
 END$$
 -- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
@@ -672,6 +676,6 @@ BEGIN
 
     UPDATE TICKET SET parent_ticket = parent_tid WHERE id = ticket_id;
 
-    ticket_rep = json_build_object('ticket', ticket_item_representation(ticket_id));
+    ticket_rep = ticket_item_representation(ticket_id);
 END$$
 LANGUAGE plpgsql;
