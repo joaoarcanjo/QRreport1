@@ -13,7 +13,6 @@ BEGIN
     RETURN (SELECT name FROM EMPLOYEE_STATE WHERE id = (SELECT employee_state FROM TICKET WHERE id = ticket_id));
 END$$LANGUAGE plpgsql;
 
-
 /**
   * Auxiliary function to verify if a ticket has a parent ticket
   */

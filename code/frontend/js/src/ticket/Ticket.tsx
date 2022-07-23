@@ -18,7 +18,7 @@ import { ListComments } from "../comment/ListComments";
 import { GroupTicket } from "./GroupTicket";
 import { ADMIN_ROLE, EMPLOYEE_ROLE, MANAGER_ROLE, useLoggedInState, USER_ROLE } from "../user/Session"
 import { TbPencil } from "react-icons/tb";
-import { BsBuilding, BsDoorClosed, BsStarFill } from "react-icons/bs";
+import { BsDoorClosed, BsStarFill } from "react-icons/bs";
 
 export function TicketRep() {
 

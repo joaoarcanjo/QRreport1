@@ -19,8 +19,10 @@ BEGIN;
     DELETE FROM COMPANY;
     DELETE FROM ROLE;
 
+    ALTER SEQUENCE anomaly_id_seq RESTART;
     ALTER SEQUENCE building_id_seq RESTART;
     ALTER SEQUENCE category_id_seq RESTART;
+    ALTER SEQUENCE comment_id_seq RESTART;
     ALTER SEQUENCE company_id_seq RESTART;
     ALTER SEQUENCE device_id_seq RESTART;
     ALTER SEQUENCE employee_state_id_seq RESTART;

@@ -105,7 +105,6 @@ BEGIN;
 
     INSERT INTO EMPLOYEE_STATE_TRANS (first_employee_state, second_employee_state) VALUES
         (1, 2),  -- To assign -> Refused
-        (1, 3),  -- To assign -> Not started
         (3, 4),  -- Not started -> Fixing
         (4, 6),  -- Fixing -> Completed
         (6, 7);  -- Completed -> Archived

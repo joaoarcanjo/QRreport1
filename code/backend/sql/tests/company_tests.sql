@@ -93,15 +93,15 @@ END$$;
 DO
 $$
 DECLARE
-    id BIGINT = 1;
-    name TEXT = 'ISCAL';
+    id BIGINT = 2;
+    name TEXT = 'ISEL';
     company_rep JSON;
     type TEXT;
 BEGIN
     RAISE INFO '---| Update company with a non unique name test |---';
 
     CALL update_company(company_rep, id, name);
-
+    RAISE INFO '%', company_rep;
     RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
@@ -119,12 +119,13 @@ END$$;
 DO
 $$
 DECLARE
-    companies_col_size INT = 4;
+    user_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
+    companies_col_size INT = 1;
     company_rep JSON;
 BEGIN
     RAISE INFO '---| Get companies test |---';
 
-    SELECT get_companies(10, 0) INTO company_rep;
+    SELECT get_companies(user_id, 10, 0) INTO company_rep;
 
     IF (assert_json_is_not_null(company_rep, 'companies') AND
         assert_json_value(company_rep, 'companiesCollectionSize', companies_col_size::TEXT)) THEN
@@ -145,7 +146,7 @@ DECLARE
     name TEXT = 'ISEL';
     state TEXT = 'active';
     company_rep JSON;
-    buildings_col_size INT = 0;
+    buildings_col_size INT = 3;
 BEGIN
     RAISE INFO '---| Get company test |---';
 
@@ -155,7 +156,7 @@ BEGIN
         assert_json_value(company_rep, 'name', name) AND
         assert_json_value(company_rep, 'state', state) AND
         assert_json_is_not_null(company_rep, 'timestamp') AND
-        /*assert_json_is_not_null(company_rep, 'buildings') AND*/
+        assert_json_is_not_null(company_rep, 'buildings') AND
         assert_json_value(company_rep, 'buildingsCollectionSize', buildings_col_size::TEXT)
     ) THEN
         RAISE INFO '-> Test succeeded!';
@@ -246,8 +247,8 @@ END$$;
 DO
 $$
 DECLARE
-    id BIGINT = 4;
-    name TEXT = 'ESD';
+    id BIGINT = 3;
+    name TEXT = 'ISCAL';
     state TEXT = 'active';
     company_rep JSON;
 BEGIN

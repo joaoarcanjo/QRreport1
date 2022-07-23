@@ -257,7 +257,7 @@ DO
 $$
 DECLARE
     device_rep JSON;
-    device_id BIGINT = 4;
+    device_id BIGINT = 3;
     expected_state TEXT = 'active';
 BEGIN
     RAISE INFO '---| Activate device test |---';

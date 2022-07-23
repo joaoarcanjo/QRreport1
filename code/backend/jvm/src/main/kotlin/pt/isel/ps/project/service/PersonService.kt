@@ -41,7 +41,7 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
         return personDao.getPersons(user.id, isManager(user), elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    fun createPerson(/*user: AuthPerson,*/ person: CreatePersonEntity): PersonDto {
+    fun createPerson(user: AuthPerson, person: CreatePersonEntity): PersonDto {
         verifyCreatePersonInput(person)
         // Managers can only create other managers or employees
         //if (isManager(user)) verifyManagerCreationPermissions(user, person)

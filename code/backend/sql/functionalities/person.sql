@@ -81,8 +81,8 @@ CREATE OR REPLACE PROCEDURE create_person(
     person_email TEXT,
     person_password TEXT,
     person_phone TEXT DEFAULT NULL,
-    pcompany INT DEFAULT NULL,
-    skill INT DEFAULT NULL
+    pcompany BIGINT DEFAULT NULL,
+    skill BIGINT DEFAULT NULL
 )AS
 $$
 DECLARE

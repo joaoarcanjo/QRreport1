@@ -27,7 +27,7 @@ BEGIN
 END$$;
 
 /*
- * Tests the creation of a new hash, throws inactive-resource
+ * Tests the creation of a new hash, throws resource-not-found
  */
 DO
 $$
@@ -35,7 +35,7 @@ DECLARE
     company_id BIGINT = 1;
     building_id BIGINT = 1;
     room_id BIGINT = 3;
-    device_id BIGINT = 1;
+    device_id BIGINT = 2;
     new_hash TEXT = '5abd4089b7921fd6af09d1cc1cbe5220';
     success BOOL;
     type TEXT;
@@ -47,7 +47,8 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         GET STACKED DIAGNOSTICS type = MESSAGE_TEXT;
-        IF (type = 'inactive-resource') THEN
+
+        IF (type = 'resource-not-found') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE '-> Test failed!';
@@ -71,7 +72,7 @@ BEGIN
 
     SELECT get_room_device_hash(company_id, building_id, room_id, device_id) INTO current_hash;
 
-    IF (current_hash != expected_hash) THEN
+    IF (current_hash = expected_hash) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
         RAISE '-> Test failed!';

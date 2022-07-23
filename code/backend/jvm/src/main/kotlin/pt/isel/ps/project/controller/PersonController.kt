@@ -59,9 +59,9 @@ class PersonController(private val jwtConfig: JwtConfig, private val secretKey: 
     }
 
     @PostMapping(Persons.BASE_PATH)
-    fun createPerson(@RequestBody person: CreatePersonEntity/*, user: AuthPerson*/): ResponseEntity<QRreportJsonModel> {
-        //createPersonsAuthorization(user)
-        return createPersonRepresentation(service.createPerson(/*user,*/ person))
+    fun createPerson(@RequestBody person: CreatePersonEntity, user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        createPersonsAuthorization(person, user)
+        return createPersonRepresentation(service.createPerson(user, person))
     }
 
     @GetMapping(Persons.SPECIFIC_PATH)

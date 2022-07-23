@@ -1,13 +1,7 @@
 import { useForm } from "react-hook-form";
-import { Navigate } from "react-router-dom";
-import Popup from "reactjs-popup";
 import { CreateButton, Form, Header, HeaderParagraph, Input, InputProps, Paragraph, BigSubmitButton } from "../../components/form/FormComponents";
-import { ErrorView } from "../../errors/Error";
-import { PROFILE_URL } from "../../Urls";
 import { useLoggedInState } from "../Session";
 import '../../Popup.css';
-import { useState } from "react";
-import { useEffect } from "react";
 import { ErrorPopup } from "../../components/ErrorPopup";
 
 

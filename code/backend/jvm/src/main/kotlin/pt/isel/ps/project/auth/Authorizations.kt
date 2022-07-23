@@ -6,6 +6,7 @@ import pt.isel.ps.project.exception.Errors.Forbidden.Message.CREATION_DENIED
 import pt.isel.ps.project.exception.ForbiddenException
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.UNDEFINED
+import pt.isel.ps.project.model.person.CreatePersonEntity
 import pt.isel.ps.project.model.person.Roles.USER
 import pt.isel.ps.project.model.person.Roles.EMPLOYEE
 import pt.isel.ps.project.model.person.Roles.MANAGER
@@ -21,9 +22,9 @@ object Authorizations {
             throw ForbiddenException(ACCESS_DENIED)
         }
 
-        fun createPersonsAuthorization(user: AuthPerson): Boolean {
+        fun createPersonsAuthorization(person: CreatePersonEntity, user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if (userRole == MANAGER || userRole == ADMIN) return true
+            if ((userRole == MANAGER && person.role != ADMIN) || userRole == ADMIN) return true
             throw ForbiddenException(CREATION_DENIED)
         }
 

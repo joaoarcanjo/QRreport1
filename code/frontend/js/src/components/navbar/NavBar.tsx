@@ -48,9 +48,7 @@ export default function NavBar() {
 
     return (
         <header>
-            <NavLink to='/'>
-                <h3>QRreport</h3>
-            </NavLink>
+            <h3>QRreport</h3>
             <nav ref={navRef} className="flex items-center">
                 <NavElements/>
                 <button className='nav-btn nav-close-btn'>

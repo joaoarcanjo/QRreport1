@@ -73,13 +73,13 @@ DO
 $$
 DECLARE
     req_id UUID = '4b341de0-65c0-4526-8898-24de463fc315'; -- Diogo Novo | manager(ISEL) and admin
-    res_id UUID = '1f6c1014-b029-4a75-b78c-ba09c8ea474d'; -- João Arcanjo | guest
+    res_id UUID = 'b555b6fc-b904-4bd9-8c2b-4895738a437c'; -- Francisco Ludovico | user
     person_rep JSON;
 BEGIN
     RAISE INFO '---| Get person test |---';
 
     person_rep = get_person(req_id, res_id);
-
+    RAISE INFO '%', person_rep;
      IF (assert_json_is_not_null(person_rep, 'person') AND
         assert_json_is_not_null(person_rep, 'personTickets')) THEN
         RAISE INFO '-> Test succeeded!';
@@ -303,14 +303,15 @@ END$$;
 DO
 $$
 DECLARE
-    employee UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- Zé Manuel
-    skill INT = 1; -- water
+    employee UUID = 'c2b393be-1111-4111-1111-43765f111111'; -- Zé Manuel
+    skill INT = 2; -- water
     person_rep JSON;
     type TEXT;
 BEGIN
     RAISE INFO '---| Employee with only one skill, removal test |---';
 
     CALL remove_skill_from_employee(person_rep, employee, skill);
+    RAISE INFO '%', person_rep;
     RAISE '-> Test failed!';
 EXCEPTION
     WHEN OTHERS THEN
@@ -321,7 +322,6 @@ EXCEPTION
             RAISE '-> Test failed!';
         END IF;
 END$$;
-
 /*
  * Tests the addition of a company to an employee/manager
  */

@@ -5,10 +5,13 @@ import { useMemo, useState } from "react"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { LOGIN_URL, PERSONS_URL_API } from "../Urls"
 import { ErrorView } from "../errors/Error"
-import { getEntitiesOrUndefined, getLink, getProblemOrUndefined, getPropertiesOrUndefined } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getLink, getProblemOrUndefined, getPropertiesOrUndefined, getActionsOrUndefined } from "../models/ModelUtils"
 import { useFetch } from "../hooks/useFetch"
 import { Loading } from "../components/Various"
 import { useLoggedInState } from "./Session"
+import { Action } from "../models/QRJsonModel"
+import { InputUser } from "./InputUser"
+import { ActionComponent } from "../components/ActionComponent"
 
 function PersonItemComponent({ entity }: { entity: QRreport.Entity<PersonItem> }) {
     const person = entity.properties
@@ -43,14 +46,19 @@ export function ListPersons() {
             'Request-Origin': 'WebApp'
         }
     }
-    const init = useMemo(() => credentials ,[])
+    const init = useMemo(() => credentials , [])
     const [direction, setDirection] = useState('desc')
     const [sortBy, setSortBy] = useState('date')
     const [currentUrl, setCurrentUrl] = useState('')
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
     const userSession = useLoggedInState()
     
-    //const [currentPage, setPage] = useState(0)
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    switch (action?.name) {
+        case 'create-person': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListPersons/>} />
+    }
 
     if(userSession?.isLoggedIn && currentUrl === '') 
         setCurrentUrl(PERSONS_URL_API)
@@ -62,10 +70,34 @@ export function ListPersons() {
     
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
+
+    function PersonsActions({actions}: {actions: QRreport.Action[] | undefined}) {
+
+        const [auxAction, setAuxAction] = useState<QRreport.Action | undefined>(undefined)
+
+        let componentsActions = actions?.map((action, idx) => {
+            switch(action.name) {
+                case 'create-person': return (
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                            {action.title}
+                        </button>
+                    )
+            }
+        })
+
+        return (
+            <>
+                <div className="flex space-x-2">{componentsActions} </div>
+                {auxAction?.name === 'create-person' && 
+                <InputUser action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+            </>
+        )
+    }
     
     return (
         <div className='px-3 pt-3 space-y-2'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Persons</h1>
+            <PersonsActions actions={getActionsOrUndefined(result?.body)}/>
             <PersonsList entities={getEntitiesOrUndefined(result?.body)}/>
             <CollectionPagination 
                 collection={getPropertiesOrUndefined(result?.body)} 

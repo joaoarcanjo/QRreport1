@@ -9,20 +9,57 @@ DO
 $$
 DECLARE
     category_id BIGINT = 1;
-    category_name TEXT = 'Building name test';
+    category_name TEXT = 'water';
     category_state TEXT = 'active';
+    category_in_use BOOL = true;
     category_timestamp TIMESTAMP;
     category_rep JSON;
+    item_rep JSON;
 BEGIN
     RAISE INFO '---| Category item representation test |---';
 
     category_timestamp = CURRENT_TIMESTAMP;
     category_rep = category_item_representation(category_id, category_name, category_state, category_timestamp);
+    item_rep = category_rep -> 'category';
+
     IF (
-        assert_json_value(category_rep, 'id', category_id::TEXT) AND
-        assert_json_value(category_rep, 'name', category_name) AND
-        assert_json_value(category_rep, 'state', category_state) AND
-        assert_json_is_not_null(category_rep, 'timestamp')
+        assert_json_value(item_rep, 'id', category_id::TEXT) AND
+        assert_json_value(item_rep, 'name', category_name) AND
+        assert_json_value(item_rep, 'state', category_state) AND
+        assert_json_value(category_rep, 'inUse', category_in_use::TEXT) AND
+        assert_json_is_not_null(item_rep, 'timestamp')
+    ) THEN
+        RAISE INFO '-> Test succeeded!';
+    ELSE
+        RAISE EXCEPTION '-> Test failed!';
+    END IF;
+END$$;
+
+/*
+ * Tests the category representation function.
+ * Other version of category_item_representation.
+ */
+DO
+$$
+DECLARE
+    category_id BIGINT = 1;
+    category_name TEXT = 'water';
+    category_state TEXT = 'active';
+    category_in_use BOOL = true;
+    category_rep JSON;
+    item_rep JSON;
+BEGIN
+    RAISE INFO '---| Category item representation test |---';
+
+    category_rep = category_item_representation(category_id);
+    item_rep = category_rep -> 'category';
+    RAISE INFO '%', category_rep;
+    IF (
+        assert_json_value(item_rep, 'id', category_id::TEXT) AND
+        assert_json_value(item_rep, 'name', category_name) AND
+        assert_json_value(item_rep, 'state', category_state) AND
+        assert_json_value(category_rep, 'inUse', category_in_use::TEXT) AND
+        assert_json_is_not_null(item_rep, 'timestamp')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -37,7 +74,7 @@ DO
 $$
 DECLARE
     categories_rep JSON;
-    expected_collection_size INT = 3;
+    expected_collection_size INT = 4;
 BEGIN
     RAISE INFO '---| Get categories function test |---';
 
@@ -62,16 +99,18 @@ DECLARE
     category_name TEXT = 'Category name test';
     category_state TEXT = 'active';
     category_rep JSON;
+    item_rep JSON;
 BEGIN
     RAISE INFO '---| Category creation test |---';
 
     CALL create_category(category_rep, category_name);
-    id = category_rep->>'id';
+    item_rep = category_rep -> 'category';
+    id = item_rep->>'id';
     IF (
-        assert_json_is_not_null(category_rep, 'id') AND
-        assert_json_value(category_rep, 'name', category_name) AND
-        assert_json_value(category_rep, 'state', category_state) AND
-       assert_json_is_not_null(category_rep, 'timestamp')
+        assert_json_is_not_null(item_rep, 'id') AND
+        assert_json_value(item_rep, 'name', category_name) AND
+        assert_json_value(item_rep, 'state', category_state) AND
+       assert_json_is_not_null(item_rep, 'timestamp')
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -96,12 +135,15 @@ DECLARE
     category_id BIGINT = 1;
     category_name TEXT = 'Category name test';
     category_rep JSON;
+    item_rep JSON;
 BEGIN
     RAISE INFO '---| Category update test |---';
 
     CALL update_category(category_rep, category_id, category_name);
+    item_rep = category_rep -> 'category';
+
     IF (
-        assert_json_value(category_rep, 'name', category_name)
+        assert_json_value(item_rep, 'name', category_name)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -119,13 +161,15 @@ DECLARE
     category_id BIGINT = 4;
     state TEXT = 'inactive';
     category_rep JSON;
+    item_rep JSON;
 BEGIN
     RAISE INFO '---| Category deactivation test |---';
 
     CALL deactivate_category(category_rep, category_id);
+    item_rep = category_rep -> 'category';
 
     IF (
-        assert_json_value(category_rep, 'state', state)
+        assert_json_value(item_rep, 'state', state)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE
@@ -167,12 +211,14 @@ DECLARE
     category_id BIGINT = 1;
     state TEXT = 'active';
     category_rep JSON;
+    item_rep JSON;
 BEGIN
     RAISE INFO '---| Category activation test |---';
 
     CALL activate_category(category_rep, category_id);
+    item_rep = category_rep -> 'category';
     IF (
-        assert_json_value(category_rep, 'state', state)
+        assert_json_value(item_rep, 'state', state)
     ) THEN
         RAISE INFO '-> Test succeeded!';
     ELSE

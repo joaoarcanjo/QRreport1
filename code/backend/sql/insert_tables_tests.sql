@@ -16,11 +16,15 @@ BEGIN;
         ('ISEL'), -- 2 buildings
         ('IST'); -- 0 buildings
 
+    INSERT INTO COMPANY(name, state) VALUES ('ISCAL', 'inactive');
+
     INSERT INTO PERSON(id, name, phone, email, password, state, active_role) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@qrreport.com', '$2a$10$4IeU1oTfxXRQFBVaUrSy9.xqxPLkT.dOFGVa9.VwmNF6WLDlQa04y', 'active', 5),--admin --diogopass
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','João Arcanjo', null, 'joni@isel.com', '$2a$10$FnfoD5NC8GRsZKBEH3pC5.Li3SYUOG1EyqAyiiSLJnnd2YHInWc..', 'active', 5),            --admin --joaopass
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', '$2a$10$xWfdwoxJBzp8J5M44GQ0veUBvJG3yacGdPGPXFgKKhoRaNhCMN6lG', 'active', 4), --manager --pedropass
+        ('d1ad1c02-9e4f-476e-4234-c56ae8aa8765','Pedro Afonso', '962123133', 'pedrocas@isel.com', '$2a$10$xWfdwoxJBzp8J5M44GQ0veUBvJG3yacGdPGPXFgKKhoRaNhCMN6lG', 'active', 4), --manager --pedropass
         ('c2b393be-d720-4494-874d-43765f5116cb','Zé Manuel', '965555555', 'zeze@fixings.com', '$2a$10$DlrjEOpJUig4AqVV2yN2R.fSnSOmZwquBQuZi1cHLZStQMhpQjlmC', 'active', 3),      -- employee --zepass
+        ('c2b393be-1111-4111-1111-43765f111111','Zé Pedro', '963133155', 'zezinho@fixings.com', '$2a$10$DlrjEOpJUig4AqVV2yN2R.fSnSOmZwquBQuZi1cHLZStQMhpQjlmC', 'active', 3),      -- employee --zepass
         ('b555b6fc-b904-4bd9-8c2b-4895738a437c','Francisco Ludovico', '9653456345', 'ludviks@gmail.com', '$2a$10$f8zP0VKF42DLtF3qNlBnn.fv3QxNXjYrfa6iuTtcRwYJpTnCN9/i6', 'active', 2),-- user --franciscopass
         ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d','Daniela Gomes', null, 'dani@isel.com', '$2a$10$mNL.45WNpF1W64J.RYKLYelmvmxIfAA7iTiOPQtfhEu7t4W62MKRy', 'active', 1);       --guest --danielapass
 
@@ -29,17 +33,21 @@ BEGIN;
         ('4b341de0-65c0-4526-8898-24de463fc315', 4), -- Diogo Novo / manager
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 5), -- João Arcanjo / admin
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens / manager
+        ('d1ad1c02-9e4f-476e-4234-c56ae8aa8765', 4), -- Pedro Afonso / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Zé Manuel / employee
+        ('c2b393be-1111-4111-1111-43765f111111', 3), -- Zé Pedro / employee
         ('b555b6fc-b904-4bd9-8c2b-4895738a437c', 2), -- Francisco Ludovico / user
         ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1); -- Daniela Gomes / guest
 
 
     INSERT INTO PERSON_SKILL (person, category) VALUES
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel / canalization
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Zé Manuel / canalization
+        ('c2b393be-1111-4111-1111-43765f111111', 2); -- Zé Afonso / electricity
 
     INSERT INTO PERSON_COMPANY (person, company, state) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315', 1, 'active'), -- Diogo Novo(manager), ISEL
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens(manager), ISEL
+        ('d1ad1c02-9e4f-476e-4234-c56ae8aa8765', 2, 'active'), -- Pedro Afonso(manager), IST
         ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'); -- Zé Manuel(employee), ISEL
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
@@ -56,7 +64,8 @@ BEGIN;
     INSERT INTO DEVICE(name, state, category) VALUES
         ('Toilet1', 'active', 1),
         ('Lights', 'active', 2),
-        ('Faucet', 'active', 1);
+        ('Faucet', 'active', 1),
+        ('InactiveDevice', 'inactive', 1);
 
     INSERT INTO ANOMALY(device, anomaly) VALUES
         (1, 'The flush doesn''t work'),
@@ -93,12 +102,15 @@ BEGIN;
 
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
         ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4),
-        ('Infiltração na parede', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 1);
+        ('Infiltração na parede', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 1),
+        ('Sanita entupida', 'A sanita não permite que realizemos descargas de água.', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 7);
+
 
     INSERT INTO FIXING_BY (person, ticket) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel | Fuga de água
 
     INSERT INTO COMMENT (comment, person, ticket) VALUES
         ('Esta sanita não tem arranjo, vou precisar de uma nova.', 'c2b393be-d720-4494-874d-43765f5116cb', 1),
-        ('Tente fazer o possível para estancar a fuga.', '4b341de0-65c0-4526-8898-24de463fc315', 1);
+        ('Tente fazer o possível para estancar a fuga.', '4b341de0-65c0-4526-8898-24de463fc315', 1),
+        ('Tente usar coca cola.', '4b341de0-65c0-4526-8898-24de463fc315', 3);
 COMMIT;

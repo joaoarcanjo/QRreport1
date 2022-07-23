@@ -109,7 +109,7 @@ DECLARE
     name TEXT = 'JD';
     floors INT = 12;
     company_id BIGINT = 1;
-    manager UUID = '4b341de0-65c0-4526-8898-24de463fc315';
+    manager UUID = 'c2b393be-d720-4494-874d-43765f5116cb'; -- ZÉ MANUEL, employee
     building_rep JSON;
     ex_constraint TEXT;
 BEGIN

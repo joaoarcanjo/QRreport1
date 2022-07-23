@@ -59,15 +59,16 @@ DO
 $$
 DECLARE
     comment_id BIGINT = 1;
-    ticket_id BIGINT = 2;
+    ticket_id BIGINT = 1;
     return_rep JSON;
     comment_rep JSON;
-    comment_expected TEXT = 'Comentário ao trabalho realizado em torneira avariada';
+    comment_expected TEXT = 'Esta sanita não tem arranjo, vou precisar de uma nova.';
 BEGIN
     RAISE INFO '---| Get comment test |---';
 
     return_rep = get_comment(comment_id := comment_id, ticket_id := ticket_id);
     comment_rep = return_rep ->> 'comment';
+
     IF (
         assert_json_value(comment_rep, 'id', comment_id::TEXT) AND
         assert_json_value(comment_rep, 'comment', comment_expected) AND
@@ -121,7 +122,7 @@ END$$;
 DO
 $$
 DECLARE
-    ticket_id BIGINT = 6;
+    ticket_id BIGINT = 3;
     comment TEXT = 'Comment comment test';
     person_id UUID = '3ef6f248-2ef1-4dba-ad73-efc0cfc668e3';
     comment_rep JSON;
@@ -176,7 +177,7 @@ $$
 DECLARE
     comment_id BIGINT = 1;
     person_id UUID = 'c2b393be-d720-4494-874d-43765f5116cb';
-    ticket_id BIGINT = 6;
+    ticket_id BIGINT = 3;
     new_comment TEXT = 'Comment test';
     comment_rep JSON;
     ex_constraint TEXT;
@@ -226,18 +227,20 @@ END$$;
 DO
 $$
 DECLARE
-    comment_id BIGINT = 1;
-    ticket_id BIGINT = 6;
+    person_id UUID = '4b341de0-65c0-4526-8898-24de463fc315';
+    comment_id BIGINT = 3;
+    ticket_id BIGINT = 3;
     comment_rep JSON;
     ex_constraint TEXT;
 BEGIN
     RAISE INFO '---| Update comment, throws cant_delete_comment_from_archived_ticket |---';
-    CALL delete_comment(comment_id, ticket_id, comment_rep);
+    CALL delete_comment(comment_rep, comment_id, person_id, ticket_id);
     RAISE EXCEPTION '-> Test failed!';
 EXCEPTION
     WHEN raise_exception THEN
         GET STACKED DIAGNOSTICS ex_constraint = MESSAGE_TEXT;
-        IF (ex_constraint = 'cant_delete_comment_from_archived_ticket') THEN
+        RAISE INFO '%', ex_constraint;
+        IF (ex_constraint = 'archived-ticket') THEN
             RAISE INFO '-> Test succeeded!';
         ELSE
             RAISE EXCEPTION '-> Test failed!';
