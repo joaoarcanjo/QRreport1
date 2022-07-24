@@ -6,7 +6,7 @@ import pt.isel.ps.project.exception.Errors.InternalServerError.Message.INTERNAL_
 import pt.isel.ps.project.exception.InternalServerException
 import pt.isel.ps.project.model.category.CATEGORY_REP
 import pt.isel.ps.project.model.category.CategoriesDto
-import pt.isel.ps.project.model.category.CategoryDtoItem
+import pt.isel.ps.project.model.category.CategoryItemDto
 import pt.isel.ps.project.model.category.InputCategoryEntity
 import pt.isel.ps.project.model.representations.elemsToSkip
 import pt.isel.ps.project.responses.CategoryResponses.CATEGORY_PAGE_MAX_SIZE
@@ -20,24 +20,24 @@ class CategoryService(val categoryDao: CategoryDao) {
         return categoryDao.getCategories(elemsToSkip(page, CATEGORY_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    fun createCategory(category: InputCategoryEntity): CategoryDtoItem {
+    fun createCategory(category: InputCategoryEntity): CategoryItemDto {
         verifyCategoryInput(category)
         return categoryDao.createCategory(category).getString(CATEGORY_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun updateCategory(categoryId: Long, category: InputCategoryEntity): CategoryDtoItem {
+    fun updateCategory(categoryId: Long, category: InputCategoryEntity): CategoryItemDto {
         verifyCategoryInput(category)
         return categoryDao.updateCategory(categoryId, category).getString(CATEGORY_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun activateCategory(categoryId: Long): CategoryDtoItem {
+    fun activateCategory(categoryId: Long): CategoryItemDto {
         return categoryDao.activateCategory(categoryId).getString(CATEGORY_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    fun deactivateCategory(categoryId: Long): CategoryDtoItem {
+    fun deactivateCategory(categoryId: Long): CategoryItemDto {
         return categoryDao.deactivateCategory(categoryId).getString(CATEGORY_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }

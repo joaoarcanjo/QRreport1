@@ -9,8 +9,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import pt.isel.ps.project.auth.AuthCompany
 import pt.isel.ps.project.auth.AuthPerson
+import pt.isel.ps.project.model.Uris.DEFAULT_BOOL
+import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.company.*
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
@@ -19,6 +20,7 @@ import utils.Utils
 import utils.ignoreTimestamp
 import utils.ignoreTimestamps
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -30,7 +32,7 @@ class CompanyServiceTests {
     private lateinit var jdbi: Jdbi
 
     private val delScript = Utils.LoadScript.getResourceFile("sql/delete_tables.sql")
-    private val fillScript = Utils.LoadScript.getResourceFile("sql/insert_tables.sql")
+    private val fillScript = Utils.LoadScript.getResourceFile("sql/insert_tables_tests.sql")
 
     @BeforeEach
     fun setUp() {
@@ -49,38 +51,28 @@ class CompanyServiceTests {
         "diogo@qrreport.com",
         "admin",
         null,
-        listOf(AuthCompany(1, "ISEL", "active", listOf(1))),
+        listOf(LinkedHashMap<String, String>().apply {
+            put("id", "1")
+            put("name", "ISEL")
+            put("state", "active")
+            put("manages", listOf("1").toString())
+        }),
         null,
         "active",
         null
     )
-
-    /*
-        1 - Obter companies
-
-        2 - Criar company
-
-        3 - Obter company
-        3.1 - Company não existe
-        3.2 - Obter company com manager que não pertence à empresa
-
-        4 - Atualizar company
-
-        5 - Desativar company
-
-        6 - Ativar company
-     */
 
     @Test
     fun `Get companies default`() {
         val compDto = CompaniesDto(
             listOf(
                 CompanyItemDto(1, "ISEL", "active", null),
-                CompanyItemDto(2, "IST", "active", null)
+                CompanyItemDto(2, "IST", "active", null),
+                CompanyItemDto(3, "IPMA", "inactive", null),
             ),
-            2)
+            3)
 
-        val companies = service.getCompanies(adminUser, DEFAULT_PAGE)
+        val companies = service.getCompanies(adminUser, null, UNDEFINED, DEFAULT_BOOL, DEFAULT_PAGE)
 
         assertThat(companies.ignoreTimestamps()).isEqualTo(compDto)
     }
@@ -88,7 +80,7 @@ class CompanyServiceTests {
     @Test
     fun `Create company`() {
         val comp = CreateCompanyEntity("Google Portugal")
-        val expectedComp = CompanyItemDto(3, "Google Portugal", "active", null)
+        val expectedComp = CompanyItemDto(4, "Google Portugal", "active", null)
 
         val company = service.createCompany(comp)
 
@@ -144,12 +136,12 @@ class CompanyServiceTests {
         assertThat(company.ignoreTimestamp()).isEqualTo(expectedComp)
     }
 
-    /*@Test
+    @Test
     fun `Activate company`() {
         val expectedComp = CompanyItemDto(3, "IPMA", "active", null)
 
         val company = service.activateCompany(expectedComp.id)
 
         assertThat(company.ignoreTimestamp()).isEqualTo(expectedComp)
-    }*/
+    }
 }

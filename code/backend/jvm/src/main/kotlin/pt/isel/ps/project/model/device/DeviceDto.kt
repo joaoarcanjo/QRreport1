@@ -8,7 +8,7 @@ data class DeviceItemDto (
     val name: String,
     val category: String,
     val state: String,
-    val timestamp: Timestamp
+    val timestamp: Timestamp?,
 )
 
 data class DeviceDto (

@@ -17,7 +17,7 @@ class CommentUrisTests {
         Assertions.assertThat(path).isEqualTo(expectedPath)
     }
 
-    @Test
+    /*@Test
     fun `Make valid comment specific path`() {
         val commentId = 123L
         val ticketId = 321L
@@ -26,5 +26,5 @@ class CommentUrisTests {
         val path = Uris.Tickets.Comments.makeSpecific(ticketId, commentId)
 
         Assertions.assertThat(path).isEqualTo(expectedPath)
-    }
+    }*/
 }

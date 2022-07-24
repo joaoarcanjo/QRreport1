@@ -97,10 +97,10 @@ BEGIN
     VALUES(person_name, person_email, person_password, person_phone, role_id) RETURNING id INTO person_id;
 
     IF (prole = 'employee' OR prole = 'manager') THEN
---         IF (pcompany IS NULL) THEN RAISE 'employee-manager-company'; END IF;
+        IF (pcompany IS NULL) THEN RAISE 'employee-manager-company'; END IF;
         CALL assign_person_to_company(ignore, person_id, pcompany);
         IF (prole = 'employee') THEN
---             IF (skill IS NULL) THEN RAISE 'employee-skill'; END IF;
+            IF (skill IS NULL) THEN RAISE 'employee-skill'; END IF;
             CALL add_skill_to_employee(ignore, person_id, skill);
         END IF;
     END IF;

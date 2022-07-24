@@ -12,9 +12,10 @@ BEGIN;
         ('manager'),
         ('admin');
 
-    INSERT INTO COMPANY(name) VALUES
-        ('ISEL'), -- 2 buildings
-        ('IST'); -- 0 buildings
+    INSERT INTO COMPANY(name, state) VALUES
+        ('ISEL', 'active'), -- 2 buildings
+        ('IST', 'active'), -- 0 buildings
+        ('IPMA', 'inactive'); -- 0 buildings
 
     INSERT INTO PERSON(id, name, phone, email, password, state, active_role) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315','Diogo Novo', '961111111', 'diogo@qrreport.com', '$2a$10$4IeU1oTfxXRQFBVaUrSy9.xqxPLkT.dOFGVa9.VwmNF6WLDlQa04y', 'active', 5),--admin --diogopass
@@ -56,8 +57,7 @@ BEGIN;
     INSERT INTO DEVICE(name, state, category) VALUES
         ('Toilet1', 'active', 1),
         ('Lights', 'active', 2),
-        ('Faucet', 'active', 1),
-        ('Front grass', 'inactive', 3);
+        ('Faucet', 'active', 1);
 
     INSERT INTO ANOMALY(device, anomaly) VALUES
         (1, 'The flush doesn''t work'),
@@ -94,11 +94,7 @@ BEGIN;
 
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
         ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4),
-        ('Fuga de cães', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4),
-        ('Fuga de água3', 'A sanita está a deixar sair água por baixo', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 4),
-        ('Fuga de água4', 'A sanita está a deixar sair água por baixo', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4),
-        ('Fuga de água5', 'A sanita está a deixar sair água por baixo', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 4),
-        ('Fuga de água6', 'A sanita está a deixar sair água por baixo', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1);
+        ('Infiltração na parede', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 1);
 
     INSERT INTO FIXING_BY (person, ticket) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel | Fuga de água

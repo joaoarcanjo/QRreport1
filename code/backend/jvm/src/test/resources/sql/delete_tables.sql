@@ -28,4 +28,6 @@ BEGIN;
     ALTER SEQUENCE room_id_seq RESTART;
     ALTER SEQUENCE ticket_id_seq RESTART;
     ALTER SEQUENCE user_state_id_seq RESTART;
+    ALTER SEQUENCE anomaly_id_seq RESTART;
+    ALTER SEQUENCE comment_id_seq RESTART;
 COMMIT;

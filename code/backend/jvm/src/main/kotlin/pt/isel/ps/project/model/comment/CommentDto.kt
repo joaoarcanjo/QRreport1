@@ -11,7 +11,7 @@ data class CommentDto (
 data class CommentItemDto (
     val id: Long,
     val comment: String,
-    val timestamp: Timestamp,
+    val timestamp: Timestamp?,
 )
 
 data class CommentsDto (

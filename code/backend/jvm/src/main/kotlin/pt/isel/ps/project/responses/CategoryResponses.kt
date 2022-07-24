@@ -6,7 +6,7 @@ import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.category.CategoriesDto
-import pt.isel.ps.project.model.category.CategoryDtoItem
+import pt.isel.ps.project.model.category.CategoryItemDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.responses.Response.Classes
@@ -58,7 +58,7 @@ object CategoryResponses {
         )
     }
 
-    private fun getCategoryItem(category: CategoryDtoItem, rel: List<String>?) = QRreportJsonModel(
+    private fun getCategoryItem(category: CategoryItemDto, rel: List<String>?) = QRreportJsonModel(
         clazz = listOf(Classes.CATEGORY),
         rel = rel,
         properties = category.category,
@@ -92,7 +92,7 @@ object CategoryResponses {
         )
     )
 
-    fun createCategoryRepresentation(category: CategoryDtoItem) = buildResponse(
+    fun createCategoryRepresentation(category: CategoryItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.CATEGORY),
             properties = category,
@@ -102,7 +102,7 @@ object CategoryResponses {
         setLocationHeader(Uris.Categories.BASE_PATH)
     )
 
-    fun updateCategoryRepresentation(category: CategoryDtoItem) = buildResponse(
+    fun updateCategoryRepresentation(category: CategoryItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.CATEGORY),
             properties = category,
@@ -110,7 +110,7 @@ object CategoryResponses {
         )
     )
 
-    fun deactivateCategoryRepresentation(category: CategoryDtoItem) = buildResponse(
+    fun deactivateCategoryRepresentation(category: CategoryItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.CATEGORY),
             properties = category,
@@ -121,7 +121,7 @@ object CategoryResponses {
         )
     )
 
-    fun activateCategoryRepresentation(category: CategoryDtoItem) = buildResponse(
+    fun activateCategoryRepresentation(category: CategoryItemDto) = buildResponse(
         QRreportJsonModel(
             clazz = listOf(Classes.CATEGORY),
             properties = category,
