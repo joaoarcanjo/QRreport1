@@ -13,13 +13,20 @@ import pt.isel.ps.project.model.comment.CommentsDto
 import pt.isel.ps.project.model.company.CompaniesDto
 import pt.isel.ps.project.model.company.CompanyDto
 import pt.isel.ps.project.model.company.CompanyItemDto
+import pt.isel.ps.project.model.device.DeviceDto
 import pt.isel.ps.project.model.device.DeviceItemDto
+import pt.isel.ps.project.model.device.DeviceQrCodeDto
 import pt.isel.ps.project.model.device.DevicesDto
+import pt.isel.ps.project.model.person.PersonDetailsDto
+import pt.isel.ps.project.model.person.PersonDto
+import pt.isel.ps.project.model.person.PersonItemDto
+import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.room.RoomDeviceDto
 import pt.isel.ps.project.model.room.RoomDto
 import pt.isel.ps.project.model.room.RoomItemDto
 import pt.isel.ps.project.model.room.RoomsDto
 import java.io.File
+import java.util.*
 
 object Utils {
     object LoadScript {
@@ -55,6 +62,8 @@ fun RoomsDto.ignoreTimestamps() = RoomsDto(
 fun RoomDto.ignoreTimestamp() = RoomDto(room.ignoreTimestamp(), devices.ignoreTimestamps())
 fun RoomDeviceDto.ignoreTimestamp() = RoomDeviceDto(room.ignoreTimestamp(), device.ignoreTimestamp())
 
+fun DeviceDto.ignoreTimestamp() = DeviceDto(device.ignoreTimestamp(), anomalies)
+fun DeviceQrCodeDto.ignoreTimestamp() = DeviceQrCodeDto(device.ignoreTimestamp(), hash)
 fun DeviceItemDto.ignoreTimestamp() = DeviceItemDto(id, name, category, state, null)
 fun DevicesDto.ignoreTimestamps() = DevicesDto(
     devices?.map { it.ignoreTimestamp() },
@@ -74,3 +83,7 @@ fun CommentsDto.ignoreTimestamps() = CommentsDto(
     comments?.map { it.ignoreTimestamp() },
     collectionSize, ticketState, isTicketChild
 )
+
+fun PersonDto.changeToTest(id: UUID) = PersonDto(id, name, phone, email, roles, skills, companies, null, state, reason, bannedBy)
+fun PersonDto.ignoreTimestamp() = PersonDto(id, name, phone, email, roles, skills, companies, null, state, reason, bannedBy)
+fun PersonDetailsDto.ignoreTimestamp() = PersonDetailsDto(person.ignoreTimestamp(), personTickets)

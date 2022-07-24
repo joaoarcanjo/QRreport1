@@ -438,6 +438,7 @@ END$$LANGUAGE plpgsql;
   * Returns the representation of the changes made
   * Throws exception if the person to unban doesn't exist, if has a non authorized role and if is inactive.
   */
+
 CREATE OR REPLACE PROCEDURE unban_person(
     person_rep OUT JSON, req_person_id UUID, unban_person_id UUID
 )
@@ -456,7 +457,7 @@ BEGIN
         RAISE 'change-inactive-or-banned-person' USING DETAIL = 'inactive';
     END IF;
 
-    UPDATE PERSON SET state = 'active', timestamp = CURRENT_TIMESTAMP, reason = NULL WHERE id = unban_person_id;
+    UPDATE PERSON SET state = 'active', timestamp = CURRENT_TIMESTAMP, reason = NULL, banned_by = NULL WHERE id = unban_person_id;
     IF (NOT FOUND) THEN
         RAISE 'unknown-error-writing-resource' USING DETAIL = 'unbanning';
     END IF;

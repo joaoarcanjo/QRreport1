@@ -9,8 +9,6 @@ import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import pt.isel.ps.project.auth.AuthPerson
-import pt.isel.ps.project.model.anomaly.AnomaliesDto
-import pt.isel.ps.project.model.anomaly.AnomalyItemDto
 import pt.isel.ps.project.model.anomaly.InputAnomalyEntity
 import pt.isel.ps.project.model.comment.CommentDto
 import pt.isel.ps.project.model.comment.CommentItemDto
@@ -90,7 +88,7 @@ class CommentServiceTests {
                         "965555555",
                         "zeze@fixings.com",
                         listOf("employee"),
-                        listOf("water"),
+                        listOf("water", "electricity"),
                         "active"
                     )
                 ),

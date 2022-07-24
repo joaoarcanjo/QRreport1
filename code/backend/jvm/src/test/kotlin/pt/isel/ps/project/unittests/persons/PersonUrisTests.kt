@@ -6,7 +6,7 @@ import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.VERSION
 import java.util.*
 
-class PersonsUrisTests {
+class PersonUrisTests {
 
     @Test
     fun `Make valid specific person path`() {

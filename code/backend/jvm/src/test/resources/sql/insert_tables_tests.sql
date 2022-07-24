@@ -25,6 +25,9 @@ BEGIN;
         ('b555b6fc-b904-4bd9-8c2b-4895738a437c','Francisco Ludovico', '9653456345', 'ludviks@gmail.com', '$2a$10$f8zP0VKF42DLtF3qNlBnn.fv3QxNXjYrfa6iuTtcRwYJpTnCN9/i6', 'active', 2),-- user --franciscopass
         ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d','Daniela Gomes', null, 'dani@isel.com', '$2a$10$mNL.45WNpF1W64J.RYKLYelmvmxIfAA7iTiOPQtfhEu7t4W62MKRy', 'active', 1);       --guest --danielapass
 
+    INSERT INTO PERSON(id, name, phone, email, password, state, active_role, reason, banned_by) VALUES
+        ('5e63ea2f-53cf-4546-af41-f0b3a20eac91','António Ricardo', null, 'antonio@isel.com', '$2a$10$mNL.45WNpF1W64J.RYKLYelmvmxIfAA7iTiOPQtfhEu7t4W62MKRy', 'banned', 1, 'Bad behaviour', '4b341de0-65c0-4526-8898-24de463fc315'); --manager --danielapass
+
     INSERT INTO PERSON_ROLE(person, role) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315', 5), -- Diogo Novo / admin
         ('4b341de0-65c0-4526-8898-24de463fc315', 4), -- Diogo Novo / manager
@@ -32,16 +35,19 @@ BEGIN;
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Zé Manuel / employee
         ('b555b6fc-b904-4bd9-8c2b-4895738a437c', 2), -- Francisco Ludovico / user
-        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1); -- Daniela Gomes / guest
+        ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1), -- Daniela Gomes / guest
+        ('5e63ea2f-53cf-4546-af41-f0b3a20eac91', 4);  --António Ricardo / manager
 
 
     INSERT INTO PERSON_SKILL (person, category) VALUES
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel / canalization
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Zé Manuel / water
+        ('c2b393be-d720-4494-874d-43765f5116cb', 2); -- Zé Manuel / electricity
 
     INSERT INTO PERSON_COMPANY (person, company, state) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315', 1, 'active'), -- Diogo Novo(manager), ISEL
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens(manager), ISEL
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'); -- Zé Manuel(employee), ISEL
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'), -- Zé Manuel(employee), ISEL
+        ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 2, 'inactive'); -- Pedro Miguens(manager), IST
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
         ('A', 4, 'active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
@@ -57,7 +63,7 @@ BEGIN;
     INSERT INTO DEVICE(name, state, category) VALUES
         ('Toilet1', 'active', 1),
         ('Lights', 'active', 2),
-        ('Faucet', 'active', 1);
+        ('Faucet', 'inactive', 1);
 
     INSERT INTO ANOMALY(device, anomaly) VALUES
         (1, 'The flush doesn''t work'),
@@ -87,7 +93,7 @@ BEGIN;
 
     INSERT INTO EMPLOYEE_STATE_TRANS (first_employee_state, second_employee_state) VALUES
         (1, 2),  -- To assign -> Refused
-        (1, 3),  -- To assign -> Not started
+        (1, 3),  -- To assign -> Not started //TODO DELETE
         (3, 4),  -- Not started -> Fixing
         (4, 6),  -- Fixing -> Completed
         (6, 7);  -- Completed -> Archived

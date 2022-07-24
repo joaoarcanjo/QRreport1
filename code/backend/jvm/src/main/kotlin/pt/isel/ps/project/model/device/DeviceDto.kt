@@ -12,7 +12,7 @@ data class DeviceItemDto (
 )
 
 data class DeviceDto (
-    val device: DeviceItemDto,
+    var device: DeviceItemDto,
     val anomalies: AnomaliesDto
 )
 
