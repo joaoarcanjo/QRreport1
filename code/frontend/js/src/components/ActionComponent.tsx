@@ -6,6 +6,7 @@ import { useFetch } from '../hooks/useFetch';
 import * as QRreport from '../models/QRJsonModel';
 import { BASE_URL_API } from '../Urls';
 import { getProblemOrUndefined } from "../models/ModelUtils"
+import { useLoggedInState } from '../user/Session';
 
 type FormProps = {
     redirectUrl?: string,
@@ -15,18 +16,20 @@ type FormProps = {
 }
 
 export function ActionComponent({redirectUrl, action, extraInfo, returnComponent} : FormProps) {
+    const loggedState = useLoggedInState()
+
+    let headersVal: HeadersInit | undefined = { 'Content-type': action.type }
+    if (loggedState?.isLoggedIn) headersVal["Request-Origin"] = 'WebApp'
 
     const credentials: RequestInit = {
         method: action.method,
         credentials: 'include',
-        headers: {
-            'Content-type': action.type,
-            'Request-Origin': 'WebApp'
-        }
+        headers: headersVal
     }
-
+    console.log(credentials);
+    
     if (extraInfo) credentials.body = extraInfo
-    const init = useMemo(() => credentials ,[])
+    const init = useMemo(() => credentials, [])
     const { isFetching, result, error } = useFetch<any>(BASE_URL_API + action.href, init)
     if (isFetching) {
         return <Loading/>
@@ -48,5 +51,5 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
             return <ErrorView error={error}/>
         }
         return <></>
-    }
+    } 
 }

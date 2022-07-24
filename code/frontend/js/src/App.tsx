@@ -19,7 +19,7 @@ import { ACTIVE_ROLE, createRepository, EMAIL_KEY, LoggedInContext, NAME_KEY, SE
 import { Logout } from './user/logout';
 import { ListDevices } from './devices/ListDevices';
 import { DeviceRep } from './devices/Device';
-import { TicketRequest } from './ticket/report/TickerRequest';
+import { TicketRequest } from './ticket/report/TicketRequest';
 import { ListCategories } from './category/ListCategories';
 import { ErrorView } from './errors/Error';
 import { mapToFetchResult } from './hooks/useFetch';

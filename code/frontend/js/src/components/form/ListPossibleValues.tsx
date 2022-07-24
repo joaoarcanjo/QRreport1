@@ -4,6 +4,7 @@ import { useFetch } from "../../hooks/useFetch"
 import { getEntitiesOrUndefined, getProblemOrUndefined } from "../../models/ModelUtils"
 import { Collection } from "../../pagination/CollectionPagination"
 import { BASE_URL_API } from "../../Urls"
+import { useLoggedInState } from "../../user/Session"
 import { Loading } from "../Various"
 import { Options } from "./FormComponents"
 
@@ -17,15 +18,18 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
     otherValueText?: string, 
     setValue?: React.Dispatch<React.SetStateAction<string>>
 }) {
-
+    const loggedState = useLoggedInState()
+    let headersVal: HeadersInit | undefined
+    if (loggedState?.isLoggedIn)
+    headersVal = { 'Request-Origin': 'WebApp' }
     const initValues: RequestInit = {
         credentials: 'include',
-        headers: { 'Request-Origin': 'WebApp' }
+        headers: headersVal
     }
 
-    const init = useMemo(() => initValues ,[])
+    const init = useMemo(() => initValues, [])
     const url = href === undefined || null ? '' : BASE_URL_API + href
-    console.log(url)
+
     const { isFetching, result, error } = useFetch<Collection>(url, init)
 
     if (isFetching) return <Loading/>
@@ -35,7 +39,7 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
     if (problem) return <ErrorView problemJson={problem}/>
 
     const options = getEntitiesOrUndefined(result?.body)?.map(current => {
-        if(regName === 'anomaly') { //TODO: EVITAR ESTE IF 
+        if(regName === 'anomaly') {
             return {label: current.properties.anomaly, value: current.properties.anomaly}
         } else {
             return {label: current.properties.id, value: current.properties.name}

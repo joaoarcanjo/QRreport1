@@ -15,10 +15,12 @@ export function TicketRequest() {
 
     const { hash } = useParams()
     const loggedState = useLoggedInState()
-
+    let headersVal: HeadersInit | undefined
+    if (loggedState?.isLoggedIn)
+    headersVal = { 'Request-Origin': 'WebApp' }
     const initValues: RequestInit = {
         credentials: 'include',
-        headers: { 'Request-Origin': 'WebApp' }
+        headers: headersVal
     }
     
     const init = useMemo(() => initValues ,[])

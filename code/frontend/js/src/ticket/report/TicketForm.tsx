@@ -45,7 +45,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
             name = sessionName
             email = sessionEmail
         }
-        
+
         payload['subject'] = anomaly === '-1' ? subject : anomaly
         payload['description'] = description === undefined || description === '' ? anomaly : description
         payload['hash'] = hash
@@ -56,7 +56,6 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
         setPayload(JSON.stringify(payload))
     })
 
-    //todo: adicionar o icone do room e o icone do room
     function Headers() {
         const headerInfo = entity.properties
 
@@ -95,8 +94,8 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
                 case 'subject': return (anomaly === '-1') && <Input key={idx} value={simpleInputForm(register, 'Subject', errors, anomaly === '-1' ? undefined: false, prop.name, prop.type)}/>
                 case 'description': return <TextArea key={idx}  value={simpleTextAreaForm('Description', register, errors, prop.required, prop.name, '')}/>
                 case 'name': return !loggedState?.isLoggedIn && <Input key={idx} value={simpleInputForm(register, 'Name', errors, !loggedState?.isLoggedIn && prop.required, prop.name, prop.type)}/>
-                case 'phone': return !loggedState?.isLoggedIn && <Input key={idx} value={phoneInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Phone number')}/> 
-                case 'email': return !loggedState?.isLoggedIn && <Input key={idx} value={emailInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'Email')}/> 
+                case 'phone': return !loggedState?.isLoggedIn && <Input key={idx} value={phoneInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'phone')}/> 
+                case 'email': return !loggedState?.isLoggedIn && <Input key={idx} value={emailInputForm(register, errors, !loggedState?.isLoggedIn && prop.required, 'email')}/>
                 case 'anomaly': return <ListPossibleValues key={idx} 
                    register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select anomaly'} 
                    otherValueText={'Other problem...'}

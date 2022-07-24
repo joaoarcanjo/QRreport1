@@ -84,7 +84,7 @@ BEGIN;
         (6, 'Danificado/avariado/inexistente');
 
     INSERT INTO ROOM_DEVICE (room, device, qr_hash) VALUES
-        (1, 1, NULL); -- (ISEL) 1 - Bathroom, Toilet1
+        (1, 1, '5abd4089b7921fd6af09d1cc1cbe5220'); -- (ISEL) 1 - Bathroom, Toilet1
 
     INSERT INTO USER_STATE (name) VALUES
         ('Waiting analysis'),

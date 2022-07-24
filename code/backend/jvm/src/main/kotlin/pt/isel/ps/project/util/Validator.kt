@@ -494,6 +494,17 @@ object Validator {
             return req.compareTo(REPORT_PATH) == 0
         }
 
+        fun isAnomaliesURI(requestURI: String): Boolean {
+            val elemsBase = Uris.Devices.Anomalies.BASE_PATH.split("/")
+            val ignoreIndex = elemsBase.indexOf("{deviceId}")
+            val elemsReq = requestURI.split("/")
+            for ((index, value) in elemsBase.withIndex()) {
+                if (index == ignoreIndex) continue
+                if (value != elemsReq[index]) return false
+            }
+            return true
+        }
+
         fun isCreateTicketURI(requestURI: String, method: String): Boolean {
             return requestURI.compareTo(Uris.Tickets.BASE_PATH) == 0 && method == HttpMethod.POST.name
         }

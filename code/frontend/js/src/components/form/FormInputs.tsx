@@ -30,7 +30,6 @@ export const simpleTextAreaForm = (labelName: string, register: any, errors: any
 }
 
 export const emailInputForm = (register: any, errors: any, isRequired: boolean | undefined, name: string): InputProps => {
-    console.log(errors.name)
     return {
         inputLabelName: inputLabelName('Email', isRequired),
         register: register(name, {required: requiredRegister(isRequired), pattern: /.+@.+/, minLength: 4, maxLength: 320}),

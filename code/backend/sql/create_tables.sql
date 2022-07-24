@@ -26,7 +26,7 @@ BEGIN;
             CONSTRAINT valid_person_email_format CHECK ( email LIKE '%@%' )
             CONSTRAINT person_email_max_length CHECK ( char_length(email) <= 320 ),
         password TEXT NOT NULL CONSTRAINT person_password_max_length CHECK ( char_length(password) <= 127 ),
-        active_role INT NOT NULL REFERENCES ROLE(id), -- TODO: Update db scheme
+        active_role INT NOT NULL REFERENCES ROLE(id),
         state TEXT NOT NULL DEFAULT 'active' CONSTRAINT valid_person_state CHECK ( state IN ('active', 'inactive', 'banned') ),
         timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         reason TEXT CONSTRAINT person_reason_max_length CHECK ( char_length(name) <= 150 ),
@@ -130,7 +130,7 @@ BEGIN;
         device BIGINT NOT NULL REFERENCES DEVICE(id),
         reporter UUID NOT NULL REFERENCES PERSON(id),
         employee_state INT NOT NULL REFERENCES EMPLOYEE_STATE(id) DEFAULT 1,
-        parent_ticket BIGINT REFERENCES TICKET(id) -- TODO: Update db model
+        parent_ticket BIGINT REFERENCES TICKET(id)
     );
 
     CREATE TABLE FIXING_BY
