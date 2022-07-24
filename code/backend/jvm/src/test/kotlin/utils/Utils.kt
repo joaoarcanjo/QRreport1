@@ -25,6 +25,8 @@ import pt.isel.ps.project.model.room.RoomDeviceDto
 import pt.isel.ps.project.model.room.RoomDto
 import pt.isel.ps.project.model.room.RoomItemDto
 import pt.isel.ps.project.model.room.RoomsDto
+import pt.isel.ps.project.model.ticket.TicketDto
+import pt.isel.ps.project.model.ticket.TicketExtraInfo
 import java.io.File
 import java.util.*
 
@@ -87,3 +89,16 @@ fun CommentsDto.ignoreTimestamps() = CommentsDto(
 fun PersonDto.changeToTest(id: UUID) = PersonDto(id, name, phone, email, roles, skills, companies, null, state, reason, bannedBy)
 fun PersonDto.ignoreTimestamp() = PersonDto(id, name, phone, email, roles, skills, companies, null, state, reason, bannedBy)
 fun PersonDetailsDto.ignoreTimestamp() = PersonDetailsDto(person.ignoreTimestamp(), personTickets)
+
+fun TicketDto.ignoreTimestamp() = TicketDto(id, subject, description, null, employeeState, userState, rate, possibleTransitions)
+fun TicketExtraInfo.ignoreTimestamp() = TicketExtraInfo(
+    ticket.ignoreTimestamp(),
+    ticketComments.ignoreTimestamps(),
+    person,
+    company.ignoreTimestamp(),
+    building.ignoreTimestamp(),
+    room.ignoreTimestamp(),
+    device.ignoreTimestamp(),
+    employee,
+    parentTicket
+)

@@ -99,8 +99,8 @@ class CommentServiceTests {
         )
 
         val commentsDto = service.getComments(ticketId, DEFAULT_PAGE)
-
-        Assertions.assertThat(commentsDto.ignoreTimestamps()).isEqualTo(expectedComments)
+        commentsDto.comments?.map { comment -> Assertions.assertThat(expectedComments.comments?.contains(comment.ignoreTimestamp())).isEqualTo(true) }
+        Assertions.assertThat(expectedComments.collectionSize).isEqualTo(commentsDto.collectionSize)
     }
 
     @Test

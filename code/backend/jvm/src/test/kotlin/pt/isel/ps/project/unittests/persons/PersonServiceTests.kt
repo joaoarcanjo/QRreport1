@@ -62,17 +62,18 @@ class PersonServiceTests {
     fun `Get persons default`() {
         val expectedPersons = PersonsDto(
             listOf(
-                PersonItemDto(UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"), "Diogo Novo", "961111111", "diogo@qrreport.com", listOf("admin"), null, "active"),
-                PersonItemDto(UUID.fromString("1f6c1014-b029-4a75-b78c-ba09c8ea474d"), "João Arcanjo", null, "joni@isel.com", listOf("admin", "admin"), null, "active"),
+                PersonItemDto(UUID.fromString("1f6c1014-b029-4a75-b78c-ba09c8ea474d"), "João Arcanjo", null, "joni@isel.com", listOf("admin"), null, "active"),
                 PersonItemDto(UUID.fromString("d1ad1c02-9e4f-476e-8840-c56ae8aa7057"), "Pedro Miguens", "963333333", "pedro@isel.com", listOf("manager"), null, "active"),
-                PersonItemDto(UUID.fromString("b555b6fc-b904-4bd9-8c2b-4895738a437c"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"), listOf("water"), "active"),
-                PersonItemDto(UUID.fromString("b9063a7e-7ba4-42d3-99f4-1b00e00db55d"), "Francisco Ludovico", "9653456345", "ludviks@gmail.com", listOf("user"), null, "active"),
-                PersonItemDto(UUID.fromString("b9063a7e-7ba4-42d3-99f4-1b00e00db55d"), "Daniela Gomes", null, "dani@isel.com", listOf("guest"), null, "active")
+                PersonItemDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"), listOf("water", "electricity"), "active"),
+                PersonItemDto(UUID.fromString("b555b6fc-b904-4bd9-8c2b-4895738a437c"), "Francisco Ludovico", "9653456345", "ludviks@gmail.com", listOf("user"), null, "active"),
+                PersonItemDto(UUID.fromString("b9063a7e-7ba4-42d3-99f4-1b00e00db55d"), "Daniela Gomes", null, "dani@isel.com", listOf("guest"), null, "active"),
+                PersonItemDto(UUID.fromString("5e63ea2f-53cf-4546-af41-f0b3a20eac91"), "António Ricardo", null, "antonio@isel.com", listOf("manager"), null, "banned")
             )
         ,6)
 
         val persons = service.getPersons(adminUser,1, UNDEFINED, 1)
-        expectedPersons.persons?.map { person -> assertThat(persons.persons?.contains(person)) }
+        println(persons)
+        persons.persons?.map { person -> println(person); assertThat(expectedPersons.persons?.contains(person)).isEqualTo(true) }
         assertThat(expectedPersons.personsCollectionSize).isEqualTo(persons.personsCollectionSize)
     }
 
@@ -153,11 +154,11 @@ class PersonServiceTests {
 
     @Test
     fun `Add role to person`() {
-        val expectedPerson = PersonDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee", "manager"),  listOf("water", "electricity"), listOf("ISEL"), null, "active", null, null)
+        val expectedRoles = listOf("manager", "employee")
 
         val person = service.addRoleToPerson(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), AddRoleToPersonEntity("manager", 1, null))
 
-        assertThat(person.ignoreTimestamp()).isEqualTo(expectedPerson)
+        expectedRoles.map { role -> assertThat(person.roles.contains(role)).isEqualTo(true) }
     }
 
     @Test

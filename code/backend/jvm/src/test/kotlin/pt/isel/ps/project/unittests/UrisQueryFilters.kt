@@ -1,4 +1,4 @@
-package pt.isel.ps.project
+package pt.isel.ps.project.unittests
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test

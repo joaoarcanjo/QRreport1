@@ -73,7 +73,7 @@ class DeviceServiceTests {
             3)
 
         val devices = service.getDevices(DEFAULT_PAGE)
-        expectedDevices.devices?.map { device -> Assertions.assertThat(devices.devices?.contains(device)) }
+        devices.devices?.map { device -> Assertions.assertThat(expectedDevices.devices?.contains(device.ignoreTimestamp())).isEqualTo(true) }
         Assertions.assertThat(expectedDevices.devicesCollectionSize).isEqualTo(devices.devicesCollectionSize)
     }
 

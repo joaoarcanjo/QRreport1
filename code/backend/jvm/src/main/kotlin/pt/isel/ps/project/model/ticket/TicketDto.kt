@@ -25,7 +25,7 @@ data class TicketDto (
     val id: Long,
     val subject: String,
     val description: String,
-    val creationTimestamp: Timestamp,
+    val creationTimestamp: Timestamp?,
     val employeeState: String,
     val userState: String,
     val rate: Int?,

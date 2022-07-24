@@ -204,7 +204,7 @@ CREATE OR REPLACE PROCEDURE create_ticket(
 AS
 $$
 DECLARE
-    t_id BIGINT; room_id BIGINT; device_id BIGINT;
+    t_id BIGINT; t_employee_state INT; room_id BIGINT; device_id BIGINT;
     person_id UUID; person_rep JSON;
 BEGIN
     SELECT room, device INTO room_id, device_id FROM ROOM_DEVICE WHERE qr_hash = hash;
@@ -216,11 +216,12 @@ BEGIN
     IF (person_id IS NULL) THEN
         CALL create_person(
             person_rep,
-            (SELECT id FROM ROLE WHERE name = 'guest'),
+            'guest',
             person_name,
             person_email,
-            gen_random_uuid(),
-            person_phone
+            'guestPassword',
+            person_phone,
+            null, null
         );
         person_id = person_rep->>'id';
     END IF;
@@ -599,6 +600,12 @@ DECLARE
     role TEXT = get_person_active_role(person_id);
 BEGIN
     PERFORM ticket_exists(ticket_id);
+
+     SELECT subject, description, es.name, us.name FROM TICKET t
+        INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
+        INNER JOIN USER_STATE us ON es.user_state = us.id
+        WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
+
     IF (role = 'user') THEN
         PERFORM ticket_belongs_to_user(ticket_id, person_id);
         SELECT employee_state INTO t_employeeSate FROM TICKET WHERE id = ticket_id;
@@ -607,18 +614,12 @@ BEGIN
                 RAISE 'ticket-rate';
             ELSE
                 INSERT INTO RATE (person, ticket, rate) VALUES (person_id, ticket_id, rate_value);
-
-                SELECT subject, description, es.name, us.name FROM TICKET t
-                    INNER JOIN EMPLOYEE_STATE es ON t.employee_state = es.id
-                    INNER JOIN USER_STATE us ON es.user_state = us.id
-                    WHERE t.id = ticket_id INTO t_subject, t_description, t_employeeSate, t_userState;
-
-                ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
-                    'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
-            END CASE;
+        END CASE;
     END IF;
-END$$
-LANGUAGE plpgsql;
+
+    ticket_rep = json_build_object('id', ticket_id, 'subject', t_subject, 'description', t_description,
+                    'employeeState', t_employeeSate, 'userState', t_userState, 'rate', rate_value);
+END$$LANGUAGE plpgsql;
 
 /**
   * Groups a ticket
