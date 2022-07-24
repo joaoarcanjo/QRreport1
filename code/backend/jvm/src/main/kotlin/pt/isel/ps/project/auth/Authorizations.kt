@@ -12,6 +12,7 @@ import pt.isel.ps.project.model.person.Roles.EMPLOYEE
 import pt.isel.ps.project.model.person.Roles.MANAGER
 import pt.isel.ps.project.model.person.Roles.ADMIN
 import pt.isel.ps.project.model.person.Roles.GUEST
+import pt.isel.ps.project.util.Validator.Person.verifyManagerCreationPermissions
 import java.util.*
 
 object Authorizations {
@@ -24,7 +25,11 @@ object Authorizations {
 
         fun createPersonsAuthorization(person: CreatePersonEntity, user: AuthPerson): Boolean {
             val userRole = user.activeRole
-            if ((userRole == MANAGER && person.role != ADMIN) || userRole == ADMIN) return true
+            if (userRole == ADMIN) return true
+            if ((userRole == MANAGER)) {
+                verifyManagerCreationPermissions(user, person)
+                return true
+            }
             throw ForbiddenException(CREATION_DENIED)
         }
 

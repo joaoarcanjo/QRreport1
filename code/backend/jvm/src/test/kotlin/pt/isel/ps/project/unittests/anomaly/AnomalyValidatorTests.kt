@@ -19,7 +19,6 @@ class AnomalyValidatorTests {
         Assertions.assertThat(Validator.Device.Anomaly.verifyAnomalyInput(anomaly)).isTrue
     }
 
-
     @Test
     fun `Throws exception when anomaly is created with an invalid anomaly length`() {
         val invAnomaly = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +

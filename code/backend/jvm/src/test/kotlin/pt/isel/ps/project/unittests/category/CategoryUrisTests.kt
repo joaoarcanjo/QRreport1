@@ -26,4 +26,14 @@ class CategoryUrisTests {
 
         Assertions.assertThat(path).isEqualTo(expectedPath)
     }
+
+    @Test
+    fun `Make valid category deactivate path`() {
+        val categoryId = 123L
+        val expectedPath = "$VERSION/categories/123/activate"
+
+        val path = Uris.Categories.makeActivate(categoryId)
+
+        Assertions.assertThat(path).isEqualTo(expectedPath)
+    }
 }

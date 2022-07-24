@@ -1,12 +1,15 @@
 package pt.isel.ps.project.model
 
 import org.springframework.web.util.UriTemplate
-import pt.isel.ps.project.model.Uris.Filters.makeBuildingId
-import pt.isel.ps.project.model.Uris.Filters.makeCompanyId
+import pt.isel.ps.project.model.Uris.Filters.makeAssign
+import pt.isel.ps.project.model.Uris.Filters.makeBuilding
+import pt.isel.ps.project.model.Uris.Filters.makeState
+import pt.isel.ps.project.model.Uris.Filters.makeCompany
 import pt.isel.ps.project.model.Uris.Filters.makeDirection
 import pt.isel.ps.project.model.Uris.Filters.makeEmployeeState
 import pt.isel.ps.project.model.Uris.Filters.makeRole
 import pt.isel.ps.project.model.Uris.Filters.makeSortBy
+import pt.isel.ps.project.model.Uris.Filters.makeUser
 import java.util.*
 
 object Uris {
@@ -87,37 +90,16 @@ object Uris {
 
         fun companiesSelf(page: Int, userId: UUID?, state: String, assign: Boolean): String {
             var uri = makePagination(page, BASE_PATH)
-            uri = makeCompanyUserId(userId, uri)
-            uri = makeAssignCompany(assign, uri)
-            return makeCompaniesState(state, uri)
+            uri = makeUser(userId, uri)
+            uri = makeAssign(assign, uri)
+            return makeState(state, uri)
         }
 
         fun companiesPagination(userId: UUID?, state: String, assign: Boolean): String {
-            var uri = makeCompanyUserId(userId, "")
-            uri = makeCompaniesState(state, uri)
-            uri = makeAssignCompany(assign, uri)
+            var uri = makeUser(userId, "")
+            uri = makeState(state, uri)
+            uri = makeAssign(assign, uri)
             return "${COMPANIES_PAGINATION}$uri"
-        }
-
-        private const val ASSIGN_PATH = "&assign={assign}"
-
-        private fun makeAssignCompany(assign: Boolean, uri: String): String {
-            if (!assign) return uri
-            return UriTemplate("$uri${ASSIGN_PATH}").expand(mapOf("assign" to assign)).toString()
-        }
-
-        private const val COMPANY_USER_PATH = "&userId={userId}"
-
-        private fun makeCompanyUserId(userId: UUID?, uri: String): String {
-            if (userId == null) return uri
-            return UriTemplate("$uri${COMPANY_USER_PATH}").expand(mapOf("userId" to userId)).toString()
-        }
-
-        private const val COMPANY_STATE_PATH = "&state={state}"
-
-        private fun makeCompaniesState(state: String, uri: String): String {
-            if (state == UNDEFINED) return uri
-            return UriTemplate("$uri${COMPANY_STATE_PATH}").expand(mapOf("state" to state)).toString()
         }
 
         object Buildings {
@@ -228,25 +210,22 @@ object Uris {
         fun makeState(id: Long) = STATE_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
         fun makeGroup(id: Long) = GROUP_TEMPLATE.expand(mapOf("ticketId" to id)).toString()
 
-        fun employeesPagination(ticketId: Long): String {
-            val uri = makeEmployee(ticketId)
-            return "$uri{?page}"
-        }
+        fun makePossibleEmployeesPagination(id: Long) = "${makeEmployee(id)}{?page}"
 
         fun ticketsSelf(page: Int, direction: String, sortBy: String, companyId: Long?, buildingId: Long?, employeeState: Int?): String {
             var uri = makePagination(page, BASE_PATH)
             uri = makeDirection(direction, uri)
             uri = makeSortBy(sortBy, uri)
-            uri = makeCompanyId(companyId, uri)
-            uri = makeBuildingId(buildingId, uri)
+            uri = makeCompany(companyId, uri)
+            uri = makeBuilding(buildingId, uri)
             return makeEmployeeState(employeeState, uri)
         }
 
         fun ticketsPagination(direction: String, sortBy: String, companyId: Long?, buildingId: Long?, employeeState: Int?): String {
             var uri = makeDirection(direction, "")
             uri = makeSortBy(sortBy, uri)
-            uri = makeCompanyId(companyId, uri)
-            uri = makeBuildingId(buildingId, uri)
+            uri = makeCompany(companyId, uri)
+            uri = makeBuilding(buildingId, uri)
             uri = makeEmployeeState(employeeState, uri)
             return "${Persons.PERSONS_PAGINATION}$uri"
         }
@@ -297,8 +276,8 @@ object Uris {
         private val ASSIGN_COMPANY_TEMPLATE = UriTemplate(ASSIGN_COMPANY_PATH)
         private val SWITCH_ROLE_TEMPLATE = UriTemplate(SWITCH_ROLE)
         fun makeSpecific(id: UUID) = SPECIFIC_TEMPLATE.expand(mapOf("personId" to id)).toString()
-        fun makeFire(personId: UUID) = Companies.SPECIFIC_PATH + FIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
-        fun makeRehire(personId: UUID) = Companies.SPECIFIC_PATH + REHIRE_TEMPLATE.expand(mapOf("personId" to personId)).toString()
+        fun makeFire(id: UUID) = Companies.SPECIFIC_PATH + FIRE_TEMPLATE.expand(mapOf("personId" to id)).toString()
+        fun makeRehire(id: UUID) = Companies.SPECIFIC_PATH + REHIRE_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeBan(id: UUID) = BAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeUnban(id: UUID) = UNBAN_TEMPLATE.expand(mapOf("personId" to id)).toString()
         fun makeAddRole(id: UUID) = ADD_ROLE_TEMPLATE.expand(mapOf("personId" to id)).toString()
@@ -309,12 +288,12 @@ object Uris {
 
         fun personsSelf(page: Int, companyId: Long?, role: String): String {
             var uri = makePagination(page, BASE_PATH)
-            uri = makeCompanyId(companyId, uri)
+            uri = makeCompany(companyId, uri)
             return makeRole(role, uri)
         }
 
         fun personsPagination(companyId: Long?, role: String): String {
-            var uri = makeCompanyId(companyId, "")
+            var uri = makeCompany(companyId, "")
             uri = makeRole(role, uri)
             return "$PERSONS_PAGINATION$uri"
         }
@@ -328,6 +307,27 @@ object Uris {
 
     object Filters {
 
+        private const val ASSIGN_PATH = "&assign={assign}"
+
+        fun makeAssign(assign: Boolean, uri: String): String {
+            if (!assign) return uri
+            return UriTemplate("$uri${ASSIGN_PATH}").expand(mapOf("assign" to assign)).toString()
+        }
+
+        private const val USER_PATH = "&userId={userId}"
+
+        fun makeUser(userId: UUID?, uri: String): String {
+            if (userId == null) return uri
+            return UriTemplate("$uri${USER_PATH}").expand(mapOf("userId" to userId)).toString()
+        }
+
+        private const val STATE_PATH = "&state={state}"
+
+        fun makeState(state: String, uri: String): String {
+            if (state == UNDEFINED) return uri
+            return UriTemplate("$uri${STATE_PATH}").expand(mapOf("state" to state)).toString()
+        }
+
         private const val ROLE_PATH = "&role={roleName}"
 
         fun makeRole(role: String, uri: String): String {
@@ -337,14 +337,14 @@ object Uris {
 
         private const val COMPANY_PATH = "&company={companyId}"
 
-        fun makeCompanyId(companyId: Long?, uri: String): String {
+        fun makeCompany(companyId: Long?, uri: String): String {
             if (companyId == null) return uri
             return UriTemplate("$uri$COMPANY_PATH").expand(mapOf("companyId" to companyId)).toString()
         }
 
         private const val BUILDING_PATH = "&building={buildingId}"
 
-        fun makeBuildingId(buildingId: Long?, uri: String): String {
+        fun makeBuilding(buildingId: Long?, uri: String): String {
             if (buildingId == null) return uri
             return UriTemplate("$uri$BUILDING_PATH").expand(mapOf("buildingId" to buildingId)).toString()
         }

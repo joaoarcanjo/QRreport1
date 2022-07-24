@@ -7,8 +7,6 @@ import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.Uris.Tickets.EMPLOYEE_STATES_PAGINATION
-import pt.isel.ps.project.model.Uris.Tickets.TICKETS_PAGINATION
-import pt.isel.ps.project.model.person.PersonItemDto
 import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
@@ -32,7 +30,6 @@ import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Auth.Roles.isUser
 import pt.isel.ps.project.util.Validator.Person.belongsToCompany
 import pt.isel.ps.project.util.Validator.Person.isEmployeeTicket
-import pt.isel.ps.project.util.Validator.Person.isSamePerson
 import pt.isel.ps.project.util.Validator.Ticket.isTicketRated
 
 object TicketResponses {
@@ -235,7 +232,7 @@ object TicketResponses {
             },
             links = listOf(
                 Links.self(Uris.makePagination(pageIdx, Tickets.makeEmployee(ticketId))),
-                Links.pagination(Tickets.employeesPagination(ticketId)),
+                Links.pagination(Tickets.makePossibleEmployeesPagination(ticketId)),
             ),
         )
     )
