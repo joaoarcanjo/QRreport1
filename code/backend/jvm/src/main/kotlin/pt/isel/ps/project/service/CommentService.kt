@@ -18,25 +18,18 @@ class CommentService(val commentDao: CommentDao) {
         return commentDao.getComments(ticketId, elemsToSkip(page, COMMENT_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    fun getComment(ticketId: Long, commentId: Long): CommentDto {
-        return commentDao.getComment(ticketId, commentId).deserializeJsonTo()
-    }
-
-    //@Transactional(isolation = Isolation.SERIALIZABLE)
     fun createComment(ticketId: Long, comment: CreateCommentEntity, user: AuthPerson): CommentItemDto {
         verifyCommentInput(comment)
         return commentDao.createComment(ticketId, comment, user.id).getString(COMMENT_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun updateComment(user: AuthPerson, ticketId: Long, commentId: Long, comment: CreateCommentEntity): CommentItemDto {
         verifyCommentInput(comment)
         return commentDao.updateComment(commentId, user.id, ticketId, comment).getString(COMMENT_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun deleteComment(user: AuthPerson, ticketId: Long, commentId: Long): CommentItemDto {
         return commentDao.deleteComment(commentId, user.id, ticketId).getString(COMMENT_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)

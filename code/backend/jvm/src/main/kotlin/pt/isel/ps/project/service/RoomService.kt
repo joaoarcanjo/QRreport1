@@ -27,7 +27,6 @@ class RoomService(val roomDao: RoomDao) {
         return roomDao.getRooms(companyId, buildingId, elemsToSkip(page, ROOM_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    //@Transactional(isolation = Isolation.SERIALIZABLE)
     fun createRoom(user: AuthPerson, companyId: Long, buildingId: Long, room: CreateRoomEntity) : RoomItemDto {
         verifyCreateRoomInput(room)
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
@@ -36,13 +35,11 @@ class RoomService(val roomDao: RoomDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun getRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long): RoomDto {
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
         return roomDao.getRoom(companyId, buildingId, roomId).deserializeJsonTo()
     }
 
-    //@Transactional(isolation = Isolation.SERIALIZABLE)
     fun updateRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, room: UpdateRoomEntity): RoomItemDto {
         verifyUpdateRoomInput(room)
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
@@ -51,7 +48,6 @@ class RoomService(val roomDao: RoomDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun deactivateRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long): RoomItemDto {
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
             throw ForbiddenException(CHANGE_DENIED)
@@ -59,7 +55,6 @@ class RoomService(val roomDao: RoomDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun activateRoom(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long): RoomItemDto {
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
             throw ForbiddenException(CHANGE_DENIED)
@@ -67,7 +62,6 @@ class RoomService(val roomDao: RoomDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun addRoomDevice(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, device: AddDeviceEntity): RoomDeviceDto {
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
             throw ForbiddenException(CHANGE_DENIED)
@@ -75,7 +69,6 @@ class RoomService(val roomDao: RoomDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.READ_COMMITTED)
     fun removeRoomDevice(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, deviceId: Long): RoomDeviceDto {
         if (isManager(user) && !isBuildingManager(user, companyId, buildingId))
             throw ForbiddenException(CHANGE_DENIED)

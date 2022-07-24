@@ -209,7 +209,6 @@ BEGIN
         'devices', json_build_object('devices', devices, 'devicesCollectionSize', collection_size)
     );
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -243,7 +242,6 @@ BEGIN
         'device', device_item_representation(device_id, device_name, device_category, device_state, device_timestamp)
     );
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -274,7 +272,6 @@ BEGIN
         'device', device_item_representation(device_id, device_name, device_category, device_state, device_timestamp)
     );
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -300,7 +297,6 @@ BEGIN
 
     room_rep = room_item_representation(room_id);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*

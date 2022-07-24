@@ -206,7 +206,6 @@ BEGIN
         ELSE TRUE END;
     RETURN json_build_object('persons', persons, 'personsCollectionSize', collection_size);
 END$$LANGUAGE plpgsql;
--- Not tested, and not completed (filters)
 
 /**
   * Gets a specific person details, req_person_id is the id of the person that requested the information
@@ -311,7 +310,6 @@ EXCEPTION
             RAISE 'unique-constraint' USING DETAIL = 'email', HINT = new_email;
         END IF;
 END$$ LANGUAGE plpgsql;
--- Repeatable read
 
 /**
   * Deletes a specific person with the user role and replaces its information to a specific format
@@ -341,7 +339,6 @@ BEGIN
     END IF;
     person_rep = person_details_representation(person_id);
 END$$LANGUAGE plpgsql;
--- Repeatable read
 
 /**
   * Fires an employee
@@ -371,7 +368,6 @@ BEGIN
 
     person_rep = person_details_representation(employee_id, pcompany);
 END$$LANGUAGE plpgsql;
--- Repeatable read
 
 /**
   * Rehires an employee
@@ -547,7 +543,6 @@ BEGIN
     ELSEIF (NOT EXISTS(SELECT state FROM PERSON WHERE id = person_id AND state = 'active')) THEN
          RAISE 'inactive-resource' USING DETAIL = 'person';
     ELSEIF (NOT EXISTS(SELECT person FROM PERSON_SKILL WHERE person = person_id AND category = skill)) THEN
-        RAISE INFO 'OLAAA';
         INSERT INTO PERSON_SKILL(person, category) VALUES (person_id, skill);
     END IF;
     person_rep = person_item_representation(person_id);

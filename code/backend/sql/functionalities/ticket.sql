@@ -195,8 +195,8 @@ END$$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE create_ticket(
     ticket_rep OUT JSON,
     hash TEXT,
-    subject TEXT,
-    description TEXT,
+    tsubject TEXT,
+    tdescription TEXT,
     person_name TEXT,
     person_email TEXT,
     person_phone TEXT DEFAULT NULL
@@ -204,7 +204,7 @@ CREATE OR REPLACE PROCEDURE create_ticket(
 AS
 $$
 DECLARE
-    t_id BIGINT; t_employee_state INT; room_id BIGINT; device_id BIGINT;
+    t_id BIGINT; room_id BIGINT; device_id BIGINT;
     person_id UUID; person_rep JSON;
 BEGIN
     SELECT room, device INTO room_id, device_id FROM ROOM_DEVICE WHERE qr_hash = hash;
@@ -226,7 +226,7 @@ BEGIN
     END IF;
 
     INSERT INTO TICKET (subject, description, reporter, room, device)
-    VALUES (subject, description, person_id, room_id, device_id)
+    VALUES (tsubject, tdescription, person_id, room_id, device_id)
     RETURNING id INTO t_id;
 
     ticket_rep = ticket_item_representation(t_id);
@@ -271,7 +271,6 @@ BEGIN
 
     ticket_rep = ticket_item_representation(ticket_id);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -292,7 +291,6 @@ BEGIN
         CALL change_ticket_state(ticket_id, employee_state_id, ticket_rep);
     END IF;
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -338,7 +336,6 @@ BEGIN
 
     ticket_rep = ticket_item_representation(ticket_id);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -503,29 +500,6 @@ BEGIN
     RETURN json_build_object('tickets', tickets, 'ticketsCollectionSize', collection_size);
 END$$ LANGUAGE plpgsql;
 
-/*CREATE OR REPLACE FUNCTION get_tickets_with_default_order(
-    person_id UUID
-)
-RETURNS JSON
-AS
-$$
-DECLARE
-    person_role INT;
-BEGIN
-    SELECT role INTO person_role FROM PERSON_ROLE WHERE person = person_id;
-    CASE
-        WHEN (person_role = get_role_id('guest') OR person_role = get_role_id('user')) THEN
-            SELECT * FROM TICKET WHERE reporter = person_id;
-        WHEN (person_role = get_role_id('employee')) THEN
-            SELECT subject, description, s.name as user_state FROM TICKET t INNER JOIN USER_STATE s
-                ON (s.id = (SELECT user_state FROM EMPLOYEE_STATE WHERE id = t.employee_state))
-            WHERE t.id IN (SELECT ticket FROM FIXING_BY WHERE person = person_id)
-            ORDER BY user_state = 'Waiting analysis';
-        ELSE
-            RAISE 'invalid-person';
-    END CASE;
-END$$ LANGUAGE plpgsql;*/
-
 /*
  * Set a employee to a ticket
  * Returns the ticket and the employee representation
@@ -565,7 +539,6 @@ BEGIN
         'ticket', ticket_item_representation(ticket_id),
         'person', person_item_representation(new_employee_id));
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /**
@@ -607,7 +580,6 @@ BEGIN
         'ticket', ticket_item_representation(ticket_id),
         'person', person_item_representation(employee_id));
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /**
@@ -646,7 +618,6 @@ BEGIN
             END CASE;
     END IF;
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /**

@@ -47,7 +47,6 @@ BEGIN
 
     building_rep = building_item_representation(building_id, building_name, floors, building_state, tmstamp);
 END$$
--- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -173,7 +172,6 @@ BEGIN
         'manager', person_item_representation(manager_id)
     );
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -194,7 +192,7 @@ BEGIN
             RAISE 'resource-not-found' USING DETAIL = 'building', HINT = building_id;
         WHEN (building_state = 'active') THEN
             UPDATE BUILDING SET state = 'inactive', timestamp = CURRENT_TIMESTAMP
-            WHERE id = building_id AND company = COMPANY_ID
+            WHERE id = building_id AND company = company_id
             RETURNING state, timestamp INTO building_state, tmstamp;
         ELSE
             -- Do nothing when it's already inactive
@@ -202,7 +200,6 @@ BEGIN
 
     building_rep = building_item_representation(building_id, building_name, building_floors, building_state, tmstamp);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -270,7 +267,6 @@ BEGIN
     END CASE;
     building_rep = json_build_object('id', building_id, 'name', building_name, 'manager', new_manager);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /**

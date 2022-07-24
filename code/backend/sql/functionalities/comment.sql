@@ -67,7 +67,6 @@ BEGIN
 
     comment_rep = comment_item_representation(comment_id);
 END$$
--- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -83,7 +82,8 @@ DECLARE
     person_id UUID; person_name TEXT; person_phone TEXT; person_email TEXT; comment TEXT; comment_timestamp TIMESTAMP;
 BEGIN
     SELECT person.id, person.name, person.phone, person.email, comment.comment, comment.timestamp
-    FROM COMMENT comment INNER JOIN PERSON person ON comment.person = person.id
+    FROM COMMENT comment
+        INNER JOIN PERSON person ON comment.person = person.id
     WHERE comment.id = comment_id AND comment.ticket = ticket_id
     INTO person_id, person_name, person_phone, person_email, comment, comment_timestamp;
     IF (NOT FOUND) THEN
@@ -160,7 +160,6 @@ BEGIN
 
     comment_rep = comment_item_representation(comment_id);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*
@@ -187,5 +186,4 @@ BEGIN
 
     comment_rep = comment_item_representation(comment_id, cc, ctm);
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;

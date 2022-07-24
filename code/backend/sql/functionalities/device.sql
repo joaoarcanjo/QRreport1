@@ -64,7 +64,6 @@ BEGIN
 
     device_rep = device_item_representation(device_id, device_name, device_category, device_state, tmstamp);
 END$$
--- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -128,7 +127,6 @@ DECLARE
     rec RECORD;
     anomalies JSON[];
     collection_size INT = 0;
-    device_name TEXT;
 BEGIN
     PERFORM device_exists(device_id);
 
@@ -143,7 +141,6 @@ BEGIN
             'device', device_item_representation(device_id),
             'anomalies', json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size));
 END$$
--- SET default_transaction_isolation = 'repeatable read'
 LANGUAGE plpgsql;
 
 /*

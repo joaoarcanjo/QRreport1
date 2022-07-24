@@ -35,20 +35,17 @@ class TicketService(val ticketDao: TicketDao) {
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun updateTicket(ticketId: Long, ticket: UpdateTicketEntity, user: AuthPerson): TicketItemDto {
         verifyUpdateTicketInput(ticket)
         return ticketDao.updateTicket(ticketId, user.id, ticket).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun changeTicketState(ticketId: Long, ticketState: ChangeTicketStateEntity, user: AuthPerson): TicketItemDto {
         return ticketDao.changeTicketState(ticketId, user.id, ticketState).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun addTicketRate(ticketId: Long, ticketRate: TicketRateEntity, user: AuthPerson): TicketRate {
         verifyTicketRateInput(ticketRate)
         return ticketDao.addTicketRate(ticketId, user.id, ticketRate).getString(TICKET_REP)?.deserializeJsonTo()
@@ -59,14 +56,11 @@ class TicketService(val ticketDao: TicketDao) {
         return ticketDao.getSpecificEmployees(ticketId, elemsToSkip(page, PERSON_PAGE_MAX_SIZE)).deserializeJsonTo()
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun setEmployee(ticketId: Long, ticketEmployee: TicketEmployeeEntity, user: AuthPerson): TicketEmployee {
-        //verifyPersonId(ticketEmployee.employeeId) TODO
         return ticketDao.setEmployee(ticketId, user.id, ticketEmployee).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)
     }
 
-    //@Transactional(isolation = Isolation.REPEATABLE_READ)
     fun removeEmployee(ticketId: Long, user: AuthPerson): TicketEmployee {
         return ticketDao.removeEmployee(ticketId, user.id).getString(TICKET_REP)?.deserializeJsonTo()
             ?: throw InternalServerException(INTERNAL_ERROR)

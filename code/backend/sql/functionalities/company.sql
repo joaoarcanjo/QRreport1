@@ -250,7 +250,7 @@ RETURNS JSON
 AS
 $$
 DECLARE
-    buildings_rep JSON;
+    buildings_rep JSON; test TEXT;
     cid BIGINT; cname TEXT; cstate TEXT; tmstamp TIMESTAMP;
 BEGIN
     SELECT id, name, state, timestamp INTO cid, cname, cstate, tmstamp FROM COMPANY WHERE id = company_id;

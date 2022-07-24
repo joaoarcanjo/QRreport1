@@ -5,7 +5,7 @@
 /*
  * Auxiliary function to return the qrhash item representation
  */
-CREATE OR REPLACE FUNCTION qrhash_item_representation (hash TEXT)
+CREATE OR REPLACE FUNCTION qrhash_item_representation(hash TEXT)
 RETURNS JSON
 AS
 $$

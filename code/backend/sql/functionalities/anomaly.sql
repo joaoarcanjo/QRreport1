@@ -63,7 +63,6 @@ EXCEPTION
             RAISE 'unique-constraint' USING DETAIL = 'anomaly', HINT = new_anomaly;
         END IF;
 END$$
--- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
@@ -87,7 +86,6 @@ EXCEPTION
             RAISE 'unique-constraint' USING DETAIL = 'anomaly', HINT = new_anomaly;
         END IF;
 END$$
--- SET default_transaction_isolation = 'serializable'
 LANGUAGE plpgsql;
 
 /*
