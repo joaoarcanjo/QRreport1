@@ -135,7 +135,7 @@ Only used in the HTTP error Bad Request and it's composed by an array of objects
 ```
 
 ### Errors documentation
-All the errors that can happen in the system are documented, where all the generic errors that can happen in almost every resource are described down below and the errors that are more domain specific and more connected to the business logic of the project are described [**here**](errors/README.md).
+All the errors that can happen in the system are documented, where all the generic errors that can happen in almost every resource are described down below and the errors that are more domain specific and more connected to the business logic of the project are described [**here**](resources/errors/README.md).
 
 ### Bad Request
 Thrown in requests that have some error inside the request, such as, an error in the path, headers or body.
