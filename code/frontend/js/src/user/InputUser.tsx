@@ -31,7 +31,6 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
     const [ company, setCompany ] = useState<Company>();
     const [ skill, setSkill ] = useState<Category>();
     const [currentRole, setRole ] = useState<string>('')
-    console.log(currentRole)
 
     const onSubmitHandler = handleSubmit(({ name, phone, email, password, passwordVerify, role }) => {
         const payload: any = {}

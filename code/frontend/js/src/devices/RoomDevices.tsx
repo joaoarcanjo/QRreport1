@@ -20,7 +20,6 @@ export function RoomDevices({ roomEntity, collection }: {roomEntity: Entity<Room
     const init = useMemo(() => initValues ,[])
 
     const [currentUrl, setCurrentUrl] = useState('')
-    
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
     
     if (isFetching) return <Loading/>

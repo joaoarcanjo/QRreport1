@@ -168,6 +168,9 @@ object Uris {
                     SPECIFIC_DEVICE_TEMPLATE.expand(
                         mapOf("companyId" to companyId, "buildingId" to buildingId, "roomId" to roomId, "deviceId" to deviceId)
                     ).toString()
+                fun makeDevicesPagination(companyId: Long, buildingId: Long, roomId: Long): String {
+                    return makeDevices(companyId, buildingId, roomId) + "{?page}"
+                }
             }
         }
     }

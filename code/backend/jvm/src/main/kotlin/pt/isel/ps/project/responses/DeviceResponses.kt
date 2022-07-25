@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms
+import pt.isel.ps.project.model.Uris.Companies.Buildings.Rooms.makeDevices
 import pt.isel.ps.project.model.Uris.Devices
 import pt.isel.ps.project.model.Uris.Devices.DEVICES_PAGINATION
 import pt.isel.ps.project.model.device.DeviceDto
@@ -25,7 +26,6 @@ import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
-import pt.isel.ps.project.util.Validator.Auth.States.isActive
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
@@ -109,7 +109,9 @@ object DeviceResponses {
         devices: List<DeviceItemDto>?,
         collection: CollectionModel,
         rel: List<String>?,
-        actions: List<QRreportJsonModel.Action>?
+        actions: List<QRreportJsonModel.Action>?,
+        linkSelf: String,
+        linkPagination: String
     ) = QRreportJsonModel(
         clazz = listOf(Classes.DEVICE, Classes.COLLECTION),
         rel = rel,
@@ -119,8 +121,8 @@ object DeviceResponses {
         },
         actions = actions,
         links = listOf(
-            Links.self(Uris.makePagination(collection.pageIndex, Devices.BASE_PATH)),
-            Links.pagination(DEVICES_PAGINATION),
+            Links.self(Uris.makePagination(collection.pageIndex, linkSelf)),
+            Links.pagination(linkPagination),
         )
     )
 
@@ -134,7 +136,9 @@ object DeviceResponses {
         null,
         mutableListOf<QRreportJsonModel.Action>().apply {
             if (isAdmin(user)) add(Actions.createDevice())
-        }
+        },
+        Devices.BASE_PATH,
+        DEVICES_PAGINATION
     )
 
     fun getDeviceRepresentation(user: AuthPerson, deviceDto: DeviceDto): ResponseEntity<QRreportJsonModel> {

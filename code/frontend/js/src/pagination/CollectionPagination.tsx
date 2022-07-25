@@ -22,7 +22,7 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
         templateUrl: Link | string | undefined,
     }
 ) {
-    const { deviceId, ticketId, companyId, buildingId } = useParams()
+    const { deviceId, ticketId, companyId, buildingId, roomId } = useParams()
     if (!collection) return null
 
     function handleOnClick(id: number) {
@@ -34,7 +34,8 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
             if(deviceId) newUrl = newUrl?.replace('{deviceId}', deviceId)
             if(ticketId) newUrl = newUrl?.replace('{ticketId}', ticketId)
             if(companyId) newUrl = newUrl?.replace('{companyId}', companyId)
-            if (buildingId) newUrl = newUrl?.replace('{buildingId}', buildingId)
+            if(buildingId) newUrl = newUrl?.replace('{buildingId}', buildingId)
+            if(roomId) newUrl = newUrl?.replace('{roomId}', roomId)
         }
         setUrlFunction(BASE_URL_API + newUrl)
     }

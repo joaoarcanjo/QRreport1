@@ -128,7 +128,9 @@ object RoomResponses {
                     mutableListOf<QRreportJsonModel.Action>().apply action@{
                         if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@action
                         add(Actions.addRoomDevice(companyId, buildingId, roomDto.room.id))
-                    }
+                    },
+                    Rooms.makeDevices(companyId, buildingId, roomDto.room.id),
+                    Rooms.makeDevicesPagination(companyId, buildingId, roomDto.room.id)
             ))
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {

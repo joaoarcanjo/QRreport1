@@ -110,7 +110,7 @@ class DeviceController(val service: DeviceService) {
             buildingId,
             roomId,
             devices,
-            CollectionModel(DEFAULT_PAGE, DEVICES_PAGE_MAX_SIZE, devices.devicesCollectionSize),
+            CollectionModel(page, DEVICES_PAGE_MAX_SIZE, devices.devicesCollectionSize),
         )
     }
 

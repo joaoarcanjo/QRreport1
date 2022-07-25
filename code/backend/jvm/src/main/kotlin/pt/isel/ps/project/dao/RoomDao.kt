@@ -11,6 +11,7 @@ import pt.isel.ps.project.model.room.AddDeviceEntity
 import pt.isel.ps.project.model.room.CreateRoomEntity
 import pt.isel.ps.project.model.room.ROOM_REP
 import pt.isel.ps.project.model.room.UpdateRoomEntity
+import pt.isel.ps.project.responses.DeviceResponses.DEVICES_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 
 interface RoomDao {
@@ -24,7 +25,7 @@ interface RoomDao {
     fun createRoom(companyId: Long, buildingId: Long, @BindBean room: CreateRoomEntity): OutParameters
 
     @Transaction(TransactionIsolationLevel.SERIALIZABLE)
-    @SqlQuery("SELECT get_room(:companyId, :buildingId, :roomId, $ROOM_PAGE_MAX_SIZE, 0);")
+    @SqlQuery("SELECT get_room(:companyId, :buildingId, :roomId, $DEVICES_PAGE_MAX_SIZE, 0);")
     fun getRoom(companyId: Long, buildingId: Long, roomId: Long): String
 
     @Transaction(TransactionIsolationLevel.REPEATABLE_READ)
