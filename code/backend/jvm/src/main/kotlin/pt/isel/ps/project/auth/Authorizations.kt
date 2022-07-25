@@ -110,6 +110,12 @@ object Authorizations {
             if (userRole == USER || userRole == EMPLOYEE || userRole == MANAGER || userRole == ADMIN) return true
             throw ForbiddenException(CHANGE_DENIED)
         }
+
+        fun getRolesAuthorization(user: AuthPerson): Boolean {
+            val userRole = user.activeRole
+            if (userRole == MANAGER || userRole == ADMIN) return true
+            throw ForbiddenException(ACCESS_DENIED)
+        }
     }
 
     object Company {

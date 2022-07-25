@@ -4,11 +4,11 @@ import { Action } from "../../models/QRJsonModel"
 import * as QRreport from '../../models/QRJsonModel';
 import { MdAddCircleOutline, MdRemoveCircleOutline, MdOutlineAssignmentInd } from "react-icons/md";
 import { useForm } from "react-hook-form";
-import { Form, Input, LittleSubmitButton } from "../../components/form/FormComponents";
+import { Form, Input, LittleSubmitButton, Options, OptionsProps } from "../../components/form/FormComponents";
 import { simpleInputForm } from "../../components/form/FormInputs";
 import { ListPossibleValues, LIST_DEFAULT_VALUE } from "../../components/form/ListPossibleValues";
 import { CloseButton } from "../../components/Various";
-import { EMPLOYEE_ROLE } from "../Session";
+import { EMPLOYEE_ROLE, MANAGER_ROLE } from "../Session";
 
 export function Roles({ entity, actions, setAction, setPayload }: {  
     entity: QRreport.Entity<Person>, 
@@ -46,7 +46,7 @@ export function Roles({ entity, actions, setAction, setPayload }: {
                 {currentAction?.name === 'add-role' && 
                 <AddRoleAction action={currentAction} setAction={setAction} setAuxInfo={setPayload} setCurrentAction={setCurrentAction}/>}
                 {currentAction?.name === 'remove-role' && 
-                <RemoveRoleAction action={currentAction} setAction={setAction} setAuxInfo={setPayload} setCurrentAction={setCurrentAction}/>}
+                <RemoveRoleAction entity={entity} action={currentAction} setAction={setAction} setAuxInfo={setPayload} setCurrentAction={setCurrentAction}/>}
 
             </div>
         </div>
@@ -66,7 +66,8 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
         skill: string,
     }
 
-    const { register, handleSubmit, formState: { errors } } = useForm<roleData>()
+    const { register, handleSubmit } = useForm<roleData>()
+    const [currentRole, setRole ] = useState<string>('')
 
     const onSubmitHandler = handleSubmit(({ role, company, skill }) => {
 
@@ -85,12 +86,13 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
     const componentsInputs = useMemo(() => {
         return action.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'role': return <Input key={idx} value={simpleInputForm(register, "Role", errors, prop.required, prop.name, prop.type)}/>
-                case 'company': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
-                case 'skill': return <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>
+                case 'role': return <ListPossibleValues key={idx} 
+                register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select role'} setValue={setRole}/>
+                case 'company': return ((currentRole === EMPLOYEE_ROLE) || (currentRole === MANAGER_ROLE)) && <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select company'}/>
+                case 'skill': return ((currentRole === EMPLOYEE_ROLE) && <ListPossibleValues key={idx} register={register} regName={prop.name} href={prop.possibleValues?.href} listText={'Select skill'} otherValueText={'None'}/>)
             }
         })
-    }, [action])
+    }, [action, currentRole])
     
     const cancelForm = (event: any) => {
         event.preventDefault()
@@ -106,7 +108,8 @@ function AddRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
     </div>
 }
 
-function RemoveRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: { 
+function RemoveRoleAction({ entity, action, setAction, setAuxInfo, setCurrentAction }: { 
+    entity: QRreport.Entity<Person>,
     action: QRreport.Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setAuxInfo: React.Dispatch<React.SetStateAction<string>>,
@@ -115,17 +118,28 @@ function RemoveRoleAction({ action, setAction, setAuxInfo, setCurrentAction }: {
 
     type roleData = { role: string }
     
-    const { register, handleSubmit, formState: { errors } } = useForm<roleData>()
+    const { register, handleSubmit } = useForm<roleData>()
 
     const onSubmitHandler = handleSubmit(({ role }) => {
         setAuxInfo(JSON.stringify({role: role}))
         setAction(action)
     })
 
+    function RoleOptions() {
+
+        const optionsValues = entity.properties.roles.map(role => {return {value: role, label: role}})
+
+        return <Options value={{
+            optionsText: 'Select role', 
+            register: register('role'), 
+            options: optionsValues
+        }}/>
+    }
+
     function Inputs() {
         let componentsInputs = action.properties.map((prop, idx) => {
             switch (prop.name) {
-                case 'role': return <Input key={idx} value={simpleInputForm(register, "Role", errors, prop.required, prop.name, prop.type)}/>
+                case 'role': return <RoleOptions key={idx}/>
             }
         })
         return <>{componentsInputs}</>

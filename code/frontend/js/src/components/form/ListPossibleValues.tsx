@@ -39,7 +39,9 @@ export function ListPossibleValues({ register, regName, href, listText, otherVal
     if (problem) return <ErrorView problemJson={problem}/>
 
     const options = getEntitiesOrUndefined(result?.body)?.map(current => {
-        if(regName === 'anomaly') {
+        if(regName === 'role') {
+            return {label: current.properties.name, value: current.properties.name}
+        } else if(regName === 'anomaly') {
             return {label: current.properties.anomaly, value: current.properties.anomaly}
         } else {
             return {label: current.properties.id, value: current.properties.name}

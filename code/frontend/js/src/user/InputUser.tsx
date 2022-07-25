@@ -4,9 +4,10 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { SelectCategory } from "../category/SelectCategory";
 import { Input, InputProps } from "../components/form/FormComponents";
 import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm, simpleInputForm } from "../components/form/FormInputs";
+import { ListPossibleValues } from "../components/form/ListPossibleValues";
 import { CloseButton } from "../components/Various";
-import { Category, Company } from "../models/Models";
-import { Action } from "../models/QRJsonModel";
+import { Category, Company, Role } from "../models/Models";
+import { Action, Property } from "../models/QRJsonModel";
 import { SelectUserCompany } from "./profile/SelectUserCompany";
 import { EMPLOYEE_ROLE, MANAGER_ROLE } from "./Session";
 
@@ -29,6 +30,8 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
     const { register, getValues, handleSubmit, formState: { errors } } = useForm<companyData>();
     const [ company, setCompany ] = useState<Company>();
     const [ skill, setSkill ] = useState<Category>();
+    const [currentRole, setRole ] = useState<string>('')
+    console.log(currentRole)
 
     const onSubmitHandler = handleSubmit(({ name, phone, email, password, passwordVerify, role }) => {
         const payload: any = {}
@@ -48,15 +51,6 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
         setAction(action)
         setPayload(JSON.stringify(payload))
     })
-
-    const roleInput: InputProps = {
-        inputLabelName: 'Role *',
-        register: register("role", {required: 'Is required', minLength: 1, maxLength: 127}),
-        style: {borderColor: errors.password ? 'red': 'black'},
-        name: "role",
-        type: "text",
-        errorMessage: errors.role && 'Invalid role'
-    }
     
     const selectCompany = useMemo(() => {
         return <SelectUserCompany action={action} setPayload={setCompany} setAction={undefined} setAuxAction={undefined} />
@@ -64,6 +58,13 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
 
     const selectSkill = useMemo(() => {
         return <SelectCategory action={action} propName={'skill'} setPayload={setSkill} setAuxAction={undefined} />
+    },[action])
+
+    const selectRole = useMemo(() => {
+        const prop = (action.properties.find(prop => prop.name === 'role'))
+        return <ListPossibleValues 
+        register={register} regName={prop!.name} href={prop!.possibleValues?.href} listText={'Select role'} setValue={setRole}/>
+
     },[action])
 
     function Inputs() {
@@ -77,7 +78,6 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
                         <Input key={idx} value={passwordInputForm(register, errors, prop.required, prop.name)}/>
                         <Input key={'password verify'} value={passwordVerifyInputForm(register, errors, getValues, prop.required)}/>
                     </div>)
-                case 'role': return <Input key={idx} value={roleInput}></Input>
             }
         })
         return <>{componentsInputs}</>
@@ -87,20 +87,21 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
         <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
             <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             <Inputs/>
-            <p>Selected company: {company?.name}</p>
+            {selectRole}
+            {(currentRole === EMPLOYEE_ROLE || currentRole === MANAGER_ROLE) && <p>Selected company: {company?.name}</p>}
             {company && <button className={'flex space-x-1 px-1 py-1 text-xs text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'} onClick={() => {setCompany(undefined)}}>
                 <div>Remove</div>
                 <div><AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/></div>
             </button>}
-            {selectCompany}
-            <p>Selected skill: {skill?.name}</p>
+            {(currentRole === EMPLOYEE_ROLE || currentRole === MANAGER_ROLE) && selectCompany}
+            {currentRole === EMPLOYEE_ROLE && <p>Selected skill: {skill?.name}</p>}
             {skill && <button className={'flex space-x-1 px-1 py-1 text-xs text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'} onClick={() => {setSkill(undefined)}}>
                 <div>Remove</div>
                 <div><AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/></div>
             </button>}
-            {selectSkill}
+            {currentRole === EMPLOYEE_ROLE && <div>{selectSkill}</div>}
             <button className='w-full bg-green-400 hover:bg-green-600 text-white font-bold rounded-lg text-sm px-2 h-8 content-center' onClick= {onSubmitHandler}>
-                Create user
+                Create person
             </button>
         </div> 
     )

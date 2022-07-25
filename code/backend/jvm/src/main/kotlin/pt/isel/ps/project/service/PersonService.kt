@@ -123,4 +123,8 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
         val personDto = personDao.switchRole(user.id, role).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
+
+    fun getPossibleRoles(user: AuthPerson):RolesDto {
+        return personDao.getPossibleRoles(isManager(user)).deserializeJsonTo()
+    }
 }

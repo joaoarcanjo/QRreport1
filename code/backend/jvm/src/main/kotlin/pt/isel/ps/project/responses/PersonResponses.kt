@@ -10,14 +10,8 @@ import pt.isel.ps.project.model.Uris.Persons
 import pt.isel.ps.project.model.Uris.Persons.PERSONS_PAGINATION
 import pt.isel.ps.project.model.Uris.Persons.personsPagination
 import pt.isel.ps.project.model.Uris.Persons.personsSelf
-import pt.isel.ps.project.model.person.PersonDetailsDto
-import pt.isel.ps.project.model.person.PersonDto
-import pt.isel.ps.project.model.person.PersonItemDto
-import pt.isel.ps.project.model.person.PersonsDto
-import pt.isel.ps.project.model.representations.CollectionModel
-import pt.isel.ps.project.model.representations.DEFAULT_DIRECTION
-import pt.isel.ps.project.model.representations.DEFAULT_SORT
-import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.model.person.*
+import pt.isel.ps.project.model.representations.*
 import pt.isel.ps.project.model.state.States.ACTIVE
 import pt.isel.ps.project.model.state.States.INACTIVE
 import pt.isel.ps.project.responses.Response.Classes
@@ -40,6 +34,7 @@ import java.util.*
 
 object PersonResponses {
     const val PERSON_PAGE_MAX_SIZE = 10
+    const val ROLES_PAGE_MAX_SIZE = 5
 
     object Actions {
         fun createPerson() = QRreportJsonModel.Action(
@@ -53,7 +48,8 @@ object PersonResponses {
                 QRreportJsonModel.Property(name = "phone", type = "string", required = false),
                 QRreportJsonModel.Property(name = "email", type = "string"),
                 QRreportJsonModel.Property(name = "password", type = "string"),
-                QRreportJsonModel.Property(name = "role", type = "string"),
+                QRreportJsonModel.Property(name = "role", type = "string",
+                possibleValues = QRreportJsonModel.PropertyValue(Persons.ROLES_PATH)),
                 QRreportJsonModel.Property(name = "company", type = "number",
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Companies.BASE_PATH)),
                 QRreportJsonModel.Property(name = "skill", type = "number", required = false,
@@ -134,7 +130,8 @@ object PersonResponses {
             href = Persons.makeAddRole(personId),
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
-                QRreportJsonModel.Property(name = "role", type = "string"),
+                QRreportJsonModel.Property(name = "role", type = "string",
+                    possibleValues = QRreportJsonModel.PropertyValue(Persons.ROLES_PATH)),
                 QRreportJsonModel.Property(name = "company", type = "number",
                     possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, null, ACTIVE, false))),
                 QRreportJsonModel.Property(name = "skill", type = "number", required = false,
@@ -341,6 +338,24 @@ object PersonResponses {
                 }
                 add(Links.tickets())
             }
+        )
+    )
+
+    private fun getRoleItem(role: Role, rel: List<String>?) = QRreportJsonModel(
+        clazz = listOf(Classes.ROLE),
+        rel = rel,
+        properties = role
+    )
+
+    fun getRolesRepresentation(rolesDto: RolesDto) = buildResponse(
+        QRreportJsonModel(
+            clazz = listOf(Classes.COLLECTION, Classes.ROLE),
+            properties = CollectionModel(DEFAULT_PAGE, ROLES_PAGE_MAX_SIZE, rolesDto.rolesCollectionSize),
+            entities = mutableListOf<QRreportJsonModel>().apply {
+                addAll(rolesDto.roles.map {
+                    getRoleItem(it, listOf(Relations.ITEM))
+                })
+            },
         )
     )
 }

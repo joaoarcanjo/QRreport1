@@ -37,3 +37,13 @@ data class PersonDetailsDto(
     val person: PersonDto,
     val personTickets: TicketsDto?,
 )
+
+data class Role (
+    val id: Int,
+    val name: String
+)
+
+data class RolesDto (
+    val roles: List<Role>,
+    val rolesCollectionSize: Int,
+)

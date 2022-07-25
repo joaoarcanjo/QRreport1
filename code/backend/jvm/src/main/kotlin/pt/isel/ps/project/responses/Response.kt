@@ -24,6 +24,7 @@ object Response {
         const val CATEGORY = "category"
         const val REPORT = "report"
         const val AUTH = "auth"
+        const val ROLE = "role"
     }
 
     object Relations {

@@ -88,4 +88,8 @@ interface PersonDao {
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
     @SqlCall("CALL switch_role(:$PERSON_REP, :personId, :role);")
     fun switchRole(personId: UUID, @BindBean roleEntity: SwitchRoleEntity): OutParameters
+
+    @Transaction(TransactionIsolationLevel.REPEATABLE_READ)
+    @SqlQuery("SELECT get_possible_roles(:isManager);")
+    fun getPossibleRoles(isManager: Boolean): String
 }

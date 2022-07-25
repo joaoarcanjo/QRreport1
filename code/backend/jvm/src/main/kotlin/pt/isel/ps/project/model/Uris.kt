@@ -248,6 +248,7 @@ object Uris {
 
         const val BASE_PATH = "$VERSION/persons"
         const val PROFILE_PATH = "$VERSION/profile"
+        const val ROLES_PATH = "$BASE_PATH/roles"
         const val SPECIFIC_PATH = "$BASE_PATH/{personId}"
         private const val BASE_FIRE_PATH = "/persons/{personId}/fire"
         private const val BASE_REHIRE_PATH = "/persons/{personId}/rehire"

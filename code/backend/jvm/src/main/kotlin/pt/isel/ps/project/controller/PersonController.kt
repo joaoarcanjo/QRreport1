@@ -13,6 +13,7 @@ import pt.isel.ps.project.auth.Authorizations.Person.deleteUserAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.firePersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.getPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.getPersonsAuthorization
+import pt.isel.ps.project.auth.Authorizations.Person.getRolesAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.rehirePersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.removeRoleFromPersonAuthorization
 import pt.isel.ps.project.auth.Authorizations.Person.removeSkillFromEmployeeAuthorization
@@ -34,6 +35,7 @@ import pt.isel.ps.project.responses.PersonResponses.deleteUserRepresentation
 import pt.isel.ps.project.responses.PersonResponses.fireBanRoleCompanyPersonRepresentation
 import pt.isel.ps.project.responses.PersonResponses.getPersonRepresentation
 import pt.isel.ps.project.responses.PersonResponses.getPersonsRepresentation
+import pt.isel.ps.project.responses.PersonResponses.getRolesRepresentation
 import pt.isel.ps.project.responses.PersonResponses.skillEmployeeRepresentation
 import pt.isel.ps.project.responses.PersonResponses.switchRoleRepresentation
 import pt.isel.ps.project.responses.PersonResponses.updatePersonRepresentation
@@ -205,5 +207,11 @@ class PersonController(private val jwtConfig: JwtConfig, private val secretKey: 
 
         }
         return switchRoleRepresentation(person, role.role)
+    }
+
+    @GetMapping(Persons.ROLES_PATH)
+    fun getRoles(user: AuthPerson): ResponseEntity<QRreportJsonModel> {
+        getRolesAuthorization(user)
+        return getRolesRepresentation(service.getPossibleRoles(user))
     }
 }
