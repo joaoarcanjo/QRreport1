@@ -125,7 +125,8 @@ BEGIN
         );
     END LOOP;
     SELECT COUNT(id) INTO collection_size FROM BUILDING WHERE company = company_id;
-    RETURN json_build_object('buildings', buildings, 'buildingsCollectionSize', collection_size);
+    RETURN json_build_object('buildings', buildings, 'buildingsCollectionSize', collection_size,
+        'companyState', (SELECT state FROM COMPANY WHERE id = company_id));
 END$$ LANGUAGE plpgsql;
 
 /*
@@ -168,7 +169,7 @@ BEGIN
 
     RETURN json_build_object(
         'building', building_item_representation(building_id, building_name, building_floors, building_state, tmstamp),
-        'rooms', json_build_object('rooms', rooms, 'roomsCollectionSize', collection_size),
+        'rooms', get_rooms(company_id, building_id, limit_rows, skip_rows),
         'manager', person_item_representation(manager_id)
     );
 END$$

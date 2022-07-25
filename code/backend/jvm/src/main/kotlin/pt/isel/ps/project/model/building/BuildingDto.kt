@@ -28,5 +28,6 @@ data class BuildingManagerDto(
 
 data class BuildingsDto (
     val buildings: List<BuildingItemDto>?,
-    val buildingsCollectionSize: Int
+    val buildingsCollectionSize: Int,
+    val companyState: String,
 )
