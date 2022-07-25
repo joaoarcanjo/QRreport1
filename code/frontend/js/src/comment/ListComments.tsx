@@ -4,11 +4,13 @@ import { Collection, CollectionPagination } from "../pagination/CollectionPagina
 import { useMemo, useState } from "react";
 import { GrUpdate }from "react-icons/gr";
 import { AiFillDelete } from "react-icons/ai";
-import { Outlet } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
 import { InsertCommentAction } from "./InsertComment";
+import { ActionComponent } from "../components/ActionComponent";
+import { TICKET_COMMENT_URL_API } from "../Urls";
 
 function CommentAction({actions, setAction, setPayload}: {
     actions: Action[] | undefined,
@@ -74,11 +76,7 @@ function CommentsActions({actions, setAction, setPayload}: {
     )
 }
 
-export function ListComments({collection, setAction, setPayload}: { 
-    collection?: Entity<Collection>,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setPayload: React.Dispatch<React.SetStateAction<string>>
-}) {
+export function ListComments({collection}: { collection?: Entity<Collection> }) {
 
     const initValues: RequestInit = {
         credentials: 'include',
@@ -87,8 +85,15 @@ export function ListComments({collection, setAction, setPayload}: {
     
     const init = useMemo(() => initValues ,[])
 
+    const { ticketId } = useParams()
+
     const [currentUrl, setCurrentUrl] = useState('')
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
+
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if (!collection && currentUrl === '') setCurrentUrl(TICKET_COMMENT_URL_API(ticketId))
     
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
@@ -96,6 +101,12 @@ export function ListComments({collection, setAction, setPayload}: {
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
     
+    switch (action?.name) {
+        case 'create-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListComments/>}/>
+        case 'delete-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListComments/>}/>
+        case 'update-comment': return <ActionComponent action={action} extraInfo={payload} returnComponent={<ListComments/>}/>
+    }
+
     function CommentItem({entity}: {entity: Entity<any>}) {
 
         if (!entity) return null

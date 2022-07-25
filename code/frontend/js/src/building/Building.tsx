@@ -81,7 +81,7 @@ export function BuildingRep() {
                     {employeeEntity && <div className='flex'>
                         <Link to={`/persons/${employeeEntity?.properties.id}`}>
                             <div className='flex items-center pl-2'>
-                                <GrUserManager title="Manager" color="green" />
+                                <GrUserManager title="Manager"/>
                                 <span className="pl-2">{employeeEntity?.properties.name}</span>
                             </div>
                         </Link>

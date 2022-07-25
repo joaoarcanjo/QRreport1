@@ -215,7 +215,7 @@ export function TicketRep() {
                     <TicketInfo entity={entity} actions={getActionsOrUndefined(result?.body)} parent={parent}/>
                 </div>
                 <div className="md:w-7/12 md:mx-2 space-x-4 w-full">
-                    <ListComments collection={comments} setAction={setAction} setPayload={setPayload}/>
+                    <ListComments collection={comments}/>
                 </div>
             </div>
         </div>

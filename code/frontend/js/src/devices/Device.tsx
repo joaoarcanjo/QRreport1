@@ -127,8 +127,8 @@ export function DeviceRep() {
             </>
         ) 
     }
-
-    
+    const entity = getEntityOrUndefined(result?.body)
+    if(!entity) return <ErrorView/>
     const entities = getEntitiesOrUndefined(result?.body)
     if(!entities) return <ErrorView/>
     const collection = getSpecificEntity(['anomaly', 'collection'], 'device-anomalies', entities)
@@ -138,8 +138,7 @@ export function DeviceRep() {
         <div className='w-full px-3 pt-3 space-y-3'>
             <DeviceInfo entity={getEntityOrUndefined(result?.body)}/>
             <DeviceActions actions={getActionsOrUndefined(result?.body)}/>
-            <AnomaliesActions entity={collection} setAction={setAction} setPayload={setPayload}/>
-            <Anomalies collection={collection} setAction={setAction} setPayload={setPayload}/>
+            <Anomalies entity={collection} collection={collection}/>
         </div>
     )
 

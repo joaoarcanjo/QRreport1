@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react"
 import { GrUpdate } from "react-icons/gr"
 import { MdDelete } from "react-icons/md"
-import { Outlet } from "react-router-dom"
+import { Outlet, useParams } from "react-router-dom"
+import { ActionComponent } from "../components/ActionComponent"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
@@ -10,6 +11,7 @@ import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined } from "../m
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { InputAnomaly } from "./InputAnomaly"
+import { DEVICE_ANOMALIES_URL_API } from "../Urls";
 
 function AnomalyItem({entity, setAction, setPayload }: {  
     entity: Entity<Anomaly>,
@@ -64,12 +66,13 @@ export function AnomalyActions({entity, setAction, setPayload }: {
 }
 
 export function AnomaliesActions({entity, setAction, setPayload }: { 
-    entity: Entity<Anomaly>,
+    entity?: Entity<Anomaly>,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setPayload: React.Dispatch<React.SetStateAction<string>>
 }) {
-
     const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
+
+    if(!entity) return <></>
 
     const actions = entity?.actions
     if (!actions) return null
@@ -93,11 +96,7 @@ export function AnomaliesActions({entity, setAction, setPayload }: {
     )
 }
 
-export function Anomalies({ collection, setAction, setPayload }: { 
-    collection?: Entity<Collection>,
-    setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setPayload: React.Dispatch<React.SetStateAction<string>>
-}) {
+export function Anomalies({ entity, collection }: { entity?: Entity<Anomaly>, collection?: Entity<Collection> }) {
     
     const initValues: RequestInit = {
         credentials: 'include',
@@ -106,8 +105,15 @@ export function Anomalies({ collection, setAction, setPayload }: {
     
     const init = useMemo(() => initValues ,[])
 
+    const { deviceId } = useParams()
+
     const [currentUrl, setCurrentUrl] = useState('')
+    const [action, setAction] = useState<Action | undefined>(undefined)
+    const [payload, setPayload] = useState('')
+
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
+
+    if (!collection && currentUrl === '') setCurrentUrl(DEVICE_ANOMALIES_URL_API(deviceId))
     
     if (isFetching) return <Loading/>
     if (error) return <ErrorView error={error}/>
@@ -115,12 +121,19 @@ export function Anomalies({ collection, setAction, setPayload }: {
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>
 
+    switch (action?.name) {
+        case 'create-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<Anomalies entity={entity}/>} />
+        case 'update-anomaly': return <ActionComponent action={action} extraInfo={payload} returnComponent={<Anomalies entity={entity}/>} />
+        case 'delete-anomaly': return <ActionComponent action={action} returnComponent={<Anomalies entity={entity}/>} />
+    }
+
     if (result?.body) collection = getEntityOrUndefined(result.body)
     const anomalies = collection?.entities
     if (!anomalies || !collection) return null
 
     return (
         <>
+            <AnomaliesActions entity={entity} setAction={setAction} setPayload={setPayload}/>
             <div className="space-y-3">
                 {anomalies.map((entity, idx) => {
                     if (entity.class.includes('anomaly') && entity.rel?.includes('item')) 

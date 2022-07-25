@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { MdExpandMore, MdExpandLess } from "react-icons/md"
-import { Outlet } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
@@ -9,6 +9,7 @@ import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined } from "../m
 import { Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { RoomDevice } from "../room/RoomDevice"
+import { DEVICE_URL } from "../Urls"
 
 export function RoomDevices({ roomEntity, collection }: {roomEntity: Entity<Room>, collection?: Entity<Collection>}) {
 
@@ -40,8 +41,10 @@ export function RoomDevices({ roomEntity, collection }: {roomEntity: Entity<Room
         
         return (
         <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 hover:bg-gray-100 divide-y space-y-4`}> 
-            <div className="items-center">
-                <div><span className='text-xl font-md text-gray-900'>{device.name}</span></div>
+            <div className="flex items-center">
+                <Link to={DEVICE_URL(device.id)}>
+                    <span className='text-xl font-md text-gray-900'> {device.name} </span>
+                </Link>
             </div>
             <div>
                 <button className='my-1' onClick={() => showMoreInfo(!moreInfo)}>

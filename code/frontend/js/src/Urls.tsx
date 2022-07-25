@@ -23,6 +23,10 @@ export const TICKET_URL_API = (ticketId: string | undefined): string => {
     return BASE_URL_API + API_VERSION + `/tickets/${ticketId}`
 }
 
+export const TICKET_COMMENT_URL_API = (ticketId: string | undefined): string => {
+    return BASE_URL_API + API_VERSION + `/tickets/${ticketId}/comments`
+}
+
 export const COMPANIES_URL_API = BASE_URL_API + API_VERSION + `/companies`
 
 export const COMPANY_URL_API = (companyId: string | undefined): string => {
@@ -56,6 +60,10 @@ export const DEVICE_URL_API = (deviceId: string | undefined): string => {
     return BASE_URL_API + API_VERSION + `/devices/${deviceId}`
 }
 
+export const DEVICE_ANOMALIES_URL_API = (deviceId: string | undefined): string => {
+    return BASE_URL_API + API_VERSION + `/devices/${deviceId}/anomalies`
+}
+
 export const REPORT_FORM_URL_API = (hash: string): string => {
     return BASE_URL_API + API_VERSION + `/report/${hash}`
 }
@@ -72,10 +80,14 @@ export const LOGIN_URL = "/login"
 
 export const PROFILE_URL = "/profile"
 
-export const TICKET_URL = (ticketId: number | undefined): string => {
+export const TICKET_URL = (ticketId: number | string | undefined): string => {
     return TICKETS_URL + `/${ticketId}`
 }
 
 export const PERSON_URL = (personId: string | undefined): string => {
     return `/persons/${personId}`
+}
+
+export const DEVICE_URL = (deviceId: number | undefined): string => {
+    return `/devices/${deviceId}`
 }
