@@ -1,9 +1,6 @@
-
 import { useMemo, useState } from "react";
-import { MdFilterList } from "react-icons/md";
-import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
-import { AiFillTool, AiFillStar, AiFillCloseCircle } from "react-icons/ai";
-import { Employee, Ticket } from "../models/Models";
+import { AiFillCloseCircle } from "react-icons/ai";
+import { Ticket } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
@@ -12,7 +9,8 @@ import { useFetch } from "../hooks/useFetch";
 import { Collection } from "../pagination/CollectionPagination";
 import { getEntityOrUndefined, getProblemOrUndefined } from '../models/ModelUtils';
 
-export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
+export function GroupTicket({ticketId, action, setAction, setAuxAction, setPayload}: {
+    ticketId: number, 
     action: Action,
     setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
@@ -24,8 +22,6 @@ export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
         headers: { 'Request-Origin': 'WebApp' }
     }
 
-    const [direction, setDirection] = useState('desc')
-    const [sortBy, setSortBy] = useState('date')
     const [ticket, setTicket] = useState<Ticket>()
     const init = useMemo(() => initValues ,[])
 
@@ -47,7 +43,7 @@ export function GroupTicket({action, setAction, setAuxAction, setPayload}: {
     function TicketItem({entity}: {entity: Entity<any>}) {
         if (!entity) return null;
         const ticket = entity.properties
-        //TODO, aparece o o próprio ticket para agrupar
+        if(ticket.id === ticketId) return <></>
         return (
             <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
                 <div className='w-full flex space-x-4'>

@@ -5,11 +5,11 @@ import { useFetch } from "../hooks/useFetch"
 import { Category } from "../models/Models"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
-import { CATEGORIES_URL_API, COMPANIES_URL_API, LOGIN_URL } from "../Urls"
+import { CATEGORIES_URL_API, LOGIN_URL } from "../Urls"
 import { ActionComponent } from "../components/ActionComponent"
 import { InputCategory } from "./InputCategory"
 import { getEntitiesOrUndefined, getActionsOrUndefined, getPropertiesOrUndefined, getLink, getProblemOrUndefined } from "../models/ModelUtils"
-import { MdExpandMore, MdExpandLess, MdDelete } from "react-icons/md"
+import { MdExpandMore, MdExpandLess } from "react-icons/md"
 import { GrUpdate } from "react-icons/gr"
 import { Navigate, Outlet } from "react-router-dom"
 import { useLoggedInState } from "../user/Session"
@@ -78,7 +78,7 @@ export function ListCategories() {
         let componentsActions = actions?.map((action, idx) => {
             switch(action.name) {
                 case 'update-category': return !auxAction && (
-                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg px-2">
+                        <button key={idx} onClick={() => setAuxAction(action)} className="text-white bg-yellow-400 hover:bg-yellow-600 rounded-lg py-2 px-2">
                             <GrUpdate/>
                         </button>
                     )

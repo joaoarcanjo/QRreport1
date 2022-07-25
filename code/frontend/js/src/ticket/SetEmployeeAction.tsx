@@ -1,9 +1,7 @@
 
 import { useMemo, useState } from "react";
-import { MdFilterList } from "react-icons/md";
-import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb";
-import { AiFillTool, AiFillStar, AiFillCloseCircle } from "react-icons/ai";
-import { Employee, Ticket } from "../models/Models";
+import { AiFillCloseCircle } from "react-icons/ai";
+import { Employee } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { Loading } from "../components/Various";
 import { ErrorView } from "../errors/Error";
@@ -56,8 +54,6 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
                     <h5 className='font-md text-gray-900'>{employee.name}</h5>
                 </div>
                 <div className='w-full flex justify-end' >
-                    {/*<span className='flex items-center'>{employee.currentWorks}<AiFillTool style= {{ fontSize: '1.5em' }}/></span>
-                    <span className='flex items-center'>{employee.avaliation}<AiFillStar style= {{ color: 'yellow', fontSize: '1.5em' }}/></span>*/}
                     <button 
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
                         onClick= {() => setEmployee(employee)}>

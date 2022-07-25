@@ -1,11 +1,11 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa"
-import { Link, Navigate, Outlet, useParams } from "react-router-dom"
+import { Navigate, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
 import { Building, Person } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
-import { BUILDING_URL_API, COMPANY_URL_API, LOGIN_URL } from "../Urls";
+import { BUILDING_URL_API, LOGIN_URL } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
 import { UpdateBuilding } from "./UpdateBuilding";
@@ -76,9 +76,6 @@ export function BuildingRep() {
                         })}
                     </div>
                     <StateComponent state={building.state} timestamp={building.timestamp}/>
-                    <div className='flex flex-col space-y-4'>
-                        {/*<p> Number of rooms: {building.numberOfRooms} </p>*/}
-                    </div>
                     {updateAction && <UpdateBuilding action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>

@@ -136,7 +136,7 @@ object PersonResponses {
             properties = listOf(
                 QRreportJsonModel.Property(name = "role", type = "string"),
                 QRreportJsonModel.Property(name = "company", type = "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, personId, ACTIVE, false))),
+                    possibleValues = QRreportJsonModel.PropertyValue(companiesSelf(1, null, ACTIVE, false))),
                 QRreportJsonModel.Property(name = "skill", type = "number", required = false,
                     possibleValues = QRreportJsonModel.PropertyValue(Uris.Categories.BASE_PATH)),
             ),

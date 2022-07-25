@@ -645,7 +645,9 @@ BEGIN
         RAISE 'invalid-company' USING DETAIL = 'manager-ticket';
     END IF;
 
-    UPDATE TICKET SET parent_ticket = parent_tid WHERE id = ticket_id;
+    UPDATE TICKET
+    SET parent_ticket = parent_tid, employee_state = (SELECT employee_state FROM ticket WHERE id = parent_tid)
+    WHERE id = ticket_id;
 
     ticket_rep = ticket_item_representation(ticket_id);
 END$$

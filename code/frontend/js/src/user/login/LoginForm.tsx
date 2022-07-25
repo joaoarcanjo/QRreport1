@@ -16,7 +16,7 @@ export default function LoginForm() {
     const userSession = useLoggedInState()
 
     const onSubmitHandler = handleSubmit(({ email, password }) => {
-        console.log(email, password);
+        
         if (email && password && userSession) {
             userSession.login(email, password);
         }

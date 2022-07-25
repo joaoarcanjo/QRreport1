@@ -1,5 +1,5 @@
 import { FaEdit } from "react-icons/fa"
-import { Navigate, Outlet, useParams } from "react-router-dom"
+import { Navigate, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { Company } from "../models/Models";
@@ -70,9 +70,6 @@ export function CompanyRep() {
                                     )
                                 }
                             })}
-                    </div>
-                    <div className='flex flex-col space-y-4'>
-                        {/*<p> Number of buildings: {company.numberOfBuildings} </p>*/}
                     </div>
                     <StateComponent state={company.state} timestamp={company.timestamp}/>
                     {updateAction && <InsertCompany action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}

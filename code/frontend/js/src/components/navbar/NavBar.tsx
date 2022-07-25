@@ -1,5 +1,4 @@
 import { NavLink } from "react-router-dom";
-//import { useLoggedInState } from "../authentication/Session
 import { useRef } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import "./Style.css"

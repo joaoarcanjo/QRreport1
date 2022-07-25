@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, Input, LittleSubmitButton } from "../components/form/FormComponents";
+import { Input } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
-import { ListPossibleValues } from "../components/form/ListPossibleValues";
 import { CloseButton } from "../components/Various";
 import { Person } from "../models/Models";
 import { Action } from "../models/QRJsonModel";
@@ -30,7 +28,7 @@ export function CreateBuilding({action, setAction, setAuxAction, setPayload }: {
         const managerId = manager.id
 
         setAction(action)
-        setPayload(JSON.stringify({name: name, floors: floors, manager: managerId}))//todo
+        setPayload(JSON.stringify({name: name, floors: floors, manager: managerId}))
     })
 
     const selectManager = useMemo(() => {

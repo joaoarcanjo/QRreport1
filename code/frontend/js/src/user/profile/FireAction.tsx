@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
-import { Form, LittleSubmitButton, TextArea } from "../../components/form/FormComponents"
+import { TextArea } from "../../components/form/FormComponents"
 import { simpleTextAreaForm } from "../../components/form/FormInputs"
 import { CloseButton } from "../../components/Various"
 import { Company } from "../../models/Models"

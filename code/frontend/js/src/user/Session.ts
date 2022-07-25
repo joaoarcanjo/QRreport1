@@ -34,7 +34,7 @@ export async function signupUser(name: string, phone: string, email: string, pas
 }
 
 export async function loginUser(email: string, password: string): Promise<Response> {
-  console.log("login")
+  
   const response = await fetch('http://localhost:8080/v1/login',
     {
       method: 'POST',
@@ -55,7 +55,7 @@ export async function logoutUser(): Promise<number> {
      headers: {'Request-Origin': 'WebApp'},
      credentials: "include"
   })
-  console.log(response.status)
+
   return response.status
 }
 

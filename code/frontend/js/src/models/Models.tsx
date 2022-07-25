@@ -4,7 +4,6 @@ export type Building = {
     floors: number,
     state: string,
     timestamp: Date
-    numberOfRooms?: number //TODO
 }
 
 export type Company = {
@@ -12,7 +11,6 @@ export type Company = {
     name: string,
     state: string,
     timestamp: Date
-    numberOfBuildings?: number //TODO
 }
 
 export type Room = {
@@ -20,31 +18,30 @@ export type Room = {
     name: string,
     floor: number,
     state: string,
-    timestamp: Date,
-    numberOfReports?: number //TODO
+    timestamp: Date
 }
 
 export type State = {
-    id: number;
+    id: number,
     name: string
 }
 
 export type Employee = {
-    id: string;
-    name: string;
-    currentWorks: number;
-    avaliation: number;
+    id: string,
+    name: string,
+    currentWorks: number,
+    avaliation: number
 }
 
 export type Ticket = {
-    id: number;
-    subject: string;
-    description: string;
-    creationTimestamp: Date;
-    employeeState: string;
-    userState: string;
-    rate?: number;
-    possibleTransitions: State[];
+    id: number,
+    subject: string,
+    description: string,
+    creationTimestamp: Date,
+    employeeState: string,
+    userState: string,
+    rate?: number,
+    possibleTransitions: State[]
 }
 
 export type TicketItem = {
@@ -55,7 +52,7 @@ export type TicketItem = {
     building: string,
     room: string,
     employeeState: string, 
-    userState: string,
+    userState: string
 }
 
 export type CommentInfo = {
@@ -72,9 +69,7 @@ export type Person = {
     state: string,
     roles: string[],
     skills?: string[],
-    timestamp: Date,
-    numberOfReports?: string, //TODO
-    reportsRejected?: string //TODO
+    timestamp: Date
 }
 
 export type PersonItem = {
@@ -110,7 +105,7 @@ export type Anomaly = {
 
 export type DeviceQrCode = {
     device: Device,
-    hash?: String,
+    hash?: String
 }
 
 export type CategoryItem = {
@@ -142,7 +137,7 @@ export type LoginUser = {
     name: string,
     email: string,
     phone?: string,
-    activeRole: string,
+    activeRole: string
 }
 
 export type EmployeeState = {

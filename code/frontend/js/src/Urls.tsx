@@ -3,9 +3,7 @@ export const API_VERSION = "/v1"
 
 export const SIGNUP_URL_API = BASE_URL_API + API_VERSION + "/signup"
 
-export const PERSON_PROFILE = () => {
-    return BASE_URL_API + API_VERSION + "/profile"
-}
+export const PERSON_PROFILE = BASE_URL_API + API_VERSION + "/profile"
 
 export const PERSONS_URL_API = () => {
     return BASE_URL_API + API_VERSION + `/persons`
@@ -73,8 +71,6 @@ export const TICKETS_URL = "/tickets"
 export const LOGIN_URL = "/login"
 
 export const PROFILE_URL = "/profile"
-
-export const HOME_URL = "/"
 
 export const TICKET_URL = (ticketId: number | undefined): string => {
     return TICKETS_URL + `/${ticketId}`

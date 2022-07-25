@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { Form, Input, LittleSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { CloseButton } from "../components/Various";
@@ -22,7 +21,7 @@ export function UpdateDevice({action, setAction, setAuxAction, setPayload }: {
     if(!action || !setAction || !setAuxAction || !setPayload) return null
 
     const onSubmitHandler = handleSubmit(({ name }) => {
-        console.log(name)
+        
         setAction(action)
         setPayload(JSON.stringify({name: name}))
     })

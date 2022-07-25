@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { Form, Header, HeaderParagraph, Input, Paragraph, BigSubmitButton, LittleSubmitButton } from "../../components/form/FormComponents";
+import { Form, Input, LittleSubmitButton } from "../../components/form/FormComponents";
 import { emailInputForm, passwordInputForm, passwordVerifyInputForm, phoneInputForm, simpleInputForm } from "../../components/form/FormInputs";
 import { CloseButton } from "../../components/Various";
 import { Action } from "../../models/QRJsonModel";

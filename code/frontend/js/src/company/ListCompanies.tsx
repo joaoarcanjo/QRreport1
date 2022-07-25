@@ -53,7 +53,6 @@ export function ListCompanies() {
                     <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}>  
                         <div>
                             <h5 className='mb-2 text-xl tracking-tight text-gray-900'>{company.name}</h5>
-                            {/*<p>Number of spaces: {company.numberOfBuildings}</p>*/}
                         </div>
                     </div>
                 </Link>
@@ -98,7 +97,6 @@ export function ListCompanies() {
         )
     }
 
-    console.log(getEntitiesOrUndefined(result?.body))
     return (
         <div className='px-3 pt-3 space-y-4'>
             <h1 className='text-3xl mt-0 mb-2 text-blue-800'>Companies</h1>

@@ -1,5 +1,5 @@
 import { AiOutlineWarning } from "react-icons/ai";
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { ProblemJson, InvalidParameters } from "../models/ProblemJson"
 
 export function ErrorView({error, message, problemJson} : {
@@ -58,15 +58,6 @@ export function ErrorView({error, message, problemJson} : {
         ): <></>
     }
 
-    //window.location.reload()
-    function ReturnHomeButton() {
-        return (
-            <button onClick={() => navigate('/')} className="focus:outline-none text-white bg-blue-500 hover:bg-blue-700 px-2 py-1 font-basic rounded-lg">
-                Return home
-            </button>
-        )
-    }
-
     return (
         <div className="bg-white p-8 rounded-lg space-y-4 justify-center align-middle">
             <div className="flex justify-center text-xl bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-900 font-bold ">
@@ -76,7 +67,6 @@ export function ErrorView({error, message, problemJson} : {
             </div>
             {!problemJson && <MessageInfo/>}
             <ProblemComponent/>
-            {/* { <ReturnHomeButton/> } */}
         </div>
     )
 }

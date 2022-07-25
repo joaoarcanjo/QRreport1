@@ -32,7 +32,7 @@ export function TicketRequest() {
     const isLoggedIn = loggedState?.isLoggedIn
 
     switch (action?.name) {
-        case 'report': return <ActionComponent action={action} extraInfo={payload} redirectUrl={isLoggedIn ? '/tickets': '/'} />
+        case 'report': return <ActionComponent action={action} extraInfo={payload} redirectUrl={isLoggedIn ? '/tickets': '/thankyou'} />
         case 'signup': return <ActionComponent action={action} extraInfo={payload} returnComponent={<></>} />
         case 'login': return <ActionComponent action={action} extraInfo={payload} returnComponent={<></>} />
     }

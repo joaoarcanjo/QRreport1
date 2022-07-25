@@ -1,9 +1,7 @@
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 
-import './App.css';
 import NavBar from './components/navbar/NavBar';
-import { Home } from './Home';
 import LoginForm from './user/login/LoginForm';
 import SignupForm from './user/signup/SignupForm';
 import { useEffect, useState } from 'react';
@@ -26,7 +24,7 @@ import { mapToFetchResult } from './hooks/useFetch';
 import { getEntityOrUndefined, getProblemOrUndefined } from './models/ModelUtils';
 import { LoginUser } from './models/Models';
 import { ProblemJson } from './models/ProblemJson';
-import { ErrorPopup } from './components/ErrorPopup';
+import { ThanksPage } from './user/profile/ThanksPage';
 
 const userSessionRepo = createRepository()
 
@@ -37,8 +35,8 @@ function AppRouter() {
         <Router>
             <NavBar/>
             <Routes>
-                {/* <Route path="/" element= {<Home/>}/> */}
                 <Route path="/report/:hash" element= {<TicketRequest/>}/>
+                <Route path="/thankyou" element= {<ThanksPage/>}/>
                 {!isAuthenticated ? 
                     <Route path="*" element={<Navigate to="/login"/>}/> :
                 <>
@@ -73,7 +71,7 @@ function App() {
     const [problem, setProblem] = useState<ProblemJson | undefined>()
 
     useEffect(() => {
-        console.log(isLoggedIn, activeRole, userEmail, userName)
+        
         if (isLoggedIn && userName && userEmail && activeRole) { 
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(isLoggedIn))
             sessionStorage.setItem(NAME_KEY, userName)

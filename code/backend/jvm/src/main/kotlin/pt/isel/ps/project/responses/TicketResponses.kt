@@ -8,9 +8,7 @@ import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.Uris.Tickets
 import pt.isel.ps.project.model.Uris.Tickets.EMPLOYEE_STATES_PAGINATION
 import pt.isel.ps.project.model.person.PersonsDto
-import pt.isel.ps.project.model.representations.CollectionModel
-import pt.isel.ps.project.model.representations.DEFAULT_PAGE
-import pt.isel.ps.project.model.representations.QRreportJsonModel
+import pt.isel.ps.project.model.representations.*
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.responses.BuildingResponses.getBuildingItem
 import pt.isel.ps.project.responses.CommentResponses.COMMENT_PAGE_MAX_SIZE
@@ -97,7 +95,7 @@ object TicketResponses {
             )
         )
 
-        fun groupTicket(ticketId: Long) = QRreportJsonModel.Action(
+        fun groupTicket(ticketId: Long, companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
             name = "group-ticket",
             title = "Group ticket",
             method = HttpMethod.PUT,
@@ -105,7 +103,8 @@ object TicketResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("ticket", "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(Tickets.BASE_PATH)),
+                    possibleValues = QRreportJsonModel.PropertyValue(Tickets.ticketsSelf(1,
+                        DEFAULT_DIRECTION, DEFAULT_SORT, companyId, buildingId, null))),
             )
         )
     }
@@ -177,7 +176,7 @@ object TicketResponses {
             if (isManager(user) && belongsToCompany(user, ticketInfo.company.id) || isAdmin(user)) {
                 if (ticketInfo.employee == null && ticketInfo.ticket.employeeState.compareTo("Refused") != 0
                     && ticketInfo.ticket.employeeState.compareTo("Completed") != 0) {
-                    add(Actions.groupTicket(ticketInfo.ticket.id))
+                    add(Actions.groupTicket(ticketInfo.ticket.id, ticketInfo.company.id, ticketInfo.building.id))
                     add(Actions.setEmployee(ticketInfo.ticket.id))
                 }
                 else add(Actions.removeEmployee(ticketInfo.ticket.id))

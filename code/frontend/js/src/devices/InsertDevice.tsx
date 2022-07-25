@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { SelectCategory } from "../category/SelectCategory";
-import { Form, Input, LittleSubmitButton } from "../components/form/FormComponents";
+import { Form, Input } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
-import { ListPossibleValues } from "../components/form/ListPossibleValues";
 import { CloseButton } from "../components/Various";
 import { Category } from "../models/Models";
 import { Action } from "../models/QRJsonModel";

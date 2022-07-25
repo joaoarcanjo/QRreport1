@@ -22,7 +22,6 @@ import { BsDoorClosed, BsStarFill } from "react-icons/bs";
 
 export function TicketRep() {
 
-    //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
         credentials: 'include',
         headers: { 'Request-Origin': 'WebApp' }
@@ -38,7 +37,7 @@ export function TicketRep() {
 
     const { isFetching, result, error } = useFetch<Ticket>(currentUrl, init)
 
-    if(userSession?.isLoggedIn && currentUrl === '') 
+    if(userSession?.isLoggedIn && currentUrl === '' || (TICKET_URL_API(ticketId) !== currentUrl)) 
         setCurrentUrl(TICKET_URL_API(ticketId))
     else if(!userSession?.isLoggedIn) 
         return <Navigate to={LOGIN_URL}/>
@@ -153,14 +152,14 @@ export function TicketRep() {
                             return <TicketRate key={idx} action={action} setAction={setAction} setPayload={setPayload}/>
                         }
                     })}
-                    <TicketActions actions={getActionsOrUndefined(result?.body)}/>
+                    <TicketActions entity={entity} actions={getActionsOrUndefined(result?.body)}/>
                     <ParentButton entity={parent}/>
                 </div>
             </div>
         )
     }
 
-    function TicketActions({ actions }: {actions?: Action[] | undefined}) {
+    function TicketActions({ entity, actions }: { entity: Entity<Ticket>, actions?: Action[] | undefined}) {
         
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
 
@@ -189,7 +188,7 @@ export function TicketRep() {
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
                 {auxAction?.name === 'group-ticket' && 
-                <GroupTicket action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
+                <GroupTicket ticketId={entity.properties.id} action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
                 {auxAction?.name === 'set-employee' && 
                 <SetEmployeeAction action={auxAction} setAction={setAction} setAuxAction={setAuxAction} setPayload={setPayload}/>}
             </>

@@ -47,8 +47,6 @@ export function ListPersons() {
         }
     }
     const init = useMemo(() => credentials , [])
-    const [direction, setDirection] = useState('desc')
-    const [sortBy, setSortBy] = useState('date')
     const [currentUrl, setCurrentUrl] = useState('')
     const [action, setAction] = useState<Action | undefined>(undefined)
     const [payload, setPayload] = useState('')

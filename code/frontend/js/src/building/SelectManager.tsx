@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { AiFillCloseCircle } from "react-icons/ai"
 import { Outlet } from "react-router-dom"
+import { ErrorPopup } from "../components/ErrorPopup"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
@@ -32,7 +33,7 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
 
     if (isFetching) return <Loading/>
-    if (error) return <ErrorView/>
+    if (error) return <ErrorPopup error={error}/>
 
     const problem = getProblemOrUndefined(result?.body)
     if (problem) return <ErrorView problemJson={problem}/>

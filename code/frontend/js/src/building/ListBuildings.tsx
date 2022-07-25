@@ -69,7 +69,6 @@ export function ListBuildings({ collection }: { collection?: Entity<Collection> 
                 <Link to={`buildings/${building.id}`}>
                     <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 shadow-md hover:bg-gray-200 divide-y space-y-4`}> 
                         <h5 className='text-xl font-md text-gray-900'>{building.name}</h5>
-                        {/*<p>Number of rooms: {building.numberOfRooms}</p>*/}
                     </div>
                 </Link> 
             </div>

@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Loading } from './Various';
-import { ErrorView } from '../errors/Error';
 import { useFetch } from '../hooks/useFetch';
 import * as QRreport from '../models/QRJsonModel';
 import { BASE_URL_API } from '../Urls';
 import { getProblemOrUndefined } from "../models/ModelUtils"
+import { ErrorPopup } from './ErrorPopup';
 import { useLoggedInState } from '../user/Session';
 
 type FormProps = {
@@ -26,7 +26,6 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
         credentials: 'include',
         headers: headersVal
     }
-    console.log(credentials);
     
     if (extraInfo) credentials.body = extraInfo
     const init = useMemo(() => credentials, [])
@@ -36,8 +35,11 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
     } else {
 
         const problem = getProblemOrUndefined(result?.body)
-        if (problem) {
-            return <ErrorView problemJson={problem}/>
+        if (problem) { 
+            return(<>
+                {returnComponent}
+                <ErrorPopup problem={problem}/>
+            </>)       
         }
 
         const status = result?.headers.status
@@ -48,7 +50,10 @@ export function ActionComponent({redirectUrl, action, extraInfo, returnComponent
             return <>{returnComponent}</>
         } 
         if (error) {
-            return <ErrorView error={error}/>
+            return(<>
+                {returnComponent}
+                <ErrorPopup error={error}/>
+            </>)   
         }
         return <></>
     } 

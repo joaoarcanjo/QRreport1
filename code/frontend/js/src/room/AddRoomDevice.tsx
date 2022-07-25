@@ -1,7 +1,5 @@
 import { useState, useMemo } from "react"
 import { AiFillCloseCircle } from "react-icons/ai"
-import { MdFilterList } from "react-icons/md"
-import { TbArrowBigTop, TbArrowBigDown } from "react-icons/tb"
 import { Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
@@ -28,8 +26,6 @@ export function AddRoomDevice({action, setAction, setAuxAction, setPayload}: {
     const href = property?.possibleValues?.href
     const url = href === undefined || null ? '' : BASE_URL_API + href
 
-    const [direction, setDirection] = useState('desc')
-    const [sortBy, setSortBy] = useState('date')
     const [device, setDevice] = useState<Device>()
     const init = useMemo(() => initValues ,[])
     const [currentUrl, setCurrentUrl] = useState(url)
@@ -47,20 +43,22 @@ export function AddRoomDevice({action, setAction, setAuxAction, setPayload}: {
     function DeviceItem({entity}: {entity: Entity<Device>}) {
         if (!entity) return null;
         const device = entity.properties
-        
+        const state = device.state
+        const stateColor = state === 'active' ? 'bg-white' : 'bg-red-200'
+
         return (
-            <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
+            <div className={`flex p-1 ${stateColor} rounded-lg border border-gray-400`}>  
                 <div className='w-full flex space-x-4'>
                     <h5 className='font-md text-gray-900'>{device.name}</h5>
                 </div>
+                {state === 'active' &&
                 <div className='w-full flex justify-end' >
                     <button 
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
                         onClick= {() => setDevice(device)}>
                         Select
                     </button>
-                </div>
-
+                </div>}
             </div>
         )
     }
@@ -77,7 +75,7 @@ export function AddRoomDevice({action, setAction, setAuxAction, setPayload}: {
     }
 
     return (
-        <div className="space-y-3 p-5 bg-green rounded-lg border border-gray-200 shadow-md">
+        <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200 shadow-md">
             <button onClick={() => setAuxAction(undefined)}>
                 <AiFillCloseCircle style= {{ color: '#db2a0a', fontSize: "1.4em" }}/>
             </button>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react"
 import { Outlet } from "react-router-dom"
-import { CloseButton, Loading } from "../../components/Various"
+import { Loading } from "../../components/Various"
+import { ErrorView } from "../../errors/Error"
 import { useFetch } from "../../hooks/useFetch"
 import { Company } from "../../models/Models"
 import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../../models/ModelUtils"
@@ -29,10 +30,10 @@ export function ShowPossibleCompanies({setPayload, currentCompany}: {
     }
  
     if (isFetching) return <Loading/>
-    //if (error) return <ErrorView error={error}/>
+    if (error) return <ErrorView error={error}/>
     
     const problem = getProblemOrUndefined(result?.body)
-    //if (problem) return <ErrorView problemJson={problem}/>
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function CompanyItem({entity}: {entity: Entity<Company>}) {
         if (!entity) return null;

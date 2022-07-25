@@ -9,7 +9,6 @@ import { EMAIL_KEY, NAME_KEY, useLoggedInState } from '../../user/Session'
 import ReCAPTCHA from "react-google-recaptcha";
 import { BsBuilding, BsDoorClosed } from "react-icons/bs";
 import { FaRegBuilding, FaToilet } from "react-icons/fa";
-import { TbPencil } from "react-icons/tb";
 
 export function TicketForm({hash, entity, action, setAction, setPayload}: {
     hash: string, entity: Entity<FormInfo>, action: Action,

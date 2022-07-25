@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { AiFillCloseCircle } from "react-icons/ai";
-import { Form, HeaderParagraph, Input, BigSubmitButton, LittleSubmitButton } from "../components/form/FormComponents";
+import { Form, Input, LittleSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { Action } from "../models/QRJsonModel";
 

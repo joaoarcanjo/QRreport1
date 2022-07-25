@@ -33,8 +33,6 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
     const onSubmitHandler = handleSubmit(({ name, phone, email, password, passwordVerify, role }) => {
         const payload: any = {}
 
-        //se a role for admin, nao necessita de company nem skill
-        //se a role for manager ou employee, necessita de company e no caso do employee de uma skill
         if(role === MANAGER_ROLE && !company) return
         if(role === EMPLOYEE_ROLE && (!company || !skill)) return
 
@@ -49,7 +47,6 @@ export function InputUser({action, setAction, setAuxAction, setPayload }: {
         
         setAction(action)
         setPayload(JSON.stringify(payload))
-        console.log(payload)
     })
 
     const roleInput: InputProps = {

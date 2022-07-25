@@ -146,7 +146,7 @@ export function InputError({error} : {error : string | undefined | boolean}) {
     return <p className="text-sm text-red-500"> {error} </p>
 }
 
-export function TextArea({value}: {value: TextAreaProps}) { //está a dar um warning
+export function TextArea({value}: {value: TextAreaProps}) {
     return (
         <div>
             <InputLabel text= {value.textAreaLabelName}/>

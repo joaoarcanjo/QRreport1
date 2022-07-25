@@ -1,5 +1,4 @@
 import { useForm } from "react-hook-form";
-import { AiFillCloseCircle } from "react-icons/ai";
 import { Form, Input, LittleSubmitButton } from "../components/form/FormComponents";
 import { simpleInputForm } from "../components/form/FormInputs";
 import { CloseButton } from "../components/Various";
@@ -23,15 +22,15 @@ export function CreateRoom({action, setAction, setAuxAction, setPayload }: {
 
     const onSubmitHandler = handleSubmit(({ name, floor }) => {
         setAction(action)
-        setPayload(JSON.stringify({name: name, floor: floor}))//todo
+        setPayload(JSON.stringify({name: name, floor: floor}))
     })
 
     function Inputs() {
         let componentsInputs = action!!.properties.map((prop, idx) => {
-            console.log(prop);
+            
             switch (prop.name) {
                 case 'name': return <Input key={idx} value={simpleInputForm(register, 'Name', errors, prop.required, prop.name, prop.type)}/>
-                case 'floor': return <Input key={idx} value={simpleInputForm(register, 'Floors', errors, prop.required, prop.name, prop.type)}/>
+                case 'floor': return <Input key={idx} value={simpleInputForm(register, 'Floor', errors, prop.required, prop.name, prop.type)}/>
             }
         })
         return <>{componentsInputs}</>

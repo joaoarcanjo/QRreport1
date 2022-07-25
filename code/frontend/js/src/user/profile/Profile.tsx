@@ -18,13 +18,13 @@ import { Loading, StateComponent } from '../../components/Various';
 import { AssignToCompany } from './AssignToCompany';
 import { SwitchRole } from './SwitchRole';
 import { UpdateProfile } from './UpdateProfile';
+import { RehireAction } from './RehireAction';
 
 export function Profile() {
     
     let { personId } = useParams()
     const userSession = useLoggedInState()
     
-    //todo: initValues will be the same for all get requests
     const initValues: RequestInit = {
         credentials: 'include',
         headers: { 'Request-Origin': 'WebApp' }
@@ -44,8 +44,10 @@ export function Profile() {
 
     const { isFetching, result, error } = useFetch<Person>(currentUrl, init)
 
-    if(userSession?.isLoggedIn && currentUrl === '') 
-        setCurrentUrl(personId === undefined ? PERSON_PROFILE() : PERSON_URL_API(personId))
+    if(userSession?.isLoggedIn && personId !== undefined && currentUrl !== PERSON_URL_API(personId)) 
+        setCurrentUrl(PERSON_URL_API(personId))
+    else if((userSession?.isLoggedIn && personId === undefined && currentUrl !== PERSON_PROFILE)) 
+        setCurrentUrl( PERSON_PROFILE)
     else if(!userSession?.isLoggedIn) 
         return <Navigate to={LOGIN_URL}/>
 
@@ -121,7 +123,7 @@ export function Profile() {
                 {auxAction?.name === 'fire-person' && 
                 <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'rehire-person' && 
-                <FireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
+                <RehireAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'ban-person' && 
                 <BanAction action={auxAction} setAction={setAction} setPayload={setPayload} setAuxAction={setAuxAction}/>}
                 {auxAction?.name === 'assign-to-company' && 
@@ -189,8 +191,6 @@ export function Profile() {
                     <DetailInfo name={'Name:'} value={person.name}/>
                     <DetailInfo name={'Email:'} value={person.email}/>
                     {person.phone && <DetailInfo name={'Contact No:'} value={person.phone}/>}
-                    {/*!isEmployee && <DetailInfo name={'Number of reports:'} value={person.numberOfReports}/>*/}
-                    {/*!isEmployee && <DetailInfo name={'Reports rejected:'} value={person.reportsRejected}/>*/}
                     {isEmployee && <DetailInfo name={'Skills:'} value={person.skills?.map(skill => `${skill} ${' '}`)}/>}
                 </div>
             </div>
@@ -215,5 +215,5 @@ export function Profile() {
             </div>
         </div>}
     </>
-    ) : <Navigate to={'/'}></Navigate>
+    ) : <Navigate to={LOGIN_URL}></Navigate>
 }

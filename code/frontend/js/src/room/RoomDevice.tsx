@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Loading } from '../components/Various';
@@ -15,7 +14,8 @@ import Popup from 'reactjs-popup';
 import { AiFillCloseCircle } from 'react-icons/ai';
 import { MdDelete, MdOutlineCategory } from 'react-icons/md';
 
-export function RoomDevice({deviceId, setDeleted}: {
+export function RoomDevice({roomState, deviceId, setDeleted}: {
+    roomState: string,
     deviceId: number, 
     setDeleted: React.Dispatch<React.SetStateAction<boolean>>
 }) {
@@ -126,19 +126,21 @@ export function RoomDevice({deviceId, setDeleted}: {
             if(!actions) return null
     
             let componentsActions = actions?.map((action, idx) => {
+                
                 switch(action.name) {
                 case 'generate-new-qrcode': return (
+                    roomState === 'active' && (
                         <button key={idx} onClick={() => {setAction(action); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             {action.title}
-                        </button>
+                        </button>)
                     )
                 }
             })
             return (<div className="flex space-x-2"> 
                         {componentsActions} 
-                        {state === 'active' && <button onClick={() => {setAction(undefined); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
+                        {state === 'active' && roomState === 'active' && (<button onClick={() => {setAction(undefined); setPopup(!popup); setUrl(url!!)}} className="text-white bg-blue-700 hover:bg-blue-800 rounded-lg px-2">
                             Get QR Code
-                        </button>}
+                        </button>)}
                     </div>)
         }    
 

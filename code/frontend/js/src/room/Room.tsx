@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { FaEdit } from "react-icons/fa";
-import { Navigate, Outlet, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { Loading, StateComponent } from "../components/Various";
 import { ErrorView } from "../errors/Error";
 import { useFetch } from "../hooks/useFetch";
@@ -10,7 +10,7 @@ import { LOGIN_URL, ROOM_URL_API } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
 import { AddRoomDevice } from "./AddRoomDevice";
 import { UpdateRoom } from "./UpdateRoom";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { RoomDevices } from "../devices/RoomDevices";
 import { useLoggedInState } from "../user/Session";
 
@@ -69,9 +69,6 @@ export function RoomRep() {
                             }
                         })}
                     </div>
-                    <div className='flex flex-col space-y-4'>
-                         {/*<p> Number of reports: {room.numberOfReports} </p>*/}
-                    </div>
                     <StateComponent state={room.state} timestamp={room.timestamp}/>
                     {updateAction && <UpdateRoom action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
@@ -117,12 +114,14 @@ export function RoomRep() {
     if(!entities) return <ErrorView/>
     const collection = getSpecificEntity(['device', 'collection'], 'room-devices', entities)
     if(!collection) return <ErrorView/>
+    const entity = getEntityOrUndefined(result?.body)
+    if(!entity) return <ErrorView/>
 
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
-            <RoomInfo entity={getEntityOrUndefined(result?.body)}/>
+            <RoomInfo entity={entity}/>
             <RoomActions actions={getActionsOrUndefined(result?.body)}/>
-            <RoomDevices collection={collection}/>
+            <RoomDevices roomEntity={entity} collection={collection}/>
         </div>
     )
 }

@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react"
-import { Link, Outlet, useParams } from "react-router-dom"
+import { Link, Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
 import { Room } from "../models/Models"
-import { getEntityLink, getEntityOrUndefined, getLink, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
+import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { CreateRoom } from "./CreateRoom"
@@ -69,7 +69,6 @@ export function Rooms({ collection }: { collection?: Entity<Collection>}) {
                 <Link to={`rooms/${room.id}`}>
                     <div className={`p-5 ${bgColor} rounded-lg border border-gray-200 hover:bg-gray-200 shadow-md`}>  
                         <h5 className='text-xl font-md text-gray-900'>{room.name}</h5>
-                        {/*<p>Number of reports: {room.numberOfReports}</p>*/}
                     </div>
                 </Link>
             </div>

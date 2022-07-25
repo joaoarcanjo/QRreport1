@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react"
 import { MdExpandMore, MdExpandLess } from "react-icons/md"
-import { Link, Outlet } from "react-router-dom"
+import { Outlet } from "react-router-dom"
 import { Loading } from "../components/Various"
 import { ErrorView } from "../errors/Error"
 import { useFetch } from "../hooks/useFetch"
-import { Device } from "../models/Models"
-import { getEntityLink, getEntityOrUndefined, getLink, getProblemOrUndefined } from "../models/ModelUtils"
+import { Device, Room } from "../models/Models"
+import { getEntityLink, getEntityOrUndefined, getProblemOrUndefined } from "../models/ModelUtils"
 import { Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { RoomDevice } from "../room/RoomDevice"
 
-export function RoomDevices({ collection }: { collection?: Entity<Collection>}) {
+export function RoomDevices({ roomEntity, collection }: {roomEntity: Entity<Room>, collection?: Entity<Collection>}) {
 
     const initValues: RequestInit = {
         credentials: 'include',
@@ -20,7 +20,7 @@ export function RoomDevices({ collection }: { collection?: Entity<Collection>}) 
     const init = useMemo(() => initValues ,[])
 
     const [currentUrl, setCurrentUrl] = useState('')
-    console.log(currentUrl)
+    
     const { isFetching, result, error } = useFetch<Collection>(currentUrl, init)
     
     if (isFetching) return <Loading/>
@@ -50,7 +50,7 @@ export function RoomDevices({ collection }: { collection?: Entity<Collection>}) 
                     { moreInfo && <MdExpandLess style= {{ color: 'blue', fontSize: '2em' }} />}
                 </button>
                 <div className='space-y-4'>{moreInfo && (
-                    <RoomDevice deviceId={device.id} setDeleted={setDeleted}/>)}</div>
+                    <RoomDevice roomState={roomEntity.properties.state} deviceId={device.id} setDeleted={setDeleted}/>)}</div>
             </div>
         </div>)
     }

@@ -2,13 +2,13 @@ import React from "react"
 import { useState, useMemo } from "react"
 import { Outlet } from "react-router-dom"
 import { Loading } from "../../components/Various"
+import { ErrorView } from "../../errors/Error"
 import { useFetch } from "../../hooks/useFetch"
 import { EmployeeState } from "../../models/Models"
 import { getProblemOrUndefined, getEntityOrUndefined, getPropertiesOrUndefined, getLink } from "../../models/ModelUtils"
 import { Entity } from "../../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../../pagination/CollectionPagination"
 import { TICKETS_EMPLOYEE_STATES_URL_API } from "../../Urls"
-
 
 export function ShowEmployeeStates({currentState, setPayload}: {
     currentState: any, 
@@ -31,10 +31,10 @@ export function ShowEmployeeStates({currentState, setPayload}: {
     }
  
     if (isFetching) return <Loading/>
-    //if (error) return <ErrorView error={error}/>
+    if (error) return <ErrorView error={error}/>
     
     const problem = getProblemOrUndefined(result?.body)
-    //if (problem) return <ErrorView problemJson={problem}/>
+    if (problem) return <ErrorView problemJson={problem}/>
 
     function StateItem({entity}: {entity: Entity<EmployeeState>}) {
         if (!entity) return null;
