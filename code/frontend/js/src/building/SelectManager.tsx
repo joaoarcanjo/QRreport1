@@ -11,11 +11,12 @@ import { Action, Entity } from "../models/QRJsonModel"
 import { Collection, CollectionPagination } from "../pagination/CollectionPagination"
 import { BASE_URL_API } from "../Urls"
 
-export function SelectManager({action, setAction, setPayload, setAuxAction}: {
+export function SelectManager({action, setAction, setPayload, setAuxAction, currentManager}: {
     action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
     setPayload: React.Dispatch<React.SetStateAction<any>>,
-    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined
+    setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>> | undefined,
+    currentManager?: number,
 }) {
 
     const initValues: RequestInit = {
@@ -42,6 +43,7 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
     function ManagerItem({entity}: {entity: Entity<Person>}) {
         if (!entity) return null;
         const person = entity.properties
+        const isManager = person.id === currentManager
         
         return (
             <div className='flex p-5 bg-white rounded-lg border border-gray-200 shadow-md'>  
@@ -49,11 +51,11 @@ export function SelectManager({action, setAction, setPayload, setAuxAction}: {
                     <h5 className='font-md text-gray-900'>{person.name}</h5>
                 </div>
                 <div className='w-full flex justify-end' >
-                    <button 
+                    {isManager ? null : <button
                         className='px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800'
                         onClick= {() => { setAction && setAction(action); setPayload(person)}}>
                         Select
-                    </button>
+                    </button>}
                 </div>
 
             </div>

@@ -24,6 +24,7 @@ import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Person.employeeHasTwoSkills
 import pt.isel.ps.project.util.Validator.Person.isSamePerson
 import pt.isel.ps.project.util.Validator.Person.personHasTwoRoles
+import pt.isel.ps.project.util.Validator.Person.personIsAdmin
 import pt.isel.ps.project.util.Validator.Person.personIsBanned
 import pt.isel.ps.project.util.Validator.Person.personIsEmployee
 import pt.isel.ps.project.util.Validator.Person.personIsGuest
@@ -239,6 +240,7 @@ object PersonResponses {
                     listOf(getTicketsRepresentation(personDetails.personTickets, null, null, DEFAULT_DIRECTION, DEFAULT_SORT, null, 1))
                 else null,
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
+                if (!isSamePerson(user, personDetails.person.id) && personIsAdmin(personDetails.person.roles)) return@apply
                 if (isAdmin(user) || isManager(user)) {
                     // Fire/Rehire
                     if (!isSamePerson(user, personDetails.person.id) &&
@@ -260,14 +262,13 @@ object PersonResponses {
                         } else add(Actions.banPerson(personDetails.person.id))
                     }
                 }
-
                 // Delete
                 if (!isSamePerson(user, personDetails.person.id) && personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
                 // Update
                 if (isSamePerson(user, personDetails.person.id))
                     add(Actions.updatePerson(personDetails.person.id))
-                if (personDetails.person.roles.size > 1)
+                if (personDetails.person.roles.size > 1 && isSamePerson(user, personDetails.person.id))
                     add(Actions.switchRole())
 
                 if (!isManager(user) && !isAdmin(user)) return@apply

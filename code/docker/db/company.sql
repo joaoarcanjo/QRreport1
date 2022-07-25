@@ -315,3 +315,21 @@ BEGIN
 
     company_rep = company_item_representation(company_id, cname, cstate, tmstamp);
 END$$ LANGUAGE plpgsql;
+
+/**
+  Trigger to change the state of all rooms belonging to the building whose state was changed
+ */
+CREATE OR REPLACE FUNCTION update_buildings_states() RETURNS TRIGGER
+AS
+$$
+BEGIN
+	IF NEW.state != OLD.state THEN
+        UPDATE BUILDING SET state = NEW.state, timestamp = CURRENT_TIMESTAMP WHERE company = NEW.id;
+	END IF;
+	RETURN NEW;
+END$$LANGUAGE plpgsql;
+
+CREATE TRIGGER change_building_state_trigger
+    BEFORE UPDATE ON COMPANY
+    FOR EACH ROW
+    EXECUTE PROCEDURE update_buildings_states();

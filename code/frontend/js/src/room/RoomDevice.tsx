@@ -67,7 +67,7 @@ export function RoomDevice({roomState, deviceId, setDeleted}: {
             }
         }, [result])
 
-        if (error) return <ErrorView/>
+        if (error) return <ErrorView error={error}/>
         return (
             <Popup className='popup-overlay' open={popup} onClose={() => setPopup(false)} modal>
                 <div className='bg-white p-8 space-y-3 rounded-lg'>

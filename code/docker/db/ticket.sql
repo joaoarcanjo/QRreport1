@@ -213,6 +213,7 @@ BEGIN
     END IF;
 
     SELECT person_exists(person_email) INTO person_id;
+    PERFORM is_person_inactive_ban(person_email);
     IF (person_id IS NULL) THEN
         CALL create_person(
             person_rep,
@@ -574,7 +575,7 @@ BEGIN
 
         employee_id = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
 
-        UPDATE FIXING_BY SET end_timestamp = CURRENT_TIMESTAMP WHERE person = employee_id AND ticket = ticket_id;
+        DELETE FROM FIXING_BY WHERE person = employee_id AND ticket = ticket_id;
     END IF;
 
     ticket_rep = json_build_object(
@@ -645,7 +646,9 @@ BEGIN
         RAISE 'invalid-company' USING DETAIL = 'manager-ticket';
     END IF;
 
-    UPDATE TICKET SET parent_ticket = parent_tid WHERE id = ticket_id;
+    UPDATE TICKET
+    SET parent_ticket = parent_tid, employee_state = (SELECT employee_state FROM ticket WHERE id = parent_tid)
+    WHERE id = ticket_id;
 
     ticket_rep = ticket_item_representation(ticket_id);
 END$$

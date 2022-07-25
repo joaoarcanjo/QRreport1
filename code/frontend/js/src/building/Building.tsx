@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import { FaEdit } from "react-icons/fa"
-import { Navigate, useParams } from "react-router-dom"
+import { FaEdit, FaToolbox } from "react-icons/fa"
+import { Link, Navigate, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
 import { Building, Person } from "../models/Models";
@@ -13,6 +13,7 @@ import { Rooms, RoomsActions } from "../room/ListRooms";
 import { ErrorView } from "../errors/Error";
 import { SelectManager } from "./SelectManager";
 import { useLoggedInState } from "../user/Session";
+import { GrUserManager } from "react-icons/gr";
 
 
 export function BuildingRep() {
@@ -58,6 +59,7 @@ export function BuildingRep() {
         if(!entity) return null
 
         const building = entity.properties
+        const employeeEntity = getSpecificEntity(["person"], "building-manager", entity.entities)
 
         return (
             <div className='bg-white p-3 border-t-4 border-blue-900 space-y-3'>
@@ -76,15 +78,24 @@ export function BuildingRep() {
                         })}
                     </div>
                     <StateComponent state={building.state} timestamp={building.timestamp}/>
+                    {employeeEntity && <div className='flex'>
+                        <Link to={`/persons/${employeeEntity?.properties.id}`}>
+                            <div className='flex items-center pl-2'>
+                                <GrUserManager title="Manager" color="green" />
+                                <span className="pl-2">{employeeEntity?.properties.name}</span>
+                            </div>
+                        </Link>
+                    </div>}
                     {updateAction && <UpdateBuilding action={updateAction} setAction={setAction} setAuxAction={setUpdateAction} setPayload={setPayload}/>}
                 </div>
             </div>
         )
     }
 
-    function SetManager({action, setAuxAction}: {
+    function SetManager({action, setAuxAction, managerId}: {
         action: Action,
         setAuxAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
+        managerId: number,
     }) {
         
         const [manager, setManager] = useState<Person | undefined>()
@@ -93,11 +104,11 @@ export function BuildingRep() {
             setAction(action)
             setPayload(JSON.stringify({manager: manager?.id}))
         }
-
+        
         return (
             <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
-                <p>Manager selected: {manager === undefined ? '-----' : `${manager.name}`}</p>
-                <SelectManager action={action} setPayload={setManager} setAction={undefined} setAuxAction={setAuxAction}/>
+                <span className="flex">Manager selected: <p className="pl-3 text-green-700 font-bold">{manager === undefined ? '-----' : `${manager.name}`}</p></span>
+                <SelectManager action={action} setPayload={setManager} setAction={undefined} setAuxAction={setAuxAction} currentManager={managerId}/>
                 <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onClick}>
                     {action.title}
                 </button>
@@ -105,7 +116,7 @@ export function BuildingRep() {
         )
     }
 
-    function BuildingActions({ actions }: {actions: Action[] | undefined}) {
+    function BuildingActions({ entity, actions }: {entity?: Entity<Building>, actions?: Action[]}) {
 
         const [auxAction, setAuxAction] = useState<Action | undefined>(undefined)
         if(!actions) return null
@@ -129,12 +140,12 @@ export function BuildingRep() {
                 )
             }
         })
-
+        
         return (
             <>
                 <div className="flex space-x-2"> {componentsActions} </div>
                 {auxAction?.name === 'change-building-manager' && 
-                <SetManager action={auxAction} setAuxAction={setAuxAction}/>}
+                <SetManager action={auxAction} setAuxAction={setAuxAction} managerId={entity?.entities?.find(elem => elem.rel?.includes("building-manager"))?.properties.id}/>}
             </>
         ) 
     }
@@ -147,7 +158,7 @@ export function BuildingRep() {
     return (
         <div className='w-full px-3 pt-3 space-y-3'>
             <BuildingInfo entity={getEntityOrUndefined(result?.body)}/>
-            <BuildingActions actions={getActionsOrUndefined(result?.body)}/>
+            <BuildingActions entity={getEntityOrUndefined(result?.body)} actions={getActionsOrUndefined(result?.body)}/>
             <RoomsActions entities={getEntitiesOrUndefined(result?.body)} setAction={setAction} setPayload={setPayload}/>
             <Rooms collection={collection}/>
         </div>

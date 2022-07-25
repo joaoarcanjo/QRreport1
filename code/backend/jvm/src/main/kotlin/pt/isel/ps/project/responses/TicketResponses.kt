@@ -141,23 +141,25 @@ object TicketResponses {
         clazz = listOf(Classes.TICKET),
         properties = ticketInfo.ticket,
         entities = mutableListOf<QRreportJsonModel>().apply {
-            add(getCommentsRepresentation(
-                user,
-                ticketInfo.ticketComments,
-                ticketInfo.parentTicket ?: ticketInfo.ticket.id,
-                ticketInfo.ticket.employeeState,
-                CollectionModel(DEFAULT_PAGE, COMMENT_PAGE_MAX_SIZE, ticketInfo.ticketComments.collectionSize),
-                ticketInfo.ticketComments.isTicketChild,
-                listOf(Relations.TICKET_COMMENTS))
-            )
+            if (isEmployee(user) || isManager(user) || isAdmin(user)) {
+                add(getCommentsRepresentation(
+                    user,
+                    ticketInfo.ticketComments,
+                    ticketInfo.parentTicket ?: ticketInfo.ticket.id,
+                    ticketInfo.ticket.employeeState,
+                    CollectionModel(DEFAULT_PAGE, COMMENT_PAGE_MAX_SIZE, ticketInfo.ticketComments.collectionSize),
+                    ticketInfo.ticketComments.isTicketChild,
+                    listOf(Relations.TICKET_COMMENTS))
+                )
+                if (ticketInfo.parentTicket != null) add(getParentTicket(ticketInfo.parentTicket))
+            }
             add(getCompanyItem(ticketInfo.company, listOf(Relations.TICKET_COMPANY)))
             add(getBuildingItem(ticketInfo.company.id, ticketInfo.building, listOf(Relations.TICKET_BUILDING)))
             add(getRoomItem(ticketInfo.room.id, ticketInfo.building.id, ticketInfo.room, listOf(Relations.TICKET_ROOM)))
             add(getDeviceItem(ticketInfo.device, listOf(Relations.TICKET_DEVICE)))
             add(getPersonItem(ticketInfo.person, listOf(Relations.TICKET_AUTHOR)))
-            if (ticketInfo.employee != null) add(getPersonItem(ticketInfo.employee, listOf(Relations.TICKET_EMPLOYEE)))
-            if (ticketInfo.parentTicket == null) return@apply
-            add(getParentTicket(ticketInfo.parentTicket))
+            if (ticketInfo.employee != null && !isUser(user))
+                add(getPersonItem(ticketInfo.employee, listOf(Relations.TICKET_EMPLOYEE)))
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (isUser(user) && ticketInfo.ticket.employeeState.compareTo("Archived") == 0 &&

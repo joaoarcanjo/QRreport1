@@ -42,7 +42,7 @@ BEGIN;
         ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 1, 'active'); -- Idalvina Lopes(employee), ISEL
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
-        ('A', 6, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'), -- Diogo Novo, ISEL
+        ('A', 6, 'active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
         ('C', 6, 'active', 1, 'd1ad1c02-9e4f-476e-8840-c56ae8aa7057'); -- Pedro Miguens, ISEL
 
     INSERT INTO ROOM(name, floor, state, building) VALUES

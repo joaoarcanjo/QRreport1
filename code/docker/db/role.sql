@@ -60,3 +60,22 @@ BEGIN
     RETURN (SELECT array_agg((SELECT name FROM CATEGORY WHERE id = p.category))
             FROM PERSON_SKILL p WHERE person = person_id);
 END$$LANGUAGE plpgsql;
+
+/**
+  * Returns all possible roles that a user can assign to other.
+  */
+CREATE OR REPLACE FUNCTION get_possible_roles(is_manager BOOL)
+RETURNS JSON
+AS
+$$
+DECLARE
+    roles JSON[]; collectionSize INT;
+BEGIN
+    IF(is_manager) THEN
+        roles = (SELECT array_agg(json_build_object('id', id, 'name', name)) FROM ROLE WHERE name != 'admin' AND name != 'guest');
+    ELSE
+        roles = (SELECT array_agg(json_build_object('id', id, 'name', name)) FROM ROLE WHERE name != 'guest');
+    END IF;
+    collectionSize = (SELECT count(id) FROM ROLE);
+    return json_build_object('roles', roles, 'rolesCollectionSize', collectionSize);
+END$$LANGUAGE plpgsql;

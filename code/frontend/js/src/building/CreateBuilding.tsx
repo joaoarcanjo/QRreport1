@@ -46,7 +46,7 @@ export function CreateBuilding({action, setAction, setAuxAction, setPayload }: {
         <div className="space-y-3 p-5 bg-white rounded-lg border border-gray-200">
             <CloseButton onClickHandler={() => setAuxAction(undefined)}/>
             {componentsInputs}
-            <p>Manager selected: {manager === undefined ? '-----' : `${manager.name}`}</p>
+            <span className="flex">Manager selected: <p className="pl-3 text-green-700 font-bold">{manager === undefined ? '-----' : `${manager.name}`}</p></span>
             {selectManager}
             <button className="text-white bg-green-500 hover:bg-green-700 rounded-lg px-2" onClick={onSubmitHandler}>
                 {action.title}

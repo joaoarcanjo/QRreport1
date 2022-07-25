@@ -83,7 +83,7 @@ DECLARE
     person_id UUID; pstate TEXT;
 BEGIN
     SELECT id, state INTO person_id, pstate FROM PERSON WHERE email = person_email;
-    IF (pstate = 'banned' AND pstate = 'inactive') THEN
+    IF (pstate = 'banned' OR pstate = 'inactive') THEN
         RAISE 'inactive-or-banned-person-access';
     END IF;
 

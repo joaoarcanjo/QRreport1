@@ -45,7 +45,8 @@ class PersonService(private val personDao: PersonDao, private val passwordEncode
         verifyCreatePersonInput(person)
         // Managers can only create other managers or employees
         if (isManager(user)) verifyManagerCreationPermissions(user, person)
-        val personDto = personDao.createPerson(person).getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
+        val personDto = personDao.createPerson(person, passwordEncoder.encode(person.password))
+            .getString(PERSON_REP)?.deserializeJsonTo<PersonDto>()
         return personDto ?: throw InternalServerException(INTERNAL_ERROR)
     }
 

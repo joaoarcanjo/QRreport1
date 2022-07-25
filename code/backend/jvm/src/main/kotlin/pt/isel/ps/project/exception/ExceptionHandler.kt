@@ -45,6 +45,9 @@ import pt.isel.ps.project.exception.Errors.ArchivedTicket
 import pt.isel.ps.project.exception.Errors.FixingTicket
 import pt.isel.ps.project.exception.Errors.TicketEmployeeSkillMismatch
 import pt.isel.ps.project.exception.Errors.TicketRate
+import pt.isel.ps.project.exception.Errors.BannedPersonAccess
+import pt.isel.ps.project.exception.Errors.BannedPersonAccess.Message.INACTIVE_BANNED_PERSON_ACCESS
+import pt.isel.ps.project.exception.Errors.BannedPersonAccess.Message.MISTAKE_DETAILS
 import pt.isel.ps.project.exception.Errors.Forbidden.Message.ACCESS_DENIED
 import pt.isel.ps.project.exception.Errors.InactiveBannedPerson.Message.INACTIVE_BANNED_PERSON
 import pt.isel.ps.project.exception.Errors.MinimumRolesSkills.Message.MINIMUM_ROLES
@@ -394,6 +397,15 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                     TICKET_RATE,
                     requestUri,
                     STATUS,
+                )
+            }
+            BannedPersonAccess.SQL_TYPE -> BannedPersonAccess.run {
+                buildExceptionResponse(
+                    TYPE,
+                    INACTIVE_BANNED_PERSON_ACCESS,
+                    requestUri,
+                    STATUS,
+                    detail = MISTAKE_DETAILS
                 )
             }
             else -> Errors.InternalServerError.run {

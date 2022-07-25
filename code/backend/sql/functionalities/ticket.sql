@@ -213,6 +213,7 @@ BEGIN
     END IF;
 
     SELECT person_exists(person_email) INTO person_id;
+    PERFORM is_person_inactive_ban(person_email);
     IF (person_id IS NULL) THEN
         CALL create_person(
             person_rep,
@@ -574,7 +575,7 @@ BEGIN
 
         employee_id = (SELECT person FROM FIXING_BY WHERE ticket = ticket_id AND end_timestamp IS NULL);
 
-        UPDATE FIXING_BY SET end_timestamp = CURRENT_TIMESTAMP WHERE person = employee_id AND ticket = ticket_id;
+        DELETE FROM FIXING_BY WHERE person = employee_id AND ticket = ticket_id;
     END IF;
 
     ticket_rep = json_build_object(

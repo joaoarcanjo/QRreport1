@@ -220,6 +220,16 @@ object Errors {
         }
     }
 
+    object BannedPersonAccess {
+        val TYPE = URI("/errors/inactive-or-banned-person")
+        val STATUS = HttpStatus.CONFLICT
+        const val SQL_TYPE = "inactive-or-banned-person-access"
+        object Message {
+            const val INACTIVE_BANNED_PERSON_ACCESS = "Inactive or banned account."
+            const val MISTAKE_DETAILS = "If this is a mistake please contact the administration."
+        }
+    }
+
     object PersonDismissal {
         val TYPE = URI("/errors/person-dismissal")
         val STATUS = HttpStatus.CONFLICT

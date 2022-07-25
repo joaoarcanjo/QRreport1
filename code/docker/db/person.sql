@@ -3,6 +3,20 @@
  */
 
 /*
+ * Auxiliary function to verify if a person is inactive or banned
+ */
+CREATE OR REPLACE FUNCTION is_person_inactive_ban(pemail TEXT)
+RETURNS BOOL
+AS
+$$
+BEGIN
+    IF (EXISTS(SELECT FROM PERSON WHERE email = pemail AND state = 'banned' OR state = 'inactive')) THEN
+        RAISE 'inactive-or-banned-person-access';
+    END IF;
+    RETURN TRUE;
+END$$ LANGUAGE plpgsql;
+
+/*
  * Auxiliary function to return the person item representation
  */
 CREATE OR REPLACE FUNCTION person_item_representation(p_id UUID, name TEXT, phone TEXT, email TEXT)
@@ -160,16 +174,16 @@ DECLARE
     collection_size INT = 0;
 BEGIN
     FOR rec IN
-        SELECT id FROM PERSON WHERE id != person_id
-            AND id IN (SELECT person FROM person_company WHERE company = company_id)
-            AND id IN (SELECT person FROM person_role WHERE role = (SELECT id FROM role WHERE name = role_name))
+        SELECT id FROM PERSON WHERE
+            id IN (SELECT person FROM PERSON_COMPANY pc WHERE company = company_id)
+            AND id IN (SELECT person FROM PERSON_ROLE WHERE role = (SELECT id FROM role WHERE name = role_name))
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         persons = array_append(persons, person_item_representation(rec.id));
     END LOOP;
-    SELECT COUNT(id) INTO collection_size FROM PERSON WHERE id != person_id
-            AND id IN (SELECT person FROM person_company WHERE company = company_id)
-            AND id IN (SELECT person FROM person_role WHERE role = (SELECT id FROM role WHERE name = role_name));
+    SELECT COUNT(id) INTO collection_size FROM PERSON WHERE
+        id IN (SELECT person FROM PERSON_COMPANY pc WHERE company = company_id)
+        AND id IN (SELECT person FROM PERSON_ROLE WHERE role = (SELECT id FROM role WHERE name = role_name));
 
 RETURN json_build_object('persons', persons, 'personsCollectionSize', collection_size);
 END$$LANGUAGE plpgsql;
@@ -192,7 +206,7 @@ BEGIN
                 -- Get the employees that share the same company with the manager
                 id IN (SELECT person FROM PERSON_COMPANY WHERE company IN (
                         SELECT company FROM PERSON_COMPANY WHERE person = person_id)
-                    EXCEPT (SELECT person FROM PERSON_ROLE WHERE role = get_role_id('manager')))
+                    /*EXCEPT (SELECT person FROM PERSON_ROLE WHERE role = get_role_id('manager'))*/)
             ELSE TRUE END
         LIMIT limit_rows OFFSET skip_rows
     LOOP
@@ -235,7 +249,7 @@ BEGIN
                 RAISE 'change-inactive-or-banned-person';
             END IF;
             is_profile = TRUE;
-        WHEN (req_role = 'manager'AND ('admin' = ANY(res_roles) AND 'manager' != ANY(res_roles))) THEN
+        WHEN (req_role = 'manager'AND ('admin' = ANY(res_roles) AND NOT 'manager' = ANY(res_roles))) THEN
             -- Managers cannot access to data of other managers (different company) or admins
             RAISE 'resource-permission-denied';
         WHEN (req_role = 'manager' AND 'manager' = ANY(res_roles)

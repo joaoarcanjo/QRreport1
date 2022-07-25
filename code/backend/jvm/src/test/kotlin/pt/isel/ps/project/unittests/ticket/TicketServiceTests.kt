@@ -380,8 +380,8 @@ class TicketServiceTests {
                 "ISEL",
                 "A",
                 "1 - Bathroom",
-                "Waiting analysis",
-                "To assign"
+                "Fixing",
+                "Fixing"
             )
 
         val ticket = service.groupTicket(2, 1, adminUser)

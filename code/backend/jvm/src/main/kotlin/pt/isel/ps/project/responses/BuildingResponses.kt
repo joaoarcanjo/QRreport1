@@ -24,6 +24,7 @@ import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.getRoomsRepresentation
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 
 object BuildingResponses {
@@ -41,7 +42,7 @@ object BuildingResponses {
                 QRreportJsonModel.Property("floors", "number"),
                 QRreportJsonModel.Property("managerId", "string",
                     possibleValues = QRreportJsonModel.PropertyValue(
-                        Uris.Persons.personsSelf(1, companyId, Roles.MANAGER))))
+                        Uris.Persons.personsSelf(DEFAULT_PAGE, companyId, Roles.MANAGER))))
             )
 
         fun updateBuilding(companyId: Long, buildingId: Long) = QRreportJsonModel.Action(
@@ -78,7 +79,7 @@ object BuildingResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(QRreportJsonModel.Property("managerId", "string",
                 possibleValues = QRreportJsonModel.PropertyValue(
-                    Uris.Persons.personsSelf(1, companyId, Roles.MANAGER))))
+                    Uris.Persons.personsSelf(DEFAULT_PAGE, companyId, Roles.MANAGER))))
         )
     }
 
@@ -105,7 +106,7 @@ object BuildingResponses {
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if(isAdmin(user)) add(Actions.createBuilding(companyId))
+            if(isAdmin(user) || isManager(user)) add(Actions.createBuilding(companyId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Buildings.makeBase(companyId))),

@@ -7,9 +7,10 @@ import { REPORT_FORM_URL_API } from '../../Urls'
 import { ActionComponent } from '../../components/ActionComponent'
 import { Loading } from '../../components/Various'
 import { ErrorView } from '../../errors/Error'
-import { getAction, getEntityOrUndefined } from "../../models/ModelUtils"
+import { getAction, getEntityOrUndefined, getProblemOrUndefined } from "../../models/ModelUtils"
 import { TicketForm } from './TicketForm'
 import { useLoggedInState } from '../../user/Session'
+import { ErrorPopup } from '../../components/ErrorPopup'
 
 export function TicketRequest() {
 
@@ -38,12 +39,13 @@ export function TicketRequest() {
     }
     
     if (isFetching) return <Loading/>
-    if (error) return <ErrorView error={error}/>
+    const prob = getProblemOrUndefined(result?.body)
+    if (prob) return <ErrorView problemJson={prob}/>
 
     const reportAction = getAction('report', result?.body)
     const reportEntity = getEntityOrUndefined(result?.body)
 
     if(!reportAction || !reportEntity) return null
 
-    return <TicketForm hash={hash!!} entity={reportEntity} action={reportAction} setAction={setAction} setPayload={setPayload}/>
+    return <TicketForm hash={hash!!} entity={reportEntity} action={reportAction} setAction={setAction} setPayload={setPayload} problem={getProblemOrUndefined(result?.body)}/>
 }

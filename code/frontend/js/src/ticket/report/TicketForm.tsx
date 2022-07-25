@@ -9,14 +9,17 @@ import { EMAIL_KEY, NAME_KEY, useLoggedInState } from '../../user/Session'
 import ReCAPTCHA from "react-google-recaptcha";
 import { BsBuilding, BsDoorClosed } from "react-icons/bs";
 import { FaRegBuilding, FaToilet } from "react-icons/fa";
+import { ErrorPopup } from "../../components/ErrorPopup";
+import { ProblemJson } from "../../models/ProblemJson";
 
-export function TicketForm({hash, entity, action, setAction, setPayload}: {
+export function TicketForm({hash, entity, action, setAction, setPayload, problem}: {
     hash: string, entity: Entity<FormInfo>, action: Action,
     setAction: React.Dispatch<React.SetStateAction<Action | undefined>>,
-    setPayload: React.Dispatch<React.SetStateAction<string>>
+    setPayload: React.Dispatch<React.SetStateAction<string>>,
+    problem?: ProblemJson
 }) {
 
-    type ticketData = { 
+    type TicketData = { 
         subject: string, 
         description?: string, 
         anomaly: string,
@@ -26,7 +29,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
     }
     
     const loggedState = useLoggedInState()
-    const { register, handleSubmit, formState: { errors }} = useForm<ticketData>()
+    const { register, handleSubmit, formState: { errors }} = useForm<TicketData>()
     const [captcha, setVerified] = useState(false)
 
     const onSubmitHandler = handleSubmit(({ subject , description, anomaly, name, phone, email }) => {
@@ -113,6 +116,7 @@ export function TicketForm({hash, entity, action, setAction, setPayload}: {
                 <BigSubmitButton text={'Submit'}/>
                 <p> (*) Required</p>
             </Form>
+            <ErrorPopup problem={problem}/>
         </section>
     )
 }

@@ -19,6 +19,8 @@ import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.Roles.isEmployee
+import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
 
 object CommentResponses {
     const val COMMENT_PAGE_MAX_SIZE = 10
@@ -97,7 +99,7 @@ object CommentResponses {
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (ticketState.compareTo("Archived") == 0 || ticketState.compareTo("Refused") == 0) return@apply
-            if (!isChild) add(Actions.createComment(ticketId))
+            if (!isChild && (isEmployee(user) || isManager(user) || isAdmin(user))) add(Actions.createComment(ticketId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Comments.makeBase(ticketId))),
