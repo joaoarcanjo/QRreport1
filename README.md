@@ -15,17 +15,20 @@ For now the only way to test our project is to download the zip file and run the
 #### Backend
 To run the backend files, i.e. the API server and PostgreSQL database you need to perform the following steps:
 
-##### API Server
-In the root of the jvm project execute the commands:
-* **./gradlew build**
-* **java -jar build/libs/project-0.0.1-SNAPSHOT.jar**
-
-Or just run it in the IntelliJ IDEA or in a similar IDE.
-
 ##### PostgreSQL Database
 To set up the database, you need to create two databases, available on the **port 5432**, one called `production` and another called `test` for execution of the tests in the server API. And then you need to execute the SQL scripts **create_tables** and all the **functionalities scripts** that are inside the functionalities folder. If you want some data inside the database run the script **isel_study_case_data**.
 
-Don't forget to set the environment variables of the database with the keys **DB_QRREPORT_USER** with the user name used in the database and the key **DB_QRREPORT_PASSWORD** with the database password.
+An easier approach would be to execute the **Docker Compose** file that is on the path `code/docker`, to execute it run the following command: 
+* **docker-compose up -d**
+
+Don't forget to set the environment variables of the database with the keys: **DB_QRREPORT_USER**, with the user name used in the database and the key **DB_QRREPORT_PASSWORD**, with the database password. If you wish you can change these values defined in the docker compose file, otherwise you must use the values that are described in the file.
+
+##### API Server
+In the root of the jvm project execute the commands:
+* **./gradlew build**
+* **java -jar -cp build/libs project-0.0.1-SNAPSHOT.jar**
+
+Or just run it in the IntelliJ IDEA or in a similar IDE.
 
 #### Frontend
 In case of the frontend code, developed with React, to run it in the root of the project, you must execute the following commands:

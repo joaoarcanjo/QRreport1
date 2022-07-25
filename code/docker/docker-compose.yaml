@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  # api:
+  #   restart: always
+  #   container_name: qrreport_api
+  #   build:
+  #     context: ../backend/jvm
+  #     dockerfile: Dockerfile-api
+  #   environment:
+  #     DB_QRREPORT_USER: qrreport
+  #     DB_QRREPORT_PASSWORD: qrreport
+  #     JWT_SCRET: qqZ7TltxYQxeatLB9UjnpH6mE6dren2TgPMyT6ds063B5G581UIBBCrjYdYPuIR
+  #   depends_on:
+  #     - productiondb
+  #     - testdb
+  #   ports:
+  #     - "8080:8080"
+
+  productiondb:
+    image: postgres:alpine
+    container_name: productiondb
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "production", "-U", "qrreport" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+#    build:
+#      context: .
+#      dockerfile: ../backend/sql/Dockerfile-db
+    environment:
+      POSTGRES_USER: qrreport
+      POSTGRES_PASSWORD: qrreport
+      POSTGRES_DB: production
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d
+      # - ./pgdata:/var/lib/postgresql/data # -> Uncomment if you want to persist the data on every start
+    ports:
+      - "5432:5432"
+    networks:
+      - productiondb
+
+  testdb:
+    image: postgres:alpine
+    container_name: testdb
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "test", "-U", "qrreport" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    environment:
+      POSTGRES_USER: qrreport
+      POSTGRES_PASSWORD: qrreport
+      POSTGRES_DB: test
+    volumes:
+       - ./db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+    networks:
+      - testdb
+volumes:
+  pgdata:
+networks:
+  productiondb:
+  testdb:
+
+# docker-compose --project-name qrreport up -d
