@@ -70,7 +70,7 @@ class BuildingServiceTests {
                 BuildingItemDto(2, "F", 6, "active", null),
                 BuildingItemDto(3, "Z", 6, "inactive", null),
             ),
-            3)
+            3, "active")
 
         val buildings = service.getBuildings(adminUser, companyId, DEFAULT_PAGE)
 
@@ -98,7 +98,7 @@ class BuildingServiceTests {
                 listOf(
                     RoomItemDto(1, "1 - Bathroom", 1, "active", null),
                     RoomItemDto(2, "2", 1, "active", null),
-                ), 2),
+                ), 2, "active"),
             PersonItemDto(
                 UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"),
                 "Diogo Novo",

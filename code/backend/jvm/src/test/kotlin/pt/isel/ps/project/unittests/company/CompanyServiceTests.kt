@@ -13,6 +13,7 @@ import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris.DEFAULT_BOOL
 import pt.isel.ps.project.model.Uris.UNDEFINED
 import pt.isel.ps.project.model.building.BuildingItemDto
+import pt.isel.ps.project.model.building.BuildingsDto
 import pt.isel.ps.project.model.company.*
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
 import pt.isel.ps.project.service.CompanyService
@@ -94,13 +95,13 @@ class CompanyServiceTests {
             "ISEL",
             "active",
             null,
-            listOf(
-                BuildingItemDto(1, "A", 4, "active", null),
-                BuildingItemDto(2, "F", 6, "active", null),
-                BuildingItemDto(3, "Z", 6, "inactive", null),
-            ),
-            3
-        )
+                BuildingsDto(listOf(
+                    BuildingItemDto(1, "A", 4, "active", null),
+                    BuildingItemDto(2, "F", 6, "active", null),
+                    BuildingItemDto(3, "Z", 6, "inactive", null),
+                ),
+                3, "active")
+            )
 
         val company = service.getCompany(expectedComp.id, adminUser)
 

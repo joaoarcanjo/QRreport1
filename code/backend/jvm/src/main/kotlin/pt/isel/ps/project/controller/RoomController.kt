@@ -38,13 +38,7 @@ class RoomController(private val service: RoomService) {
     ): QRreportJsonModel {
         getRoomsAuthorization(user)
         val rooms = service.getRooms(user, companyId, buildingId, page)
-        return getRoomsRepresentation(
-            user,
-            companyId,
-            buildingId,
-            rooms,
-            CollectionModel(page, ROOM_PAGE_MAX_SIZE, rooms.roomsCollectionSize),
-            null
+        return getRoomsRepresentation(user,companyId, buildingId, rooms, page, null
         )
     }
 

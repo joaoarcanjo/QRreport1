@@ -157,7 +157,8 @@ BEGIN
     SELECT COUNT(id) INTO collection_size FROM ROOM
     WHERE building = (SELECT id FROM BUILDING WHERE company = company_id AND id = building_id);
 
-    RETURN json_build_object('rooms', rooms, 'roomsCollectionSize', collection_size);
+    RETURN json_build_object('rooms', rooms, 'roomsCollectionSize', collection_size,
+        'buildingState', (SELECT state FROM BUILDING WHERE id = building_id));
 END$$ LANGUAGE plpgsql;
 
 /*

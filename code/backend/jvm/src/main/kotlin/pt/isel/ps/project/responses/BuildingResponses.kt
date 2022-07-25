@@ -11,6 +11,7 @@ import pt.isel.ps.project.model.Uris.Companies.Buildings.BUILDINGS_PAGINATION
 import pt.isel.ps.project.model.building.BuildingDto
 import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingManagerDto
+import pt.isel.ps.project.model.building.BuildingsDto
 import pt.isel.ps.project.model.person.Roles
 import pt.isel.ps.project.model.representations.CollectionModel
 import pt.isel.ps.project.model.representations.DEFAULT_PAGE
@@ -25,6 +26,7 @@ import pt.isel.ps.project.responses.RoomResponses.ROOM_PAGE_MAX_SIZE
 import pt.isel.ps.project.responses.RoomResponses.getRoomsRepresentation
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.States.isActive
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 
 object BuildingResponses {
@@ -92,24 +94,25 @@ object BuildingResponses {
 
     fun getBuildingsRepresentation(
         user: AuthPerson,
-        buildings: List<BuildingItemDto>?,
+        buildingsDto: BuildingsDto,
         companyId: Long,
-        collection: CollectionModel,
+        page: Int,
         rel: List<String>?
     ) = QRreportJsonModel(
         clazz = listOf(Classes.BUILDING, Classes.COLLECTION),
         rel = rel,
-        properties = collection,
+        properties = CollectionModel(page, BUILDING_PAGE_MAX_SIZE, buildingsDto.buildingsCollectionSize),
         entities = mutableListOf<QRreportJsonModel>().apply {
-            if (buildings != null) addAll(buildings.map {
+            if (buildingsDto.buildings != null) addAll(buildingsDto.buildings.map {
                 getBuildingItem(companyId, it, listOf(Relations.ITEM))
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if(isAdmin(user) || isManager(user)) add(Actions.createBuilding(companyId))
+            if(isActive(buildingsDto.companyState) && (isAdmin(user) || isManager(user)))
+                add(Actions.createBuilding(companyId))
         },
         links = listOf(
-            Links.self(Uris.makePagination(collection.pageIndex, Buildings.makeBase(companyId))),
+            Links.self(Uris.makePagination(page, Buildings.makeBase(companyId))),
             Links.pagination(BUILDINGS_PAGINATION),
         )
     )
@@ -130,13 +133,7 @@ object BuildingResponses {
             clazz = listOf(Classes.BUILDING),
             properties = building,
             entities = mutableListOf<QRreportJsonModel>().apply {
-                add(getRoomsRepresentation(
-                    user,
-                    companyId,
-                    building.id,
-                    buildingDto.rooms,
-                    CollectionModel(DEFAULT_PAGE, ROOM_PAGE_MAX_SIZE, buildingDto.rooms.roomsCollectionSize),
-                    listOf(Relations.BUILDING_ROOMS)))
+                add(getRoomsRepresentation(user, companyId, building.id, buildingDto.rooms, DEFAULT_PAGE, listOf(Relations.BUILDING_ROOMS)))
                 add(getPersonItem(buildingDto.manager, listOf(Relations.BUILDING_MANAGER)))
             },
             actions = mutableListOf<QRreportJsonModel.Action>().apply {

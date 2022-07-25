@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.model.Uris
+import pt.isel.ps.project.model.building.BuildingsDto
 import pt.isel.ps.project.model.company.CompaniesDto
 import pt.isel.ps.project.model.company.CompanyDto
 import pt.isel.ps.project.model.company.CompanyItemDto
@@ -110,15 +111,16 @@ object CompanyResponses {
         QRreportJsonModel(
             clazz = listOf(Classes.COMPANY),
             properties = company.removeBuildings(),
-            entities = listOf(
-                getBuildingsRepresentation(
-                    user,
-                    company.buildings,
-                    company.id,
-                    CollectionModel(DEFAULT_PAGE, BUILDING_PAGE_MAX_SIZE, company.buildingsCollectionSize ?: 0),
-                    listOf(Relations.COMPANY_BUILDINGS)
-                )
-            ),
+            entities = mutableListOf<QRreportJsonModel>().apply {
+                if (company.buildings != null)
+                    add(getBuildingsRepresentation(
+                        user,
+                        company.buildings,
+                        company.id,
+                        DEFAULT_PAGE,
+                        listOf(Relations.COMPANY_BUILDINGS)
+                    ))
+            },
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
                 if (isAdmin(user)) {
                     if (isInactive(company.state))

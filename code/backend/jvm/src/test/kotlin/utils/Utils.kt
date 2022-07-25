@@ -41,8 +41,7 @@ object Utils {
 fun AuthPerson.ignoreTimestamp() = AuthPerson(id, name, phone, email, activeRole, skills, companies, null, state, reason)
 fun BuildingItemDto.ignoreTimestamp() = BuildingItemDto(id, name, floors, state, null)
 fun CompanyDto.ignoreTimestamp(): CompanyDto {
-    val buildings = buildings?.map { it.ignoreTimestamp() }
-    return CompanyDto(id, name, state, null, buildings, buildingsCollectionSize)
+    return CompanyDto(id, name, state, null, buildings?.ignoreTimestamps())
 }
 fun CompanyItemDto.ignoreTimestamp() = CompanyItemDto(id, name, state, null)
 fun CompaniesDto.ignoreTimestamps() = CompaniesDto(
@@ -52,14 +51,16 @@ fun CompaniesDto.ignoreTimestamps() = CompaniesDto(
 
 fun BuildingsDto.ignoreTimestamps() = BuildingsDto(
     buildings?.map { it.ignoreTimestamp() },
-    buildingsCollectionSize
+    buildingsCollectionSize,
+    companyState
 )
 fun BuildingDto.ignoreTimestamp() = BuildingDto(building.ignoreTimestamp(), rooms.ignoreTimestamps(), manager)
 
 fun RoomItemDto.ignoreTimestamp() = RoomItemDto(id, name, floor, state, null)
 fun RoomsDto.ignoreTimestamps() = RoomsDto(
     rooms?.map { it.ignoreTimestamp() },
-    roomsCollectionSize
+    roomsCollectionSize,
+    buildingState
 )
 fun RoomDto.ignoreTimestamp() = RoomDto(room.ignoreTimestamp(), devices.ignoreTimestamps())
 fun RoomDeviceDto.ignoreTimestamp() = RoomDeviceDto(room.ignoreTimestamp(), device.ignoreTimestamp())

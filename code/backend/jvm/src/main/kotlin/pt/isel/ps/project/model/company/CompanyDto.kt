@@ -1,6 +1,7 @@
 package pt.isel.ps.project.model.company
 
 import pt.isel.ps.project.model.building.BuildingItemDto
+import pt.isel.ps.project.model.building.BuildingsDto
 import java.sql.Timestamp
 
 data class CompanyItemDto(
@@ -15,8 +16,9 @@ data class CompanyDto(
     val name: String,
     val state: String,
     val timestamp: Timestamp?,
-    val buildings: List<BuildingItemDto>?,
-    val buildingsCollectionSize: Int?,
+    val buildings: BuildingsDto?,
+    /*val buildingsCollectionSize: Int?,
+    val companyState: String?,*/
 )
 
 data class CompaniesDto(
@@ -24,4 +26,4 @@ data class CompaniesDto(
     val companiesCollectionSize: Int,
 )
 
-fun CompanyDto.removeBuildings() = CompanyDto(id, name, state, timestamp, null, null)
+fun CompanyDto.removeBuildings() = CompanyDto(id, name, state, timestamp, null)

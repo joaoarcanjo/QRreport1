@@ -21,6 +21,7 @@ import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isManager
+import pt.isel.ps.project.util.Validator.Auth.States.isActive
 import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 import pt.isel.ps.project.util.Validator.Person.isBuildingManager
 
@@ -90,12 +91,12 @@ object RoomResponses {
         companyId: Long,
         buildingId: Long,
         rooms: RoomsDto,
-        collection: CollectionModel,
+        page: Int,
         rel: List<String>?
     ) = QRreportJsonModel(
         clazz = listOf(Classes.ROOM, Classes.COLLECTION),
         rel = rel,
-        properties = collection,
+        properties = CollectionModel(page, ROOM_PAGE_MAX_SIZE, rooms.roomsCollectionSize),
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (rooms.rooms != null) addAll(rooms.rooms.map {
                 getRoomItem(companyId, buildingId, it, listOf(Relations.ITEM))
@@ -103,10 +104,10 @@ object RoomResponses {
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
             if (isManager(user) && !isBuildingManager(user, companyId, buildingId)) return@apply
-            add(Actions.createRoom(companyId, buildingId))
+            if (isActive(rooms.buildingState)) add(Actions.createRoom(companyId, buildingId))
         },
         links = listOf(
-            Links.self(Uris.makePagination(collection.pageIndex, Rooms.makeBase(companyId, buildingId))),
+            Links.self(Uris.makePagination(page, Rooms.makeBase(companyId, buildingId))),
             Links.pagination(ROOMS_PAGINATION)
         )
     )

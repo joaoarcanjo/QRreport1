@@ -69,7 +69,7 @@ class RoomServiceTests {
                 RoomItemDto(1, "1 - Bathroom", 1, "active", null),
                 RoomItemDto(2, "2", 1, "active", null),
             ),
-            2)
+            2, "active")
 
         val roomsDto = service.getRooms(adminUser, companyId, buildingId, DEFAULT_PAGE)
 

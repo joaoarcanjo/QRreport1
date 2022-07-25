@@ -25,4 +25,5 @@ data class RoomDeviceDto (
 data class RoomsDto (
     val rooms: List<RoomItemDto>?,
     val roomsCollectionSize: Int,
+    val buildingState: String,
 )

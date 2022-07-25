@@ -258,11 +258,9 @@ BEGIN
         RAISE 'resource-not-found' USING DETAIL = 'company', HINT = company_id;
     END IF;
 
-    buildings_rep = get_buildings(company_id, limit_rows, skip_rows);
-
     RETURN json_build_object(
         'id', company_id, 'name', cname, 'state', cstate, 'timestamp', tmstamp,
-        'buildings', (buildings_rep->>'buildings')::JSON, 'buildingsCollectionSize', (buildings_rep->>'buildingsCollectionSize')::JSON
+        'buildings', get_buildings(company_id, limit_rows, skip_rows)
     );
 END$$ LANGUAGE plpgsql;
 
