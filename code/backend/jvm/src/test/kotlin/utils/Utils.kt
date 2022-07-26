@@ -31,6 +31,12 @@ import java.io.File
 import java.util.*
 
 object Utils {
+    const val DOMAIN = "http://localhost:"
+    const val diogoAdminToken = "eyJhbGciOiJIUzUxMiJ9.eyJjb21wYW5pZXMiOlt7ImlkIjoxLCJuYW1lIjoiSVNFTCIsInN0YXRlIjoiYWN0" +
+            "aXZlIiwibWFuYWdlcyI6WzFdfV0sInBob25lIjoiOTYxMTExMTExIiwibmFtZSI6IkRpb2dvIE5vdm8iLCJpZCI6IjRiMzQxZGUwLTY1Yz" +
+            "AtNDUyNi04ODk4LTI0ZGU0NjNmYzMxNSIsInN0YXRlIjoiYWN0aXZlIiwiZW1haWwiOiJkaW9nb0BxcnJlcG9ydC5jb20iLCJhY3RpdmVSb" +
+            "2xlIjoiYWRtaW4iLCJ0aW1lc3RhbXAiOjE2NTg4MDEwNzAyNDcsImlhdCI6MTY1ODgwMjg5MiwiZXhwIjoxNjU5Mzk0ODAwfQ.abyrx0mo" +
+            "Po1B4oCaE91IcsIlX7Ft5zs_XG0XJMOvugmOVJPKtK-GVIypOIqrJBSD4IYUapfUO0DOqNucUdxhIg"
     object LoadScript {
         private val classLoader = javaClass.classLoader
         fun getResourceFile(resourceName: String) =
