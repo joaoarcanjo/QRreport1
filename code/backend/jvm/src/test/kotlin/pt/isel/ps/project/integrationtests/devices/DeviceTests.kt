@@ -26,6 +26,7 @@ import pt.isel.ps.project.model.device.UpdateDeviceEntity
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
+import utils.ignoreTimestamp
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -65,7 +66,7 @@ class DeviceTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(GET_DEVICES)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_DEVICES)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -80,7 +81,7 @@ class DeviceTests {
         val req = HttpEntity<String>(device.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(CREATED_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(CREATED_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
     }
@@ -94,7 +95,7 @@ class DeviceTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(GET_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -110,7 +111,7 @@ class DeviceTests {
         val req = HttpEntity<String>(deviceUpdate.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(UPDATED_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(UPDATED_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -124,7 +125,7 @@ class DeviceTests {
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(DEACTIVATE_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(DEACTIVATE_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -141,7 +142,7 @@ class DeviceTests {
         val req = HttpEntity<String>(device.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(CHANGE_CATEGORY_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(CHANGE_CATEGORY_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -157,7 +158,7 @@ class DeviceTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(ROOM_DEVICES)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(ROOM_DEVICES)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -174,7 +175,7 @@ class DeviceTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(ROOM_DEVICE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(ROOM_DEVICE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }

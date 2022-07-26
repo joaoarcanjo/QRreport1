@@ -201,13 +201,14 @@ DECLARE
     collection_size INT = 0;
 BEGIN
     FOR rec IN
-        SELECT id FROM PERSON WHERE id != person_id AND
+        SELECT id FROM PERSON p WHERE id != person_id AND
             CASE WHEN (is_manager) THEN
                 -- Get the employees that share the same company with the manager
                 id IN (SELECT person FROM PERSON_COMPANY WHERE company IN (
                         SELECT company FROM PERSON_COMPANY WHERE person = person_id)
                     /*EXCEPT (SELECT person FROM PERSON_ROLE WHERE role = get_role_id('manager'))*/)
             ELSE TRUE END
+        ORDER BY p.id
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         persons = array_append(persons, person_item_representation(rec.id));

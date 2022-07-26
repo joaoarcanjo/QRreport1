@@ -1,6 +1,7 @@
 package pt.isel.ps.project.integrationtests.categories
 
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -11,6 +12,11 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.*
+import pt.isel.ps.project.integrationtests.categories.CategoriesExpectedRepresentations.ACTIVATE_CATEGORY
+import pt.isel.ps.project.integrationtests.categories.CategoriesExpectedRepresentations.CREATE_CATEGORY
+import pt.isel.ps.project.integrationtests.categories.CategoriesExpectedRepresentations.DEACTIVATE_CATEGORY
+import pt.isel.ps.project.integrationtests.categories.CategoriesExpectedRepresentations.GET_CATEGORIES
+import pt.isel.ps.project.integrationtests.categories.CategoriesExpectedRepresentations.UPDATE_CATEGORY
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.building.ChangeManagerEntity
 import pt.isel.ps.project.model.building.CreateBuildingEntity
@@ -20,6 +26,7 @@ import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
 import utils.Utils.DOMAIN
+import utils.ignoreTimestamp
 import java.net.URI
 import java.util.*
 
@@ -55,34 +62,34 @@ class CategoryTests {
 
     @Test
     fun `Get categories`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val url = "${DOMAIN}$port${Uris.Categories.BASE_PATH}"
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(GET_CATEGORIES)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_CATEGORIES)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Create category`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val url = "${DOMAIN}$port${Uris.Categories.BASE_PATH}"
 
         val category = InputCategoryEntity("farm-machines")
         val req = HttpEntity<String>(category.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(CREATE_CATEGORY)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
-        Assertions.assertThat(res.headers.location).isEqualTo(URI.create(Uris.Categories.BASE_PATH))
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(CREATE_CATEGORY)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
+        assertThat(res.headers.location).isEqualTo(URI.create(Uris.Categories.BASE_PATH))
     }
 
     @Test
     fun `Update category`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val categoryId = 1L
         val url = "${DOMAIN}$port${Uris.Categories.makeSpecific(categoryId)}"
 
@@ -90,34 +97,34 @@ class CategoryTests {
         val req = HttpEntity<String>(category.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(UPDATE_CATEGORY)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(UPDATE_CATEGORY)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Deactivate category`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val categoryId = 4L
         val url = "${DOMAIN}$port${Uris.Categories.makeDeactivate(categoryId)}"
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(DEACTIVATE_CATEGORY)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(DEACTIVATE_CATEGORY)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Activate building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val categoryId = 3L
         val url = "${DOMAIN}$port${Uris.Categories.makeActivate(categoryId)}"
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(ACTIVATE_CATEGORY)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(ACTIVATE_CATEGORY)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 }

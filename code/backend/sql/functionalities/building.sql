@@ -117,6 +117,7 @@ BEGIN
     FOR rec IN
         SELECT id, name, floors, state, timestamp FROM BUILDING
         WHERE company = company_id
+        ORDER BY id
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         buildings = array_append(

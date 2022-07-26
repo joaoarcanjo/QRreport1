@@ -15,8 +15,10 @@ import org.springframework.http.*
 import pt.isel.ps.project.auth.LoginDto
 import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.ACTIVATE_COMPANY
 import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.CREATE_COMPANY
+import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.DEACTIVATE_COMPANY
 import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.GET_COMPANIES
 import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.GET_COMPANY
+import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.UPDATE_COMPANY
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.company.CreateCompanyEntity
 import pt.isel.ps.project.model.company.UpdateCompanyEntity
@@ -25,6 +27,7 @@ import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
 import utils.Utils.DOMAIN
 import utils.Utils.diogoAdminToken
+import utils.ignoreTimestamp
 import java.net.URI
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -74,7 +77,7 @@ class CompanyTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(GET_COMPANIES)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_COMPANIES)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -89,7 +92,7 @@ class CompanyTests {
         val req = HttpEntity<String>(company.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(CREATE_COMPANY)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(CREATE_COMPANY)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
         assertThat(res.headers.location).isEqualTo(URI.create(Uris.Companies.makeSpecific(newCompanyId)))
@@ -103,7 +106,7 @@ class CompanyTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(GET_COMPANY)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_COMPANY)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -118,7 +121,7 @@ class CompanyTests {
         val req = HttpEntity<String>(company.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(UPDATE_COMPANY)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(UPDATE_COMPANY)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -131,7 +134,7 @@ class CompanyTests {
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(DEACTIVATE_COMPANY)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(DEACTIVATE_COMPANY)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -144,7 +147,7 @@ class CompanyTests {
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(ACTIVATE_COMPANY)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(ACTIVATE_COMPANY)
         assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }

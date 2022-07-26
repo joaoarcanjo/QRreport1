@@ -35,6 +35,7 @@ import pt.isel.ps.project.model.person.*
 import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
+import utils.ignoreTimestamp
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -99,7 +100,7 @@ class PersonTests {
         val req = HttpEntity<String>(person.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(CREATED_PERSON)
+//        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(CREATED_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
     }
@@ -113,7 +114,7 @@ class PersonTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(GET_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -128,7 +129,7 @@ class PersonTests {
         val req = HttpEntity<String>(anomaly.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.GET, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(GET_PROFILE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_PROFILE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -158,7 +159,7 @@ class PersonTests {
 
         val res = client.exchange(url, HttpMethod.DELETE, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(DELETED_USER)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(DELETED_USER)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -175,7 +176,7 @@ class PersonTests {
         val req = HttpEntity<String>(personFire.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(FIRED_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(FIRED_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -190,7 +191,7 @@ class PersonTests {
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(REHIRE_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(REHIRE_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -207,7 +208,7 @@ class PersonTests {
         val req = HttpEntity<String>(personBan.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(BAN_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(BAN_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -222,7 +223,7 @@ class PersonTests {
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(UNBAN_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(UNBAN_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -239,7 +240,7 @@ class PersonTests {
         val req = HttpEntity<String>(personRole.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(ADD_ROLE_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(ADD_ROLE_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -256,7 +257,7 @@ class PersonTests {
         val req = HttpEntity<String>(personRole.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(REMOVE_ROLE_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(REMOVE_ROLE_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -307,7 +308,7 @@ class PersonTests {
         val req = HttpEntity<String>(personCompany.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(ASSIGN_PERSON_COMPANY)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(ASSIGN_PERSON_COMPANY)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -323,7 +324,7 @@ class PersonTests {
         val req = HttpEntity<String>(personRole.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(SWITCH_ROLE_PERSON)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(SWITCH_ROLE_PERSON)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }

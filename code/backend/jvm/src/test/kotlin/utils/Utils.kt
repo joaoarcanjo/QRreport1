@@ -19,8 +19,6 @@ import pt.isel.ps.project.model.device.DeviceQrCodeDto
 import pt.isel.ps.project.model.device.DevicesDto
 import pt.isel.ps.project.model.person.PersonDetailsDto
 import pt.isel.ps.project.model.person.PersonDto
-import pt.isel.ps.project.model.person.PersonItemDto
-import pt.isel.ps.project.model.person.PersonsDto
 import pt.isel.ps.project.model.room.RoomDeviceDto
 import pt.isel.ps.project.model.room.RoomDto
 import pt.isel.ps.project.model.room.RoomItemDto
@@ -48,6 +46,36 @@ object Utils {
         fun getResourceFile(resourceName: String) =
             File(classLoader.getResource(resourceName)!!.toURI()).readText()
     }
+}
+
+fun String.ignoreTimestamp(): String {
+    val timestampKey = ",\"timestamp\":"
+    val timestampKeyLen = timestampKey.length - 1
+    val timestampValLen = 13
+    var body = this
+    var index: Int
+    while (true) {
+        index = body.indexOf(timestampKey, 0)
+        if (index < 0) break
+        val timestamp = body.substring(index..index + timestampKeyLen + timestampValLen)
+        body = body.replace(timestamp, "")
+    }
+    return body
+}
+
+fun String.ignoreCreationTimestamp(): String {
+    val timestampKey = ",\"creationTimestamp\":"
+    val timestampKeyLen = timestampKey.length - 1
+    val timestampValLen = 13
+    var body = this
+    var index: Int
+    while (true) {
+        index = body.indexOf(timestampKey, 0)
+        if (index < 0) break
+        val timestamp = body.substring(index..index + timestampKeyLen + timestampValLen)
+        body = body.replace(timestamp, "")
+    }
+    return body
 }
 
 fun AuthPerson.ignoreTimestamp() = AuthPerson(id, name, phone, email, activeRole, skills, companies, null, state, reason)

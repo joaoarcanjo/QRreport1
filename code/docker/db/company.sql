@@ -225,7 +225,9 @@ BEGIN
                 CASE WHEN (person_id IS NOT NULL) THEN
                     id IN (SELECT company FROM PERSON_COMPANY WHERE person = person_id AND state = 'active')
                 ELSE TRUE END
+            ORDER BY id
             LIMIT limit_rows OFFSET skip_rows
+
     LOOP
         companies = array_append(
             companies,

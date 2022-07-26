@@ -1,6 +1,7 @@
 package pt.isel.ps.project.integrationtests.building
 
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.jdbi.v3.core.Jdbi
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeEach
@@ -11,6 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.boot.web.server.LocalServerPort
 import org.springframework.http.*
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.ACTIVATE_BUILDING
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.CHANGE_BUILDING_MANAGER
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.CREATE_BUILDING
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.DEACTIVATE_BUILDING
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.GET_BUILDING
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.GET_BUILDINGS
+import pt.isel.ps.project.integrationtests.building.BuildingExpectedRepresentations.UPDATE_BUILDING
+import pt.isel.ps.project.integrationtests.company.CompanyExpectedRepresentations.ACTIVATE_COMPANY
 import pt.isel.ps.project.model.Uris
 import pt.isel.ps.project.model.building.ChangeManagerEntity
 import pt.isel.ps.project.model.building.CreateBuildingEntity
@@ -21,6 +30,7 @@ import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
 import utils.Utils.DOMAIN
+import utils.ignoreTimestamp
 import java.net.URI
 import java.util.*
 
@@ -56,20 +66,20 @@ class BuildingTests {
 
     @Test
     fun `Get buildings`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeBase(companyId)}"
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(GET_BUILDINGS)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_BUILDINGS)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Create building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val newBuildingId = 4L
         val companyId = 1L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeBase(companyId)}"
@@ -78,29 +88,29 @@ class BuildingTests {
         val req = HttpEntity<String>(building.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.POST, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(CREATE_BUILDING)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
-        Assertions.assertThat(res.headers.location).isEqualTo(URI.create(Uris.Companies.Buildings.makeSpecific(companyId, newBuildingId)))
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(CREATE_BUILDING)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.CREATED)
+        assertThat(res.headers.location).isEqualTo(URI.create(Uris.Companies.Buildings.makeSpecific(companyId, newBuildingId)))
     }
 
     @Test
     fun `Get building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
         val buildingId = 1L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeSpecific(companyId, buildingId)}"
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(GET_BUILDING)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_BUILDING)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Update building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
         val buildingId = 1L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeSpecific(companyId, buildingId)}"
@@ -109,42 +119,42 @@ class BuildingTests {
         val req = HttpEntity<String>(building.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(UPDATE_BUILDING)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(UPDATE_BUILDING)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Deactivate building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
         val buildingId = 1L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeDeactivate(companyId, buildingId)}"
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(DEACTIVATE_BUILDING)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(DEACTIVATE_BUILDING)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Activate building`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
-        val buildingId = 1L
+        val buildingId = 3L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeActivate(companyId, buildingId)}"
 
         val res = client.exchange(url, HttpMethod.POST, HttpEntity<String>(headers), String::class.java)
 
-//        assertThat(res.body).isEqualTo(ACTIVATE_COMPANY)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(ACTIVATE_BUILDING)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 
     @Test
     fun `Change building manager`() {
-        Assertions.assertThat(client).isNotNull
+        assertThat(client).isNotNull
         val companyId = 1L
         val buildingId = 2L
         val url = "${DOMAIN}$port${Uris.Companies.Buildings.makeManager(companyId, buildingId)}"
@@ -152,8 +162,8 @@ class BuildingTests {
         val req = HttpEntity<String>(manager.serializeToJson(), headers.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-//        assertThat(res.body).isEqualTo(CHANGE_BUILDING_MANAGER)
-        Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
-        Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
+        assertThat(res.body?.ignoreTimestamp()).isEqualTo(CHANGE_BUILDING_MANAGER)
+        assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
+        assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
 }

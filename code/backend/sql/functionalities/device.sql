@@ -105,6 +105,7 @@ BEGIN
     FOR rec IN
         SELECT d.id, d.name, c.name AS category, d.state, d.timestamp
         FROM DEVICE d INNER JOIN CATEGORY c ON d.category = c.id
+        ORDER BY d.id
         LIMIT limit_rows OFFSET skip_rows
     LOOP
         devices = array_append(

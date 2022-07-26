@@ -13,24 +13,24 @@ object TicketExpectedRepresentations {
             "\"Waiting analysis\",\"employeeState\":\"To assign\"},\"links\":[{\"rel\":[\"self\"],\"href\":" +
             "\"/v1/tickets/2\"}]},{\"class\":[\"ticket\"],\"rel\":[\"item\"],\"properties\":{\"id\":3,\"subject" +
             "\":\"Archived ticket\",\"description\":\"Archived ticket description\",\"company\":\"ISEL\",\"building" +
-            "\":\"A\",\"room\":\"1 - Bathroom\",\"userState\":\"Completed\",\"employeeState\":\"Completed\"}," +
+            "\":\"A\",\"room\":\"1 - Bathroom\",\"userState\":\"Archived\",\"employeeState\":\"Archived\"}," +
             "\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/3\"}]}],\"links\":[{\"rel\":[\"self\"],\"href" +
             "\":\"/v1/tickets?page=1&direction=desc&sortBy=date\"},{\"rel\":[\"pagination\"],\"href\":\"/v1/" +
             "persons{?page}&direction=desc&sortBy=date\",\"templated\":true}]}"
 
     const val GET_TICKET = "{\"class\":[\"ticket\"],\"properties\":{\"id\":1,\"subject\":\"Fuga de água\"," +
-            "\"description\":\"A sanita está a deixar sair água por baixo\",\"creationTimestamp\":1658845461618," +
+            "\"description\":\"A sanita está a deixar sair água por baixo\"," +
             "\"employeeState\":\"Fixing\",\"userState\":\"Fixing\",\"possibleTransitions\":[{\"id\":6,\"name\":" +
             "\"Completed\"}]},\"entities\":[{\"class\":[\"comment\",\"collection\"],\"rel\":[\"ticket-comments" +
             "\"],\"properties\":{\"pageIndex\":1,\"pageMaxSize\":10,\"collectionSize\":2},\"entities\":[{\"class" +
             "\":[\"comment\"],\"rel\":[\"item\"],\"properties\":{\"id\":1,\"comment\":\"Esta sanita não tem" +
-            " arranjo, vou precisar de uma nova.\",\"timestamp\":1658845461618},\"entities\":[{\"class\":[" +
+            " arranjo, vou precisar de uma nova.\"},\"entities\":[{\"class\":[" +
             "\"person\"],\"rel\":[\"comment-author\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb" +
             "\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee" +
             "\"],\"skills\":[\"water\",\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href" +
             "\":\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb\"}]}],\"actions\":[],\"links\":[{\"rel\":[\"self" +
             "\"],\"href\":\"/v1/tickets/1/comments/1\"}]},{\"class\":[\"comment\"],\"rel\":[\"item\"],\"properties" +
-            "\":{\"id\":2,\"comment\":\"Tente fazer o possível para estancar a fuga.\",\"timestamp\":1658845461618}," +
+            "\":{\"id\":2,\"comment\":\"Tente fazer o possível para estancar a fuga.\"}," +
             "\"entities\":[{\"class\":[\"person\"],\"rel\":[\"comment-author\"],\"properties\":{\"id\":" +
             "\"4b341de0-65c0-4526-8898-24de463fc315\",\"name\":\"Diogo Novo\",\"phone\":\"961111111\",\"email\":" +
             "\"diogo@qrreport.com\",\"roles\":[\"admin\",\"manager\"],\"state\":\"active\"},\"links\":[{\"rel\":[" +
@@ -44,14 +44,14 @@ object TicketExpectedRepresentations {
             "\"type\":\"string\"}]}],\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/1/comments?page=1" +
             "\"},{\"rel\":[\"pagination\"],\"href\":\"/v1/tickets/{ticketId}/comments{?page}\",\"templated" +
             "\":true}]},{\"class\":[\"company\"],\"rel\":[\"ticket-company\"],\"properties\":{\"id\":1,\"name" +
-            "\":\"ISEL\",\"state\":\"active\",\"timestamp\":1658845461618},\"links\":[{\"rel\":[\"self\"],\"href" +
+            "\":\"ISEL\",\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href" +
             "\":\"/v1/companies/1\"}]},{\"class\":[\"building\"],\"rel\":[\"ticket-building\"],\"properties\":{" +
-            "\"id\":1,\"name\":\"A\",\"floors\":4,\"state\":\"active\",\"timestamp\":1658845461618},\"links\":[{" +
+            "\"id\":1,\"name\":\"A\",\"floors\":4,\"state\":\"active\"},\"links\":[{" +
             "\"rel\":[\"self\"],\"href\":\"/v1/companies/1/buildings/1\"}]},{\"class\":[\"room\"],\"rel\":[" +
             "\"ticket-room\"],\"properties\":{\"id\":1,\"name\":\"1 - Bathroom\",\"floor\":1,\"state\":\"active" +
-            "\",\"timestamp\":1658845461618},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/companies/1/buildings/" +
+            "\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/companies/1/buildings/" +
             "1/rooms/1\"}]},{\"class\":[\"device\"],\"rel\":[\"ticket-device\"],\"properties\":{\"id\":1,\"name\":" +
-            "\"Toilet1\",\"category\":\"water\",\"state\":\"active\",\"timestamp\":1658845461618},\"links\":[{\"rel" +
+            "\"Toilet1\",\"category\":\"water\",\"state\":\"active\"},\"links\":[{\"rel" +
             "\":[\"self\"],\"href\":\"/v1/devices/1\"}]},{\"class\":[\"person\"],\"rel\":[\"ticket-author\"]," +
             "\"properties\":{\"id\":\"b555b6fc-b904-4bd9-8c2b-4895738a437c\",\"name\":\"Francisco Ludovico\"," +
             "\"phone\":\"9653456345\",\"email\":\"ludviks@gmail.com\",\"roles\":[\"user\"],\"state\":\"active\"}," +
@@ -82,7 +82,7 @@ object TicketExpectedRepresentations {
             "\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/1\"}]}"
 
     const val ADD_TICKET_RATE = "{\"class\":[\"ticket\"],\"properties\":{\"id\":3,\"subject\":\"Archived ticket" +
-            "\",\"description\":\"Archived ticket description\",\"userState\":\"Completed\",\"employeeState\":\"6" +
+            "\",\"description\":\"Archived ticket description\",\"userState\":\"Archived\",\"employeeState\":\"7" +
             "\",\"rate\":5},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/3\"}]}"
 
     const val GET_SPECIFIC_EMPLOYEES = "{\"class\":[\"person\",\"collection\"],\"properties\":{\"pageIndex\":1," +

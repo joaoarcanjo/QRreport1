@@ -27,6 +27,8 @@ import pt.isel.ps.project.model.representations.QRreportJsonModel
 import pt.isel.ps.project.model.ticket.*
 import pt.isel.ps.project.util.serializeToJson
 import utils.Utils
+import utils.ignoreCreationTimestamp
+import utils.ignoreTimestamp
 import java.util.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -72,7 +74,7 @@ class TicketTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        Assertions.assertThat(res.body).isEqualTo(GET_TICKETS)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(GET_TICKETS)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -86,7 +88,7 @@ class TicketTests {
 
         val res = client.exchange(url, HttpMethod.GET, HttpEntity<String>(headers), String::class.java)
 
-        //Assertions.assertThat(res.body).isEqualTo(GET_TICKET)
+        Assertions.assertThat(res.body?.ignoreTimestamp()?.ignoreCreationTimestamp()).isEqualTo(GET_TICKET)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }
@@ -162,7 +164,7 @@ class TicketTests {
         val req = HttpEntity<String>(ticketState.serializeToJson(), userHeaders.apply { contentType = MediaType.APPLICATION_JSON })
         val res = client.exchange(url, HttpMethod.PUT, req, String::class.java)
 
-        Assertions.assertThat(res.body).isEqualTo(ADD_TICKET_RATE)
+        Assertions.assertThat(res.body?.ignoreTimestamp()).isEqualTo(ADD_TICKET_RATE)
         Assertions.assertThat(res.headers.contentType).isEqualTo(QRreportJsonModel.MEDIA_TYPE)
         Assertions.assertThat(res.statusCode).isEqualTo(HttpStatus.OK)
     }

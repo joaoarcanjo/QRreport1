@@ -100,7 +100,7 @@ BEGIN;
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
         ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 4),
         ('Infiltração na parede', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 1),
-        ('Archived ticket', 'Archived ticket description', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 6);
+        ('Archived ticket', 'Archived ticket description', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 7);
 
     INSERT INTO FIXING_BY (person, ticket) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel | Fuga de água
