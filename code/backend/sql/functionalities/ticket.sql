@@ -635,12 +635,17 @@ CREATE OR REPLACE PROCEDURE group_ticket(
 AS
 $$
 DECLARE
-    role TEXT = get_person_active_role(person_id);
+    role TEXT = get_person_active_role(person_id); parent_id BIGINT;
 BEGIN
     PERFORM ticket_exists(ticket_id);
     PERFORM is_ticket_archived(ticket_id);
     PERFORM ticket_exists(parent_tid);
     PERFORM is_ticket_archived(parent_tid);
+
+    SELECT parent_ticket INTO parent_id FROM TICKET WHERE id = parent_tid;
+    IF (parent_id IS NOT NULL) THEN
+        parent_tid = parent_id;
+    END IF;
 
     IF (role = 'manager' AND NOT ticket_belongs_to_person_company(ticket_id, person_id)) THEN
         RAISE 'invalid-company' USING DETAIL = 'manager-ticket';

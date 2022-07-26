@@ -103,7 +103,7 @@ object TicketResponses {
             type = MediaType.APPLICATION_JSON.toString(),
             properties = listOf(
                 QRreportJsonModel.Property("ticket", "number",
-                    possibleValues = QRreportJsonModel.PropertyValue(Tickets.ticketsSelf(1,
+                    possibleValues = QRreportJsonModel.PropertyValue(Tickets.ticketsSelf(DEFAULT_PAGE,
                         DEFAULT_DIRECTION, DEFAULT_SORT, companyId, buildingId, null))),
             )
         )

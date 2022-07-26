@@ -39,9 +39,6 @@ data class SignupDto(
     val confirmPassword: String,
 )
 
-data class AuthCompanies(
-    val companies: ArrayList<AuthCompany>
-)
 data class AuthCompany(
     val id: Long,
     val name: String,
@@ -67,14 +64,14 @@ data class AuthPerson(
     val reason: String?,
 )
 
-fun AuthPerson.toMap(aRole: String? = null) = HashMap<String, Any?>()
+fun AuthPerson.toMap(role: String? = null, company: Long? = null, skill: Long? = null) = HashMap<String, Any?>()
     .apply {
         put("id", id)
         put("name", name)
         put("phone", phone)
         put("email", email)
-        put("activeRole", aRole ?: activeRole)
-        put("skills", skills)
+        put("activeRole", role ?: activeRole)
+        put("skills", if (skill == null) skills else skills?.toMutableList()?.add(skill.toString()))
         put("companies", companies)
         put("timestamp", timestamp)
         put("state", state)

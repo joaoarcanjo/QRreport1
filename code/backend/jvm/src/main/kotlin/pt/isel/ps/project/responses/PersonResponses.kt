@@ -240,7 +240,16 @@ object PersonResponses {
                     listOf(getTicketsRepresentation(personDetails.personTickets, null, null, DEFAULT_DIRECTION, DEFAULT_SORT, null, 1))
                 else null,
             actions = mutableListOf<QRreportJsonModel.Action>().apply {
-                if (!isSamePerson(user, personDetails.person.id) && personIsAdmin(personDetails.person.roles)) return@apply
+                if (!isSamePerson(user, personDetails.person.id) && !isAdmin(user) && personIsAdmin(personDetails.person.roles)) return@apply
+                // Update
+                if (isSamePerson(user, personDetails.person.id)) {
+                    add(Actions.updatePerson(personDetails.person.id))
+                    if (personDetails.person.roles.size > 1 )
+                        add(Actions.switchRole())
+                    if (personDetails.person.roles.containsAll(listOf("user")))
+                        add(Actions.deleteUser(personDetails.person.id))
+                    return@apply
+                }
                 if (isAdmin(user) || isManager(user)) {
                     // Fire/Rehire
                     if (!isSamePerson(user, personDetails.person.id) &&
@@ -263,13 +272,8 @@ object PersonResponses {
                     }
                 }
                 // Delete
-                if (!isSamePerson(user, personDetails.person.id) && personDetails.person.roles.containsAll(listOf("user")))
+                if (personDetails.person.roles.containsAll(listOf("user")))
                     add(Actions.deleteUser(personDetails.person.id))
-                // Update
-                if (isSamePerson(user, personDetails.person.id))
-                    add(Actions.updatePerson(personDetails.person.id))
-                if (personDetails.person.roles.size > 1 && isSamePerson(user, personDetails.person.id))
-                    add(Actions.switchRole())
 
                 if (!isManager(user) && !isAdmin(user)) return@apply
 

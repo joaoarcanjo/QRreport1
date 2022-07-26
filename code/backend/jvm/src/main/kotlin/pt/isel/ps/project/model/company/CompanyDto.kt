@@ -1,6 +1,5 @@
 package pt.isel.ps.project.model.company
 
-import pt.isel.ps.project.model.building.BuildingItemDto
 import pt.isel.ps.project.model.building.BuildingsDto
 import java.sql.Timestamp
 
@@ -17,8 +16,6 @@ data class CompanyDto(
     val state: String,
     val timestamp: Timestamp?,
     val buildings: BuildingsDto?,
-    /*val buildingsCollectionSize: Int?,
-    val companyState: String?,*/
 )
 
 data class CompaniesDto(

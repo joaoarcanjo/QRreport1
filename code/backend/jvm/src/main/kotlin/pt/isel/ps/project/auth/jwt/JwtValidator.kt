@@ -6,14 +6,10 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
-import pt.isel.ps.project.auth.AuthCompanies
-import pt.isel.ps.project.auth.AuthCompany
 import pt.isel.ps.project.auth.AuthPerson
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.INVALID_TOKEN
 import pt.isel.ps.project.exception.Errors.Unauthorized.Message.REQUIRES_AUTH
 import pt.isel.ps.project.exception.UnauthorizedException
-import pt.isel.ps.project.util.deserializeJsonTo
-import pt.isel.ps.project.util.serializeToJson
 import java.sql.Timestamp
 import java.util.*
 import javax.crypto.SecretKey
