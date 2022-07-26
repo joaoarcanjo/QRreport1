@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { FaEdit, FaToolbox } from "react-icons/fa"
+import { FaEdit } from "react-icons/fa"
 import { Link, Navigate, useParams } from "react-router-dom"
 import { Loading, StateComponent } from "../components/Various";
 import { useFetch } from "../hooks/useFetch";
@@ -7,7 +7,7 @@ import { Building, Person } from "../models/Models";
 import { Action, Entity } from "../models/QRJsonModel";
 import { BUILDING_URL_API, LOGIN_URL } from "../Urls";
 import { ActionComponent } from "../components/ActionComponent";
-import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getLink, getSpecificEntity } from "../models/ModelUtils"
+import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
 import { UpdateBuilding } from "./UpdateBuilding";
 import { Rooms, RoomsActions } from "../room/ListRooms";
 import { ErrorView } from "../errors/Error";

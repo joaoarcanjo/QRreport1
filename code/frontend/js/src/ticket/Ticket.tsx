@@ -37,7 +37,7 @@ export function TicketRep() {
 
     const { isFetching, result, error } = useFetch<Ticket>(currentUrl, init)
 
-    if(userSession?.isLoggedIn && currentUrl === '' || (TICKET_URL_API(ticketId) !== currentUrl)) 
+    if((userSession?.isLoggedIn && currentUrl === '') || (TICKET_URL_API(ticketId) !== currentUrl)) 
         setCurrentUrl(TICKET_URL_API(ticketId))
     else if(!userSession?.isLoggedIn) 
         return <Navigate to={LOGIN_URL}/>

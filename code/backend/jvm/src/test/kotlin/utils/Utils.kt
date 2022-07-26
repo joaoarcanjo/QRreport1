@@ -37,6 +37,12 @@ object Utils {
             "AtNDUyNi04ODk4LTI0ZGU0NjNmYzMxNSIsInN0YXRlIjoiYWN0aXZlIiwiZW1haWwiOiJkaW9nb0BxcnJlcG9ydC5jb20iLCJhY3RpdmVSb" +
             "2xlIjoiYWRtaW4iLCJ0aW1lc3RhbXAiOjE2NTg4MDEwNzAyNDcsImlhdCI6MTY1ODgwMjg5MiwiZXhwIjoxNjU5Mzk0ODAwfQ.abyrx0mo" +
             "Po1B4oCaE91IcsIlX7Ft5zs_XG0XJMOvugmOVJPKtK-GVIypOIqrJBSD4IYUapfUO0DOqNucUdxhIg"
+
+    const val franciscoUserToken = "eyJhbGciOiJIUzUxMiJ9.eyJwaG9uZSI6Ijk2NTM0NTYzNDUiLCJuYW1lIjoiRnJhbmNpc2NvIEx1ZG92aWN" +
+            "vIiwiaWQiOiJiNTU1YjZmYy1iOTA0LTRiZDktOGMyYi00ODk1NzM4YTQzN2MiLCJzdGF0ZSI6ImFjdGl2ZSIsImVtYWlsIjoibHVkdmlrc" +
+            "0BnbWFpbC5jb20iLCJhY3RpdmVSb2xlIjoidXNlciIsInRpbWVzdGFtcCI6MTY1ODc4OTMyNjE3MSwiaWF0IjoxNjU4ODQzOTQ4LCJleHA" +
+            "iOjE2NTkzOTQ4MDB9.-d9ExQxirfAdJv1pSPuQuhB1sp8lR_X-PcfO8JZaVxhEM2xPcBby_oRvstzl_VVpgAgwHkIUmWOthV4U6tGwow"
+
     object LoadScript {
         private val classLoader = javaClass.classLoader
         fun getResourceFile(resourceName: String) =

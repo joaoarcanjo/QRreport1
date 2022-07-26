@@ -11,7 +11,7 @@ import { ActionComponent } from "../components/ActionComponent";
 import { ChangeCategory } from "./ChangeCategory";
 import { UpdateDevice } from "./UpdateDevice";
 import { getEntitiesOrUndefined, getActionsOrUndefined, getEntityOrUndefined, getProblemOrUndefined, getSpecificEntity } from "../models/ModelUtils"
-import { Anomalies, AnomaliesActions } from "../anomaly/ListAnomalies";
+import { Anomalies } from "../anomaly/ListAnomalies";
 import { useLoggedInState } from "../user/Session";
 
 
