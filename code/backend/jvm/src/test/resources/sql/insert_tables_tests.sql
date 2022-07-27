@@ -102,10 +102,10 @@ BEGIN;
         ('Infiltração na parede', 'Os cães começaram a roer a corda e acabaram por fugir todos, foi assustador', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 1),
         ('Archived ticket', 'Archived ticket description', 1, 1, 'b555b6fc-b904-4bd9-8c2b-4895738a437c', 7);
 
-    INSERT INTO FIXING_BY (person, ticket) VALUES
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel | Fuga de água
+    INSERT INTO FIXING_BY (person, ticket, start_timestamp) VALUES
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1, '2022-07-27 10:50:23.425072'); -- Zé Manuel | Fuga de água
 
-    INSERT INTO COMMENT (comment, person, ticket) VALUES
-        ('Esta sanita não tem arranjo, vou precisar de uma nova.', 'c2b393be-d720-4494-874d-43765f5116cb', 1),
-        ('Tente fazer o possível para estancar a fuga.', '4b341de0-65c0-4526-8898-24de463fc315', 1);
+    INSERT INTO COMMENT (comment, person, ticket, timestamp) VALUES
+        ('Esta sanita não tem arranjo, vou precisar de uma nova.', 'c2b393be-d720-4494-874d-43765f5116cb', 1, '2022-07-27 09:54:36.425072'),
+        ('Tente fazer o possível para estancar a fuga.', '4b341de0-65c0-4526-8898-24de463fc315', 1, '2022-07-26 09:54:36.425072');
 COMMIT;

@@ -214,9 +214,10 @@ export function TicketRep() {
                 <div className="md:w-5/12 md:mx-2 space-x-4">
                     <TicketInfo entity={entity} actions={getActionsOrUndefined(result?.body)} parent={parent}/>
                 </div>
-                <div className="md:w-7/12 md:mx-2 space-x-4 w-full">
-                    <ListComments collection={comments}/>
-                </div>
+                {comments &&
+                    <div className="md:w-7/12 md:mx-2 space-x-4 w-full">
+                        <ListComments collection={comments}/>
+                    </div>}
             </div>
         </div>
     )
