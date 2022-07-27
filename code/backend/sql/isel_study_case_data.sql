@@ -107,6 +107,7 @@ BEGIN;
         (1, 2),  -- To assign -> Refused
         (3, 4),  -- Not started -> Fixing
         (4, 6),  -- Fixing -> Completed
+        (6, 4),  -- Fixing -> Completed
         (6, 7);  -- Completed -> Archived
 
     INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES

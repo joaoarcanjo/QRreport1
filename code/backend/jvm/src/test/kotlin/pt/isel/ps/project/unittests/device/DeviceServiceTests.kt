@@ -86,7 +86,7 @@ class DeviceServiceTests {
                 AnomalyItemDto(2, "The water is overflowing"),
                 AnomalyItemDto(3, "The toilet is clogged"),
                 AnomalyItemDto(4, "The water is always running"),
-            ), 4)
+            ), 4, "active")
         )
 
         val device = service.getDevice(expectedDevice.device.id)

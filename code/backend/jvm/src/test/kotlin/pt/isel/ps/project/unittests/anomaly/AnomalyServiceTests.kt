@@ -74,7 +74,7 @@ class AnomalyServiceTests {
                 AnomalyItemDto(3, "The toilet is clogged"),
                 AnomalyItemDto(4, "The water is always running"),
             ),
-            4)
+            4, "active")
 
         val anomaliesDto = service.getAnomalies(deviceId, DEFAULT_PAGE)
 

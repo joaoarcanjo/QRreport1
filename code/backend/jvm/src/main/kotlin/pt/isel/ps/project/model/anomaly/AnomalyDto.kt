@@ -7,5 +7,6 @@ data class AnomalyItemDto(
 
 data class AnomaliesDto(
     val anomalies: List<AnomalyItemDto>?,
-    val anomaliesCollectionSize: Int
+    val anomaliesCollectionSize: Int,
+    val deviceState: String,
 )

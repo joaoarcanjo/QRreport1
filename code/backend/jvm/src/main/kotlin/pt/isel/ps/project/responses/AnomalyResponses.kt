@@ -17,6 +17,8 @@ import pt.isel.ps.project.responses.Response.Relations
 import pt.isel.ps.project.responses.Response.buildResponse
 import pt.isel.ps.project.responses.Response.setLocationHeader
 import pt.isel.ps.project.util.Validator.Auth.Roles.isAdmin
+import pt.isel.ps.project.util.Validator.Auth.States.isActive
+import pt.isel.ps.project.util.Validator.Auth.States.isInactive
 
 object AnomalyResponses {
     const val ANOMALY_PAGE_MAX_SIZE = 10
@@ -52,12 +54,12 @@ object AnomalyResponses {
         )
     }
 
-    private fun getAnomalyItem(user: AuthPerson?, anomaly: AnomalyItemDto, deviceId: Long, rel: List<String>?) = QRreportJsonModel(
+    private fun getAnomalyItem(user: AuthPerson?, anomaly: AnomalyItemDto, deviceId: Long, deviceState: String, rel: List<String>?) = QRreportJsonModel(
         clazz = listOf(Classes.ANOMALY),
         rel = rel,
         properties = anomaly,
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (user == null || !isAdmin(user)) return@apply
+            if (isInactive(deviceState) || user == null || !isAdmin(user)) return@apply
             add(Actions.updateAnomaly(deviceId, anomaly.id))
             add(Actions.deleteAnomaly(deviceId, anomaly.id))
         },
@@ -76,11 +78,11 @@ object AnomalyResponses {
         properties = collection,
         entities = mutableListOf<QRreportJsonModel>().apply {
             if (anomaliesDto.anomalies != null) addAll(anomaliesDto.anomalies.map {
-                getAnomalyItem(user, it, deviceId, listOf(Relations.ITEM))
+                getAnomalyItem(user, it, deviceId, anomaliesDto.deviceState, listOf(Relations.ITEM))
             })
         },
         actions = mutableListOf<QRreportJsonModel.Action>().apply {
-            if (user != null && isAdmin(user)) add(Actions.createAnomaly(deviceId))
+            if (user != null && isAdmin(user) && isActive(anomaliesDto.deviceState)) add(Actions.createAnomaly(deviceId))
         },
         links = listOf(
             Links.self(Uris.makePagination(collection.pageIndex, Anomalies.makeBase(deviceId))),

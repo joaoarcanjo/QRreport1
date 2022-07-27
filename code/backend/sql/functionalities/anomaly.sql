@@ -33,7 +33,8 @@ BEGIN
         anomalies = array_append(anomalies, anomaly_item_representation(rec.id, rec.anomaly));
     END LOOP;
     SELECT COUNT(id) INTO collection_size FROM ANOMALY WHERE device = device_id;
-    RETURN json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size);
+    RETURN json_build_object('anomalies', anomalies, 'anomaliesCollectionSize', collection_size,
+        'deviceState', (SELECT state FROM DEVICE WHERE id = device_id));
 END$$ LANGUAGE plpgsql;
 
 /*
