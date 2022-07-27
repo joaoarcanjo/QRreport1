@@ -64,7 +64,7 @@ class PersonServiceTests {
             listOf(
                 PersonItemDto(UUID.fromString("1f6c1014-b029-4a75-b78c-ba09c8ea474d"), "João Arcanjo", null, "joni@isel.com", listOf("admin"), null, "active"),
                 PersonItemDto(UUID.fromString("d1ad1c02-9e4f-476e-8840-c56ae8aa7057"), "Pedro Miguens", "963333333", "pedro@isel.com", listOf("manager"), null, "active"),
-                PersonItemDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"), listOf("water", "electricity"), "active"),
+                PersonItemDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"), listOf("electricity", "water"), "active"),
                 PersonItemDto(UUID.fromString("b555b6fc-b904-4bd9-8c2b-4895738a437c"), "Francisco Ludovico", "9653456345", "ludviks@gmail.com", listOf("user"), null, "active"),
                 PersonItemDto(UUID.fromString("b9063a7e-7ba4-42d3-99f4-1b00e00db55d"), "Daniela Gomes", null, "dani@isel.com", listOf("guest"), null, "active"),
                 PersonItemDto(UUID.fromString("5e63ea2f-53cf-4546-af41-f0b3a20eac91"), "António Ricardo", null, "antonio@isel.com", listOf("manager"), null, "banned")
@@ -118,7 +118,7 @@ class PersonServiceTests {
 
     @Test
     fun `Fire person`() {
-        val expectedPerson = PersonDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("water", "electricity"), null, null, "inactive", "Bad behavior", null)
+        val expectedPerson = PersonDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("electricity", "water"), null, null, "inactive", "Bad behavior", null)
 
         val person = service.firePerson(adminUser, UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), 1, FireBanPersonEntity("Bad behavior"))
 
@@ -136,7 +136,7 @@ class PersonServiceTests {
 
     @Test
     fun `Ban person`() {
-        val expectedPerson = PersonDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("water", "electricity"), listOf("ISEL"), null, "banned", "Bad behavior", PersonDto(UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"), "Diogo Novo", "961111111", "diogo@qrreport.com", listOf("admin", "manager"), null, null, null, "active", null, null))
+        val expectedPerson = PersonDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("electricity", "water"), listOf("ISEL"), null, "banned", "Bad behavior", PersonDto(UUID.fromString("4b341de0-65c0-4526-8898-24de463fc315"), "Diogo Novo", "961111111", "diogo@qrreport.com", listOf("admin", "manager"), null, null, null, "active", null, null))
 
         val person = service.banPerson(adminUser, UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), FireBanPersonEntity("Bad behavior"))
 
@@ -172,7 +172,7 @@ class PersonServiceTests {
 
     @Test
     fun `Add skill to employee`() {
-        val expectedPerson = PersonItemDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("water", "electricity", "window"), "active")
+        val expectedPerson = PersonItemDto(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), "Zé Manuel", "965555555", "zeze@fixings.com", listOf("employee"),  listOf("electricity", "water", "window"), "active")
 
         val person = service.addSkillToEmployee(UUID.fromString("c2b393be-d720-4494-874d-43765f5116cb"), AddRemoveSkillToEmployeeEntity(4))
 

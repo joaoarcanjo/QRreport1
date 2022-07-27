@@ -34,9 +34,13 @@ CREATE OR REPLACE FUNCTION get_person_companies(person_id UUID)
 RETURNS TEXT[]
 AS
 $$
+DECLARE arr TEXT[];
 BEGIN
-    RETURN (SELECT array_agg((SELECT name FROM COMPANY WHERE id = p.company))
-            FROM PERSON_COMPANY p WHERE person = person_id AND state = 'active');
+    SELECT ARRAY(SELECT name
+            FROM PERSON_COMPANY p INNER JOIN COMPANY ON (id = company)
+            WHERE person = person_id AND p.state = 'active'
+            ORDER BY name) INTO arr;
+    RETURN (CASE WHEN array_length(arr, 1) IS NULL THEN NULL ELSE arr END);
 END$$LANGUAGE plpgsql;
 
 /**

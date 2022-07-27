@@ -88,7 +88,7 @@ class CommentServiceTests {
                         "965555555",
                         "zeze@fixings.com",
                         listOf("employee"),
-                        listOf("water", "electricity"),
+                        listOf("electricity", "water"),
                         "active"
                     )
                 ),

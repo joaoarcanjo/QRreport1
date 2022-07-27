@@ -17,8 +17,8 @@ object PersonExpectedRepresentations {
             "\",\"email\":\"dani@isel.com\",\"roles\":[\"guest\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self" +
             "\"],\"href\":\"/v1/persons/b9063a7e-7ba4-42d3-99f4-1b00e00db55d\"}]},{\"class\":[\"person\"],\"rel\":[" +
             "\"item\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone" +
-            "\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"water\"," +
-            "\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/" +
+            "\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"electricity\"," +
+            "\"water\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/" +
             "c2b393be-d720-4494-874d-43765f5116cb\"}]},{\"class\":[\"person\"],\"rel\":[\"item\"],\"properties" +
             "\":{\"id\":\"d1ad1c02-9e4f-476e-8840-c56ae8aa7057\",\"name\":\"Pedro Miguens\",\"phone\":\"963333333" +
             "\",\"email\":\"pedro@isel.com\",\"roles\":[\"manager\"],\"state\":\"active\"},\"links\":[{\"rel\":[" +
@@ -84,7 +84,7 @@ object PersonExpectedRepresentations {
 
     const val FIRED_PERSON = "{\"class\":[\"person\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb" +
             "\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee" +
-            "\"],\"skills\":[\"water\",\"electricity\"],\"state\":\"inactive\",\"reason" +
+            "\"],\"skills\":[\"electricity\",\"water\"],\"state\":\"inactive\",\"reason" +
             "\":\"Bad behaviour\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be-d720-4494-874d-" +
             "43765f5116cb\"}]}"
 
@@ -106,8 +106,8 @@ object PersonExpectedRepresentations {
             "a2f-53cf-4546-af41-f0b3a20eac91\"}]}"
 
     const val ADD_ROLE_PERSON = "{\"class\":[\"person\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb" +
-            "\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee" +
-            "\",\"admin\"],\"skills\":[\"water\",\"electricity\"],\"companies\":[\"ISEL\"]" +
+            "\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"admin" +
+            "\",\"employee\"],\"skills\":[\"electricity\",\"water\"],\"companies\":[\"ISEL\"]" +
             ",\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b39" +
             "3be-d720-4494-874d-43765f5116cb\"}]}"
 
@@ -118,7 +118,7 @@ object PersonExpectedRepresentations {
 
     const val ADD_SKILL_EMPLOYEE = "{\"class\":[\"person\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765" +
             "f5116cb\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[" +
-            "\"employee\"],\"skills\":[\"water\",\"electricity\",\"window\"],\"state\":\"active\"},\"links\":[{" +
+            "\"employee\"],\"skills\":[\"electricity\",\"water\",\"window\"],\"state\":\"active\"},\"links\":[{" +
             "\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb\"}]}"
 
     const val REMOVE_SKILL_EMPLOYEE = "{\"class\":[\"person\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d" +
@@ -128,7 +128,7 @@ object PersonExpectedRepresentations {
 
     const val ASSIGN_PERSON_COMPANY = "{\"class\":[\"person\"],\"properties\":{\"id\":\"c2b393be-d720-4494-" +
             "874d-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com" +
-            "\",\"roles\":[\"employee\"],\"skills\":[\"water\",\"electricity\"],\"companies\":[\"ISEL\",\"IST" +
+            "\",\"roles\":[\"employee\"],\"skills\":[\"electricity\",\"water\"],\"companies\":[\"ISEL\",\"IST" +
             "\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":" +
             "\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb\"}]}"
 

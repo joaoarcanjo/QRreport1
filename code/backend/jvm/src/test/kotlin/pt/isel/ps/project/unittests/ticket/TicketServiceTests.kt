@@ -138,7 +138,7 @@ class TicketServiceTests {
                         "965555555",
                         "zeze@fixings.com",
                         listOf("employee"),
-                        listOf("water", "electricity"),
+                        listOf("electricity", "water"),
                         ("active"))
                 ),
                 CommentDto(
@@ -178,7 +178,7 @@ class TicketServiceTests {
             "965555555",
             "zeze@fixings.com",
             listOf("employee"),
-            listOf("water", "electricity"),
+            listOf("electricity", "water"),
             "active"
         )
         val ticketParent = null
@@ -297,7 +297,7 @@ class TicketServiceTests {
                     "965555555",
                     "zeze@fixings.com",
                     listOf("employee"),
-                    listOf("water", "electricity"),
+                    listOf("electricity", "water"),
                     "active"
                 )
             ), 1
@@ -329,7 +329,7 @@ class TicketServiceTests {
                 "965555555",
                 "zeze@fixings.com",
                 listOf("employee"),
-                listOf("water", "electricity"),
+                listOf("electricity", "water"),
                 "active"
             )
         )
@@ -359,7 +359,7 @@ class TicketServiceTests {
                 "965555555",
                 "zeze@fixings.com",
                 listOf("employee"),
-                listOf("water", "electricity"),
+                listOf("electricity", "water"),
                 "active"
             )
         )

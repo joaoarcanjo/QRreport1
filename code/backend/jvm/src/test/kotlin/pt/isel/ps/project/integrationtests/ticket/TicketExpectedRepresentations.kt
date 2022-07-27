@@ -27,7 +27,7 @@ object TicketExpectedRepresentations {
             " arranjo, vou precisar de uma nova.\"},\"entities\":[{\"class\":[" +
             "\"person\"],\"rel\":[\"comment-author\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb" +
             "\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee" +
-            "\"],\"skills\":[\"water\",\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href" +
+            "\"],\"skills\":[\"electricity\",\"water\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href" +
             "\":\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb\"}]}],\"actions\":[],\"links\":[{\"rel\":[\"self" +
             "\"],\"href\":\"/v1/tickets/1/comments/1\"}]},{\"class\":[\"comment\"],\"rel\":[\"item\"],\"properties" +
             "\":{\"id\":2,\"comment\":\"Tente fazer o possível para estancar a fuga.\"}," +
@@ -58,7 +58,7 @@ object TicketExpectedRepresentations {
             "\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/b555b6fc-b904-4bd9-8c2b-4895738a437c\"}]},{" +
             "\"class\":[\"person\"],\"rel\":[\"ticket-employee\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d" +
             "-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email\":\"zeze@fixings.com\",\"roles" +
-            "\":[\"employee\"],\"skills\":[\"water\",\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[" +
+            "\":[\"employee\"],\"skills\":[\"electricity\",\"water\"],\"state\":\"active\"},\"links\":[{\"rel\":[" +
             "\"self\"],\"href\":\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb\"}]}],\"actions\":[{\"name\":" +
             "\"update-state\",\"title\":\"Update state\",\"method\":\"PUT\",\"href\":\"/v1/tickets/1/state\"," +
             "\"type\":\"application/json\",\"properties\":[{\"name\":\"state\",\"type\":\"number\"}]},{\"name\":" +
@@ -88,8 +88,8 @@ object TicketExpectedRepresentations {
     const val GET_SPECIFIC_EMPLOYEES = "{\"class\":[\"person\",\"collection\"],\"properties\":{\"pageIndex\":1," +
             "\"pageMaxSize\":10,\"collectionSize\":1},\"entities\":[{\"class\":[\"person\"],\"rel\":[\"item\"]," +
             "\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone\":" +
-            "\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"water\"," +
-            "\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be" +
+            "\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"electricity\"," +
+            "\"water\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be" +
             "-d720-4494-874d-43765f5116cb\"}]}],\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/2/employee?" +
             "page=1\"},{\"rel\":[\"pagination\"],\"href\":\"/v1/tickets/2/employee{?page}\",\"templated\":true}]}"
 
@@ -98,8 +98,8 @@ object TicketExpectedRepresentations {
             "\"company\":\"ISEL\",\"building\":\"A\",\"room\":\"1 - Bathroom\",\"userState\":\"Not started\"," +
             "\"employeeState\":\"Not started\"},\"entities\":[{\"class\":[\"person\"],\"rel\":[\"ticket-employee" +
             "\"],\"properties\":{\"id\":\"c2b393be-d720-4494-874d-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone\":" +
-            "\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"water\"," +
-            "\"electricity\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be" +
+            "\"965555555\",\"email\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"electricity\"," +
+            "\"water\"],\"state\":\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be" +
             "-d720-4494-874d-43765f5116cb\"}]}],\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/2\"}]}"
 
     const val REMOVE_EMPLOYEE = "{\"class\":[\"ticket\"],\"properties\":{\"id\":1,\"subject\":\"Fuga de água\"," +
@@ -107,7 +107,7 @@ object TicketExpectedRepresentations {
             "\",\"room\":\"1 - Bathroom\",\"userState\":\"Waiting analysis\",\"employeeState\":\"To assign\"}," +
             "\"entities\":[{\"class\":[\"person\"],\"rel\":[\"ticket-employee\"],\"properties\":{\"id\":" +
             "\"c2b393be-d720-4494-874d-43765f5116cb\",\"name\":\"Zé Manuel\",\"phone\":\"965555555\",\"email" +
-            "\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"water\",\"electricity\"],\"state\":" +
+            "\":\"zeze@fixings.com\",\"roles\":[\"employee\"],\"skills\":[\"electricity\",\"water\"],\"state\":" +
             "\"active\"},\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/persons/c2b393be-d720-4494-874d-43765f5116cb" +
             "\"}]}],\"links\":[{\"rel\":[\"self\"],\"href\":\"/v1/tickets/1\"}]}"
 
