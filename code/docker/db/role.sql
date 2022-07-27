@@ -31,9 +31,12 @@ CREATE OR REPLACE FUNCTION get_person_roles(person_id UUID)
 RETURNS TEXT[]
 AS
 $$
+DECLARE arr TEXT[];
 BEGIN
-    RETURN (SELECT array_agg((SELECT name FROM ROLE WHERE id = role))
-            FROM PERSON_ROLE WHERE person = person_id);
+    SELECT ARRAY(SELECT name FROM PERSON_ROLE INNER JOIN ROLE ON (id = role)
+        WHERE person = person_id
+        ORDER BY name) INTO arr;
+    RETURN (CASE WHEN array_length(arr, 1) IS NULL THEN NULL ELSE arr END);
 END$$LANGUAGE plpgsql;
 
 /**
@@ -56,9 +59,14 @@ CREATE OR REPLACE FUNCTION get_employee_skills(person_id UUID)
 RETURNS TEXT[]
 AS
 $$
+DECLARE arr TEXT[];
 BEGIN
-    RETURN (SELECT array_agg((SELECT name FROM CATEGORY WHERE id = p.category))
-            FROM PERSON_SKILL p WHERE person = person_id);
+    SELECT ARRAY(SELECT name
+        FROM PERSON_SKILL p INNER JOIN CATEGORY ON(id = category)
+        WHERE person = person_id
+        ORDER BY name) INTO arr;
+
+    RETURN (CASE WHEN array_length(arr, 1) IS NULL THEN NULL ELSE arr END);
 END$$LANGUAGE plpgsql;
 
 /**

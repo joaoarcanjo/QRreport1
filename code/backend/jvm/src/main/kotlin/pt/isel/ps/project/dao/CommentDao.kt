@@ -14,7 +14,7 @@ import java.util.*
 
 interface CommentDao {
     @Transaction(TransactionIsolationLevel.SERIALIZABLE)
-    @SqlQuery("SELECT get_comments(:ticketId, null, $COMMENT_PAGE_MAX_SIZE, :skip);")
+    @SqlQuery("SELECT get_comments(:ticketId, 'DESC', $COMMENT_PAGE_MAX_SIZE, :skip);")
     fun getComments(ticketId: Long, skip: Int): String
 
     @Transaction(TransactionIsolationLevel.REPEATABLE_READ)
