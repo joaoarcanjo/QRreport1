@@ -22,7 +22,7 @@ interface PersonDao {
 
     @Transaction(TransactionIsolationLevel.SERIALIZABLE)
     @OutParameter(name = PERSON_REP, sqlType = java.sql.Types.OTHER)
-    @SqlCall("CALL create_person(:$PERSON_REP, :role, :name, :email, :password, :phone, :company, :skill);")
+    @SqlCall("CALL create_person(:$PERSON_REP, :role, :name, :email, :encPass, :phone, :company, :skill);")
     fun createPerson(@BindBean person: CreatePersonEntity, encPass: String): OutParameters
 
     @Transaction(TransactionIsolationLevel.REPEATABLE_READ)

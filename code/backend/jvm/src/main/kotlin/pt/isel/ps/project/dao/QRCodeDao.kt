@@ -10,7 +10,7 @@ import pt.isel.ps.project.model.qrcode.QRCODE_REP
 interface QRCodeDao {
     @Transaction(TransactionIsolationLevel.READ_COMMITTED)
     @SqlQuery("SELECT get_room_device_hash(:companyId, :buildingId, :roomId, :deviceId)")
-    fun getQRHash(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long): String
+    fun getQRHash(companyId: Long, buildingId: Long, roomId: Long, deviceId: Long): String?
 
     @Transaction(TransactionIsolationLevel.REPEATABLE_READ)
     @OutParameter(name = QRCODE_REP, sqlType = java.sql.Types.BOOLEAN)

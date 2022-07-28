@@ -89,7 +89,7 @@ export function SetEmployeeAction({action, setAction, setAuxAction, setPayload}:
             <div className='flex space-x-4'>
                 <button className='w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
                     onClick= {() => {setAction(action); setPayload(JSON.stringify({employeeId: employee?.id}))}}>
-                    Delive work
+                    Deliver work
                 </button>
             </div>
         </div>

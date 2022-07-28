@@ -68,7 +68,7 @@ export function CollectionPagination({ collection, setUrlFunction, templateUrl }
         const color = page === currentPage ? selectedColor : nonSelectedColor
         const rounded = selectRounded(page)
         pagination.push(
-        <button className= {`h-7 text-white ${color} ${rounded} px-3`} key={page} onClick={() => handleOnClick(page)} > {page} </button>)
+        <button className= {`h-7 text-white ${color} ${rounded} px-3`} key={page} onClick={() => {if (currentPage !== page) handleOnClick(page)}}> {page} </button>)
     }
 
     return (

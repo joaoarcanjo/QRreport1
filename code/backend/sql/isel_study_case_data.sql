@@ -1,8 +1,8 @@
 BEGIN;
     INSERT INTO CATEGORY(name,state) VALUES
         ('water', 'active'),
-        ('electricity', 'active'),
-        ('locksmith', 'active');
+        ('electricity', 'active');
+/*        ('locksmith', 'active');*/
 
     INSERT INTO ROLE(name) VALUES
         ('guest'),
@@ -19,7 +19,7 @@ BEGIN;
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d','João Arcanjo', '961215511', 'joni@isel.com', '$2a$10$FnfoD5NC8GRsZKBEH3pC5.Li3SYUOG1EyqAyiiSLJnnd2YHInWc..', 'active', 5),          --admin --joaopass
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057','Pedro Miguens', '963333333', 'pedro@isel.com', '$2a$10$xWfdwoxJBzp8J5M44GQ0veUBvJG3yacGdPGPXFgKKhoRaNhCMN6lG', 'active', 4), --manager --pedropass
         ('c2b393be-d720-4494-874d-43765f5116cb','Zé Manuel', '965555555', 'zeze@fixings.com', '$2a$10$DlrjEOpJUig4AqVV2yN2R.fSnSOmZwquBQuZi1cHLZStQMhpQjlmC', 'active', 3),   -- employee --zepass
-        ('c4bbd96f-a637-49c2-81ac-837308bfb7be','Idalvina Lopes', '935451444', 'idal@fixings.com', '$2a$10$DlrjEOpJUig4AqVV2yN2R.fSnSOmZwquBQuZi1cHLZStQMhpQjlmC', 'active', 3),   -- employee --zepass
+--         ('c4bbd96f-a637-49c2-81ac-837308bfb7be','Idalvina Lopes', '935451444', 'idal@fixings.com', '$2a$10$DlrjEOpJUig4AqVV2yN2R.fSnSOmZwquBQuZi1cHLZStQMhpQjlmC', 'active', 3),   -- employee --zepass
         ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d','Esmeralda Diamante', null, 'esme@alunos.isel.com', '$2a$10$mNL.45WNpF1W64J.RYKLYelmvmxIfAA7iTiOPQtfhEu7t4W62MKRy', 'active', 2); --user --danielapass
 
     INSERT INTO PERSON_ROLE(person, role) VALUES
@@ -28,18 +28,18 @@ BEGIN;
         ('1f6c1014-b029-4a75-b78c-ba09c8ea474d', 5), -- João Arcanjo / admin
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 4), -- Pedro Miguens / manager
         ('c2b393be-d720-4494-874d-43765f5116cb', 3), -- Zé Manuel / employee
-        ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 3), -- Idalvina Lopes / employee
+--         ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 3), -- Idalvina Lopes / employee
         ('b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 2); -- Esmeralda Diamante / user
 
     INSERT INTO PERSON_SKILL (person, category) VALUES
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1), -- Zé Manuel / water
-        ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 3); -- Idalvina Lopes / locksmith
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1); -- Zé Manuel / water
+--         ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 3); -- Idalvina Lopes / locksmith
 
     INSERT INTO PERSON_COMPANY (person, company, state) VALUES
         ('4b341de0-65c0-4526-8898-24de463fc315', 1, 'active'), -- Diogo Novo(manager), ISEL
         ('d1ad1c02-9e4f-476e-8840-c56ae8aa7057', 1, 'active'), -- Pedro Miguens(manager), ISEL
-        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'), -- Zé Manuel(employee), ISEL
-        ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 1, 'active'); -- Idalvina Lopes(employee), ISEL
+        ('c2b393be-d720-4494-874d-43765f5116cb', 1, 'active'); -- Zé Manuel(employee), ISEL
+--         ('c4bbd96f-a637-49c2-81ac-837308bfb7be', 1, 'active'); -- Idalvina Lopes(employee), ISEL
 
     INSERT INTO BUILDING(name, floors, state, company, manager) VALUES
         ('A', 6, 'active', 1, '4b341de0-65c0-4526-8898-24de463fc315'), -- Diogo Novo, ISEL
@@ -55,8 +55,8 @@ BEGIN;
         ('Sanita', 'active', 1),
         ('Urinol', 'active', 1),
         ('Poliban', 'active', 1),
-        ('Torneira de lavagem', 'active', 1),
-        ('Porta de cubíbulo', 'active', 1);
+        ('Torneira de lavagem', 'active', 1);
+--         ('Porta de cubíbulo', 'active', 1);
 
     INSERT INTO ANOMALY(device, anomaly) VALUES
         (1, 'Fora de serviço'),
@@ -80,8 +80,8 @@ BEGIN;
         (4, 'Fuga de água à entrada do equipamento'),
         (4, 'Fuga de água à saída do equipamento'),
         (4, 'Sem água'),
-        (5, 'Fuga de água'),
-        (6, 'Danificado/avariado/inexistente');
+        (5, 'Fuga de água');
+--         (6, 'Danificado/avariado/inexistente');
 
     INSERT INTO ROOM_DEVICE (room, device, qr_hash) VALUES
         (1, 1, '5abd4089b7921fd6af09d1cc1cbe5220'); -- (ISEL) 1 - Bathroom, Toilet1
@@ -110,8 +110,9 @@ BEGIN;
         (6, 4),  -- Fixing -> Completed
         (6, 7);  -- Completed -> Archived
 
-    INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
-        ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1);
+/*    INSERT INTO TICKET (subject, description, room, device, reporter, employee_state) VALUES
+        ('Fuga de água', 'A sanita está a deixar sair água por baixo', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1),
+        ('Torneira avariada (sem água)/danificada', 'Torneira avariada (sem água)/danificada', 1, 1, 'b9063a7e-7ba4-42d3-99f4-1b00e00db55d', 1);*/
 
     /*INSERT INTO FIXING_BY (person, ticket) VALUES
         ('c2b393be-d720-4494-874d-43765f5116cb', 1);*/ -- Zé Manuel | Fuga de água

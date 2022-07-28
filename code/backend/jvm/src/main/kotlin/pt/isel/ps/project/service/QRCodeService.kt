@@ -22,6 +22,7 @@ class QRCodeService(val qrcodeDao: QRCodeDao) {
     fun getQRCode(user: AuthPerson, companyId: Long, buildingId: Long, roomId: Long, deviceId: Long): ByteArrayResource {
         if (isManager(user) && !belongsToCompany(user, companyId)) throw ForbiddenException(ACCESS_DENIED)
         val hash = qrcodeDao.getQRHash(companyId, buildingId, roomId, deviceId)
+        if (hash == null) qrcodeDao.createQRHash(companyId, buildingId, roomId, deviceId, getHash(roomId, deviceId))
         return QRCode.generate("$REPORT_FORM_URL$hash")
     }
 
